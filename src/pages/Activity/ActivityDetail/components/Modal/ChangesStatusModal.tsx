@@ -1,6 +1,10 @@
 import { useRequest } from "ahooks";
-import { Form, Modal, notification, Select } from "antd";
+import { Button, Form, Modal, notification, Popconfirm, Select, Space, Typography } from "antd";
 import { useState } from "react";
+
+import {
+  WarningOutlined,
+} from '@ant-design/icons';
 
 import { putRegistrant } from "../../../../../api/services/activity";
 import { handleError } from "../../../../../api/errorHandling";
@@ -12,6 +16,8 @@ type ChangeStatusModalProps = {
   toggle: (val?: boolean) => void;
   selectedRegistrationID: React.Key[];
 };
+
+const { Text } = Typography;
 
 const ChangeStatusModal = ({
   open,
@@ -47,10 +53,25 @@ const ChangeStatusModal = ({
     <Modal
       title="Ubah Status"
       open={open}
-      onOk={onOk}
       confirmLoading={addLoading}
       onCancel={() => toggle(false)}
-    >
+      footer={[
+        <Button key="back" onClick={() => toggle(false)}>
+          Batal
+        </Button>,
+        <Popconfirm
+          title="Ubah status peserta?"
+          description="Apakah anda yakin ingin mengubah status peserta?"
+          onConfirm={onOk}
+          okText="Ya"
+          cancelText="Tidak"
+        >
+          <Button key="submit" type="primary">
+            Ubah
+          </Button>
+        </Popconfirm>
+
+      ]}>
       <Form.Item>
         <Select
           options={ACTIVITY_REGISTRANT_STATUS_OPTIONS}
@@ -60,7 +81,14 @@ const ChangeStatusModal = ({
           allowClear
         />
       </Form.Item>
-    </Modal>
+      {
+        selectedStatus === ACTIVITY_REGISTRANT_STATUS_ENUM.LULUS_KEGIATAN && (<Space>
+          <WarningOutlined style={{ color: '#faad14' }} />
+          <Text type="warning">Aksi ini akan mengubah level dari peserta</Text>
+        </Space>)
+      }
+
+    </Modal >
   );
 };
 
