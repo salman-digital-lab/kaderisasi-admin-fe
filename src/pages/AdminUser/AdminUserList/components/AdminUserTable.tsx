@@ -6,6 +6,7 @@ import { useRequest } from "ahooks";
 import { getAdminUsers } from "../../../../api/services/adminuser";
 import EditAdminUser from "./modal/EditAdminUser";
 import { AdminUser } from "../../../../types/model/adminuser";
+
 const AdminUserTable = () => {
   const [adminUserParam, setAdminUserParam] = useState({
     page: 1,
