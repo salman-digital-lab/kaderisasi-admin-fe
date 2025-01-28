@@ -3,7 +3,6 @@ import useUrlState from "@ahooksjs/use-url-state";
 
 import AdminUserTable from "./components/AdminUserTable";
 import RolesTable from "./components/RolesTable";
-import PermissionsTable from "./components/PermissionsTable";
 
 export default function AdminUserList() {
   const [state, setState] = useUrlState({ tab: "1" });
@@ -18,12 +17,6 @@ export default function AdminUserList() {
       key: "2",
       label: "Role",
       children: <RolesTable />,
-    },
-
-    {
-      key: "3",
-      label: "Permission",
-      children: <PermissionsTable />,
     },
   ];
 

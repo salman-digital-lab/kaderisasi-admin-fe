@@ -38,14 +38,3 @@ export const TABLE_SCHEMA_ROLES: TableProps<Role>["columns"] = [
     dataIndex: "role_name",
   },
 ];
-
-export const TABLE_SCHEMA_PERMISSIONS: TableProps<Role>["columns"] = [
-  {
-    title: "Id",
-    dataIndex: "id",
-  },
-  {
-    title: "Nama",
-    dataIndex: "permission_code",
-  },
-];
