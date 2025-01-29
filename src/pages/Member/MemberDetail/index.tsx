@@ -40,6 +40,7 @@ type FormType = {
   major?: string;
   intake_year?: number;
   level?: number;
+  badges?: string[];
 };
 
 const MemberDetailPage = () => {
@@ -64,6 +65,7 @@ const MemberDetailPage = () => {
         province_id: data?.profile[0].province_id,
         level: data?.profile[0].level,
         gender: data?.profile[0].gender,
+        badges: data?.profile[0].badges,
       });
     },
   });
@@ -148,6 +150,7 @@ const MemberDetailPage = () => {
                   major: value.major,
                   level: value.level,
                   intake_year: value.intake_year,
+                  badges: JSON.stringify(value.badges || []),
                 },
               });
               toggleEdit();
@@ -157,6 +160,18 @@ const MemberDetailPage = () => {
               <Col span={8}>
                 <Form.Item name="name" label="Nama Lengkap">
                   <Input />
+                </Form.Item>
+                <Form.Item name="badges" label="Lencana">
+                  <Select
+                    mode="tags"
+                    style={{ width: "100%" }}
+                    options={
+                      data?.profile[0].badges?.map((badge) => ({
+                        label: badge,
+                        value: badge,
+                      })) || []
+                    }
+                  />
                 </Form.Item>
                 <Form.Item name="personal_id" label="Nomor Identitas">
                   <Input />
@@ -170,6 +185,8 @@ const MemberDetailPage = () => {
                 <Form.Item name="gender" label="Jenis Kelamin">
                   <Select style={{ width: "100%" }} options={GENDER_OPTION} />
                 </Form.Item>
+              </Col>
+              <Col span={8}>
                 <Form.Item name="province_id" label="Provinsi">
                   <Select
                     style={{ width: "100%" }}
@@ -179,8 +196,6 @@ const MemberDetailPage = () => {
                     }))}
                   />
                 </Form.Item>
-              </Col>
-              <Col span={8}>
                 <Form.Item name="university_id" label="Perguruan Tinggi">
                   <Select
                     style={{ width: "100%" }}

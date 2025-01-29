@@ -31,7 +31,6 @@ const MainUniversity = () => {
   );
 
   const openModal = (id?: number, name?: string) => {
-    console.log("edit", editItem);
     id && name ? setEditItem({ id, name }) : setEditItem({ id: 0, name: "" });
     toggle();
   };

@@ -87,7 +87,6 @@ export const generateTableSchema = (mandatoryProfileData: string[]) => {
     return SCHEMA_MAP[val];
   });
 
-  console.log(additionalProfileData);
   return [...REGISTRANT_TABLE_SCHEMA, ...additionalProfileData];
 };
 

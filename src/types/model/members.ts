@@ -11,6 +11,7 @@ export type Member = {
   personal_id: string | undefined;
   gender: GENDER | undefined;
   level: USER_LEVEL_ENUM | undefined;
+  badges: string[] | undefined;
 
   whatsapp: string | undefined;
   line: string | undefined;
