@@ -13,6 +13,7 @@ export type getProfilesReq = {
   per_page: string;
   page: string;
   search?: string;
+  badge?: string;
 };
 
 export type getProfileResp = {

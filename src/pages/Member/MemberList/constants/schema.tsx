@@ -1,4 +1,4 @@
-import { TableProps } from "antd";
+import { TableProps, Tag } from "antd";
 import { Link } from "react-router-dom";
 
 import { UniversityRender } from "../../../../components/render/UniversityRender";
@@ -18,6 +18,11 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
     dataIndex: "publicUser",
     key: "email",
     render: (value) => value?.email,
+  },
+  {
+    title: "Lencana",
+    dataIndex: "badges",
+    render: (values: string[]) => values.map((value) => <Tag>{value}</Tag>),
   },
   {
     title: "Perguruan Tinggi",

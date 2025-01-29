@@ -12,6 +12,7 @@ const MemberListPage = () => {
     page: 1,
     per_page: 10,
     name: "",
+    badge: "",
   });
 
   const { data, loading } = useRequest(
@@ -20,6 +21,7 @@ const MemberListPage = () => {
         per_page: String(parameters.per_page),
         page: String(parameters.page),
         search: parameters.name,
+        badge: parameters.badge,
       }),
     {
       refreshDeps: [parameters],
