@@ -109,7 +109,7 @@ const RegistrantDetail = () => {
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       <Button>
-        <Link to={`/activity/${registrantData?.activity_id}?tab=4`}>
+        <Link to={`/activity/${registrantData?.activity_id}?tab=5`}>
           <ArrowLeftOutlined /> Kembali
         </Link>
       </Button>
