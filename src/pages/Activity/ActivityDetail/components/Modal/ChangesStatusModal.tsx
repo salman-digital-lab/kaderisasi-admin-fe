@@ -1,10 +1,17 @@
 import { useRequest } from "ahooks";
-import { Button, Form, Modal, notification, Popconfirm, Select, Space, Typography } from "antd";
+import {
+  Button,
+  Flex,
+  Form,
+  Modal,
+  notification,
+  Popconfirm,
+  Select,
+  Typography,
+} from "antd";
 import { useState } from "react";
 
-import {
-  WarningOutlined,
-} from '@ant-design/icons';
+import { WarningOutlined } from "@ant-design/icons";
 
 import { putRegistrant } from "../../../../../api/services/activity";
 import { handleError } from "../../../../../api/errorHandling";
@@ -69,9 +76,9 @@ const ChangeStatusModal = ({
           <Button key="submit" type="primary">
             Ubah
           </Button>
-        </Popconfirm>
-
-      ]}>
+        </Popconfirm>,
+      ]}
+    >
       <Form.Item>
         <Select
           options={ACTIVITY_REGISTRANT_STATUS_OPTIONS}
@@ -81,14 +88,16 @@ const ChangeStatusModal = ({
           allowClear
         />
       </Form.Item>
-      {
-        selectedStatus === ACTIVITY_REGISTRANT_STATUS_ENUM.LULUS_KEGIATAN && (<Space>
-          <WarningOutlined style={{ color: '#faad14' }} />
-          <Text type="warning">Aksi ini akan mengubah level dari peserta</Text>
-        </Space>)
-      }
-
-    </Modal >
+      {selectedStatus === ACTIVITY_REGISTRANT_STATUS_ENUM.LULUS_KEGIATAN && (
+        <Flex gap={8} align="baseline">
+          <WarningOutlined style={{ color: "#faad14" }} />
+          <Text type="warning">
+            Aksi ini akan mengubah level dan lencana dari peserta. Efek aksi ini
+            tidak dapat dikembalikan.
+          </Text>
+        </Flex>
+      )}
+    </Modal>
   );
 };
 

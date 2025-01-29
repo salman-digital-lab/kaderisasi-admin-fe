@@ -27,6 +27,7 @@ export type Activity = {
   id: number;
   name: string;
   slug: string;
+  badge?: string;
   description: string;
   activity_start: string;
   activity_end: string;

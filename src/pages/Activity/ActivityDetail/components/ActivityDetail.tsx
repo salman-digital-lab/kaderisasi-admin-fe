@@ -35,6 +35,7 @@ const { Title } = Typography;
 type FormType = {
   name: string;
   minimum_level: USER_LEVEL_ENUM;
+  badge?: string;
   activity_category: ACTIVITY_CATEGORY_ENUM;
   activity_type: ACTIVITY_TYPE_ENUM;
   registration_date: (dayjs.Dayjs | undefined)[];
@@ -72,6 +73,7 @@ const ActivityDetail = () => {
           data?.activity_end ? dayjs(data?.activity_end) : undefined,
         ],
         is_published: Boolean(data?.is_published),
+        badge: data?.badge,
       });
     },
   });
@@ -108,6 +110,7 @@ const ActivityDetail = () => {
         layout="vertical"
         disabled={!isEdit}
         onFinish={async (value) => {
+          console.log(value);
           await runAsync(Number(id), {
             ...value,
             slug: value.name.trim().toLowerCase().replaceAll(" ", "-"),
