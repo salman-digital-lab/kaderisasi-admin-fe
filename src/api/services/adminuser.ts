@@ -9,8 +9,6 @@ import {
   GetAdminUserResp,
   GetAdminUsersReq,
   GetAdminUsersResp,
-  GetRolesReq,
-  GetRolesResp,
   PutAdminUserReq,
   PutAdminUserResp,
 } from "../../types/services/adminuser";
@@ -19,26 +17,6 @@ export const getAdminUsers = async (props: GetAdminUsersReq) => {
   try {
     const urlSearch = new URLSearchParams(props).toString();
     const res = await axios.get<GetAdminUsersResp>("/admin-users?" + urlSearch);
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const getRoles = async (props: GetRolesReq) => {
-  try {
-    const urlSearch = new URLSearchParams(props).toString();
-    const res = await axios.get<GetRolesResp>("/roles?" + urlSearch);
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-export const getPermissions = async (props: GetRolesReq) => {
-  try {
-    const urlSearch = new URLSearchParams(props).toString();
-    const res = await axios.get<GetRolesResp>("/permissions?" + urlSearch);
     return res.data.data;
   } catch (error) {
     handleError(error);

@@ -1,5 +1,5 @@
 import { Button, Space, TableProps } from "antd";
-import { AdminUser, Role } from "../../../../types/model/adminuser";
+import { AdminUser } from "../../../../types/model/adminuser";
 import { renderAdminRole } from "../../../../constants/render";
 
 export const TABLE_SCHEMA = (
@@ -28,14 +28,3 @@ export const TABLE_SCHEMA = (
       ),
     },
   ];
-
-export const TABLE_SCHEMA_ROLES: TableProps<Role>["columns"] = [
-  {
-    title: "Id",
-    dataIndex: "id",
-  },
-  {
-    title: "Nama",
-    dataIndex: "role_name",
-  },
-];

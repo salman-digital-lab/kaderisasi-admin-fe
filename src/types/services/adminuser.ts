@@ -1,4 +1,4 @@
-import { AdminUser, Permission, Role } from "../model/adminuser";
+import { AdminUser } from "../model/adminuser";
 import { Pagination } from "./base";
 
 export type GetAdminUsersResp = {
@@ -14,31 +14,6 @@ export type GetAdminUsersReq = {
   page: string;
 };
 
-export type GetRolesResp = {
-  message: string;
-  data: {
-    meta: Pagination;
-    data: Role[];
-  };
-};
-
-export type GetRolesReq = {
-  per_page: string;
-  page: string;
-};
-
-export type GetPermissionsResp = {
-  message: string;
-  data: {
-    meta: Pagination;
-    data: Permission[];
-  };
-};
-
-export type GetPermissionsReq = {
-  per_page: string;
-  page: string;
-};
 
 export type GetAdminsUserReq = {
   id: string;

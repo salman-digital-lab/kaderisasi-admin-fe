@@ -14,14 +14,8 @@ export function renderUserLevel(level: USER_LEVEL_ENUM | undefined) {
       return "Jamaah";
     case USER_LEVEL_ENUM.AKTIVIS:
       return "Aktivis";
-    case USER_LEVEL_ENUM.AKTIVIS_KK:
-      return "Aktivis KK";
     case USER_LEVEL_ENUM.KADER:
       return "Kader";
-    case USER_LEVEL_ENUM.KADER_INVENTRA:
-      return "Kader Inventra";
-    case USER_LEVEL_ENUM.KADER_KOMPROF:
-      return "Kader Komprof";
     case USER_LEVEL_ENUM.KADER_LANJUT:
       return "Kader Lanjut";
     default:
@@ -37,12 +31,8 @@ export function renderActivityType(level: ACTIVITY_TYPE_ENUM) {
       return "Umum - Hanya Pendaftaran";
     case ACTIVITY_TYPE_ENUM.SSC:
       return "Spiritual Camp";
-    case ACTIVITY_TYPE_ENUM.KK:
-      return "Kelompok Keluarga";
     case ACTIVITY_TYPE_ENUM.LMD:
       return "LMD";
-    case ACTIVITY_TYPE_ENUM.INVENTRA:
-      return "Inventra";
     case ACTIVITY_TYPE_ENUM.KOMPROF:
       return "Komunitas Profesi";
     case ACTIVITY_TYPE_ENUM.SPECTRA:
