@@ -47,6 +47,13 @@ export const generateDefaultQuestion = (
         required: false,
         data: [],
       };
+    case "textarea":
+      return {
+        name: `question${Math.floor(Math.random() * 10000)}`,
+        type: "textarea",
+        label: "",
+        required: false,
+      };
     default:
       return {
         name: `question${Math.floor(Math.random() * 10000)}`,

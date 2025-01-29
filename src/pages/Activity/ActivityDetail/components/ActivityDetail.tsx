@@ -208,6 +208,22 @@ const ActivityDetail = () => {
             </Col>
           ) : null}
         </Row>
+
+        <Divider />
+        <Row>
+          <Title level={3}>Lain-Lain</Title>
+        </Row>
+        <Row gutter={48}>
+          <Col span={12}>
+            <Form.Item
+              name="badge"
+              label="Lencana Kegiatan"
+              tooltip="Hanya untuk kegiatan khusus. Lencana akan diberikan saat peserta lulus kegiatan (Tolong konsultasi dengan IT/Asmen jika perlu)"
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
     </Card>
   );
