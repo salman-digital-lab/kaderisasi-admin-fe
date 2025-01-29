@@ -1,8 +1,9 @@
 import { Modal, Select } from "antd";
-import { getRoles, putAdminUser } from "../../../../../api/services/adminuser";
+import { putAdminUser } from "../../../../../api/services/adminuser";
 import { useRequest } from "ahooks";
 import { useState } from "react";
 import { AdminUser } from "../../../../../types/model/adminuser";
+import { ADMIN_ROLE_OPTIONS } from "../../../../../constants/options";
 
 type EditAdminUserProps = {
   data: AdminUser | undefined;
@@ -10,18 +11,10 @@ type EditAdminUserProps = {
 };
 
 export default function EditAdminUser({ data, setData }: EditAdminUserProps) {
-  const { data: rolesData, loading } = useRequest(
-    () =>
-      getRoles({
-        per_page: "1000",
-        page: "1",
-      }),
-    {},
-  );
 
-  const { runAsync } = useRequest(putAdminUser, { manual: true });
+  const { runAsync, loading } = useRequest(putAdminUser, { manual: true });
 
-  const [newData, setNewData] = useState(data?.role_id);
+  const [newData, setNewData] = useState(data?.role);
 
   const handleChange = (val: number) => {
     setNewData(val);
@@ -31,9 +24,13 @@ export default function EditAdminUser({ data, setData }: EditAdminUserProps) {
     <Modal
       title="Ubah Role Akun Admin"
       open={!!data}
+      confirmLoading={loading}
       onOk={() => {
-        if (newData && data)
-          runAsync({ id: String(data.id), data: { role_id: newData } });
+        if (newData !== undefined && data) {
+          runAsync({ id: String(data.id), data: { role: newData } });
+          setNewData(undefined);
+          setData(undefined);
+        }
       }}
       onCancel={() => {
         setNewData(undefined);
@@ -43,12 +40,8 @@ export default function EditAdminUser({ data, setData }: EditAdminUserProps) {
       <Select
         style={{ width: "100%" }}
         onChange={handleChange}
-        loading={loading}
-        value={newData || data?.role_id}
-        options={rolesData?.data.map((item) => ({
-          label: item.role_name,
-          value: item.id,
-        }))}
+        value={newData || data?.role}
+        options={ADMIN_ROLE_OPTIONS}
       />
     </Modal>
   );

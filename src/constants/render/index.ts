@@ -2,7 +2,7 @@ import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,
 } from "../../types/constants/activity";
-import { USER_LEVEL_ENUM } from "../../types/constants/profile";
+import { ADMIN_ROLE_ENUM, USER_LEVEL_ENUM } from "../../types/constants/profile";
 import {
   PROBLEM_OWNER_ENUM,
   PROBLEM_STATUS_ENUM,
@@ -124,5 +124,18 @@ export function renderProblemStatusColor(
 
     default:
       "-";
+  }
+}
+
+export function renderAdminRole(code: ADMIN_ROLE_ENUM | undefined) {
+  switch (code) {
+    case ADMIN_ROLE_ENUM.SUPER_ADMIN:
+      return "Super Admin";
+    case ADMIN_ROLE_ENUM.ADMIN:
+      return "Admin";
+    case ADMIN_ROLE_ENUM.KONSELOR:
+      return "Konselor";
+    default:
+      return "-";
   }
 }

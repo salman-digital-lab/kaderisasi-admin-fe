@@ -1,5 +1,6 @@
 import { Button, Space, TableProps } from "antd";
 import { AdminUser, Role } from "../../../../types/model/adminuser";
+import { renderAdminRole } from "../../../../constants/render";
 
 export const TABLE_SCHEMA = (
   setEdittedRow: (val: AdminUser | undefined) => void,
@@ -15,6 +16,7 @@ export const TABLE_SCHEMA = (
     {
       title: "Role",
       dataIndex: "role",
+      render: (_, record) => renderAdminRole(record.role),
     },
     {
       title: "",

@@ -3,7 +3,7 @@ import {
   ACTIVITY_CATEGORY_ENUM,
   ACTIVITY_REGISTRANT_STATUS_ENUM,
 } from "../../types/constants/activity";
-import { USER_LEVEL_ENUM } from "../../types/constants/profile";
+import { ADMIN_ROLE_ENUM, USER_LEVEL_ENUM } from "../../types/constants/profile";
 
 export const USER_LEVEL_OPTIONS = [
   {
@@ -125,5 +125,20 @@ export const GENDER_OPTION = [
   {
     label: "Perempuan",
     value: "F",
+  },
+];
+
+export const ADMIN_ROLE_OPTIONS = [
+  {
+    label: "Super Admin",
+    value: ADMIN_ROLE_ENUM.SUPER_ADMIN,
+  },
+  {
+    label: "Admin",
+    value: ADMIN_ROLE_ENUM.ADMIN,
+  },
+  {
+    label: "Konselor",
+    value: ADMIN_ROLE_ENUM.KONSELOR,
   },
 ];

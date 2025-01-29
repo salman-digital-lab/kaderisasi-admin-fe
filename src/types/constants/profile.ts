@@ -12,3 +12,9 @@ export enum GENDER {
   Female = "F",
   Male = "M",
 }
+
+export enum ADMIN_ROLE_ENUM {
+  SUPER_ADMIN,
+  ADMIN,
+  KONSELOR = 20,
+}
