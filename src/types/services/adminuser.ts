@@ -12,6 +12,7 @@ export type GetAdminUsersResp = {
 export type GetAdminUsersReq = {
   per_page: string;
   page: string;
+  search: string;
 };
 
 

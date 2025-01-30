@@ -9,14 +9,15 @@ type FieldType = {
 type FilterProps = {
   setParameter: React.Dispatch<
     React.SetStateAction<{
+      page: number;
+      per_page: number;
       name: string;
     }>
   >;
 };
 
-const ProvinceFilter = ({ setParameter }: FilterProps) => {
+const AdminUserFilter = ({ setParameter }: FilterProps) => {
   const [form] = Form.useForm<FieldType>();
-  // const [state, { toggle }] = useToggle(false);
 
   return (
     <Card>
@@ -33,8 +34,8 @@ const ProvinceFilter = ({ setParameter }: FilterProps) => {
       >
         <Row gutter={16}>
           <Col span={6}>
-            <Form.Item label="Nama Provinsi" name="name">
-              <Input placeholder="Nama Provinsi" allowClear />
+            <Form.Item label="Email" name="name">
+              <Input placeholder="Email" allowClear />
             </Form.Item>
           </Col>
         </Row>
@@ -50,4 +51,4 @@ const ProvinceFilter = ({ setParameter }: FilterProps) => {
   );
 };
 
-export default ProvinceFilter;
+export default AdminUserFilter;

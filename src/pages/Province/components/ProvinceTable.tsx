@@ -29,12 +29,6 @@ const ProvinceTable = ({
         rowKey="id"
         columns={TABLE_SCHEMA(openModal)}
         dataSource={data?.data}
-        // pagination={{
-        //   current: data?.meta?.current_page,
-        //   pageSize: data?.meta?.per_page,
-        //   showSizeChanger: true,
-        //   total: data?.meta?.total,
-        // }}
         loading={loading}
         onChange={() =>
           setParameter((prev) => ({
