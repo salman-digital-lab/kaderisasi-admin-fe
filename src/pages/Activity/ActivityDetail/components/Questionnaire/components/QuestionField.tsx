@@ -41,7 +41,9 @@ const QuestionField = ({
   };
 
   const onChange = (checked: boolean) => {
-    console.log(`switch to ${checked}`);
+    handleChangeCard(question.name, (old) => {
+      return { ...old, required: checked };
+    });
   };
 
   return (
@@ -85,7 +87,10 @@ const QuestionField = ({
             <Col>
               <Space>
                 <Text>Wajib Diisi</Text>
-                <Switch defaultChecked onChange={onChange} />
+                <Switch
+                  defaultChecked={question.required}
+                  onChange={onChange}
+                />
               </Space>
             </Col>
           </Space>
