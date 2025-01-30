@@ -22,6 +22,7 @@ type ChangeStatusModalProps = {
   open: boolean;
   toggle: (val?: boolean) => void;
   selectedRegistrationID: React.Key[];
+  customSelectionStatus?: string[];
 };
 
 const { Text } = Typography;
@@ -30,6 +31,7 @@ const ChangeStatusModal = ({
   open,
   toggle,
   selectedRegistrationID,
+  customSelectionStatus,
 }: ChangeStatusModalProps) => {
   const { loading: addLoading, runAsync } = useRequest(putRegistrant, {
     manual: true,
@@ -81,7 +83,13 @@ const ChangeStatusModal = ({
     >
       <Form.Item>
         <Select
-          options={ACTIVITY_REGISTRANT_STATUS_OPTIONS}
+          options={[
+            ...ACTIVITY_REGISTRANT_STATUS_OPTIONS,
+            ...(customSelectionStatus?.map((val) => ({
+              label: val,
+              value: val,
+            })) || []),
+          ]}
           placeholder="Status Pendaftaran"
           onChange={(val) => setSelectedStatus(val)}
           value={selectedStatus}

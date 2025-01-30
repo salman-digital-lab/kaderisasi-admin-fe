@@ -44,6 +44,9 @@ const RegistrantList = () => {
   });
 
   const [mandatoryData, setMandatoryData] = useState<string[]>([]);
+  const [customSelectionStatus, setCustomSelectionStatus] = useState<string[]>(
+    [],
+  );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
@@ -70,6 +73,11 @@ const RegistrantList = () => {
           ),
         );
       }
+      if (data && data.additional_config.custom_selection_status) {
+        setCustomSelectionStatus(
+          data.additional_config.custom_selection_status,
+        );
+      }
     },
   });
 
@@ -87,6 +95,7 @@ const RegistrantList = () => {
         open={modalChangeStatusState}
         toggle={toggleChangeStatusModal}
         selectedRegistrationID={selectedRowKeys}
+        customSelectionStatus={customSelectionStatus}
       />
       <Card>
         <Form
@@ -110,7 +119,13 @@ const RegistrantList = () => {
             <Col span={6}>
               <Form.Item label="Status Pendaftaran" name="status">
                 <Select
-                  options={ACTIVITY_REGISTRANT_STATUS_OPTIONS}
+                  options={[
+                    ...ACTIVITY_REGISTRANT_STATUS_OPTIONS,
+                    ...(customSelectionStatus?.map((val) => ({
+                      label: val,
+                      value: val,
+                    })) || []),
+                  ]}
                   placeholder="Status Pendaftaran"
                   allowClear
                 />

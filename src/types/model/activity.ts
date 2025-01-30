@@ -41,7 +41,7 @@ export type Activity = {
   images: string[];
   additional_config: {
     additional_questionnaire?: Questionnaire[];
-    custom_selection_data?: string[];
+    custom_selection_status?: string[];
     mandatory_profile_data?: MandatoryProfileData[];
     images?: string[];
   };

@@ -41,6 +41,7 @@ type FormType = {
   registration_date: (dayjs.Dayjs | undefined)[];
   activity_date?: (dayjs.Dayjs | undefined)[];
   is_published: boolean;
+  custom_selection_status?: string[];
 };
 
 const ActivityDetail = () => {
@@ -54,29 +55,34 @@ const ActivityDetail = () => {
     manual: true,
   });
 
-  const { loading } = useRequest(() => getActivity(Number(id)), {
-    cacheKey: `activity-${id}`,
-    onSuccess: (data) => {
-      form.setFieldsValue({
-        name: data?.name,
-        minimum_level: data?.minimum_level,
-        activity_category: data?.activity_category,
-        activity_type: data?.activity_type,
-        registration_date: [
-          data?.registration_start
-            ? dayjs(data?.registration_start)
-            : undefined,
-          data?.registration_end ? dayjs(data?.registration_end) : undefined,
-        ],
-        activity_date: [
-          data?.activity_start ? dayjs(data?.activity_start) : undefined,
-          data?.activity_end ? dayjs(data?.activity_end) : undefined,
-        ],
-        is_published: Boolean(data?.is_published),
-        badge: data?.badge,
-      });
+  const { data: activityData, loading } = useRequest(
+    () => getActivity(Number(id)),
+    {
+      cacheKey: `activity-${id}`,
+      onSuccess: (data) => {
+        form.setFieldsValue({
+          name: data?.name,
+          minimum_level: data?.minimum_level,
+          activity_category: data?.activity_category,
+          activity_type: data?.activity_type,
+          registration_date: [
+            data?.registration_start
+              ? dayjs(data?.registration_start)
+              : undefined,
+            data?.registration_end ? dayjs(data?.registration_end) : undefined,
+          ],
+          activity_date: [
+            data?.activity_start ? dayjs(data?.activity_start) : undefined,
+            data?.activity_end ? dayjs(data?.activity_end) : undefined,
+          ],
+          is_published: Boolean(data?.is_published),
+          badge: data?.badge,
+          custom_selection_status:
+            data?.additional_config?.custom_selection_status,
+        });
+      },
     },
-  });
+  );
 
   return (
     <Card loading={loading}>
@@ -110,7 +116,6 @@ const ActivityDetail = () => {
         layout="vertical"
         disabled={!isEdit}
         onFinish={async (value) => {
-          console.log(value);
           await runAsync(Number(id), {
             ...value,
             slug: value.name.trim().toLowerCase().replaceAll(" ", "-"),
@@ -129,6 +134,13 @@ const ActivityDetail = () => {
               value.activity_date && value.activity_date[1]
                 ? value.activity_date[1].format("YYYY-MM-DD")
                 : undefined,
+            additional_config: {
+              ...activityData?.additional_config,
+              custom_selection_status:
+                value.custom_selection_status?.map((val) =>
+                  val.toUpperCase(),
+                ) || [],
+            },
           });
           notification.success({
             message: "Berhasil",
@@ -224,6 +236,26 @@ const ActivityDetail = () => {
               tooltip="Hanya untuk kegiatan khusus. Lencana akan diberikan saat peserta lulus kegiatan (Tolong konsultasi dengan IT/Asmen jika perlu)"
             >
               <Input />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="custom_selection_status"
+              label="Status Seleksi Tambahan"
+              tooltip="Hanya untuk kegiatan khusus yang memiliki alur seleksi tambahan! (Tolong konsultasi dengan IT/Asmen jika perlu)"
+            >
+              <Select
+                mode="tags"
+                style={{ width: "100%" }}
+                options={
+                  activityData?.additional_config?.custom_selection_status?.map(
+                    (val) => ({
+                      label: val,
+                      value: val,
+                    }),
+                  ) || []
+                }
+              />
             </Form.Item>
           </Col>
         </Row>
