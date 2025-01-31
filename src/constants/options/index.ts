@@ -4,6 +4,7 @@ import {
   ACTIVITY_REGISTRANT_STATUS_ENUM,
 } from "../../types/constants/activity";
 import { ADMIN_ROLE_ENUM, USER_LEVEL_ENUM } from "../../types/constants/profile";
+import { PROBLEM_STATUS_ENUM } from "../../types/constants/ruangcurhat";
 
 export const USER_LEVEL_OPTIONS = [
   {
@@ -120,5 +121,24 @@ export const ADMIN_ROLE_OPTIONS = [
   {
     label: "Konselor",
     value: ADMIN_ROLE_ENUM.KONSELOR,
+  },
+];
+
+export const PROBLEM_STATUS_OPTIONS = [
+  {
+    label: "Belum Ditangani",
+    value: PROBLEM_STATUS_ENUM.BELUM_DITANGANI,
+  },
+  {
+    label: "Sedang Ditangani",
+    value: PROBLEM_STATUS_ENUM.SEDANG_DITANGANI,
+  },
+  {
+    label: "Sudah Ditangani",
+    value: PROBLEM_STATUS_ENUM.SUDAH_DITANGANI,
+  },
+  {
+    label: "Batal",
+    value: PROBLEM_STATUS_ENUM.BATAL,
   },
 ];

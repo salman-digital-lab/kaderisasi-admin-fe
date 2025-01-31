@@ -14,7 +14,8 @@ import { renderNotification } from "../../constants/render";
 
 export const getRuangCurhats = async (props: GetRuangCurhatsReq) => {
   try {
-    const urlSearch = new URLSearchParams(props).toString();
+    const propsData = removeEmptyValueFromObj(props);
+    const urlSearch = new URLSearchParams(propsData).toString();
     const res = await axios.get<GetRuangCurhatsResp>(
       "/ruang-curhat?" + urlSearch,
     );

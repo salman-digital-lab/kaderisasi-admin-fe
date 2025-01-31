@@ -75,11 +75,11 @@ export function RuangCurhatDetail() {
       key: "3",
       label: "Nama",
       span: 3,
-      children: data?.owner_name,
+      children: data?.owner_name || data?.publicUser?.email,
     },
     {
       key: "5",
-      label: "Deskripsi",
+      label: "Deskripsi Masalah",
       span: 3,
       children: data?.problem_description,
     },

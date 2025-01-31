@@ -1,5 +1,6 @@
 import { Pagination } from "./base";
 import { RuangCurhatData } from "../model/ruangcurhat";
+import { PROBLEM_STATUS_ENUM } from "../constants/ruangcurhat";
 export type GetRuangCurhatsResp = {
   message: string;
   data: {
@@ -11,6 +12,7 @@ export type GetRuangCurhatsResp = {
 export type GetRuangCurhatsReq = {
   per_page: string;
   page: string;
+  status?: PROBLEM_STATUS_ENUM;
 };
 
 export type GetRuangCurhatReq = {

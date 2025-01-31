@@ -4,6 +4,7 @@ import { Card, Table } from "antd";
 import { Pagination } from "../../../../types/services/base";
 import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
 import { TABLE_SCHEMA } from "../constants/schema";
+import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
 
 interface DataTypeProps {
   data?: {
@@ -15,6 +16,7 @@ interface DataTypeProps {
     React.SetStateAction<{
       page: number;
       per_page: number;
+      status?: PROBLEM_STATUS_ENUM;
     }>
   >;
 }
