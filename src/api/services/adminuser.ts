@@ -9,6 +9,10 @@ import {
   GetAdminUserResp,
   GetAdminUsersReq,
   GetAdminUsersResp,
+  PostAdminUserReq,
+  PostAdminUserResp,
+  PutAdminUserPasswordReq,
+  PutAdminUserPasswordResp,
   PutAdminUserReq,
   PutAdminUserResp,
 } from "../../types/services/adminuser";
@@ -32,6 +36,22 @@ export const getAdminUser = async (props: GetAdminsUserReq) => {
   }
 };
 
+export const postAdminUser = async (props: PostAdminUserReq) => {
+  try {
+    const bodyData = removeEmptyValueFromObj(props);
+
+    const res = await axios.post<PostAdminUserResp>("/admin-users", bodyData);
+
+    notification.success({
+      message: "Berhasil",
+      description: renderNotification(res.data.message),
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const putAdminUser = async (props: PutAdminUserReq) => {
   try {
     const bodyData = removeEmptyValueFromObj(props.data);
@@ -46,6 +66,25 @@ export const putAdminUser = async (props: PutAdminUserReq) => {
       description: renderNotification(res.data.message),
     });
     return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const putAdminUserPassword = async (props: PutAdminUserPasswordReq) => {
+  try {
+    const bodyData = removeEmptyValueFromObj(props.data);
+
+    const res = await axios.put<PutAdminUserPasswordResp>(
+      "/admin-users/" + props.id + "/password",
+      bodyData,
+    );
+
+    notification.success({
+      message: "Berhasil",
+      description: renderNotification(res.data.message),
+    });
+    return;
   } catch (error) {
     handleError(error);
   }

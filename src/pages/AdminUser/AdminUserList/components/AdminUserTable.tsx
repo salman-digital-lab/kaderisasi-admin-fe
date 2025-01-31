@@ -4,6 +4,8 @@ import { TABLE_SCHEMA } from "../constants/schema";
 import EditAdminUser from "./modal/EditAdminUser";
 import { AdminUser } from "../../../../types/model/adminuser";
 import { Pagination } from "../../../../types/services/base";
+import { useState } from "react";
+import EditPasswordAdminUser from "./modal/EditPasswordAdminUser";
 
 interface AdminUserTableProps {
   data:
@@ -20,23 +22,24 @@ interface AdminUserTableProps {
       name: string;
     }>
   >;
-  setEditedRow: React.Dispatch<React.SetStateAction<AdminUser | undefined>>;
-  editedRow: AdminUser | undefined;
 }
 
 const AdminUserTable = ({
   data,
   loading,
   setAdminUserParam,
-  setEditedRow,
-  editedRow,
 }: AdminUserTableProps) => {
+  const [editedRow, setEditedRow] = useState<AdminUser | undefined>();
+  const [passwordRow, setPasswordRow] = useState<AdminUser | undefined>();
+
+
   return (
     <Card>
       <EditAdminUser data={editedRow} setData={setEditedRow} />
+      <EditPasswordAdminUser data={passwordRow} setData={setPasswordRow} />
       <Table
         rowKey="id"
-        columns={TABLE_SCHEMA(setEditedRow)}
+        columns={TABLE_SCHEMA(setEditedRow, setPasswordRow)}
         dataSource={data?.data}
         pagination={{
           current: data?.meta.current_page,

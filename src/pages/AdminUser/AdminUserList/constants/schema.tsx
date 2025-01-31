@@ -4,6 +4,7 @@ import { renderAdminRole } from "../../../../constants/render";
 
 export const TABLE_SCHEMA = (
   setEdittedRow: (val: AdminUser | undefined) => void,
+  setPasswordRow: (val: AdminUser | undefined) => void,
 ): TableProps<AdminUser>["columns"] => [
     {
       title: "Email",
@@ -23,7 +24,8 @@ export const TABLE_SCHEMA = (
       dataIndex: "id",
       render: (_, record) => (
         <Space>
-          <Button onClick={() => setEdittedRow(record)}>Ubah</Button>
+          <Button onClick={() => setEdittedRow(record)}>Ubah Role</Button>
+          <Button onClick={() => setPasswordRow(record)}>Ubah Password</Button>
         </Space>
       ),
     },

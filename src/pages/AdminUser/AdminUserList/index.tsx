@@ -4,7 +4,6 @@ import AdminUserTable from "./components/AdminUserTable";
 import { getAdminUsers } from "../../../api/services/adminuser";
 import { useRequest } from "ahooks";
 import { useState } from "react";
-import { AdminUser } from "../../../types/model/adminuser";
 import AdminUserFilter from "./components/AdminUserFilter";
 
 export default function AdminUserList() {
@@ -14,7 +13,6 @@ export default function AdminUserList() {
     name: "",
   });
 
-  const [editedRow, setEditedRow] = useState<AdminUser | undefined>();
 
   const { data, loading } = useRequest(
     () =>
@@ -34,8 +32,6 @@ export default function AdminUserList() {
         data={data}
         loading={loading}
         setAdminUserParam={setAdminUserParam}
-        setEditedRow={setEditedRow}
-        editedRow={editedRow}
       />
     </Flex>
   );

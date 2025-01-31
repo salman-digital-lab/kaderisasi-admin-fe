@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input, Col, Row, Button, Card, Form, Space } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import AddAdminUser from "./modal/AddAdminUser";
 
 type FieldType = {
   name?: string;
@@ -18,9 +19,11 @@ type FilterProps = {
 
 const AdminUserFilter = ({ setParameter }: FilterProps) => {
   const [form] = Form.useForm<FieldType>();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Card>
+      <AddAdminUser isOpen={isOpen} setIsOpen={setIsOpen} />
       <Form
         layout="vertical"
         form={form}
@@ -43,6 +46,13 @@ const AdminUserFilter = ({ setParameter }: FilterProps) => {
           <Space>
             <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
               Cari
+            </Button>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              onClick={() => setIsOpen(true)}
+            >
+              Tambah
             </Button>
           </Space>
         </Row>
