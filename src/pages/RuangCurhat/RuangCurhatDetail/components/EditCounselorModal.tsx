@@ -6,6 +6,7 @@ import { useRequest } from "ahooks";
 import { getAdminUsers } from "../../../../api/services/adminuser";
 import { PutRuangCurhatReq } from "../../../../types/services/ruangcurhat";
 import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
+
 type EditAdminUserProps = {
   counselorId?: number;
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function EditCounselorModal({
       getAdminUsers({
         per_page: "1000",
         page: "1",
+        search: "",
       }),
     {},
   );
@@ -46,6 +48,7 @@ export default function EditCounselorModal({
         if (newData)
           run({ id: id || "", data: { counselor_id: newData } }).then(() => {
             dataRefresh();
+            toggle();
           });
       }}
       onCancel={() => {
@@ -54,12 +57,14 @@ export default function EditCounselorModal({
       }}
     >
       <Select
+        showSearch
         style={{ width: "100%" }}
         onChange={handleChange}
+        optionFilterProp="label"
         loading={loading}
         value={newData || counselorId}
         options={rolesData?.data.map((item) => ({
-          label: item.display_name,
+          label: item.email,
           value: item.id,
         }))}
       />
