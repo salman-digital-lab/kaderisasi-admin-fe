@@ -4,6 +4,8 @@ import {
   getProfileResp,
   getProfilesReq,
   getProfilesResp,
+  putProfileAuthReq,
+  putProfileAuthResp,
   putProfileReq,
   putProfileResp,
 } from "../../types/services/member";
@@ -35,6 +37,23 @@ export const putProfile = async (id: string, props: putProfileReq) => {
   try {
     const bodyData = removeEmptyValueFromObj(props.data);
     const res = await axios.put<putProfileResp>(`/profiles/${id}`, bodyData);
+    notification.success({
+      message: "Berhasil",
+      description: renderNotification(res.data.message),
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const putProfileAuth = async (id: string, props: putProfileAuthReq) => {
+  try {
+    const bodyData = removeEmptyValueFromObj(props);
+    const res = await axios.put<putProfileAuthResp>(
+      `/profiles/auth/${id}`,
+      bodyData,
+    );
     notification.success({
       message: "Berhasil",
       description: renderNotification(res.data.message),

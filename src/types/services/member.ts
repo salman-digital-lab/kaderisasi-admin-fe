@@ -35,3 +35,13 @@ export type putProfileResp = {
   message: string;
   data: Member;
 };
+
+export type putProfileAuthReq = {
+  email?: string;
+  password?: string;
+};
+
+export type putProfileAuthResp = {
+  message: string;
+  data: { email?: string; password?: string };
+};

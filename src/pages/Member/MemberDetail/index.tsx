@@ -11,6 +11,7 @@ import {
   Skeleton,
   InputNumber,
   Select,
+  Divider,
 } from "antd";
 import {
   EditOutlined,
@@ -25,6 +26,9 @@ import { getUniversities } from "../../../api/services/university";
 import { GENDER_OPTION, USER_LEVEL_OPTIONS } from "../../../constants/options";
 import { getProvinces } from "../../../api/services/province";
 import { GENDER } from "../../../types/constants/profile";
+import EditAuthDataModal from "./components/EditAuthDataModal";
+import { useState } from "react";
+
 type FormType = {
   name?: string;
   gender?: GENDER;
@@ -48,8 +52,8 @@ const MemberDetailPage = () => {
   const [form] = Form.useForm<FormType>();
 
   const [isEdit, { toggle: toggleEdit }] = useToggle(false);
-
-  const { data, loading } = useRequest(() => getProfile(id || ""), {
+  const [isOpen, setIsOpen] = useState(false);
+  const { data, loading, refresh } = useRequest(() => getProfile(id || ""), {
     onSuccess: (data) => {
       form.setFieldsValue({
         name: data?.profile[0].name,
@@ -96,7 +100,30 @@ const MemberDetailPage = () => {
         </Link>
       </Button>
       <Card>
-        <Space direction="vertical">
+        <Flex justify="flex-end">
+          <EditAuthDataModal
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            id={data?.profile[0]?.publicUser?.id.toString() || ""}
+            refresh={refresh}
+          />
+          <Button onClick={() => setIsOpen(true)}>
+            Ubah Email dan Password
+          </Button>
+        </Flex>
+        <Descriptions
+          title="Data Autentikasi"
+          items={[
+            {
+              key: "1",
+              label: "Alamat Email",
+              children: data?.profile[0]?.publicUser?.email,
+            },
+          ]}
+        />
+      </Card>
+      <Card>
+        <Space direction="vertical" style={{ width: "100%" }}>
           <Flex justify="flex-end">
             {isEdit ? (
               <div>
@@ -120,18 +147,6 @@ const MemberDetailPage = () => {
               </Button>
             )}
           </Flex>
-
-          <Descriptions
-            title="Informasi Pengguna"
-            items={[
-              {
-                key: "1",
-                label: "Email",
-                children: data?.profile[0]?.publicUser?.email,
-              },
-            ]}
-          />
-
           <Form
             id="profile"
             layout="vertical"
@@ -156,11 +171,9 @@ const MemberDetailPage = () => {
               toggleEdit();
             }}
           >
+            <Divider>Informasi Akun</Divider>
             <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item name="name" label="Nama Lengkap">
-                  <Input />
-                </Form.Item>
+              <Col span={12}>
                 <Form.Item name="badges" label="Lencana">
                   <Select
                     mode="tags"
@@ -173,20 +186,31 @@ const MemberDetailPage = () => {
                     }
                   />
                 </Form.Item>
-                <Form.Item name="personal_id" label="Nomor Identitas">
-                  <Input />
-                </Form.Item>
+              </Col>
+              <Col span={12}>
                 <Form.Item name="level" label="Jenjang">
                   <Select
                     style={{ width: "100%" }}
                     options={USER_LEVEL_OPTIONS}
                   />
                 </Form.Item>
+              </Col>
+            </Row>
+            <Divider>Informasi Pribadi</Divider>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="name" label="Nama Lengkap">
+                  <Input />
+                </Form.Item>
+
                 <Form.Item name="gender" label="Jenis Kelamin">
                   <Select style={{ width: "100%" }} options={GENDER_OPTION} />
                 </Form.Item>
               </Col>
-              <Col span={8}>
+              <Col span={12}>
+                <Form.Item name="personal_id" label="Nomor Identitas">
+                  <Input />
+                </Form.Item>
                 <Form.Item name="province_id" label="Provinsi">
                   <Select
                     style={{ width: "100%" }}
@@ -196,6 +220,11 @@ const MemberDetailPage = () => {
                     }))}
                   />
                 </Form.Item>
+              </Col>
+            </Row>
+            <Divider>Informasi Pendidikan</Divider>
+            <Row gutter={16}>
+              <Col span={12}>
                 <Form.Item name="university_id" label="Perguruan Tinggi">
                   <Select
                     style={{ width: "100%" }}
@@ -208,20 +237,28 @@ const MemberDetailPage = () => {
                 <Form.Item name="major" label="Jurusan">
                   <Input />
                 </Form.Item>
+              </Col>
+              <Col span={12}>
                 <Form.Item name="intake_year" label="Angkatan">
                   <InputNumber style={{ width: "100%" }} />
                 </Form.Item>
+              </Col>
+            </Row>
+
+            <Divider>Informasi Kontak dan Sosial Media</Divider>
+            <Row gutter={16}>
+              <Col span={12}>
                 <Form.Item name="whatsapp" label="Whatsapp">
                   <Input />
                 </Form.Item>
-              </Col>
-              <Col span={8}>
                 <Form.Item name="instagram" label="Instagram">
                   <Input />
                 </Form.Item>
                 <Form.Item name="line" label="ID Line">
                   <Input />
                 </Form.Item>
+              </Col>
+              <Col span={12}>
                 <Form.Item name="tiktok" label="Tiktok">
                   <Input />
                 </Form.Item>
