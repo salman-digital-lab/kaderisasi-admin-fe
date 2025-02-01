@@ -67,47 +67,52 @@ export const generateDefaultQuestion = (
 export const PROFILE_DATA = [
   {
     key: 0,
+    fieldname: "province_id",
+    label: "Provinsi Domisili",
+  },
+  {
+    key: 1,
     fieldname: "personal_id",
     label: "Nomor Identitas",
   },
   {
-    key: 1,
+    key: 2,
     fieldname: "whatsapp",
     label: "Nomor Whatsapp",
   },
   {
-    key: 2,
+    key: 3,
     fieldname: "instagram",
     label: "Akun Instagram",
   },
   {
-    key: 3,
+    key: 4,
     fieldname: "linkedin",
     label: "Akun Linkedin",
   },
   {
-    key: 4,
+    key: 5,
     fieldname: "tiktok",
     label: "Akun Tiktok",
   },
   {
-    key: 5,
+    key: 6,
     fieldname: "line",
     label: "Akun Line",
   },
   {
-    key: 6,
+    key: 7,
     fieldname: "university_id",
     label: "Kampus/Universitas",
   },
   {
-    key: 7,
+    key: 8,
     fieldname: "major",
     label: "Jurusan",
   },
   {
-    key: 8,
-    fieldname: "province_id",
-    label: "Provinsi Domisili",
+    key: 9,
+    fieldname: "intake_year",
+    label: "Angkatan",
   },
 ];

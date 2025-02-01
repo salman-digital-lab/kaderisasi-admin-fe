@@ -32,18 +32,18 @@ const MainActivityDetail = () => {
     },
     {
       key: "4",
-      label: "Keperluan Data Diri",
+      label: "Form Data Diri",
       children: <MandatoryData />,
+    },
+    {
+      key: "6",
+      label: "Form Kuesioner Tambahan",
+      children: <QuestionnaireForm />,
     },
     {
       key: "5",
       label: "Peserta",
       children: <RegistrantList />,
-    },
-    {
-      key: "6",
-      label: "Kuestioner",
-      children: <QuestionnaireForm />,
     },
   ];
 
