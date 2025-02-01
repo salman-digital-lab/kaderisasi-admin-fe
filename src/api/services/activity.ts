@@ -135,6 +135,17 @@ export const getRegistrant = async (id: string | undefined) => {
   }
 };
 
+export const getExportRegistrants = async (id: string | undefined) => {
+  try {
+    const res = await axios.get<string>(
+      `/activities/${id}/registrations-export`,
+    );
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const putRegistrant = async (data: putRegistrantReq) => {
   const res = await axios.put(`/activity-registrations`, data);
   return res.data;

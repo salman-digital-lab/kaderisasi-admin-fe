@@ -9,12 +9,16 @@ import {
   Table,
   Select,
 } from "antd";
-import { SearchOutlined, PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusOutlined, EditOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useRequest, useToggle } from "ahooks";
 import { useParams } from "react-router-dom";
 
-import { getActivity, getRegistrants } from "../../../../api/services/activity";
+import {
+  getActivity,
+  getExportRegistrants,
+  getRegistrants,
+} from "../../../../api/services/activity";
 
 import { generateTableSchema } from "../constants/schema";
 
@@ -49,6 +53,21 @@ const RegistrantList = () => {
   );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  const handleExportRegistrants = async () => {
+    const data = await getExportRegistrants(id);
+    if (data) {
+      const blob = new Blob([data], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "export-pendaftar.csv";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }
+  };
 
   const { data, loading, refresh } = useRequest(
     () =>
@@ -140,6 +159,9 @@ const RegistrantList = () => {
                 disabled={!selectedRowKeys.length}
               >
                 Ubah Status
+              </Button>
+              <Button onClick={handleExportRegistrants} icon={<DownloadOutlined />}>
+                Export Peserta
               </Button>
               <Button onClick={() => toggleModal()} icon={<PlusOutlined />}>
                 Tambah Peserta
