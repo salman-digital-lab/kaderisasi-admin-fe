@@ -12,6 +12,7 @@ import {
   InputNumber,
   Select,
   Divider,
+  Image,
 } from "antd";
 import {
   EditOutlined,
@@ -111,16 +112,24 @@ const MemberDetailPage = () => {
             Ubah Email dan Password
           </Button>
         </Flex>
-        <Descriptions
-          title="Data Autentikasi"
-          items={[
-            {
-              key: "1",
-              label: "Alamat Email",
-              children: data?.profile[0]?.publicUser?.email,
-            },
-          ]}
-        />
+        <Space>
+          <Image
+            style={{ flex: 1 }}
+            width={200}
+            height={200}
+            src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data?.profile[0]?.picture}`}
+          />
+          <Descriptions
+            title="Data Akun"
+            items={[
+              {
+                key: "1",
+                label: "Alamat Email",
+                children: data?.profile[0]?.publicUser?.email,
+              },
+            ]}
+          />
+        </Space>
       </Card>
       <Card>
         <Space direction="vertical" style={{ width: "100%" }}>

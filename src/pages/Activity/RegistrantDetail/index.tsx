@@ -1,4 +1,4 @@
-import { Button, Card, Descriptions, DescriptionsProps, Space } from "antd";
+import { Button, Card, Descriptions, DescriptionsProps, Space, Image } from "antd";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
@@ -113,6 +113,12 @@ const RegistrantDetail = () => {
           <ArrowLeftOutlined /> Kembali
         </Link>
       </Button>
+      <Image
+        style={{ flex: 1 }}
+        width={200}
+        height={200}
+        src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${profileData?.profile[0]?.picture}`}
+      />
       <Card loading={loadingRegistrant || loadingProfile}>
         <Descriptions
           title="Info Peserta"

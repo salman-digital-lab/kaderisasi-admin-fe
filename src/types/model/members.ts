@@ -7,7 +7,7 @@ export type Member = {
   name: string;
   user_id: number | undefined;
   publicUser?: PublicUser;
-
+  picture: string | undefined;
   personal_id: string | undefined;
   gender: GENDER | undefined;
   level: USER_LEVEL_ENUM | undefined;
