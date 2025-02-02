@@ -46,37 +46,37 @@ const RegistrantDetail = () => {
       key: "2",
       label: "Jenis Kelamin",
       children:
-        profileData?.profile[0].gender === "F" ? "Perempuan" : "Laki-Laki",
+        profileData?.profile[0]?.gender === "F" ? "Perempuan" : "Laki-Laki",
     },
     {
       key: "3",
       label: "No KTP",
-      children: profileData?.profile[0].personal_id,
+      children: profileData?.profile[0]?.personal_id,
     },
     {
       key: "4",
       label: "No Whatsapp",
-      children: profileData?.profile[0].whatsapp,
+      children: profileData?.profile[0]?.whatsapp,
     },
     {
       key: "5",
       label: "ID Line",
-      children: profileData?.profile[0].line,
+      children: profileData?.profile[0]?.line,
     },
     {
       key: "6",
       label: "Instagram",
-      children: profileData?.profile[0].instagram,
+      children: profileData?.profile[0]?.instagram,
     },
     {
       key: "5",
       label: "Tiktok",
-      children: profileData?.profile[0].tiktok,
+      children: profileData?.profile[0]?.tiktok,
     },
     {
       key: "5",
       label: "Linkedin",
-      children: profileData?.profile[0].linkedin,
+      children: profileData?.profile[0]?.linkedin,
     },
     {
       key: "5",
@@ -92,17 +92,17 @@ const RegistrantDetail = () => {
     {
       key: "5",
       label: "Jurusan",
-      children: profileData?.profile[0].major,
+      children: profileData?.profile[0]?.major,
     },
     {
       key: "5",
       label: "Angkatan",
-      children: profileData?.profile[0].intake_year,
+      children: profileData?.profile[0]?.intake_year,
     },
     {
       key: "5",
       label: "Jenjang",
-      children: renderUserLevel(profileData?.profile[0].level),
+      children: renderUserLevel(profileData?.profile[0]?.level),
     },
   ];
 
