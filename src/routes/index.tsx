@@ -15,6 +15,7 @@ import RegistrantDetail from "../pages/Activity/RegistrantDetail";
 import RuangCurhatList from "../pages/RuangCurhat/RuangCurhatList";
 import { RuangCurhatDetail } from "../pages/RuangCurhat/RuangCurhatDetail";
 import AdminUserList from "../pages/AdminUser/AdminUserList";
+import { ADMIN_ROLE_PERMISSION } from "../constants/permissions";
 
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
@@ -23,6 +24,24 @@ const isAuthenticated = () => {
 // eslint-disable-next-line react-refresh/only-export-components
 const AuthUser = ({ element }: { element: ReactNode }) => {
   if (!isAuthenticated()) {
+    return <Navigate to="/login" />;
+  }
+
+  return <>{element}</>;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+const RoleUser = ({
+  element,
+  permission,
+}: {
+  element: ReactNode;
+  permission: string;
+}) => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}").user;
+  const role = user?.role as keyof typeof ADMIN_ROLE_PERMISSION;
+
+  if (!ADMIN_ROLE_PERMISSION[role].includes(permission)) {
     return <Navigate to="/login" />;
   }
 
@@ -48,11 +67,13 @@ const routes = createBrowserRouter([
       },
       {
         path: "member",
-        element: <MainMember />,
+        element: <RoleUser element={<MainMember />} permission="anggota" />,
       },
       {
         path: "member/:id",
-        element: <MainMemberDetail />,
+        element: (
+          <RoleUser element={<MainMemberDetail />} permission="anggota" />
+        ),
       },
       {
         path: "activity",
@@ -60,31 +81,43 @@ const routes = createBrowserRouter([
       },
       {
         path: "activity/:id",
-        element: <ActivityDetail />,
+        element: (
+          <RoleUser element={<ActivityDetail />} permission="kegiatan" />
+        ),
       },
       {
         path: "registrant/:id",
-        element: <RegistrantDetail />,
+        element: (
+          <RoleUser element={<RegistrantDetail />} permission="kegiatan" />
+        ),
       },
       {
         path: "universities",
-        element: <MainUniversity />,
+        element: (
+          <RoleUser element={<MainUniversity />} permission="pusatdata" />
+        ),
       },
       {
         path: "province",
-        element: <MainProvince />,
+        element: <RoleUser element={<MainProvince />} permission="pusatdata" />,
       },
       {
         path: "ruang-curhat",
-        element: <RuangCurhatList />,
+        element: (
+          <RoleUser element={<RuangCurhatList />} permission="ruangcurhat" />
+        ),
       },
       {
         path: "ruang-curhat/:id",
-        element: <RuangCurhatDetail />,
+        element: (
+          <RoleUser element={<RuangCurhatDetail />} permission="ruangcurhat" />
+        ),
       },
       {
         path: "/admin-users",
-        element: <AdminUserList />,
+        element: (
+          <RoleUser element={<AdminUserList />} permission="akunadmin" />
+        ),
       },
     ],
   },

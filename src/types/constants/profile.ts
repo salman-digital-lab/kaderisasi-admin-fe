@@ -13,5 +13,7 @@ export enum GENDER {
 export enum ADMIN_ROLE_ENUM {
   SUPER_ADMIN,
   ADMIN,
+  ASMEN,
+  KAPRO,
   KONSELOR = 20,
 }

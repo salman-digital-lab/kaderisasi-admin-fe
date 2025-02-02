@@ -28,7 +28,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
         theme="dark"
         mode="inline"
         defaultSelectedKeys={["1"]}
-        items={menuItems}
+        items={menuItems()}
       />
     </Sider>
   );

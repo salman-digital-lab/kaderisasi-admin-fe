@@ -3,7 +3,10 @@ import {
   ACTIVITY_CATEGORY_ENUM,
   ACTIVITY_REGISTRANT_STATUS_ENUM,
 } from "../../types/constants/activity";
-import { ADMIN_ROLE_ENUM, USER_LEVEL_ENUM } from "../../types/constants/profile";
+import {
+  ADMIN_ROLE_ENUM,
+  USER_LEVEL_ENUM,
+} from "../../types/constants/profile";
 import { PROBLEM_STATUS_ENUM } from "../../types/constants/ruangcurhat";
 
 export const USER_LEVEL_OPTIONS = [
@@ -117,6 +120,14 @@ export const ADMIN_ROLE_OPTIONS = [
   {
     label: "Admin",
     value: ADMIN_ROLE_ENUM.ADMIN,
+  },
+  {
+    label: "Asmen",
+    value: ADMIN_ROLE_ENUM.ASMEN,
+  },
+  {
+    label: "Kapro",
+    value: ADMIN_ROLE_ENUM.KAPRO,
   },
   {
     label: "Konselor",
