@@ -40,7 +40,7 @@ const RegistrantDetail = () => {
     {
       key: "1",
       label: "Nama Lengkap",
-      children: profileData?.profile[0].name,
+      children: profileData?.profile[0]?.name || "-",
     },
     {
       key: "2",
