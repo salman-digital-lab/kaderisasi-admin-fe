@@ -125,6 +125,10 @@ export function renderAdminRole(code: ADMIN_ROLE_ENUM | undefined) {
       return "Admin";
     case ADMIN_ROLE_ENUM.KONSELOR:
       return "Konselor";
+    case ADMIN_ROLE_ENUM.ASMEN:
+      return "Asmen";
+    case ADMIN_ROLE_ENUM.KAPRO:
+      return "Kapro";
     default:
       return "-";
   }
