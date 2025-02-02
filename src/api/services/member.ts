@@ -33,6 +33,15 @@ export const getProfile = async (id: string) => {
   }
 };
 
+export const getProfileByUserId = async (userId: string) => {
+  try {
+    const res = await axios.get<getProfileResp>(`/profiles/user/${userId}`);
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const putProfile = async (id: string, props: putProfileReq) => {
   try {
     const bodyData = removeEmptyValueFromObj(props.data);

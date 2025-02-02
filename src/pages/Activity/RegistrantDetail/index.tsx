@@ -4,7 +4,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 
 import { getActivity, getRegistrant } from "../../../api/services/activity";
-import { getProfile } from "../../../api/services/member";
+import { getProfileByUserId } from "../../../api/services/member";
 import { renderUserLevel } from "../../../constants/render";
 
 const RegistrantDetail = () => {
@@ -14,7 +14,7 @@ const RegistrantDetail = () => {
     getRegistrant(id),
   );
   const { data: profileData, loading: loadingProfile } = useRequest(
-    () => getProfile(registrantData?.user_id?.toString() || ""),
+    () => getProfileByUserId(registrantData?.user_id?.toString() || ""),
     {
       ready: Boolean(registrantData?.user_id),
     },
