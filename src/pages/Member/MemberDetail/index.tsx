@@ -80,7 +80,7 @@ const MemberDetailPage = () => {
   });
 
   const { data: universities } = useRequest(() =>
-    getUniversities({ per_page: "1000", page: "1" }),
+    getUniversities({ per_page: "10000", page: "1" }),
   );
 
   const { data: provinces } = useRequest(() => getProvinces({}));
@@ -222,7 +222,9 @@ const MemberDetailPage = () => {
                 </Form.Item>
                 <Form.Item name="province_id" label="Provinsi">
                   <Select
+                    showSearch
                     style={{ width: "100%" }}
+                    optionFilterProp="label"
                     options={provinces?.data.map((province) => ({
                       label: province.name,
                       value: province.id,
@@ -236,6 +238,8 @@ const MemberDetailPage = () => {
               <Col span={12}>
                 <Form.Item name="university_id" label="Perguruan Tinggi">
                   <Select
+                    showSearch
+                    optionFilterProp="label"
                     style={{ width: "100%" }}
                     options={universities?.data.map((university) => ({
                       label: university.name,
