@@ -14,10 +14,8 @@ import dayjs from "dayjs";
 export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
   {
     title: "Pendaftar Masalah",
-    dataIndex: "user_id",
-    render: (text, record) => (
-      <>{<Link to={`/member/${text}`}>{record.publicUser.email}</Link>}</>
-    ),
+    dataIndex: "publicUser",
+    render: (val) => val.email,
   },
   {
     title: "Kepemilikan Masalah",

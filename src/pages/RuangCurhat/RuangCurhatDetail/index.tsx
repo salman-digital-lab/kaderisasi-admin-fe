@@ -28,6 +28,7 @@ import {
 
 import { UPDATE_STATUS_MENU } from "./utils/constants";
 import EditCounselorModal from "./components/EditCounselorModal";
+import { getProfileByUserId } from "../../../api/services/member";
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -44,6 +45,13 @@ export function RuangCurhatDetail() {
     },
   );
 
+  const { data: profileData } = useRequest(
+    () => getProfileByUserId(String(data?.publicUser.id)),
+    {
+      ready: !!data?.publicUser.id,
+    },
+  );
+
   const { loading: editLoading, runAsync } = useRequest(putRuangCurhat, {
     manual: true,
   });
@@ -51,16 +59,26 @@ export function RuangCurhatDetail() {
   const basicInfo: DescriptionsProps["items"] = [
     {
       key: "1",
-      label: "Pendaftar ",
-      children: data?.publicUser.email,
+      label: "Email Pendaftar",
+      children: profileData?.profile[0].publicUser?.email,
     },
     {
       key: "2",
+      label: "Nama Pendaftar",
+      children: profileData?.profile[0].name,
+    },
+    {
+      key: "3",
+      label: "Nomor WhatsApp",
+      children: profileData?.profile[0].whatsapp,
+    },
+    {
+      key: "4",
       label: "Kepemilikan ",
       children: renderProblemOwner(data?.problem_ownership),
     },
     {
-      key: "4",
+      key: "5",
       label: "Status",
       children: (
         <Tag color={renderProblemStatusColor(data?.status)}>
