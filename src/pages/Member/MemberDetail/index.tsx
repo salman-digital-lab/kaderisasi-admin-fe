@@ -118,6 +118,7 @@ const MemberDetailPage = () => {
             width={200}
             height={200}
             src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data?.profile[0]?.picture}`}
+            fallback="https://placehold.co/200x200?text=Tidak ada gambar"
           />
           <Descriptions
             title="Data Akun"
