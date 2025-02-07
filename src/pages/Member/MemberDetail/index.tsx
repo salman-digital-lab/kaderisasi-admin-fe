@@ -79,8 +79,19 @@ const MemberDetailPage = () => {
     manual: true,
   });
 
-  const { data: universities } = useRequest(() =>
-    getUniversities({ per_page: "10000", page: "1" }),
+  const { data: universities } = useRequest(
+    () => getUniversities({ per_page: "10000", page: "1" }),
+    {
+      cacheKey: "universities_all",
+      cacheTime: 1000 * 60 * 60 * 24, // Cache for 24 hours
+      staleTime: 1000 * 60 * 60 * 24, // Consider data stale after 24 hours
+      setCache: (data) =>
+        localStorage.setItem("universities_all", JSON.stringify(data)),
+      getCache: () => {
+        const cache = localStorage.getItem("universities_all");
+        return cache ? JSON.parse(cache) : undefined;
+      },
+    },
   );
 
   const { data: provinces } = useRequest(() => getProvinces({}));
