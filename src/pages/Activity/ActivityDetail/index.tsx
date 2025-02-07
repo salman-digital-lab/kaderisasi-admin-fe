@@ -1,4 +1,4 @@
-import { Button, Space, Tabs } from "antd";
+import { Alert, Button, Space, Tabs } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import type { TabsProps } from "antd";
@@ -49,11 +49,18 @@ const MainActivityDetail = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <Button>
-        <Link to="/activity">
-          <ArrowLeftOutlined /> Kembali
-        </Link>
-      </Button>
+      <Space>
+        <Button>
+          <Link to="/activity">
+            <ArrowLeftOutlined /> Kembali
+          </Link>
+        </Button>
+        <Alert
+          message="Setiap kegiatan harus melalui proses review oleh Admin sebelum bisa dibuka ke publik. Silahkan konsultasi melalui Grup BMKA IT Support"
+          type="warning"
+          showIcon
+        />
+      </Space>
       <Tabs
         activeKey={state.tab}
         onTabClick={(key) => setState({ tab: key })}

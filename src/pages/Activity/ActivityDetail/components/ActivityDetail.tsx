@@ -29,6 +29,7 @@ import {
   ACTIVITY_TYPE_ENUM,
 } from "../../../../types/constants/activity";
 import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
+import { getUserRolePermission } from "../../../../functions";
 
 const { Title } = Typography;
 
@@ -154,12 +155,22 @@ const ActivityDetail = () => {
         </Row>
         <Row gutter={48}>
           <Col span={12}>
-            <Form.Item name="name" label="Nama Kegiatan" required>
+            <Form.Item
+              name="name"
+              label="Nama Kegiatan"
+              extra="Nama kegiatan tidak perlu mengandung kata yang redundan seperti Pendaftaran, Oprec dkk. Kecuali kegiatan yang bertipe Umum - Hanya Pendaftaran"
+              required
+            >
               <Input />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="minimum_level" label="Jenjang Minimum" required>
+            <Form.Item
+              name="minimum_level"
+              label="Jenjang Minimum"
+              tooltip="Jenjang minimum agar user dapat mendaftar kegiatan ini."
+              required
+            >
               <Select
                 placeholder="Pilih Minimum Jenjang"
                 options={USER_LEVEL_OPTIONS}
@@ -172,6 +183,7 @@ const ActivityDetail = () => {
             <Form.Item
               name="activity_category"
               label="Kategori Kegiatan"
+              tooltip="Jika bingung memilih kategori, silahkan konsultasikan dengan Asmen atau Admin IT"
               required
             >
               <Select
@@ -181,7 +193,13 @@ const ActivityDetail = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="activity_type" label="Tipe Kegiatan" required>
+            <Form.Item
+              name="activity_type"
+              label="Tipe Kegiatan"
+              extra="Jika belum tahu, silahkan pilih Umum"
+              tooltip="Pilihan tipe mempengaruhi jenjang pendaftar, Tolong baca Guideline atau tolong konsultasikan dengan Asmen atau Admin IT jika perlu"
+              required
+            >
               <Select
                 options={ACTIVITY_TYPE_OPTIONS}
                 placeholder="Pilih Tipe Kegiatan"
@@ -191,9 +209,18 @@ const ActivityDetail = () => {
         </Row>
         <Row>
           <Col span={12}>
-            <Form.Item name="is_published" valuePropName="checked">
-              <Checkbox>
-                <b>Tampilkan Di Website</b>
+            <Form.Item
+              name="is_published"
+              valuePropName="checked"
+              label="Tampilkan Di Website?"
+              tooltip="Aksi ini hanya dapat dilakukan oleh admin, silahkan konsultasi melalui Grup BMKA IT Support"
+            >
+              <Checkbox
+                disabled={
+                  !getUserRolePermission().includes("kegiatan.show") || !isEdit
+                }
+              >
+                <b>Tampilkan</b>
               </Checkbox>
             </Form.Item>
           </Col>
@@ -233,7 +260,7 @@ const ActivityDetail = () => {
             <Form.Item
               name="badge"
               label="Lencana Kegiatan"
-              tooltip="Hanya untuk kegiatan khusus. Lencana akan diberikan saat peserta lulus kegiatan (Tolong konsultasi dengan IT/Asmen jika perlu)"
+              tooltip="Hanya untuk kegiatan khusus. Lencana akan diberikan saat peserta lulus kegiatan (Tolong konsultasi melalui Grup BMKA IT Support jika perlu)"
             >
               <Input />
             </Form.Item>
@@ -241,8 +268,8 @@ const ActivityDetail = () => {
           <Col span={12}>
             <Form.Item
               name="custom_selection_status"
-              label="Status Seleksi Tambahan"
-              tooltip="Hanya untuk kegiatan khusus yang memiliki alur seleksi tambahan! (Tolong konsultasi dengan IT/Asmen jika perlu)"
+              label="Status Pendaftaran Kegiatan Tambahan"
+              tooltip="Hanya untuk kegiatan khusus yang memiliki seleksi lebih dari 1 tahap! (Tolong konsultasi melalui Grup BMKA IT Support jika perlu)"
             >
               <Select
                 mode="tags"
