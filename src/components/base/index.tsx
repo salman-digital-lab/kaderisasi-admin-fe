@@ -3,6 +3,7 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  ReadOutlined,
 } from "@ant-design/icons";
 import {
   Layout,
@@ -95,14 +96,27 @@ const AppLayout = () => {
                 height: 64,
               }}
             />
-            <Dropdown menu={menuProps}>
-              <Button size="large" style={{ marginRight: 24 }}>
-                <Space>
-                  <Text>Hello, {displayName}</Text>
-                  <DownOutlined />
-                </Space>
-              </Button>
-            </Dropdown>
+            <Space>
+              <Button
+                type="text"
+                icon={<ReadOutlined />}
+                href="https://docs.google.com/presentation/d/1zMyotxV5g0kMH42ak_FqZriUmG9UitNErM57wnNx5S8/edit?usp=sharing"
+                target="_blank"
+                style={{
+                  fontSize: "16px",
+                  width: 64,
+                  height: 64,
+                }}
+              />
+              <Dropdown menu={menuProps}>
+                <Button size="large" style={{ marginRight: 24 }}>
+                  <Space>
+                    <Text>Hello, {displayName}</Text>
+                    <DownOutlined />
+                  </Space>
+                </Button>
+              </Dropdown>
+            </Space>
           </Flex>
         </Header>
 
