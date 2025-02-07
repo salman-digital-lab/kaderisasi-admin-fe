@@ -3,7 +3,7 @@ import { PlusOutlined } from "@ant-design/icons";
 
 import type { GetProp, UploadFile, UploadProps } from "antd";
 
-import { Card, Typography, Upload, Image } from "antd";
+import { Card, Typography, Upload, Image, notification } from "antd";
 import { useParams } from "react-router-dom";
 import {
   getActivity,
@@ -11,6 +11,7 @@ import {
   putRemoveActivityImage,
 } from "../../../../api/services/activity";
 import { useRequest } from "ahooks";
+import { RcFile } from "antd/es/upload";
 
 const { Title } = Typography;
 
@@ -60,6 +61,40 @@ const ImageList = () => {
     </button>
   );
 
+  const handleUpload = async (file: RcFile) => {
+    const isCorrectImageType =
+      file.type === "image/jpeg" ||
+      file.type === "image/png" ||
+      file.type === "image/jpg" ||
+      file.type === "image/webp";
+    if (!isCorrectImageType) {
+      notification.error({
+        message: "Gagal",
+        description: "Hanya dapat mengupload file Gambar dengan format JPG, PNG, atau WebP",
+      });
+      return false;
+    }
+    const isLt2M = file.size / 1024 / 1024 < 1;
+    if (!isLt2M) {
+      notification.error({
+        message: "Gagal",
+        description: "Ukuran gambar harus lebih kecil dari 2MB",
+      });
+      return false;
+    }
+
+    const uploadKey = `${crypto.randomUUID()}.${file.name.split(".").pop()}`;
+    const uploadedFile = new File([file], uploadKey, {
+      type: file.type,
+    });
+    await postActivityImages(Number(id) || 0, uploadedFile);
+    setFileList([
+      ...fileList,
+      { ...file, originFileObj: file, name: uploadKey },
+    ]);
+    return false;
+  };
+
   return (
     <Card loading={loading}>
       <Title level={3}>Gambar/Poster</Title>
@@ -75,18 +110,7 @@ const ImageList = () => {
           newFileList.splice(index, 1);
           setFileList(newFileList);
         }}
-        beforeUpload={async (file) => {
-          const uploadKey = `${crypto.randomUUID()}.${file.name.split(".").pop()}`;
-          const uploadedFile = new File([file], uploadKey, {
-            type: file.type,
-          });
-          await postActivityImages(Number(id) || 0, uploadedFile);
-          setFileList([
-            ...fileList,
-            { ...file, originFileObj: file, name: uploadKey },
-          ]);
-          return false;
-        }}
+        beforeUpload={handleUpload}
       >
         {fileList.length >= 8 ? null : uploadButton}
       </Upload>
