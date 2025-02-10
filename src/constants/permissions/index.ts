@@ -8,6 +8,7 @@ export const ADMIN_ROLE_PERMISSION = {
     "kegiatan",
     "pusatdata",
     "kegiatan.show",
+    "leaderboard",
   ],
   [ADMIN_ROLE_ENUM.ADMIN]: [
     "ruangcurhat",
@@ -15,6 +16,7 @@ export const ADMIN_ROLE_PERMISSION = {
     "kegiatan",
     "pusatdata",
     "kegiatan.show",
+    "leaderboard",
   ],
   [ADMIN_ROLE_ENUM.ASMEN]: ["anggota", "kegiatan"],
   [ADMIN_ROLE_ENUM.KAPRO]: ["kegiatan"],
