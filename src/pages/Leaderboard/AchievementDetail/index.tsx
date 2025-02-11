@@ -170,12 +170,22 @@ const AchievementDetail = () => {
           <Button
             type="primary"
             icon={<DownloadOutlined />}
-            onClick={() => {
+            onClick={async () => {
               if (data?.proof) {
-                window.open(
-                  `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data.proof}`,
-                  "_blank",
-                );
+                try {
+                  const response = await fetch(`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data.proof}`);
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = data.proof;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                } catch (error) {
+                  console.error('Error downloading file:', error);
+                }
               }
             }}
           >
