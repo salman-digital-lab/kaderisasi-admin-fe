@@ -1,3 +1,4 @@
+import { ACHIEVEMENT_STATUS_ENUM } from "../../types/constants/achievement";
 import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,
@@ -151,5 +152,20 @@ export const PROBLEM_STATUS_OPTIONS = [
   {
     label: "Batal",
     value: PROBLEM_STATUS_ENUM.BATAL,
+  },
+];
+
+export const ACHIEVEMENT_STATUS_OPTIONS = [
+  {
+    label: "Menunggu Persetujuan",
+    value: ACHIEVEMENT_STATUS_ENUM.PENDING,
+  },
+  {
+    label: "Diterima",
+    value: ACHIEVEMENT_STATUS_ENUM.APPROVED,
+  },
+  {
+    label: "Ditolak",
+    value: ACHIEVEMENT_STATUS_ENUM.REJECTED,
   },
 ];

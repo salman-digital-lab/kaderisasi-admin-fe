@@ -1,3 +1,4 @@
+import { ACHIEVEMENT_STATUS_ENUM } from "../../types/constants/achievement";
 import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,
@@ -129,6 +130,36 @@ export function renderAdminRole(code: ADMIN_ROLE_ENUM | undefined) {
       return "Asmen";
     case ADMIN_ROLE_ENUM.KAPRO:
       return "Kapro";
+    default:
+      return "-";
+  }
+}
+
+export function renderAchievementStatus(
+  code: ACHIEVEMENT_STATUS_ENUM | undefined,
+) {
+  switch (code) {
+    case ACHIEVEMENT_STATUS_ENUM.PENDING:
+      return "Menunggu Persetujuan";
+    case ACHIEVEMENT_STATUS_ENUM.APPROVED:
+      return "Diterima";
+    case ACHIEVEMENT_STATUS_ENUM.REJECTED:
+      return "Ditolak";
+    default:
+      return "-";
+  }
+}
+
+export function renderAchievementStatusColor(
+  code: ACHIEVEMENT_STATUS_ENUM | undefined,
+) {
+  switch (code) {
+    case ACHIEVEMENT_STATUS_ENUM.PENDING:
+      return "blue";
+    case ACHIEVEMENT_STATUS_ENUM.APPROVED:
+      return "green";
+    case ACHIEVEMENT_STATUS_ENUM.REJECTED:
+      return "red";
     default:
       return "-";
   }
