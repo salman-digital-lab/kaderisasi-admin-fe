@@ -16,6 +16,7 @@ import RuangCurhatList from "../pages/RuangCurhat/RuangCurhatList";
 import { RuangCurhatDetail } from "../pages/RuangCurhat/RuangCurhatDetail";
 import AdminUserList from "../pages/AdminUser/AdminUserList";
 import AchievementList from "../pages/Leaderboard/AchievementList";
+import AchievementDetail from "../pages/Leaderboard/AchievementDetail";
 import { ADMIN_ROLE_PERMISSION } from "../constants/permissions";
 
 const isAuthenticated = () => {
@@ -124,6 +125,12 @@ const routes = createBrowserRouter([
         path: "/achievement",
         element: (
           <RoleUser element={<AchievementList />} permission="leaderboard" />
+        ),
+      },
+      {
+        path: "/achievement/:id",
+        element: (
+          <RoleUser element={<AchievementDetail />} permission="leaderboard" />
         ),
       },
     ],

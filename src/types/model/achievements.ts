@@ -16,6 +16,6 @@ export type Achievement = {
   approved_at: string;
   created_at: string;
   updated_at: string;
-  publicUser: PublicUser;
-  adminUser?: AdminUser;
+  user: PublicUser;
+  approver?: AdminUser;
 };

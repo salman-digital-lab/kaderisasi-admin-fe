@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_STATUS_ENUM } from "../../types/constants/achievement";
+import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../../types/constants/achievement";
 import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,
@@ -160,6 +160,21 @@ export function renderAchievementStatusColor(
       return "green";
     case ACHIEVEMENT_STATUS_ENUM.REJECTED:
       return "red";
+    default:
+      return "-";
+  }
+}
+
+export function renderAchievementType(
+  code: ACHIEVEMENT_TYPE_ENUM | undefined,
+) {
+  switch (code) {
+    case ACHIEVEMENT_TYPE_ENUM.KOMPETENSI:
+      return "Kompetensi";
+    case ACHIEVEMENT_TYPE_ENUM.ORGANISASI:
+      return "Organisasi";
+    case ACHIEVEMENT_TYPE_ENUM.AKADEMIK:
+      return "Akademik";
     default:
       return "-";
   }

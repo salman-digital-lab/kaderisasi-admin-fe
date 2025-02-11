@@ -29,14 +29,14 @@ export const TABLE_SCHEMA: TableProps<Achievement>["columns"] = [
     ),
   },
   {
-    title: "",
-    dataIndex: "id",
-    render: (text) => (
-      <Link to={`/achievement/${text}`}>
-        <Button icon={<ArrowRightOutlined />} iconPosition="end">
-          Lihat Detil
-        </Button>
-      </Link>
+    title: "Aksi",
+    key: "action",
+    render: (_, record) => (
+      <Button>
+        <Link to={`/achievement/${record.id}`}>
+          <ArrowRightOutlined /> Detail
+        </Link>
+      </Button>
     ),
   },
 ];
