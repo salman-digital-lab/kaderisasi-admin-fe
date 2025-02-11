@@ -121,7 +121,7 @@ const routes = createBrowserRouter([
         ),
       },
       {
-        path: "/achievements",
+        path: "/achievement",
         element: (
           <RoleUser element={<AchievementList />} permission="leaderboard" />
         ),

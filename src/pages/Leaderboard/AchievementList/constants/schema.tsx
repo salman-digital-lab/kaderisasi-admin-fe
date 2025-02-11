@@ -20,7 +20,7 @@ export const TABLE_SCHEMA: TableProps<Achievement>["columns"] = [
     title: "",
     dataIndex: "id",
     render: (text) => (
-      <Link to={`/achievements/${text}`}>
+      <Link to={`/achievement/${text}`}>
         <Button icon={<ArrowRightOutlined />} iconPosition="end">
           Lihat Detil
         </Button>

@@ -5,6 +5,7 @@ import {
   DatabaseOutlined,
   WechatOutlined,
   SettingOutlined,
+  TrophyOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
@@ -47,6 +48,14 @@ export const menuItems: () => MenuItem[] = () => {
       key: "/ruang-curhat",
       icon: <WechatOutlined />,
       label: <Link to="/ruang-curhat">Ruang Curhat</Link>,
+    });
+  }
+
+  if (permissions.includes("leaderboard")) {
+    menuItems.push({
+      key: "/achievement",
+      icon: <TrophyOutlined />,
+      label: <Link to="/achievement">Leaderboard</Link>,
     });
   }
 
