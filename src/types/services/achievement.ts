@@ -38,6 +38,7 @@ export type PutAchievementResp = {
 export type ApproveAchievementReq = {
   id: string;
   status: ACHIEVEMENT_STATUS_ENUM;
+  remark?: string;
   score?: number;
 };
 

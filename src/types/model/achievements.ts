@@ -7,6 +7,7 @@ export type Achievement = {
   user_id: number;
   name: string;
   description: string;
+  remark?: string;
   achievement_date: string;
   type: ACHIEVEMENT_TYPE_ENUM;
   score: number;

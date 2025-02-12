@@ -58,9 +58,10 @@ export const putAchievement = async (props: PutAchievementReq) => {
 export const approveAchievement = async (props: ApproveAchievementReq) => {
   const res = await axios.put<ApproveAchievementResp>(
     "/achievements/" + props.id + "/approve-reject",
-    { 
+    {
       status: props.status,
-      score: props.score 
+      score: props.score,
+      remark: props.remark,
     },
   );
   notification.success({

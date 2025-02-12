@@ -10,6 +10,7 @@ import {
   Modal,
   InputNumber,
   Form,
+  Input,
 } from "antd";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -47,7 +48,9 @@ const UPDATE_STATUS_MENU = [
 const AchievementDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm();
+  const [rejectForm] = Form.useForm();
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const { data, loading, refresh } = useRequest(() =>
     getAchievement({ id: id || "" }),
@@ -84,6 +87,11 @@ const AchievementDetail = () => {
         </Tag>
       ),
     },
+    {
+        key: "4",
+        label: "Catatan",
+        children: data?.remark,
+      },
   ];
 
   const achievementInfo: DescriptionsProps["items"] = [
@@ -133,25 +141,22 @@ const AchievementDetail = () => {
     if (status === ACHIEVEMENT_STATUS_ENUM.APPROVED) {
       setIsScoreModalOpen(true);
     } else {
-      Modal.confirm({
-        title: "Konfirmasi Penolakan",
-        content: "Apakah Anda yakin ingin menolak prestasi ini?",
-        onOk: () => {
-          handleApproveAchievement(status, 0);
-        },
-      });
+      setIsRejectModalOpen(true);
     }
   };
 
-  const handleApproveAchievement = (status: number, score: number) => {
+  const handleApproveAchievement = (status: number, score?: number, remark?: string) => {
     runAsync({
       id: id || "",
       status: status,
       score: score,
+      remark: remark,
     })
       .then(() => {
         setIsScoreModalOpen(false);
+        setIsRejectModalOpen(false);
         form.resetFields();
+        rejectForm.resetFields();
         refresh();
       })
       .catch((error) => {
@@ -263,6 +268,43 @@ const AchievementDetail = () => {
             ]}
           >
             <InputNumber style={{ width: "100%" }} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Masukkan Alasan Penolakan"
+        open={isRejectModalOpen}
+        onCancel={() => {
+          setIsRejectModalOpen(false);
+          rejectForm.resetFields();
+        }}
+        onOk={() => {
+          rejectForm.validateFields().then((values) => {
+            Modal.confirm({
+              title: "Konfirmasi Penolakan",
+              content: "Apakah Anda yakin ingin menolak prestasi ini?",
+              onOk: () => {
+                handleApproveAchievement(
+                  ACHIEVEMENT_STATUS_ENUM.REJECTED,
+                  undefined,
+                  values.remark,
+                );
+              },
+            });
+          });
+        }}
+      >
+        <Form form={rejectForm} layout="vertical">
+          <Form.Item
+            name="remark"
+            label="Alasan Penolakan"
+            rules={[
+              { required: true, message: "Mohon masukkan alasan penolakan" },
+              { min: 10, message: "Alasan penolakan minimal 10 karakter" },
+            ]}
+          >
+            <Input.TextArea rows={4} placeholder="Masukkan alasan penolakan prestasi ini" />
           </Form.Item>
         </Form>
       </Modal>
