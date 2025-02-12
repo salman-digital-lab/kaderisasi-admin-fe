@@ -56,17 +56,16 @@ export const putAchievement = async (props: PutAchievementReq) => {
 };
 
 export const approveAchievement = async (props: ApproveAchievementReq) => {
-  try {
-    const res = await axios.put<ApproveAchievementResp>(
-      "/achievements/" + props.id + "/approve-reject",
-      { status: props.status },
-    );
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-  }
+  const res = await axios.put<ApproveAchievementResp>(
+    "/achievements/" + props.id + "/approve-reject",
+    { 
+      status: props.status,
+      score: props.score 
+    },
+  );
+  notification.success({
+    message: "Berhasil",
+    description: renderNotification(res.data.message),
+  });
+  return res.data.data;
 };
