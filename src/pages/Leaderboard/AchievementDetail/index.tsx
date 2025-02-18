@@ -31,6 +31,7 @@ import {
   renderAchievementStatus,
   renderAchievementStatusColor,
   renderAchievementType,
+  renderUserLevel,
 } from "../../../constants/render";
 import { ACHIEVEMENT_STATUS_ENUM } from "../../../types/constants/achievement";
 import { handleError } from "../../../api/errorHandling";
@@ -80,18 +81,14 @@ const AchievementDetail = () => {
     },
     {
       key: "3",
-      label: "Status",
-      children: (
-        <Tag color={renderAchievementStatusColor(data?.status)}>
-          {renderAchievementStatus(data?.status)}
-        </Tag>
-      ),
+      label: "Kampus/Universitas",
+      children: profileData?.profile[0]?.university?.name || "-",
     },
     {
-        key: "4",
-        label: "Catatan",
-        children: data?.remark,
-      },
+      key: "4",
+      label: "Jenjang",
+      children: renderUserLevel(profileData?.profile[0]?.level),
+    },
   ];
 
   const achievementInfo: DescriptionsProps["items"] = [
@@ -125,11 +122,25 @@ const AchievementDetail = () => {
   const approvalInfo: DescriptionsProps["items"] = [
     {
       key: "1",
+      label: "Status",
+      children: (
+        <Tag color={renderAchievementStatusColor(data?.status)}>
+          {renderAchievementStatus(data?.status)}
+        </Tag>
+      ),
+    },
+    {
+      key: "2",
+      label: "Catatan",
+      children: data?.remark,
+    },
+    {
+      key: "3",
       label: "Disetujui Oleh",
       children: data?.approver?.display_name || "-",
     },
     {
-      key: "2",
+      key: "4",
       label: "Tanggal Persetujuan",
       children: data?.approved_at
         ? dayjs(data?.approved_at).format("DD MMMM YYYY")
@@ -145,7 +156,11 @@ const AchievementDetail = () => {
     }
   };
 
-  const handleApproveAchievement = (status: number, score?: number, remark?: string) => {
+  const handleApproveAchievement = (
+    status: number,
+    score?: number,
+    remark?: string,
+  ) => {
     runAsync({
       id: id || "",
       status: status,
@@ -193,7 +208,7 @@ const AchievementDetail = () => {
         </Space>
 
         <Card title="Informasi Dasar" loading={loading}>
-          <Descriptions items={basicInfo} bordered />
+          <Descriptions column={2} items={basicInfo} bordered />
         </Card>
         <Card title="Detail Prestasi" loading={loading}>
           <Space direction="vertical" size="middle" style={{ display: "flex" }}>
@@ -228,7 +243,7 @@ const AchievementDetail = () => {
         </Card>
 
         <Card title="Informasi Persetujuan" loading={loading}>
-          <Descriptions items={approvalInfo} bordered />
+          <Descriptions column={2} items={approvalInfo} bordered />
         </Card>
       </Space>
 
@@ -243,7 +258,16 @@ const AchievementDetail = () => {
           form.validateFields().then((values) => {
             Modal.confirm({
               title: "Konfirmasi Persetujuan",
-              content: `Apakah Anda yakin ingin menyetujui prestasi ini dengan skor ${values.score}?`,
+              content: (
+                <>
+                  <span
+                    style={{ color: "red" }}
+                  >{`Aksi anda tidak dapat diubah setelah disetujui`}</span>
+                  <br />
+                  <br />
+                  <span>{`Apakah anda yakin ingin menyetujui prestasi ini dengan skor `}<strong>{values.score}</strong>?</span>
+                </>
+              ),
               onOk: () => {
                 handleApproveAchievement(
                   ACHIEVEMENT_STATUS_ENUM.APPROVED,
@@ -304,7 +328,10 @@ const AchievementDetail = () => {
               { min: 10, message: "Alasan penolakan minimal 10 karakter" },
             ]}
           >
-            <Input.TextArea rows={4} placeholder="Masukkan alasan penolakan prestasi ini" />
+            <Input.TextArea
+              rows={4}
+              placeholder="Masukkan alasan penolakan prestasi ini"
+            />
           </Form.Item>
         </Form>
       </Modal>
