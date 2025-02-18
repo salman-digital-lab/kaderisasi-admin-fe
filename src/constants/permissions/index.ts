@@ -18,7 +18,8 @@ export const ADMIN_ROLE_PERMISSION = {
     "kegiatan.show",
     "leaderboard",
   ],
-  [ADMIN_ROLE_ENUM.ASMEN]: ["anggota", "kegiatan"],
+  [ADMIN_ROLE_ENUM.ASMEN]: ["anggota", "kegiatan", "leaderboard"],
   [ADMIN_ROLE_ENUM.KAPRO]: ["kegiatan"],
   [ADMIN_ROLE_ENUM.KONSELOR]: ["ruangcurhat"],
+  [ADMIN_ROLE_ENUM.LEADERBOARD]: ["leaderboard"],
 };

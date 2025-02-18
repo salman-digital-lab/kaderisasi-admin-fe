@@ -15,5 +15,6 @@ export enum ADMIN_ROLE_ENUM {
   ADMIN,
   ASMEN,
   KAPRO,
+  LEADERBOARD,
   KONSELOR = 20,
 }
