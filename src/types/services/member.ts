@@ -14,6 +14,7 @@ export type getProfilesReq = {
   page: string;
   search?: string;
   badge?: string;
+  email?: string;
 };
 
 export type getProfileResp = {

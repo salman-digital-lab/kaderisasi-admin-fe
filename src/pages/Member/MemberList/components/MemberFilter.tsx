@@ -4,6 +4,7 @@ import { SearchOutlined } from "@ant-design/icons";
 type FieldType = {
   fullname?: string;
   badge?: string;
+  email?: string;
 };
 
 type FilterProps = {
@@ -13,6 +14,7 @@ type FilterProps = {
       per_page: number;
       name: string;
       badge: string;
+      email: string;
     }>
   >;
 };
@@ -30,6 +32,7 @@ const MemberFilter = ({ setParameter }: FilterProps) => {
             ...prev,
             name: val.fullname || "",
             badge: val.badge || "",
+            email: val.email || "",
             page: 1,
           }))
         }
@@ -43,6 +46,11 @@ const MemberFilter = ({ setParameter }: FilterProps) => {
           <Col span={6}>
             <Form.Item label="Lencana" name="badge">
               <Input placeholder="Lencana" allowClear />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Email" name="email">
+              <Input placeholder="Email" allowClear />
             </Form.Item>
           </Col>
         </Row>

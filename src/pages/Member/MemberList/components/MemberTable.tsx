@@ -17,6 +17,7 @@ interface DataTypeProps {
       per_page: number;
       name: string;
       badge: string;
+      email: string;
     }>
   >;
 }
