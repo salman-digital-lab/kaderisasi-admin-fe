@@ -74,11 +74,26 @@ export function RuangCurhatDetail() {
     },
     {
       key: "4",
+      label: "Provinsi Domisili",
+      children: profileData?.profile[0].province?.name || "-",
+    },
+    {
+      key: "5",
+      label: "Universitas",
+      children: profileData?.profile[0].university?.name || "-",
+    },
+    {
+      key: "6",
+      label: "Angkatan",
+      children: profileData?.profile[0].intake_year || "-",
+    },
+    {
+      key: "7",
       label: "Kepemilikan ",
       children: renderProblemOwner(data?.problem_ownership),
     },
     {
-      key: "5",
+      key: "8",
       label: "Status",
       children: (
         <Tag color={renderProblemStatusColor(data?.status)}>

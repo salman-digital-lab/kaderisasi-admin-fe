@@ -142,6 +142,10 @@ export const PROBLEM_STATUS_OPTIONS = [
     value: PROBLEM_STATUS_ENUM.BELUM_DITANGANI,
   },
   {
+    label: "Sedang Memilih Jadwal",
+    value: PROBLEM_STATUS_ENUM.SEDANG_MEMILIH_JADWAL,
+  },
+  {
     label: "Sedang Ditangani",
     value: PROBLEM_STATUS_ENUM.SEDANG_DITANGANI,
   },

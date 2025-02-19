@@ -88,6 +88,8 @@ export function renderProblemStatus(code: PROBLEM_STATUS_ENUM | undefined) {
   switch (code) {
     case PROBLEM_STATUS_ENUM.BELUM_DITANGANI:
       return "Belum Ditangani";
+    case PROBLEM_STATUS_ENUM.SEDANG_MEMILIH_JADWAL:
+      return "Sedang Memilih Jadwal";
     case PROBLEM_STATUS_ENUM.SEDANG_DITANGANI:
       return "Sedang Ditangani";
     case PROBLEM_STATUS_ENUM.SUDAH_DITANGANI:
@@ -106,6 +108,8 @@ export function renderProblemStatusColor(
   switch (code) {
     case PROBLEM_STATUS_ENUM.BELUM_DITANGANI:
       return undefined;
+    case PROBLEM_STATUS_ENUM.SEDANG_MEMILIH_JADWAL:
+      return "yellow";
     case PROBLEM_STATUS_ENUM.SEDANG_DITANGANI:
       return "yellow";
     case PROBLEM_STATUS_ENUM.SUDAH_DITANGANI:

@@ -6,6 +6,10 @@ export const UPDATE_STATUS_MENU: MenuProps["items"] = [
     key: PROBLEM_STATUS_ENUM.BELUM_DITANGANI,
   },
   {
+    label: "Sedang Memilih Jadwal",
+    key: PROBLEM_STATUS_ENUM.SEDANG_MEMILIH_JADWAL,
+  },
+  {
     label: "Sedang Ditangani",
     key: PROBLEM_STATUS_ENUM.SEDANG_DITANGANI,
   },
