@@ -1,4 +1,5 @@
 import {
+  Alert,
   Col,
   DatePicker,
   Divider,
@@ -51,7 +52,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
         open={open}
         onCancel={onClose}
         cancelText="Batal"
-        okText="Simpan"
+        okText="Buat Kegiatan"
         okButtonProps={{ htmlType: "submit", form: "add-activity-form" }}
         confirmLoading={loading}
       >
@@ -147,6 +148,10 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
             ) : null}
           </Row>
         </Form>
+        <Alert
+          message="Pengisian gambar/poster dan deskripsi kegiatan dilakukan setelah anda membuat kegiatan"
+          showIcon
+        />
       </Modal>
     </>
   );

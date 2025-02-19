@@ -3,7 +3,9 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  QuestionCircleOutlined,
   ReadOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {
   Layout,
@@ -18,7 +20,6 @@ import {
 } from "antd";
 import SideMenu from "./SideMenu";
 import { Outlet } from "react-router-dom";
-import { DownOutlined } from "@ant-design/icons";
 import { logout } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -27,8 +28,21 @@ const { Text } = Typography;
 
 const items: MenuProps["items"] = [
   {
-    label: "Logout",
+    label: (
+      <a
+        href="https://docs.google.com/presentation/d/1zMyotxV5g0kMH42ak_FqZriUmG9UitNErM57wnNx5S8/edit?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Panduan Penggunaan
+      </a>
+    ),
     key: "1",
+    icon: <ReadOutlined />,
+  },
+  {
+    label: "Logout",
+    key: "2",
     icon: <LogoutOutlined />,
   },
 ];
@@ -39,13 +53,15 @@ const AppLayout = () => {
 
   const navigate = useNavigate();
 
-  const handleMenuClick: MenuProps["onClick"] = async () => {
-    try {
-      await logout();
-      message.success("Logout successful");
-      navigate("/login");
-    } catch (error) {
-      message.error("An error occured");
+  const handleMenuClick: MenuProps["onClick"] = async (e) => {
+    if (e.key === "2") {
+      try {
+        await logout();
+        message.success("Logout successful");
+        navigate("/login");
+      } catch (error) {
+        message.error("An error occured");
+      }
     }
   };
 
@@ -99,8 +115,8 @@ const AppLayout = () => {
             <Space>
               <Button
                 type="text"
-                icon={<ReadOutlined />}
-                href="https://docs.google.com/presentation/d/1zMyotxV5g0kMH42ak_FqZriUmG9UitNErM57wnNx5S8/edit?usp=sharing"
+                icon={<QuestionCircleOutlined />}
+                href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
                 target="_blank"
                 style={{
                   fontSize: "16px",

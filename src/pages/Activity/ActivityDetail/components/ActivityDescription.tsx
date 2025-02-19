@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, Typography, notification, Flex } from "antd";
+import { Button, Card, Typography, notification, Flex, Alert } from "antd";
 import { useParams } from "react-router-dom";
 import { SaveOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
@@ -27,7 +27,12 @@ const ActivityDescription = () => {
 
   return (
     <Card loading={loading}>
-      <Flex justify="end" align="middle">
+      <Flex justify="space-between" align="middle">
+        <Alert
+          message="Deskripsi kegiatan tidak boleh kosong, tidak boleh mencantumkan link web kaderisasi, dan tidak perlu memiliki hashtag"
+          type="warning"
+          showIcon
+        />
         <Button
           type="primary"
           loading={editLoading}
@@ -43,7 +48,9 @@ const ActivityDescription = () => {
           Simpan
         </Button>
       </Flex>
-      <Title level={3}>Deskripsi</Title>
+      <Title level={3} style={{ marginTop: 10 }}>
+        Deskripsi
+      </Title>
       <QuillEditor
         style={{ minHeight: "calc(100vh - 400px)" }}
         value={description}
