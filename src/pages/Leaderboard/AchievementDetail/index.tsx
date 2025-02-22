@@ -216,25 +216,11 @@ const AchievementDetail = () => {
             <Button
               type="primary"
               icon={<DownloadOutlined />}
-              onClick={async () => {
-                if (data?.proof) {
-                  try {
-                    const response = await fetch(
-                      `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data.proof}`,
-                    );
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = data.proof;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                  } catch (error) {
-                    console.error("Error downloading file:", error);
-                  }
-                }
+              onClick={() => {
+                window.open(
+                  `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data?.proof}`,
+                  "_blank",
+                );
               }}
             >
               Download Bukti
@@ -265,7 +251,10 @@ const AchievementDetail = () => {
                   >{`Aksi anda tidak dapat diubah setelah disetujui`}</span>
                   <br />
                   <br />
-                  <span>{`Apakah anda yakin ingin menyetujui prestasi ini dengan skor `}<strong>{values.score}</strong>?</span>
+                  <span>
+                    {`Apakah anda yakin ingin menyetujui prestasi ini dengan skor `}
+                    <strong>{values.score}</strong>?
+                  </span>
                 </>
               ),
               onOk: () => {
