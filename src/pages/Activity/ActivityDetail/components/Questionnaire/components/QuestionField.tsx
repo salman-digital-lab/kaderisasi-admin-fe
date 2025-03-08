@@ -36,7 +36,12 @@ const QuestionField = ({
     value: "text" | "number" | "dropdown" | "textarea",
   ) => {
     handleChangeCard(question.name, (old) => {
-      return { ...generateDefaultQuestion(value), name: old.name };
+      return {
+        ...generateDefaultQuestion(value),
+        label: old.label,
+        name: old.name,
+        required: old.required,
+      };
     });
   };
 
