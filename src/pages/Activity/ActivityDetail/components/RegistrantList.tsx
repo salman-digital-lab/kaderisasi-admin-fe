@@ -14,6 +14,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DownloadOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useRequest, useToggle } from "ahooks";
@@ -29,6 +30,7 @@ import { generateTableSchema } from "../constants/schema";
 
 import MembersListModal from "./Modal/MembersListModal";
 import ChangeStatusModal from "./Modal/ChangesStatusModal";
+import ChangeStatusByEmailModal from "./Modal/ChangeStatusByEmailModal";
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../../constants/options";
 
 type FieldType = {
@@ -43,6 +45,8 @@ const RegistrantList = () => {
 
   const [modalState, { toggle: toggleModal }] = useToggle();
   const [modalChangeStatusState, { toggle: toggleChangeStatusModal }] =
+    useToggle();
+  const [modalChangeStatusByEmailState, { toggle: toggleChangeStatusByEmailModal }] =
     useToggle();
 
   const [parameters, setParameter] = useState({
@@ -121,6 +125,12 @@ const RegistrantList = () => {
         selectedRegistrationID={selectedRowKeys}
         customSelectionStatus={customSelectionStatus}
       />
+      <ChangeStatusByEmailModal
+        open={modalChangeStatusByEmailState}
+        toggle={toggleChangeStatusByEmailModal}
+        activityId={id || ""}
+        customSelectionStatus={customSelectionStatus}
+      />
       <Card>
         <Form
           layout="vertical"
@@ -164,6 +174,12 @@ const RegistrantList = () => {
                 disabled={!selectedRowKeys.length}
               >
                 Ubah Status
+              </Button>
+              <Button
+                onClick={() => toggleChangeStatusByEmailModal()}
+                icon={<MailOutlined />}
+              >
+                Ubah Status Via Email
               </Button>
               <Button
                 onClick={handleExportRegistrants}

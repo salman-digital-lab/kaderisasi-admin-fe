@@ -151,6 +151,14 @@ export const putRegistrant = async (data: putRegistrantReq) => {
   return res.data;
 };
 
+export const updateRegistrantsByEmail = async (
+  activityId: string,
+  data: { emails: string[]; status: string }
+) => {
+  const res = await axios.put(`/activities/${activityId}/registrations/status-by-email`, data);
+  return res.data;
+};
+
 export const postRegistrant = async (
   id: string | undefined,
   data: postRegistrantsReq,
