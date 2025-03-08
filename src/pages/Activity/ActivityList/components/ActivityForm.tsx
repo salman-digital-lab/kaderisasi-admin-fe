@@ -63,7 +63,11 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
           onFinish={async (value) => {
             await runAsync({
               ...value,
-              slug: value.name.trim().toLowerCase().replace(" ", "-"),
+              slug: value.name
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9 ]/g, "")
+                .replace(" ", "-"),
               registration_start:
                 value.registration_date[0].format("YYYY-MM-DD"),
               registration_end: value.registration_date[1].format("YYYY-MM-DD"),

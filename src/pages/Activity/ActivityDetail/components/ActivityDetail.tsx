@@ -119,7 +119,11 @@ const ActivityDetail = () => {
         onFinish={async (value) => {
           await runAsync(Number(id), {
             ...value,
-            slug: value.name.trim().toLowerCase().replaceAll(" ", "-"),
+            slug: value.name
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9 ]/g, "")
+              .replaceAll(" ", "-"),
             is_published: value.is_published ? 1 : 0,
             registration_start: value.registration_date[0]
               ? value.registration_date[0].format("YYYY-MM-DD")
