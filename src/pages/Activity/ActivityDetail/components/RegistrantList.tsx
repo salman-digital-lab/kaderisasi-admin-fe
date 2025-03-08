@@ -9,7 +9,12 @@ import {
   Table,
   Select,
 } from "antd";
-import { SearchOutlined, PlusOutlined, EditOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useRequest, useToggle } from "ahooks";
 import { useParams } from "react-router-dom";
@@ -160,7 +165,10 @@ const RegistrantList = () => {
               >
                 Ubah Status
               </Button>
-              <Button onClick={handleExportRegistrants} icon={<DownloadOutlined />}>
+              <Button
+                onClick={handleExportRegistrants}
+                icon={<DownloadOutlined />}
+              >
                 Export Peserta
               </Button>
               <Button onClick={() => toggleModal()} icon={<PlusOutlined />}>
@@ -202,6 +210,9 @@ const RegistrantList = () => {
             onChange: (newSelectedRowKeys: React.Key[]) => {
               setSelectedRowKeys(newSelectedRowKeys);
             },
+            getCheckboxProps: (record) => ({
+              disabled: record.status === "LULUS KEGIATAN",
+            }),
             selectedRowKeys,
           }}
           scroll={{ x: 1200 }}
