@@ -187,6 +187,7 @@ const MemberDetailPage = () => {
                   level: value.level,
                   intake_year: value.intake_year,
                   badges: JSON.stringify(value.badges || []),
+                  name: value.name,
                 },
               });
               toggleEdit();
