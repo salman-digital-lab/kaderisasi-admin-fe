@@ -32,6 +32,8 @@ const ActivityTable = ({ data, loading, setParameter }: DataTypeProps) => {
           pageSize: data?.meta.per_page,
           showSizeChanger: true,
           total: data?.meta.total,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`,
         }}
         loading={loading}
         onChange={(pagination) =>
