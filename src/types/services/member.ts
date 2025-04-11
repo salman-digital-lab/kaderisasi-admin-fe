@@ -1,3 +1,4 @@
+import { Activity, Registrant } from "../model/activity";
 import { Member } from "../model/members";
 import { Pagination } from "./base";
 
@@ -45,4 +46,9 @@ export type putProfileAuthReq = {
 export type putProfileAuthResp = {
   message: string;
   data: { email?: string; password?: string };
+};
+
+export type getActivityByUserIdResp = {
+  message: string;
+  data: (Registrant & { activity: Activity })[];
 };

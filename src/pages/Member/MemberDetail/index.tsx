@@ -13,6 +13,7 @@ import {
   Select,
   Divider,
   Image,
+  Table,
 } from "antd";
 import {
   EditOutlined,
@@ -22,7 +23,11 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { useRequest, useToggle } from "ahooks";
 
-import { getProfile, putProfile } from "../../../api/services/member";
+import {
+  getActivityByUserId,
+  getProfile,
+  putProfile,
+} from "../../../api/services/member";
 import { getUniversities } from "../../../api/services/university";
 import { GENDER_OPTION, USER_LEVEL_OPTIONS } from "../../../constants/options";
 import { getProvinces } from "../../../api/services/province";
@@ -74,6 +79,12 @@ const MemberDetailPage = () => {
       });
     },
   });
+  const { data: myActivities } = useRequest(
+    () => getActivityByUserId(data?.profile?.[0]?.user_id?.toString() || ""),
+    {
+      ready: !!data?.profile?.[0]?.user_id,
+    },
+  );
 
   const { loading: editLoading, runAsync } = useRequest(putProfile, {
     manual: true,
@@ -295,6 +306,25 @@ const MemberDetailPage = () => {
             </Row>
           </Form>
         </Space>
+      </Card>
+      <Card title="Kegiatan yang diikuti">
+        <Table
+          dataSource={myActivities}
+          columns={[
+            {
+              title: "Nama Aktivitas",
+              dataIndex: "activity",
+              render: (activity) => (
+                <Link to={`/activity/${activity.id}`}>{activity.name}</Link>
+              ),
+            },
+            {
+              title: "Status",
+              dataIndex: "status",
+            },
+          ]}
+          pagination={false}
+        />
       </Card>
     </Space>
   );

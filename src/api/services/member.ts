@@ -1,6 +1,7 @@
 import { notification } from "antd";
 
 import {
+  getActivityByUserIdResp,
   getProfileResp,
   getProfilesReq,
   getProfilesResp,
@@ -36,6 +37,15 @@ export const getProfile = async (id: string) => {
 export const getProfileByUserId = async (userId: string) => {
   try {
     const res = await axios.get<getProfileResp>(`/profiles/user/${userId}`);
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getActivityByUserId = async (userId: string) => {
+  try {
+    const res = await axios.get<getActivityByUserIdResp>(`/activity-registrations/user/${userId}`);
     return res.data.data;
   } catch (error) {
     handleError(error);
