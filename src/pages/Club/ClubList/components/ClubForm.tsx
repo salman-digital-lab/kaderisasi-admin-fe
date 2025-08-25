@@ -12,6 +12,7 @@ type ClubFormProps = {
 
 type FieldType = {
   name: string;
+  short_description?: string;
   start_period?: any;
   end_period?: any;
 };
@@ -67,6 +68,20 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
           rules={[{ required: true, message: "Nama club wajib diisi!" }]}
         >
           <Input placeholder="Masukkan nama club" />
+        </Form.Item>
+        <Form.Item
+          label="Deskripsi Singkat"
+          name="short_description"
+          rules={[
+            { max: 200, message: "Deskripsi singkat maksimal 200 karakter!" }
+          ]}
+        >
+          <Input.TextArea 
+            placeholder="Masukkan deskripsi singkat club (maks. 200 karakter)"
+            maxLength={200}
+            showCount
+            rows={3}
+          />
         </Form.Item>
         <Row gutter={16}>
           <Col span={12}>

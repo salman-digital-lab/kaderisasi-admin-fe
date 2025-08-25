@@ -12,6 +12,7 @@ export interface Club {
   id: number;
   name: string;
   description?: string;
+  short_description?: string;
   logo?: string;
   media: MediaStructure;
   start_period?: string;

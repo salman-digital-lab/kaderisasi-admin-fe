@@ -13,6 +13,20 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     render: (name, record) => <Link to={`/club/${record.id}`}>{name}</Link>,
     width: 200,
   },
+  {
+    title: "Deskripsi Singkat",
+    dataIndex: "short_description",
+    key: "short_description",
+    width: 300,
+    render: (description) => 
+      description ? (
+        <span title={description}>
+          {description.length > 100 ? `${description.substring(0, 100)}...` : description}
+        </span>
+      ) : (
+        "-"
+      ),
+  },
 
   {
     title: "Logo",
