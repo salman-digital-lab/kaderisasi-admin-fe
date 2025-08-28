@@ -60,7 +60,7 @@ export const menuItems: () => MenuItem[] = () => {
     });
   }
 
-  if (permissions.includes("pusatdata")) {
+  if (permissions.includes("klub")) {
     menuItems.push({
       key: "/club",
       icon: <TeamOutlined />,
