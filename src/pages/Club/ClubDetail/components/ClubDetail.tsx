@@ -15,6 +15,8 @@ type FieldType = {
   start_period?: any;
   end_period?: any;
   is_show?: boolean;
+  is_registration_open?: boolean;
+  registration_end_date?: any;
 };
 
 const ClubDetail = () => {
@@ -38,6 +40,8 @@ const ClubDetail = () => {
             start_period: data.start_period ? dayjs(data.start_period) : undefined,
             end_period: data.end_period ? dayjs(data.end_period) : undefined,
             is_show: data.is_show,
+            is_registration_open: data.is_registration_open,
+            registration_end_date: data.registration_end_date ? dayjs(data.registration_end_date) : undefined,
           });
         }
       },
@@ -51,6 +55,7 @@ const ClubDetail = () => {
       short_description: shortDescription,
       start_period: data.start_period ? dayjs(data.start_period).format('YYYY-MM-DD') : undefined,
       end_period: data.end_period ? dayjs(data.end_period).format('YYYY-MM-DD') : undefined,
+      registration_end_date: data.registration_end_date ? dayjs(data.registration_end_date).format('YYYY-MM-DD') : undefined,
     }),
     {
       manual: true,
@@ -130,6 +135,22 @@ const ClubDetail = () => {
               <DatePicker 
                 picker="month" 
                 placeholder="Pilih bulan berakhir"
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Pendaftaran Dibuka" name="is_registration_open" valuePropName="checked">
+              <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Tanggal Berakhir Pendaftaran" name="registration_end_date">
+              <DatePicker 
+                placeholder="Pilih tanggal berakhir pendaftaran"
                 style={{ width: "100%" }}
               />
             </Form.Item>

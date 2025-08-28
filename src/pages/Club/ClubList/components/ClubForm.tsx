@@ -1,4 +1,4 @@
-import { Modal, Form, Input, Button, DatePicker, Row, Col } from "antd";
+import { Modal, Form, Input, Button, DatePicker, Row, Col, Switch } from "antd";
 import { useRequest } from "ahooks";
 import dayjs from "dayjs";
 
@@ -15,6 +15,8 @@ type FieldType = {
   short_description?: string;
   start_period?: any;
   end_period?: any;
+  is_registration_open?: boolean;
+  registration_end_date?: any;
 };
 
 const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
@@ -25,6 +27,7 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
       ...data, 
       start_period: data.start_period ? dayjs(data.start_period).format('YYYY-MM-DD') : undefined,
       end_period: data.end_period ? dayjs(data.end_period).format('YYYY-MM-DD') : undefined,
+      registration_end_date: data.registration_end_date ? dayjs(data.registration_end_date).format('YYYY-MM-DD') : undefined,
     }),
     {
       manual: true,
@@ -98,6 +101,21 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
               <DatePicker 
                 picker="month" 
                 placeholder="Pilih bulan berakhir"
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="Pendaftaran Dibuka" name="is_registration_open" valuePropName="checked">
+              <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Tanggal Berakhir Pendaftaran" name="registration_end_date">
+              <DatePicker 
+                placeholder="Pilih tanggal berakhir pendaftaran"
                 style={{ width: "100%" }}
               />
             </Form.Item>

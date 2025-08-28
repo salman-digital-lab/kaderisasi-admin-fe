@@ -102,6 +102,21 @@ export const ACTIVITY_REGISTRANT_STATUS_OPTIONS = [
   },
 ];
 
+export const CLUB_REGISTRATION_STATUS_OPTIONS = [
+  {
+    value: 'PENDING',
+    label: 'Menunggu',
+  },
+  {
+    value: 'APPROVED',
+    label: 'Diterima',
+  },
+  {
+    value: 'REJECTED',
+    label: 'Ditolak',
+  },
+];
+
 export const GENDER_OPTION = [
   {
     label: "Laki-Laki",

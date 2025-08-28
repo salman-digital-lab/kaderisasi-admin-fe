@@ -66,6 +66,24 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     render: (date) => date ? dayjs(date).format("MMM YYYY") : "-",
   },
   {
+    title: "Pendaftaran",
+    dataIndex: "is_registration_open",
+    key: "is_registration_open",
+    width: 120,
+    render: (isOpen) => (
+      <Tag color={isOpen ? "green" : "red"}>
+        {isOpen ? "Dibuka" : "Ditutup"}
+      </Tag>
+    ),
+  },
+  {
+    title: "Berakhir Pendaftaran",
+    dataIndex: "registration_end_date",
+    key: "registration_end_date",
+    width: 150,
+    render: (date) => date ? dayjs(date).format("DD MMM YYYY") : "-",
+  },
+  {
     title: "Status",
     dataIndex: "is_show",
     key: "is_show",
