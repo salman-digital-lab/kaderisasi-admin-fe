@@ -55,7 +55,7 @@ export const PROFILE_DATA_CATEGORIES = [
   },
   {
     key: "location",
-    label: "Lokasi",
+    label: "Domisili",
     icon: EnvironmentOutlined,
     color: "#fa8c16",
   },

@@ -6,11 +6,11 @@ import {
   Row,
   Col,
   Avatar,
-  Tag,
   Button,
   Tooltip,
   Divider,
   Typography,
+  Switch,
 } from "antd";
 import {
   ArrowUpOutlined,
@@ -26,9 +26,11 @@ interface ProfileFieldsSectionProps {
   profileDataCategories: any[];
   profileDataTemplates: any[];
   fieldTypes: any[];
+  profileFieldRequiredOverrides?: Record<string, boolean>;
   onAddProfileField: (template: any) => void;
   onRemoveProfileField: (fieldKey: string) => void;
   onMoveProfileField: (fieldKey: string, direction: "up" | "down") => void;
+  onToggleRequiredField?: (fieldKey: string, required: boolean) => void;
 }
 
 export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
@@ -36,17 +38,31 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
   profileDataCategories,
   profileDataTemplates,
   fieldTypes,
+  profileFieldRequiredOverrides = {},
   onAddProfileField,
   onRemoveProfileField,
   onMoveProfileField,
+  onToggleRequiredField,
 }) => {
+  // Handle required toggle
+  const handleRequiredToggle = (fieldKey: string, required: boolean) => {
+    onToggleRequiredField?.(fieldKey, required);
+  };
+
+  // Get the effective required status for a field
+  const getEffectiveRequired = (fieldKey: string, defaultRequired: boolean) => {
+    if (fieldKey === "name" || fieldKey === "gender") {
+      return defaultRequired; // Name and gender cannot be changed
+    }
+    return profileFieldRequiredOverrides[fieldKey] ?? defaultRequired;
+  };
 
   return (
     <Card
       title={
         <Space>
           <span>👤</span>
-          <span>Data Profil Pengguna</span>
+          <span>Pertanyaan Dasar</span>
         </Space>
       }
       size="small"
@@ -54,9 +70,6 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
       <Space direction="vertical" style={{ width: "100%" }}>
         {/* Available Profile Fields */}
         <div>
-          <Text strong style={{ marginBottom: 16, display: "block" }}>
-            Field Profil Tersedia
-          </Text>
           <Tabs size="small" type="card">
             {profileDataCategories.map((category) => (
               <TabPane
@@ -87,12 +100,11 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                             )
                               ? "#d9d9d9"
                               : "#1890ff",
-                            backgroundColor:
-                              selectedBasicFields.includes(
-                                template.field.key,
-                              )
-                                ? "#f5f5f5"
-                                : "white",
+                            backgroundColor: selectedBasicFields.includes(
+                              template.field.key,
+                            )
+                              ? "#f5f5f5"
+                              : "white",
                             opacity: selectedBasicFields.includes(
                               template.field.key,
                             )
@@ -100,9 +112,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                               : 1,
                           }}
                           onClick={() =>
-                            !selectedBasicFields.includes(
-                              template.field.key,
-                            ) &&
+                            !selectedBasicFields.includes(template.field.key) &&
                             onAddProfileField(template)
                           }
                         >
@@ -115,12 +125,11 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                           >
                             <Avatar
                               style={{
-                                backgroundColor:
-                                  selectedBasicFields.includes(
-                                    template.field.key,
-                                  )
-                                    ? "#d9d9d9"
-                                    : category.color,
+                                backgroundColor: selectedBasicFields.includes(
+                                  template.field.key,
+                                )
+                                  ? "#d9d9d9"
+                                  : category.color,
                               }}
                             >
                               <template.icon />
@@ -134,24 +143,6 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                               >
                                 {template.description}
                               </Text>
-                              <br />
-                              <Space
-                                size="small"
-                                style={{ marginTop: 8 }}
-                              >
-                                <Tag color="blue">
-                                  {
-                                    fieldTypes.find(
-                                      (type) =>
-                                        type.value ===
-                                        template.field.type,
-                                    )?.label
-                                  }
-                                </Tag>
-                                {template.field.required && (
-                                  <Tag color="red">Wajib</Tag>
-                                )}
-                              </Space>
                             </div>
                           </Space>
                         </Card>
@@ -167,10 +158,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
         {selectedBasicFields.length > 0 && (
           <div>
             <Divider />
-            <Text
-              strong
-              style={{ marginBottom: 16, display: "block" }}
-            >
+            <Text strong style={{ marginBottom: 16, display: "block" }}>
               Field Profil Terpilih ({selectedBasicFields.length})
             </Text>
             <Space direction="vertical" style={{ width: "100%" }}>
@@ -188,32 +176,42 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                           <Avatar
                             size="small"
                             style={{
-                              backgroundColor:
-                                profileDataCategories.find(
-                                  (cat) =>
-                                    cat.key === template.category,
-                                )?.color,
+                              backgroundColor: profileDataCategories.find(
+                                (cat) => cat.key === template.category,
+                              )?.color,
                             }}
                           >
                             <template.icon />
                           </Avatar>
-                          <div>
+                          <div style={{ flex: 1 }}>
                             <Text strong>{template.name}</Text>
                             <br />
-                            <Space size="small">
-                              <Tag color="blue">
-                                {
-                                  fieldTypes.find(
-                                    (type) =>
-                                      type.value ===
-                                      template.field.type,
-                                  )?.label
-                                }
-                              </Tag>
-                              {template.field.required && (
-                                <Tag color="red">Wajib</Tag>
-                              )}
-                            </Space>
+                            <Text type="secondary" style={{ fontSize: "12px" }}>
+                              {
+                                fieldTypes.find(
+                                  (type) => type.value === template.field.type,
+                                )?.label
+                              }
+                            </Text>
+                            {fieldKey !== "name" && fieldKey !== "gender" && (
+                              <div style={{ marginTop: 8 }}>
+                                <Space>
+                                  <Text style={{ fontSize: "12px" }}>
+                                    Wajib:
+                                  </Text>
+                                  <Switch
+                                    size="small"
+                                    checked={getEffectiveRequired(
+                                      fieldKey,
+                                      template.field.required,
+                                    )}
+                                    onChange={(checked) =>
+                                      handleRequiredToggle(fieldKey, checked)
+                                    }
+                                  />
+                                </Space>
+                              </div>
+                            )}
                           </div>
                         </Space>
                       </Col>
@@ -224,9 +222,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                               type="text"
                               size="small"
                               icon={<ArrowUpOutlined />}
-                              onClick={() =>
-                                onMoveProfileField(fieldKey, "up")
-                              }
+                              onClick={() => onMoveProfileField(fieldKey, "up")}
                               disabled={index === 0}
                             />
                           </Tooltip>
@@ -236,14 +232,10 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                               size="small"
                               icon={<ArrowDownOutlined />}
                               onClick={() =>
-                                onMoveProfileField(
-                                  fieldKey,
-                                  "down",
-                                )
+                                onMoveProfileField(fieldKey, "down")
                               }
                               disabled={
-                                index ===
-                                selectedBasicFields.length - 1
+                                index === selectedBasicFields.length - 1
                               }
                             />
                           </Tooltip>
@@ -253,10 +245,10 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                               size="small"
                               danger
                               icon={<DeleteOutlined />}
-                              onClick={() =>
-                                onRemoveProfileField(fieldKey)
-                              }
-                              disabled={fieldKey === "name" || fieldKey === "gender"} // Nama lengkap dan jenis kelamin tidak dapat dihapus
+                              onClick={() => onRemoveProfileField(fieldKey)}
+                              disabled={
+                                fieldKey === "name" || fieldKey === "gender"
+                              } // Nama lengkap dan jenis kelamin tidak dapat dihapus
                             />
                           </Tooltip>
                         </Space>

@@ -26,8 +26,10 @@ const CustomFormEdit: React.FC = () => {
     setSelectedBasicFields,
     customFields,
     setCustomFields,
+    profileFieldRequiredOverrides,
     activeTab,
     handleTabChange,
+    handleRequiredFieldChange,
     fetchLoading,
     updateLoading,
   } = useFormData();
@@ -43,6 +45,7 @@ const CustomFormEdit: React.FC = () => {
     handleAddProfileDataFromTemplate,
     handleRemoveProfileField,
     handleMoveProfileField,
+    handleToggleRequiredField,
     handleDuplicateField,
     handleMoveField,
   } = useFieldManagement(
@@ -51,6 +54,7 @@ const CustomFormEdit: React.FC = () => {
     selectedBasicFields,
     setSelectedBasicFields,
     [...PROFILE_DATA_TEMPLATES],
+    handleRequiredFieldChange,
   );
 
   // Update local editingField state when it changes from the hook
@@ -113,7 +117,7 @@ const CustomFormEdit: React.FC = () => {
           <TabPane tab="Informasi Dasar" key="basic">
             <BasicInfoTab form={form} initialData={initialData} />
           </TabPane>
-          <TabPane tab="Skema Form" key="schema">
+          <TabPane tab="Ubah Formulir" key="schema">
             <SchemaTab
               selectedBasicFields={selectedBasicFields}
               customFields={customFields}
@@ -121,9 +125,11 @@ const CustomFormEdit: React.FC = () => {
               profileDataTemplates={[...PROFILE_DATA_TEMPLATES]}
               fieldTypes={[...FIELD_TYPES]}
               fieldCategories={[...FIELD_CATEGORIES]}
+              profileFieldRequiredOverrides={profileFieldRequiredOverrides}
               onAddProfileField={handleAddProfileDataFromTemplate}
               onRemoveProfileField={handleRemoveProfileField}
               onMoveProfileField={handleMoveProfileField}
+              onToggleRequiredField={handleToggleRequiredField}
               onAddCustomField={handleAddCustomField}
               onEditCustomField={handleEditCustomField}
               onDeleteCustomField={handleDeleteCustomField}

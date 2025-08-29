@@ -49,7 +49,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
       title={
         <Space>
           <FormOutlined />
-          <span>Field Kustom</span>
+          <span>Pertanyaan Kustom</span>
           <Badge count={customFields.length} showZero />
         </Space>
       }

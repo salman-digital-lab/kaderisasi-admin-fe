@@ -11,9 +11,11 @@ interface SchemaTabProps {
   profileDataTemplates: any[];
   fieldTypes: any[];
   fieldCategories: any[];
+  profileFieldRequiredOverrides?: Record<string, boolean>;
   onAddProfileField: (template: any) => void;
   onRemoveProfileField: (fieldKey: string) => void;
   onMoveProfileField: (fieldKey: string, direction: "up" | "down") => void;
+  onToggleRequiredField?: (fieldKey: string, required: boolean) => void;
   onAddCustomField: () => void;
   onEditCustomField: (field: FormField) => void;
   onDeleteCustomField: (fieldKey: string) => void;
@@ -28,9 +30,11 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
   profileDataTemplates,
   fieldTypes,
   fieldCategories,
+  profileFieldRequiredOverrides,
   onAddProfileField,
   onRemoveProfileField,
   onMoveProfileField,
+  onToggleRequiredField,
   onAddCustomField,
   onEditCustomField,
   onDeleteCustomField,
@@ -44,9 +48,11 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
         profileDataCategories={profileDataCategories}
         profileDataTemplates={profileDataTemplates}
         fieldTypes={fieldTypes}
+        profileFieldRequiredOverrides={profileFieldRequiredOverrides}
         onAddProfileField={onAddProfileField}
         onRemoveProfileField={onRemoveProfileField}
         onMoveProfileField={onMoveProfileField}
+        onToggleRequiredField={onToggleRequiredField}
       />
 
       <CustomFieldsSection

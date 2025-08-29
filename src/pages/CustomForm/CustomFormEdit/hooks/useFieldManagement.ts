@@ -13,7 +13,8 @@ export const useFieldManagement = (
   setCustomFields: (fields: FormField[]) => void,
   selectedBasicFields: string[],
   setSelectedBasicFields: (fields: string[]) => void,
-  profileTemplates: any[]
+  profileTemplates: any[],
+  onRequiredFieldChange?: (fieldKey: string, required: boolean) => void
 ) => {
   const [editingField, setEditingField] = useState<FormField | null>(null);
   const [fieldModalVisible, setFieldModalVisible] = useState(false);
@@ -154,6 +155,16 @@ export const useFieldManagement = (
     setCustomFields(newFields);
   };
 
+  // Handle toggling required status for profile fields
+  const handleToggleRequiredField = (fieldKey: string, required: boolean) => {
+    // Prevent changing required status for name and gender
+    if (fieldKey === "name" || fieldKey === "gender") {
+      return;
+    }
+
+    onRequiredFieldChange?.(fieldKey, required);
+  };
+
   return {
     editingField,
     setEditingField,
@@ -166,6 +177,7 @@ export const useFieldManagement = (
     handleAddProfileDataFromTemplate,
     handleRemoveProfileField,
     handleMoveProfileField,
+    handleToggleRequiredField,
     handleDuplicateField,
     handleMoveField,
   };

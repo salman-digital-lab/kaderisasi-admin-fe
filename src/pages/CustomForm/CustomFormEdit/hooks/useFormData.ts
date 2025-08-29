@@ -22,6 +22,7 @@ export const useFormData = () => {
   const [initialData, setInitialData] = useState<CustomForm | null>(null);
   const [selectedBasicFields, setSelectedBasicFields] = useState<string[]>([]);
   const [customFields, setCustomFields] = useState<FormField[]>([]);
+  const [profileFieldRequiredOverrides, setProfileFieldRequiredOverrides] = useState<Record<string, boolean>>({});
 
   // Active tab state with URL sync
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -42,6 +43,14 @@ export const useFormData = () => {
   // Handle tab change
   const handleTabChange = (key: string) => {
     setActiveTab(key);
+  };
+
+  // Handle required field changes
+  const handleRequiredFieldChange = (fieldKey: string, required: boolean) => {
+    setProfileFieldRequiredOverrides(prev => ({
+      ...prev,
+      [fieldKey]: required
+    }));
   };
 
   const { loading: fetchLoading, run: fetchCustomForm } = useRequest(
@@ -88,9 +97,12 @@ export const useFormData = () => {
       if (!id) return;
 
       // Build form schema from current state
-      const profileFields = BASIC_PROFILE_FIELDS.filter((field) =>
-        selectedBasicFields.includes(field.key),
-      );
+      const profileFields = BASIC_PROFILE_FIELDS
+        .filter((field) => selectedBasicFields.includes(field.key))
+        .map((field) => ({
+          ...field,
+          required: profileFieldRequiredOverrides[field.key] ?? field.required
+        }));
 
       const updatedFormSchema: FormSchema = {
         fields: [
@@ -132,8 +144,10 @@ export const useFormData = () => {
     setSelectedBasicFields,
     customFields,
     setCustomFields,
+    profileFieldRequiredOverrides,
     activeTab,
     handleTabChange,
+    handleRequiredFieldChange,
     fetchLoading,
     updateLoading,
     updateForm,

@@ -81,7 +81,7 @@ export const PROFILE_DATA_TEMPLATES = [
     },
     category: "contact",
     icon: MessageOutlined,
-    description: "ID pesan Line",
+    description: "ID Line",
   },
   {
     name: "Instagram",
