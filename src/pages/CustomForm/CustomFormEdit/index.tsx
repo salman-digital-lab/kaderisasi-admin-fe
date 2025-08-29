@@ -13,7 +13,7 @@ import {
 import { fieldTypeNeedsOptions } from "./utils";
 
 const { Text } = Typography;
-const { TabPane } = Tabs;
+
 
 const CustomFormEdit: React.FC = () => {
   const [form] = Form.useForm();
@@ -32,6 +32,7 @@ const CustomFormEdit: React.FC = () => {
     handleRequiredFieldChange,
     fetchLoading,
     updateLoading,
+    updateForm,
   } = useFormData();
 
   const {
@@ -113,31 +114,42 @@ const CustomFormEdit: React.FC = () => {
           </Button>
         }
       >
-        <Tabs activeKey={activeTab} onChange={handleTabChange} type="card">
-          <TabPane tab="Informasi Dasar" key="basic">
-            <BasicInfoTab form={form} initialData={initialData} />
-          </TabPane>
-          <TabPane tab="Ubah Formulir" key="schema">
-            <SchemaTab
-              selectedBasicFields={selectedBasicFields}
-              customFields={customFields}
-              profileDataCategories={[...PROFILE_DATA_CATEGORIES]}
-              profileDataTemplates={[...PROFILE_DATA_TEMPLATES]}
-              fieldTypes={[...FIELD_TYPES]}
-              fieldCategories={[...FIELD_CATEGORIES]}
-              profileFieldRequiredOverrides={profileFieldRequiredOverrides}
-              onAddProfileField={handleAddProfileDataFromTemplate}
-              onRemoveProfileField={handleRemoveProfileField}
-              onMoveProfileField={handleMoveProfileField}
-              onToggleRequiredField={handleToggleRequiredField}
-              onAddCustomField={handleAddCustomField}
-              onEditCustomField={handleEditCustomField}
-              onDeleteCustomField={handleDeleteCustomField}
-              onDuplicateField={handleDuplicateField}
-              onMoveCustomField={handleMoveField}
-            />
-          </TabPane>
-        </Tabs>
+        <Tabs
+          activeKey={activeTab}
+          onChange={handleTabChange}
+          type="card"
+          items={[
+            {
+              key: "basic",
+              label: "Informasi Dasar",
+              children: <BasicInfoTab form={form} initialData={initialData} onSave={updateForm} />
+            },
+            {
+              key: "schema",
+              label: "Ubah Formulir",
+              children: (
+                <SchemaTab
+                  selectedBasicFields={selectedBasicFields}
+                  customFields={customFields}
+                  profileDataCategories={[...PROFILE_DATA_CATEGORIES]}
+                  profileDataTemplates={[...PROFILE_DATA_TEMPLATES]}
+                  fieldTypes={[...FIELD_TYPES]}
+                  fieldCategories={[...FIELD_CATEGORIES]}
+                  profileFieldRequiredOverrides={profileFieldRequiredOverrides}
+                  onAddProfileField={handleAddProfileDataFromTemplate}
+                  onRemoveProfileField={handleRemoveProfileField}
+                  onMoveProfileField={handleMoveProfileField}
+                  onToggleRequiredField={handleToggleRequiredField}
+                  onAddCustomField={handleAddCustomField}
+                  onEditCustomField={handleEditCustomField}
+                  onDeleteCustomField={handleDeleteCustomField}
+                  onDuplicateField={handleDuplicateField}
+                  onMoveCustomField={handleMoveField}
+                />
+              )
+            }
+          ]}
+        />
       </Card>
 
       {/* Field Modal */}

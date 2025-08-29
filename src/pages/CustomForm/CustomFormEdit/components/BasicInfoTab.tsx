@@ -1,27 +1,27 @@
-import React from "react";
 import { Form, Input, Row, Col, Card, Space, Typography } from "antd";
 import type { CustomForm } from "../../../../types/model/customForm";
+import type { FormInstance } from "antd";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 
 interface BasicInfoTabProps {
-  form: any;
+  form: FormInstance;
   initialData: CustomForm;
+  onSave: (values: { formName: string; formDescription: string }) => void;
 }
 
-export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
+export const BasicInfoTab = ({
   form,
   initialData,
-}) => {
+  onSave,
+}: BasicInfoTabProps) => {
+
   return (
     <Form
       form={form}
       layout="vertical"
-      onFinish={(values) => {
-        // This will be handled by the parent component
-        console.log("Form values:", values);
-      }}
+      onFinish={onSave}
       initialValues={{
         formName: initialData.form_name,
         formDescription: initialData.form_description || "",

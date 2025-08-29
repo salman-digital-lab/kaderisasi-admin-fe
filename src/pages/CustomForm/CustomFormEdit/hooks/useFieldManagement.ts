@@ -13,7 +13,7 @@ export const useFieldManagement = (
   setCustomFields: (fields: FormField[]) => void,
   selectedBasicFields: string[],
   setSelectedBasicFields: (fields: string[]) => void,
-  profileTemplates: any[],
+  _profileTemplates: any[],
   onRequiredFieldChange?: (fieldKey: string, required: boolean) => void
 ) => {
   const [editingField, setEditingField] = useState<FormField | null>(null);

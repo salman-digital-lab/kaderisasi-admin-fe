@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   Form,
@@ -36,6 +36,19 @@ export const FieldModal: React.FC<FieldModalProps> = ({
 }) => {
   const [form] = Form.useForm();
 
+  // Reset form values when editingField changes
+  useEffect(() => {
+    if (visible && editingField) {
+      form.setFieldsValue({
+        ...editingField,
+        options: editingField.options || [],
+      });
+    } else if (visible && !editingField) {
+      // Reset form for new field
+      form.resetFields();
+    }
+  }, [editingField, visible, form]);
+
   const handleFieldTypeChange = (value: string) => {
     onFieldTypeChange?.(value);
   };
@@ -64,10 +77,6 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         form={form}
         layout="vertical"
         onFinish={onSave}
-        initialValues={{
-          ...editingField,
-          options: editingField?.options || [],
-        }}
       >
         {/* Basic Settings Tab */}
         <Row gutter={16}>
@@ -203,9 +212,24 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                           <Input
                             placeholder="Label opsi (akan otomatis mengisi nilai)"
                             onChange={(e) => {
+                              const labelValue = e.target.value;
                               // Auto-sync label to value
+                              const currentOptions = form.getFieldValue('options') || [];
+                              const updatedOptions = [...currentOptions];
+                              if (updatedOptions[name]) {
+                                updatedOptions[name] = {
+                                  ...updatedOptions[name],
+                                  label: labelValue,
+                                  value: labelValue, // Fill value with label
+                                };
+                              } else {
+                                updatedOptions[name] = {
+                                  label: labelValue,
+                                  value: labelValue,
+                                };
+                              }
                               form.setFieldsValue({
-                                [`options[${name}].value`]: e.target.value,
+                                options: updatedOptions,
                               });
                             }}
                           />
