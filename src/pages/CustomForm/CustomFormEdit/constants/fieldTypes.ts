@@ -1,7 +1,6 @@
 import {
   FontSizeOutlined,
   AlignLeftOutlined,
-  MailOutlined,
   PhoneOutlined,
   GlobalOutlined,
   NumberOutlined,
@@ -30,13 +29,6 @@ export const FIELD_TYPES = [
     description: "Input teks multi-baris",
   },
   {
-    value: "email",
-    label: "Email",
-    icon: MailOutlined,
-    category: "text",
-    description: "Input alamat email",
-  },
-  {
     value: "phone",
     label: "Telepon",
     icon: PhoneOutlined,
@@ -58,13 +50,6 @@ export const FIELD_TYPES = [
     icon: NumberOutlined,
     category: "number",
     description: "Input numerik",
-  },
-  {
-    value: "currency",
-    label: "Mata Uang",
-    icon: NumberOutlined,
-    category: "number",
-    description: "Input mata uang",
   },
 
   // Selection Fields
