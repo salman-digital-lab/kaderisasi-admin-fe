@@ -97,3 +97,42 @@ export const getCustomFormByFeature = async (featureType: string, featureId: str
     handleError(error);
   }
 };
+
+export const getUnattachedForms = async (props: { page?: string; per_page?: string; search?: string }) => {
+  try {
+    const searchParams = removeEmptyValueFromObj(props);
+    const urlSearch = new URLSearchParams(searchParams).toString();
+    const res = await axios.get<GetCustomFormsResp>("/custom-forms/unattached?" + urlSearch);
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const attachFormToClub = async (formId: number, clubId: number) => {
+  try {
+    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/attach-club`, { clubId });
+    notification.success({
+      message: "Berhasil",
+      description: "Form berhasil dilampirkan ke klub",
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const detachFormFromClub = async (formId: number) => {
+  try {
+    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/detach-club`);
+    notification.success({
+      message: "Berhasil",
+      description: "Form berhasil dilepas dari klub",
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};

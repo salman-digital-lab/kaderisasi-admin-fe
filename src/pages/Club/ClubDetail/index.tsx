@@ -9,6 +9,7 @@ import MediaList from "./components/MediaList";
 import LogoUpload from "./components/LogoUpload";
 import ClubRegistrationInfo from "../ClubRegistrationInfo";
 import ClubRegistrationsPage from "../ClubRegistrations";
+import CustomFormAttachment from "./components/CustomFormAttachment";
 
 const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +40,11 @@ const MainClubDetail = () => {
       key: "5",
       label: "Keanggotaan",
       children: <ClubRegistrationsPage />,
+    },
+    {
+      key: "6",
+      label: "Form Tambahan",
+      children: <CustomFormAttachment />,
     },
   ];
 
