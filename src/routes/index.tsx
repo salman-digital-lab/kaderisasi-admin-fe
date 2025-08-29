@@ -19,6 +19,8 @@ import AchievementList from "../pages/Leaderboard/AchievementList";
 import AchievementDetail from "../pages/Leaderboard/AchievementDetail";
 import ClubList from "../pages/Club/ClubList";
 import ClubDetail from "../pages/Club/ClubDetail";
+import CustomFormList from "../pages/CustomForm/CustomFormList";
+import CustomFormEdit from "../pages/CustomForm/CustomFormEdit";
 import { ADMIN_ROLE_PERMISSION } from "../constants/permissions";
 
 const isAuthenticated = () => {
@@ -145,6 +147,18 @@ const routes = createBrowserRouter([
         path: "/club/:id",
         element: (
           <RoleUser element={<ClubDetail />} permission="pusatdata" />
+        ),
+      },
+      {
+        path: "/custom-form",
+        element: (
+          <RoleUser element={<CustomFormList />} permission="pusatdata" />
+        ),
+      },
+      {
+        path: "/custom-form/:id/edit",
+        element: (
+          <RoleUser element={<CustomFormEdit />} permission="pusatdata" />
         ),
       },
     ],

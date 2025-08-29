@@ -82,6 +82,10 @@ export const menuItems: () => MenuItem[] = () => {
           key: "/universities",
           label: <Link to="/universities">Perguruan Tinggi</Link>,
         },
+        {
+          key: "/custom-form",
+          label: <Link to="/custom-form">Form Kustom</Link>,
+        },
       ],
     });
   }

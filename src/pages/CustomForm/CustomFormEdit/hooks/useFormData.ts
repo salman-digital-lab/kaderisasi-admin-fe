@@ -1,0 +1,141 @@
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useRequest } from "ahooks";
+import { message } from "antd";
+import { useSearchParams } from "react-router-dom";
+
+import {
+  getCustomForm,
+  updateCustomForm,
+} from "../../../../api/services/customForm";
+import type {
+  CustomForm,
+  FormSchema,
+  FormField,
+} from "../../../../types/model/customForm";
+import { BASIC_PROFILE_FIELDS } from "../constants";
+
+export const useFormData = () => {
+  const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [initialData, setInitialData] = useState<CustomForm | null>(null);
+  const [selectedBasicFields, setSelectedBasicFields] = useState<string[]>([]);
+  const [customFields, setCustomFields] = useState<FormField[]>([]);
+
+  // Active tab state with URL sync
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    return searchParams.get("tab") || "basic";
+  });
+
+  // Sync URL with active tab
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (activeTab !== "basic") {
+      newSearchParams.set("tab", activeTab);
+    } else {
+      newSearchParams.delete("tab");
+    }
+    setSearchParams(newSearchParams, { replace: true });
+  }, [activeTab, searchParams, setSearchParams]);
+
+  // Handle tab change
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
+  };
+
+  const { loading: fetchLoading, run: fetchCustomForm } = useRequest(
+    async () => {
+      if (!id) return;
+      const data = await getCustomForm(parseInt(id));
+      if (data) {
+        setInitialData(data);
+
+        // Initialize form schema data
+        if (data.form_schema) {
+          // Extract basic fields and custom fields from existing schema
+          const profileSection = data.form_schema.fields.find(
+            (section) => section.section_name === "profile_data",
+          );
+          const customSection = data.form_schema.fields.find(
+            (section) => section.section_name === "custom_form",
+          );
+
+          if (profileSection) {
+            const existingFields = profileSection.fields.map((field) => field.key);
+            // Always include name and gender as default fields
+            const defaultFields = ["name", "gender"];
+            const allFields = [...new Set([...defaultFields, ...existingFields])];
+            setSelectedBasicFields(allFields);
+          } else {
+            // If no existing profile section, set default fields
+            setSelectedBasicFields(["name", "gender"]);
+          }
+
+          if (customSection) {
+            setCustomFields(customSection.fields);
+          }
+        }
+      }
+    },
+    {
+      manual: true,
+    },
+  );
+
+  const { loading: updateLoading, run: updateForm } = useRequest(
+    async (values: { formName: string; formDescription: string }) => {
+      if (!id) return;
+
+      // Build form schema from current state
+      const profileFields = BASIC_PROFILE_FIELDS.filter((field) =>
+        selectedBasicFields.includes(field.key),
+      );
+
+      const updatedFormSchema: FormSchema = {
+        fields: [
+          {
+            section_name: "profile_data",
+            fields: profileFields,
+          },
+          {
+            section_name: "custom_form",
+            fields: customFields,
+          },
+        ],
+      };
+
+      await updateCustomForm(parseInt(id), {
+        formName: values.formName,
+        formDescription: values.formDescription,
+        formSchema: updatedFormSchema,
+      });
+      message.success("Formulir berhasil diperbarui!");
+    },
+    {
+      manual: true,
+      onError: () => {
+        message.error("Gagal memperbarui formulir");
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (id) {
+      fetchCustomForm();
+    }
+  }, [id]);
+
+  return {
+    initialData,
+    selectedBasicFields,
+    setSelectedBasicFields,
+    customFields,
+    setCustomFields,
+    activeTab,
+    handleTabChange,
+    fetchLoading,
+    updateLoading,
+    updateForm,
+  };
+};
