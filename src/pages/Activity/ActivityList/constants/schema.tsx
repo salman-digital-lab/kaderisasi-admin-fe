@@ -81,7 +81,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     fixed: "right",
     render: (_, record) => (
       <Tooltip title="Edit aktivitas">
-        <Link to={`/activity/${record.id}/edit`}>
+        <Link to={`/activity/${record.id}`}>
           <Button icon={<EditOutlined />}>
             Ubah
           </Button>
