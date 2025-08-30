@@ -17,7 +17,7 @@ const MainActivity = () => {
     activity_category: undefined,
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getActivities({
         per_page: String(parameters.per_page),
@@ -28,6 +28,11 @@ const MainActivity = () => {
       }),
     {
       refreshDeps: [parameters],
+      retryCount: 3,
+      retryInterval: 1000,
+      onError: (err) => {
+        console.error("Failed to fetch activities:", err);
+      },
     },
   );
 
@@ -37,6 +42,8 @@ const MainActivity = () => {
       <ActivityTable
         data={data}
         loading={loading}
+        error={error}
+        onRetry={refresh}
         setParameter={setParameters}
       />
     </Space>
