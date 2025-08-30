@@ -14,44 +14,6 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     width: 200,
   },
   {
-    title: "Deskripsi Singkat",
-    dataIndex: "short_description",
-    key: "short_description",
-    width: 300,
-    render: (description) => 
-      description ? (
-        <span title={description}>
-          {description.length > 100 ? `${description.substring(0, 100)}...` : description}
-        </span>
-      ) : (
-        "-"
-      ),
-  },
-
-  {
-    title: "Logo",
-    dataIndex: "logo",
-    key: "logo",
-    width: 100,
-    render: (logo) => 
-      logo ? (
-        <img 
-          src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${logo}`} 
-          alt="Logo" 
-          style={{ width: 50, height: 50, objectFit: "cover" }}
-        />
-      ) : (
-        "Tidak ada logo"
-      ),
-  },
-  {
-    title: "Media",
-    dataIndex: "media",
-    key: "media",
-    width: 100,
-    render: (media) => `${media?.items?.length || 0} file`,
-  },
-  {
     title: "Periode Mulai",
     dataIndex: "start_period",
     key: "start_period",
@@ -94,13 +56,7 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
       </Tag>
     ),
   },
-  {
-    title: "Tanggal Dibuat",
-    dataIndex: "created_at",
-    key: "created_at",
-    width: 150,
-    render: (date) => new Date(date).toLocaleDateString("id-ID"),
-  },
+
   {
     title: "Aksi",
     key: "action",

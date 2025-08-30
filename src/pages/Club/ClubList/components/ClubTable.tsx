@@ -45,7 +45,7 @@ const ClubTable = ({ data, loading, setParameter }: DataTypeProps) => {
             per_page: pagination.pageSize || 10,
           }))
         }
-        scroll={{ x: 1500 }}
+        scroll={{ x: 1200 }}
       />
     </Card>
   );

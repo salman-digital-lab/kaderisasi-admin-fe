@@ -1,4 +1,4 @@
-import { Modal, Form, Input, Button, DatePicker, Row, Col, Switch } from "antd";
+import { Modal, Form, Input, Button, DatePicker, Row, Col } from "antd";
 import { useRequest } from "ahooks";
 import dayjs from "dayjs";
 
@@ -23,12 +23,19 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
   const [form] = Form.useForm<FieldType>();
 
   const { loading, run } = useRequest(
-    (data: FieldType) => postClub({ 
-      ...data, 
-      start_period: data.start_period ? dayjs(data.start_period).format('YYYY-MM-DD') : undefined,
-      end_period: data.end_period ? dayjs(data.end_period).format('YYYY-MM-DD') : undefined,
-      registration_end_date: data.registration_end_date ? dayjs(data.registration_end_date).format('YYYY-MM-DD') : undefined,
-    }),
+    (data: FieldType) =>
+      postClub({
+        ...data,
+        start_period: data.start_period
+          ? dayjs(data.start_period).format("YYYY-MM-DD")
+          : undefined,
+        end_period: data.end_period
+          ? dayjs(data.end_period).format("YYYY-MM-DD")
+          : undefined,
+        registration_end_date: data.registration_end_date
+          ? dayjs(data.registration_end_date).format("YYYY-MM-DD")
+          : undefined,
+      }),
     {
       manual: true,
       onSuccess: () => {
@@ -36,7 +43,7 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
         onClose();
         refresh();
       },
-    }
+    },
   );
 
   const handleSubmit = () => {
@@ -59,7 +66,12 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
         <Button key="cancel" onClick={handleCancel}>
           Batal
         </Button>,
-        <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={handleSubmit}
+        >
           Simpan
         </Button>,
       ]}
@@ -76,10 +88,11 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
           label="Deskripsi Singkat"
           name="short_description"
           rules={[
-            { max: 200, message: "Deskripsi singkat maksimal 200 karakter!" }
+            { max: 200, message: "Deskripsi singkat maksimal 200 karakter!" },
+            { required: true, message: "Deskripsi singkat wajib diisi!" },
           ]}
         >
-          <Input.TextArea 
+          <Input.TextArea
             placeholder="Masukkan deskripsi singkat club (maks. 200 karakter)"
             maxLength={200}
             showCount
@@ -88,34 +101,31 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
         </Form.Item>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Periode Mulai" name="start_period">
-              <DatePicker 
-                picker="month" 
+            <Form.Item
+              label="Periode Mulai"
+              name="start_period"
+              rules={[
+                { required: true, message: "Periode mulai wajib diisi!" },
+              ]}
+            >
+              <DatePicker
+                picker="month"
                 placeholder="Pilih bulan mulai"
                 style={{ width: "100%" }}
               />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Periode Berakhir" name="end_period">
-              <DatePicker 
-                picker="month" 
+            <Form.Item
+              label="Periode Berakhir"
+              name="end_period"
+              rules={[
+                { required: true, message: "Periode berakhir wajib diisi!" },
+              ]}
+            >
+              <DatePicker
+                picker="month"
                 placeholder="Pilih bulan berakhir"
-                style={{ width: "100%" }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Pendaftaran Dibuka" name="is_registration_open" valuePropName="checked">
-              <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Tanggal Berakhir Pendaftaran" name="registration_end_date">
-              <DatePicker 
-                placeholder="Pilih tanggal berakhir pendaftaran"
                 style={{ width: "100%" }}
               />
             </Form.Item>
