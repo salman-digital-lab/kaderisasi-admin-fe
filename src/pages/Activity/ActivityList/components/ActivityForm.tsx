@@ -8,7 +8,9 @@ import {
   Modal,
   Row,
   Select,
+  Tooltip,
 } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 import {
@@ -83,6 +85,17 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
             onClose();
           }}
         >
+          <Alert
+            style={{ marginBottom: 16 }}
+            type="warning"
+            message="Fitur ini merupakan fitur manajemen kegiatan, bukan hanya media publikasi kegiatan."
+            showIcon
+          />
+          <Alert
+            style={{ marginBottom: 16 }}
+            message="Pengisian gambar/poster dan deskripsi kegiatan dilakukan setelah anda membuat kegiatan"
+            showIcon
+          />
           <Row gutter={24}>
             <Col span={24}>
               <Form.Item
@@ -91,6 +104,10 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
                 rules={[
                   { required: true, message: "Tolong masukkan nama kegiatan" },
                 ]}
+                help={
+                  formActivityType !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY &&
+                  "Nama kegiatan tidak perlu mengandung kata yang redundan seperti Pendaftaran, Oprec dkk. Kecuali kegiatan yang bertipe Umum - Hanya Pendaftaran"
+                }
               >
                 <Input placeholder="Nama Kegiatan" />
               </Form.Item>
@@ -101,8 +118,40 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
               <Form.Item name="minimum_level" label="Minimum Jenjang" required>
                 <Select
                   placeholder="Pilih Minimum Jenjang"
-                  options={USER_LEVEL_OPTIONS}
                   defaultValue={0}
+                  optionRender={(option) => {
+                    const content = (
+                      <div
+                        style={{
+                          padding: "4px 0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <span>{option.data.label}</span>
+                        {option.data.title && (
+                          <InfoCircleOutlined
+                            style={{
+                              color: "#1890ff",
+                              fontSize: "12px",
+                              opacity: 0.6,
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+
+                    return option.data.title ? (
+                      <Tooltip title={option.data.title} placement="right">
+                        {content}
+                      </Tooltip>
+                    ) : (
+                      content
+                    );
+                  }}
+                  options={USER_LEVEL_OPTIONS}
                 />
               </Form.Item>
             </Col>
@@ -123,6 +172,38 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
             <Col span={12}>
               <Form.Item name="activity_type" label="Tipe Kegiatan" required>
                 <Select
+                  optionRender={(option) => {
+                    const content = (
+                      <div
+                        style={{
+                          padding: "4px 0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <span>{option.data.label}</span>
+                        {option.data.title && (
+                          <InfoCircleOutlined
+                            style={{
+                              color: "#1890ff",
+                              fontSize: "12px",
+                              opacity: 0.6,
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+
+                    return option.data.title ? (
+                      <Tooltip title={option.data.title} placement="right">
+                        {content}
+                      </Tooltip>
+                    ) : (
+                      content
+                    );
+                  }}
                   options={ACTIVITY_TYPE_OPTIONS}
                   placeholder="Pilih Tipe Kegiatan"
                 />
@@ -152,10 +233,6 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
             ) : null}
           </Row>
         </Form>
-        <Alert
-          message="Pengisian gambar/poster dan deskripsi kegiatan dilakukan setelah anda membuat kegiatan"
-          showIcon
-        />
       </Modal>
     </>
   );

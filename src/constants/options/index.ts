@@ -14,29 +14,35 @@ export const USER_LEVEL_OPTIONS = [
   {
     value: USER_LEVEL_ENUM.JAMAAH,
     label: "Jamaah",
+    title: "Jamaah umum/mahasiswa/masyarakat umum",
   },
   {
     value: USER_LEVEL_ENUM.AKTIVIS,
     label: "Aktivis",
+    title: "Jamaah yang sudah menyelesaikan SSC",
   },
   {
     value: USER_LEVEL_ENUM.KADER,
     label: "Kader",
+    title: "Aktivis yang sudah menyelesaikan LMD",
   },
   {
     value: USER_LEVEL_ENUM.KADER_LANJUT,
     label: "Kader Lanjut",
+    title: "Kader yang sudah menyelesaikan Spectra",
   },
 ];
 
 export const ACTIVITY_TYPE_OPTIONS = [
   {
-    value: ACTIVITY_TYPE_ENUM.COMMON,
-    label: "Umum",
-  },
-  {
     value: ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY,
     label: "Umum - Hanya Pendaftaran",
+    title:
+      "Hanya memakai fitur publikasi dan pendaftaran saja, tidak memerlukan fitur penuh manajemen kegiatan",
+  },
+  {
+    value: ACTIVITY_TYPE_ENUM.COMMON,
+    label: "Umum",
   },
   {
     value: ACTIVITY_TYPE_ENUM.SSC,
@@ -104,16 +110,16 @@ export const ACTIVITY_REGISTRANT_STATUS_OPTIONS = [
 
 export const CLUB_REGISTRATION_STATUS_OPTIONS = [
   {
-    value: 'PENDING',
-    label: 'Menunggu',
+    value: "PENDING",
+    label: "Menunggu",
   },
   {
-    value: 'APPROVED',
-    label: 'Diterima',
+    value: "APPROVED",
+    label: "Diterima",
   },
   {
-    value: 'REJECTED',
-    label: 'Ditolak',
+    value: "REJECTED",
+    label: "Ditolak",
   },
 ];
 
