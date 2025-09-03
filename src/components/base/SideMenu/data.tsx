@@ -18,7 +18,7 @@ export const menuItems: () => MenuItem[] = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}").user;
   const role = user?.role as keyof typeof ADMIN_ROLE_PERMISSION;
 
-  const permissions = ADMIN_ROLE_PERMISSION[role];
+  const permissions = ADMIN_ROLE_PERMISSION[role] || [];
 
   let menuItems: MenuItem[] = [
     {

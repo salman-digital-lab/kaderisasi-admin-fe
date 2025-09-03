@@ -8,7 +8,6 @@ import {
   Card,
   notification,
   Typography,
-  Space,
   Divider,
   theme,
 } from "antd";
@@ -16,7 +15,6 @@ import {
   UserOutlined,
   LockOutlined,
   LoginOutlined,
-  SafetyOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
@@ -89,7 +87,7 @@ const LoginForm = () => {
     maxWidth: "420px",
     margin: "0 auto",
     borderRadius: "16px",
-    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
+
     border: "1px solid rgba(255, 255, 255, 0.2)",
     overflow: "hidden",
   };
@@ -119,7 +117,7 @@ const LoginForm = () => {
                     style={{
                       height: "80px",
                       width: "auto",
-                      filter: `drop-shadow(0 4px 8px ${token.colorPrimary}20)`,
+
                     }}
                   />
                 </div>
@@ -209,7 +207,7 @@ const LoginForm = () => {
                       borderRadius: "8px",
                       fontSize: "16px",
                       fontWeight: 500,
-                      boxShadow: `0 4px 12px ${token.colorPrimary}30`,
+
                     }}
                   >
                     {loading ? "Sedang Login..." : "Login"}

@@ -6,6 +6,7 @@ import {
   QuestionCircleOutlined,
   ReadOutlined,
   DownOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   Layout,
@@ -13,10 +14,11 @@ import {
   theme,
   Typography,
   Dropdown,
-  Space,
   MenuProps,
   message,
   Flex,
+  Avatar,
+  Badge,
 } from "antd";
 import SideMenu from "./SideMenu";
 import { Outlet } from "react-router-dom";
@@ -50,8 +52,24 @@ const items: MenuProps["items"] = [
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [displayName, setDisplayName] = useState<string>("");
+  const [isMobile, setIsMobile] = useState(false);
 
   const navigate = useNavigate();
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile && !collapsed) {
+        setCollapsed(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [collapsed]);
 
   const handleMenuClick: MenuProps["onClick"] = async (e) => {
     if (e.key === "2") {
@@ -87,59 +105,170 @@ const AppLayout = () => {
   };
 
   return (
-    <Layout>
+    <Layout style={{ minHeight: "100vh" }}>
       <SideMenu collapsed={collapsed} onCollapse={handleCollapse} />
       <Layout
-        style={{ marginLeft: collapsed ? 80 : 200, transition: "margin 0.2s" }}
+        style={{
+          marginLeft: isMobile ? 0 : collapsed ? 80 : 200,
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          position: "relative",
+        }}
       >
+        {/* Mobile overlay */}
+        {isMobile && !collapsed && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.45)",
+              zIndex: 999,
+            }}
+            onClick={() => setCollapsed(true)}
+          />
+        )}
+
         <Header
           style={{
             position: "sticky",
             top: 0,
-            zIndex: 1,
-            padding: 0,
-            background: colorBgContainer,
+            zIndex: 1000,
+                          padding: "0 16px",
+              background: colorBgContainer,
+              borderBottom: "1px solid #f0f0f0",
           }}
         >
-          <Flex justify="space-between" align="center">
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
-            />
-            <Space>
+          <Flex
+            justify="space-between"
+            align="center"
+            style={{ height: "64px" }}
+          >
+            <Flex align="center" gap={16}>
               <Button
                 type="text"
-                icon={<QuestionCircleOutlined />}
-                href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
-                target="_blank"
+                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
                 style={{
                   fontSize: "16px",
-                  width: 64,
-                  height: 64,
+                  width: 48,
+                  height: 48,
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s",
                 }}
+                className="header-menu-btn"
               />
-              <Dropdown menu={menuProps}>
-                <Button size="large" style={{ marginRight: 24 }}>
-                  <Space>
-                    <Text>Hello, {displayName}</Text>
-                    <DownOutlined />
-                  </Space>
+              {!isMobile && (
+                <div
+                  style={{
+                    height: "32px",
+                    width: "1px",
+                    backgroundColor: "#f0f0f0",
+                    margin: "0 8px",
+                  }}
+                />
+              )}
+            </Flex>
+
+            <Flex align="center" gap={8}>
+              <Badge dot={false}>
+                <Button
+                  type="text"
+                  icon={<QuestionCircleOutlined />}
+                  href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
+                  target="_blank"
+                  style={{
+                    fontSize: "16px",
+                    width: 40,
+                    height: 40,
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s",
+                  }}
+                  className="header-help-btn"
+                  title="Bantuan & Dukungan"
+                />
+              </Badge>
+
+              <Dropdown
+                menu={menuProps}
+                placement="bottomRight"
+                trigger={["click"]}
+              >
+                <Button
+                  type="text"
+                  style={{
+                    height: 48,
+                    padding: "0 12px",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    transition: "all 0.2s",
+                    border: "1px solid transparent",
+                  }}
+                  className="header-profile-btn"
+                >
+                  <Avatar
+                    size={32}
+                    icon={<UserOutlined />}
+                    style={{
+                      backgroundColor: "#1F99CB",
+                      flexShrink: 0,
+                    }}
+                  />
+                  {!isMobile && (
+                    <Flex vertical align="start" style={{ minWidth: 0 }}>
+                      <Text
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: 500,
+                          lineHeight: 1.2,
+                          color: "#262626",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          maxWidth: "120px",
+                        }}
+                      >
+                        {displayName || "Admin"}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: "12px",
+                          color: "#8c8c8c",
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        Administrator
+                      </Text>
+                    </Flex>
+                  )}
+                  <DownOutlined
+                    style={{
+                      fontSize: "12px",
+                      color: "#8c8c8c",
+                      transition: "transform 0.2s",
+                    }}
+                  />
                 </Button>
               </Dropdown>
-            </Space>
+            </Flex>
           </Flex>
         </Header>
 
         <Content
           style={{
-            padding: 24,
+            padding: isMobile ? 16 : 24,
             minHeight: "calc(100vh - 64px)",
+            backgroundColor: "#fafafa",
+            overflow: "auto",
           }}
         >
           <Outlet />
@@ -150,3 +279,37 @@ const AppLayout = () => {
 };
 
 export default AppLayout;
+
+// Add custom styles
+const styles = `
+  .header-menu-btn:hover {
+    background-color: #f5f5f5 !important;
+  }
+  
+  .header-help-btn:hover {
+    background-color: #e6f7ff !important;
+    color: #1890ff !important;
+  }
+  
+  .header-profile-btn:hover {
+    background-color: #f5f5f5 !important;
+    border-color: #d9d9d9 !important;
+  }
+  
+  .header-profile-btn:hover .anticon-down {
+    transform: rotate(180deg);
+  }
+  
+  @media (max-width: 768px) {
+    .header-profile-btn {
+      padding: 0 8px !important;
+    }
+  }
+`;
+
+// Inject styles
+if (typeof document !== "undefined") {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}
