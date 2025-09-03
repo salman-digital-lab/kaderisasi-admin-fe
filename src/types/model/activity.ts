@@ -58,4 +58,15 @@ export type Registrant = {
   questionnaire_answer: Record<string, string>;
   created_at: string;
   updated_at: string;
+  name: string;
+  email: string;
+  level: number;
+  personal_id?: string;
+  whatsapp?: string;
+  province_id?: number;
+  university_id?: number;
+  instagram?: string;
+  line?: string;
+  major?: string;
+  intake_year?: number;
 };

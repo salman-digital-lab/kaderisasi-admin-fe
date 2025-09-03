@@ -73,6 +73,28 @@ export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
     },
   },
   {
+    title: "Email",
+    dataIndex: "email",
+    render: (text) => (
+      <Tooltip title={text} placement="topLeft">
+        <span style={{ 
+          display: 'block',
+          maxWidth: '180px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}>
+          {text || '-'}
+        </span>
+      </Tooltip>
+    ),
+    width: 200,
+    fixed: 'left',
+    ellipsis: {
+      showTitle: false,
+    },
+  },
+  {
     title: "Status Pendaftaran",
     dataIndex: "status",
     render: (status) => <StatusBadge status={status} />,
