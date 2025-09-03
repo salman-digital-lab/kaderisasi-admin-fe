@@ -1,7 +1,9 @@
 import { Layout, Menu, Typography } from "antd";
 import { useLocation } from "react-router-dom";
+import { useMemo } from "react";
 import { menuItems } from "./data";
 import { SidebarProps } from "../../../types";
+import { usePermissions } from "../../../stores/authStore";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -9,6 +11,10 @@ const { Text } = Typography;
 const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const permissions = usePermissions();
+  
+  // Memoize menu items based on permissions - will re-calculate when permissions change
+  const memoizedMenuItems = useMemo(() => menuItems(permissions), [permissions]);
   
   // Determine selected keys based on current path
   const getSelectedKeys = () => {
@@ -145,7 +151,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
           mode="inline"
           selectedKeys={getSelectedKeys()}
           defaultOpenKeys={getOpenKeys()}
-          items={menuItems()}
+          items={memoizedMenuItems}
           style={{
             background: 'transparent',
             border: 'none',

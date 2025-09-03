@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 import axios from "./axios";
 import { PostLoginResp, PutLogoutResp } from "../types/services/auth";
+import { useAuthStore } from "../stores/authStore";
 
 type FieldType = {
   email?: string;
@@ -10,9 +11,7 @@ type FieldType = {
 export const loginUser = async (values: FieldType) => {
   try {
     const res = await axios.post<PostLoginResp>("/auth/login", values);
-    const user = res.data.data;
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", user.token.token);
+    // Don't update store here - let the component handle it
     return res.data;
   } catch (error) {
     if (error instanceof AxiosError)
@@ -25,8 +24,9 @@ export const logout = async () => {
   try {
     await axios.put<PutLogoutResp>("/auth/logout");
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    // Clear auth state from Zustand store (this will also clear localStorage via persistence)
+    const { clearAuth } = useAuthStore.getState();
+    clearAuth();
   } catch (error) {
     console.error("Error logging out:", error);
     throw error;

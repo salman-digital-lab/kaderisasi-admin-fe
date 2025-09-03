@@ -10,15 +10,14 @@ import {
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
-import { ADMIN_ROLE_PERMISSION } from "../../../constants/permissions";
+import { useAuthStore } from "../../../stores/authStore";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
-export const menuItems: () => MenuItem[] = () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}").user;
-  const role = user?.role as keyof typeof ADMIN_ROLE_PERMISSION;
+// Re-export clearAuth as clearMenuCache for backward compatibility
+export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 
-  const permissions = ADMIN_ROLE_PERMISSION[role] || [];
+export const menuItems: (permissions: string[]) => MenuItem[] = (permissions) => {
 
   let menuItems: MenuItem[] = [
     {

@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../../api/auth";
 import { renderNotification } from "../../../constants/render";
+import { useSetAuth } from "../../../stores/authStore";
 
 const { Title, Text } = Typography;
 
@@ -33,6 +34,7 @@ const LoginForm = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { token } = theme.useToken();
+  const setAuth = useSetAuth();
 
   // Set focus to email field on component mount
   useEffect(() => {
@@ -48,6 +50,11 @@ const LoginForm = () => {
     setLoading(true);
     try {
       const resp = await loginUser(values);
+      
+      // Update auth state after successful login
+      const responseData = resp.data;
+      setAuth(responseData.token.token, responseData.user as any);
+      
       notification.success({
         message: "Berhasil Login",
         description: renderNotification(resp.message),
@@ -55,7 +62,10 @@ const LoginForm = () => {
         duration: 4,
       });
 
-      navigate("/dashboard");
+      // Small delay to ensure auth state is properly updated before navigation
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
     } catch (error) {
       if (error instanceof Error)
         notification.error({
@@ -103,7 +113,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="login-container">
+    <div>
       <Row justify="center" align="middle" style={containerStyle}>
         <Col xs={24} sm={20} md={16} lg={12} xl={10} xxl={8}>
           <Card bordered={false} style={cardStyle} className="login-card">
@@ -145,7 +155,6 @@ const LoginForm = () => {
                 onFinish={onFinish}
                 autoComplete="off"
                 layout="vertical"
-                size="large"
                 requiredMark={false}
               >
                 <Form.Item
@@ -163,11 +172,6 @@ const LoginForm = () => {
                       />
                     }
                     placeholder="Masukkan email Anda"
-                    style={{
-                      height: "48px",
-                      borderRadius: "8px",
-                      fontSize: "16px",
-                    }}
                   />
                 </Form.Item>
 
@@ -187,11 +191,6 @@ const LoginForm = () => {
                       />
                     }
                     placeholder="Masukkan password Anda"
-                    style={{
-                      height: "48px",
-                      borderRadius: "8px",
-                      fontSize: "16px",
-                    }}
                   />
                 </Form.Item>
 
@@ -203,11 +202,6 @@ const LoginForm = () => {
                     icon={<LoginOutlined />}
                     style={{
                       width: "100%",
-                      height: "48px",
-                      borderRadius: "8px",
-                      fontSize: "16px",
-                      fontWeight: 500,
-
                     }}
                   >
                     {loading ? "Sedang Login..." : "Login"}

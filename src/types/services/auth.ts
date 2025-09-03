@@ -4,6 +4,13 @@ export type PostLoginResp = {
     token: {
       token: string;
     };
+    user: {
+      id?: string;
+      email?: string;
+      display_name?: string;
+      role?: string;
+      [key: string]: any;
+    };
   };
 };
 

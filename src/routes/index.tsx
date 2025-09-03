@@ -21,16 +21,20 @@ import ClubList from "../pages/Club/ClubList";
 import ClubDetail from "../pages/Club/ClubDetail";
 import CustomFormList from "../pages/CustomForm/CustomFormList";
 import CustomFormEdit from "../pages/CustomForm/CustomFormEdit";
-import { ADMIN_ROLE_PERMISSION } from "../constants/permissions";
-
-const isAuthenticated = () => {
-  return localStorage.getItem("token") !== null;
-};
+import { useIsAuthenticated, useIsInitialized, useHasPermission } from "../stores/authStore";
 
 // eslint-disable-next-line react-refresh/only-export-components
 const AuthUser = ({ element }: { element: ReactNode }) => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" />;
+  const isAuthenticated = useIsAuthenticated();
+  const isInitialized = useIsInitialized();
+  
+  // Wait for initialization to prevent infinite loops
+  if (!isInitialized) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
   return <>{element}</>;
@@ -44,11 +48,17 @@ const RoleUser = ({
   element: ReactNode;
   permission: string;
 }) => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}").user;
-  const role = user?.role as keyof typeof ADMIN_ROLE_PERMISSION;
-
-  if (!ADMIN_ROLE_PERMISSION[role].includes(permission)) {
-    return <Navigate to="/login" />;
+  const isAuthenticated = useIsAuthenticated();
+  const isInitialized = useIsInitialized();
+  const hasPermission = useHasPermission();
+  
+  // Wait for initialization to prevent infinite loops
+  if (!isInitialized) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!isAuthenticated || !hasPermission(permission)) {
+    return <Navigate to="/login" replace />;
   }
 
   return <>{element}</>;

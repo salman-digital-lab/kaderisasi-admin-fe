@@ -1,5 +1,5 @@
 import "antd/dist/reset.css";
-import "./styles/global.css";
+// import "./styles/global.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
@@ -17,26 +17,6 @@ const customTheme = {
     colorInfo: "#1F99CB",
     borderRadius: 8,
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  },
-  components: {
-    Button: {
-      borderRadius: 8,
-      controlHeight: 40,
-      fontSize: 14,
-      fontWeight: 500,
-    },
-    Input: {
-      borderRadius: 8,
-      controlHeight: 40,
-    },
-    Card: {
-      borderRadius: 16,
-      paddingLG: 24,
-    },
-    Form: {
-      labelFontSize: 14,
-      labelColor: 'rgba(0, 0, 0, 0.88)',
-    },
   },
 };
 

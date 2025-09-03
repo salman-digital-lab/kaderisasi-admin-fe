@@ -24,6 +24,7 @@ import SideMenu from "./SideMenu";
 import { Outlet } from "react-router-dom";
 import { logout } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useUser, useClearAuth } from "../../stores/authStore";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -51,10 +52,13 @@ const items: MenuProps["items"] = [
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [displayName, setDisplayName] = useState<string>("");
   const [isMobile, setIsMobile] = useState(false);
-
+  
+  const user = useUser();
+  const clearAuth = useClearAuth();
   const navigate = useNavigate();
+  
+  const displayName = user?.display_name || "Admin";
 
   // Handle responsive behavior
   useEffect(() => {
@@ -75,6 +79,8 @@ const AppLayout = () => {
     if (e.key === "2") {
       try {
         await logout();
+        // Clear auth state when user logs out
+        clearAuth();
         message.success("Logout successful");
         navigate("/login");
       } catch (error) {
@@ -88,13 +94,7 @@ const AppLayout = () => {
     onClick: handleMenuClick,
   };
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
 
-    const parseData = JSON.parse(user || "{}");
-
-    setDisplayName(parseData?.user?.display_name || "");
-  }, []);
 
   const {
     token: { colorBgContainer },
