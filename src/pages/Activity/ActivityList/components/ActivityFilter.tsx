@@ -106,28 +106,27 @@ const ActivityFilter = ({ setParameter, refresh }: FilterProps) => {
               />
             </Form.Item>
           </Col>
-
-          <Col span={6} style={{ display: "flex", alignItems: "end" }}>
-            <Form.Item style={{ marginBottom: 0, width: "100%" }}>
-              <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-                <Button
-                  onClick={toggle}
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  title="Tambah aktivitas baru"
-                >
-                  Tambah Kegiatan
-                </Button>
-                <Button
-                  icon={<SearchOutlined />}
-                  onClick={handleSearch}
-                  title="Cari aktivitas"
-                >
-                  Cari
-                </Button>
-              </Space>
-            </Form.Item>
-          </Col>
+        </Row>
+        <Row justify="end">
+          <Form.Item style={{ marginBottom: 0, width: "100%" }}>
+            <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+              <Button
+                onClick={toggle}
+                icon={<PlusOutlined />}
+                type="primary"
+                title="Tambah aktivitas baru"
+              >
+                Tambah Kegiatan
+              </Button>
+              <Button
+                icon={<SearchOutlined />}
+                onClick={handleSearch}
+                title="Cari aktivitas"
+              >
+                Cari
+              </Button>
+            </Space>
+          </Form.Item>
         </Row>
       </Form>
 

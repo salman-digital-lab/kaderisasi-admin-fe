@@ -50,7 +50,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     dataIndex: "is_published",
     width: 140,
     render: (value) => {
-      const isPublished = value === 1;
+      const isPublished = value;
       return (
         <Tooltip
           title={
@@ -82,9 +82,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     render: (_, record) => (
       <Tooltip title="Edit aktivitas">
         <Link to={`/activity/${record.id}`}>
-          <Button icon={<EditOutlined />}>
-            Ubah
-          </Button>
+          <Button icon={<EditOutlined />}>Ubah</Button>
         </Link>
       </Tooltip>
     ),
