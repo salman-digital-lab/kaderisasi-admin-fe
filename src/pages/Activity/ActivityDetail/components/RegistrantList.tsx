@@ -8,6 +8,7 @@ import {
   Space,
   Table,
   Select,
+  Skeleton,
 } from "antd";
 import {
   SearchOutlined,
@@ -16,7 +17,7 @@ import {
   DownloadOutlined,
   MailOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { useRequest, useToggle } from "ahooks";
 import { useParams } from "react-router-dom";
 
@@ -24,9 +25,11 @@ import {
   getActivity,
   getExportRegistrants,
   getRegistrants,
+  putRegistrant,
 } from "../../../../api/services/activity";
 
-import { generateTableSchema } from "../constants/schema";
+import { generateTableSchema, clearSchemaCache } from "../constants/schema";
+import { useBulkActions } from "../hooks/useBulkActions";
 
 import MembersListModal from "./Modal/MembersListModal";
 import ChangeStatusModal from "./Modal/ChangesStatusModal";
@@ -46,12 +49,14 @@ const RegistrantList = () => {
   const [modalState, { toggle: toggleModal }] = useToggle();
   const [modalChangeStatusState, { toggle: toggleChangeStatusModal }] =
     useToggle();
-  const [modalChangeStatusByEmailState, { toggle: toggleChangeStatusByEmailModal }] =
-    useToggle();
+  const [
+    modalChangeStatusByEmailState,
+    { toggle: toggleChangeStatusByEmailModal },
+  ] = useToggle();
 
   const [parameters, setParameter] = useState({
     page: 1,
-    per_page: 10,
+    per_page: 25, // Increased default page size for better performance
     name: "",
     status: "",
   });
@@ -61,35 +66,82 @@ const RegistrantList = () => {
     [],
   );
 
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const handleExportRegistrants = async () => {
-    const data = await getExportRegistrants(id);
-    if (data) {
-      const blob = new Blob([data], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "export-pendaftar.csv";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    }
-  };
-
-  const { data, loading, refresh } = useRequest(
-    () =>
+  const { data, loading, run: fetchData } = useRequest(
+    (params) =>
       getRegistrants(id, {
-        page: String(parameters.page),
-        per_page: String(parameters.per_page),
-        name: parameters.name,
-        status: parameters.status,
+        page: String(params.page),
+        per_page: String(params.per_page),
+        name: params.name,
+        status: params.status,
       }),
     {
-      refreshDeps: [parameters],
+      manual: true, // Don't auto-run on mount
+      loadingDelay: 200, // Prevent flickering on quick requests
     },
   );
+
+  // Initial data fetch on component mount
+  useEffect(() => {
+    fetchData(parameters);
+  }, []); // Only run once on mount
+
+  // Fetch data when pagination changes (not search parameters)
+  useEffect(() => {
+    if (parameters.page > 1 || parameters.per_page !== 25) {
+      fetchData(parameters);
+    }
+  }, [parameters.page, parameters.per_page]);
+
+  // Bulk actions hook for better performance
+  const bulkActions = useBulkActions({
+    onStatusChange: async (ids: React.Key[], status: string) => {
+      await putRegistrant({
+        registrations_id: ids.map(String),
+        status: status as any,
+      });
+      fetchData(parameters);
+    },
+    onExport: async (ids: React.Key[]) => {
+      // Implementation for selective export if needed
+      console.log("Exporting selected:", ids);
+    },
+  });
+
+  // Search function that will be called only on button click
+  const handleSearch = useCallback((searchParams: { name: string; status: string }) => {
+    const newParams = {
+      ...parameters,
+      name: searchParams.name,
+      status: searchParams.status,
+      page: 1, // Reset to first page on search
+    };
+    setParameter(newParams);
+    fetchData(newParams);
+  }, [parameters, fetchData]);
+
+  const handleExportRegistrants = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const data = await getExportRegistrants(id);
+      if (data) {
+        const blob = new Blob([data], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `export-pendaftar-${new Date().toISOString().split("T")[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [id]);
 
   useRequest(() => getActivity(Number(id)), {
     cacheKey: `activity-${id}`,
@@ -112,9 +164,33 @@ const RegistrantList = () => {
   useEffect(() => {
     if (!modalState && !modalChangeStatusState)
       setTimeout(() => {
-        refresh();
-      }, 1000);
-  }, [modalState, modalChangeStatusState]);
+        fetchData(parameters);
+      }, 500); // Reduced timeout for better UX
+  }, [modalState, modalChangeStatusState, fetchData, parameters]);
+
+  // Optimized table columns with memoization
+  const tableColumns = useMemo(() => {
+    return generateTableSchema(mandatoryData);
+  }, [mandatoryData]);
+
+  // Clear schema cache when mandatory data changes
+  useEffect(() => {
+    clearSchemaCache();
+  }, [mandatoryData]);
+
+  // Handle pagination changes
+  const handleTableChange = useCallback((pagination: any) => {
+    setParameter((prev) => ({
+      ...prev,
+      page: pagination.current || 1,
+      per_page: pagination.pageSize || 25,
+    }));
+  }, []);
+
+  // Clear all selections when page changes
+  useEffect(() => {
+    bulkActions.clearSelection();
+  }, [parameters.page, bulkActions.clearSelection]);
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
@@ -122,7 +198,7 @@ const RegistrantList = () => {
       <ChangeStatusModal
         open={modalChangeStatusState}
         toggle={toggleChangeStatusModal}
-        selectedRegistrationID={selectedRowKeys}
+        selectedRegistrationID={bulkActions.selectedRowKeys}
         customSelectionStatus={customSelectionStatus}
       />
       <ChangeStatusByEmailModal
@@ -135,19 +211,21 @@ const RegistrantList = () => {
         <Form
           layout="vertical"
           form={form}
-          onFinish={(val) =>
-            setParameter((prev) => ({
-              ...prev,
+          onFinish={(val) => {
+            const searchParams = {
               name: val.fullname || "",
-              page: 1,
               status: val.status || "",
-            }))
-          }
+            };
+            handleSearch(searchParams);
+          }}
         >
           <Row gutter={16}>
             <Col span={6}>
               <Form.Item label="Nama Pendaftar" name="fullname">
-                <Input placeholder="Nama Pendaftar" allowClear />
+                <Input
+                  placeholder="Nama Pendaftar"
+                  allowClear
+                />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -162,6 +240,8 @@ const RegistrantList = () => {
                   ]}
                   placeholder="Status Pendaftaran"
                   allowClear
+                  showSearch
+                  optionFilterProp="label"
                 />
               </Form.Item>
             </Col>
@@ -171,9 +251,13 @@ const RegistrantList = () => {
               <Button
                 onClick={() => toggleChangeStatusModal()}
                 icon={<EditOutlined />}
-                disabled={!selectedRowKeys.length}
+                disabled={!bulkActions.selectionInfo.hasSelection}
+                type={
+                  bulkActions.selectionInfo.hasSelection ? "primary" : "default"
+                }
+                loading={bulkActions.selectionInfo.isProcessing}
               >
-                Ubah Status
+                Ubah Status ({bulkActions.selectionInfo.count})
               </Button>
               <Button
                 onClick={() => toggleChangeStatusByEmailModal()}
@@ -184,8 +268,10 @@ const RegistrantList = () => {
               <Button
                 onClick={handleExportRegistrants}
                 icon={<DownloadOutlined />}
+                loading={isExporting}
+                disabled={isExporting}
               >
-                Export Peserta
+                {isExporting ? "Mengexport..." : "Export Peserta"}
               </Button>
               <Button onClick={() => toggleModal()} icon={<PlusOutlined />}>
                 Tambah Peserta
@@ -203,41 +289,39 @@ const RegistrantList = () => {
       </Card>
 
       <Card>
-        <Table
-          rowKey="id"
-          columns={generateTableSchema(mandatoryData)}
-          dataSource={data?.data}
-          pagination={{
-            current: data?.meta.current_page,
-            pageSize: data?.meta.per_page,
-            showSizeChanger: true,
-            total: data?.meta.total,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-          }}
-          loading={loading}
-          onChange={(pagination) =>
-            setParameter((prev) => ({
-              ...prev,
-              page: pagination.current || 1,
-              per_page: pagination.pageSize || 10,
-            }))
-          }
-          rowSelection={{
-            type: "checkbox",
-            onChange: (newSelectedRowKeys: React.Key[]) => {
-              setSelectedRowKeys(newSelectedRowKeys);
-            },
-            getCheckboxProps: (record) => ({
-              disabled: record.status === "LULUS KEGIATAN",
-            }),
-            selectedRowKeys,
-          }}
-          scroll={{ x: 1200 }}
-        />
+        {loading && !data ? (
+          <div style={{ padding: "20px" }}>
+            <Skeleton active paragraph={{ rows: 10 }} />
+          </div>
+        ) : (
+          <Table
+            rowKey="id"
+            columns={tableColumns}
+            dataSource={data?.data}
+            pagination={{
+              current: data?.meta.current_page,
+              pageSize: data?.meta.per_page,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "25", "50", "100", "200"],
+              total: data?.meta.total,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} dari ${total} data`,
+              showQuickJumper: (data?.meta?.total || 0) > 100,
+              size: "default",
+            }}
+            loading={loading && !!data} // Only show loading overlay if data exists
+            onChange={handleTableChange}
+            rowSelection={bulkActions.rowSelection}
+            scroll={{ x: 1200, y: 600 }} // Added vertical scroll for better performance
+            size="middle" // Compact size for better data density
+            sticky={{
+              offsetHeader: 64, // Adjust based on your header height
+            }}
+          />
+        )}
       </Card>
     </Space>
   );
 };
 
-export default RegistrantList;
+export default memo(RegistrantList);
