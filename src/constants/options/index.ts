@@ -155,6 +155,10 @@ export const ADMIN_ROLE_OPTIONS = [
     label: "Konselor",
     value: ADMIN_ROLE_ENUM.KONSELOR,
   },
+  {
+    label: "Leaderboard",
+    value: ADMIN_ROLE_ENUM.LEADERBOARD,
+  },
 ];
 
 export const PROBLEM_STATUS_OPTIONS = [
