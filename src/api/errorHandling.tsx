@@ -8,12 +8,9 @@ export const handleError = (error: unknown) => {
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       if (axiosError.response.status === 401) {
-        notification.error({
-          message: "Gagal",
-          description: `Anda tidak memiliki akses`,
-        });
-
-        window?.location?.replace(window.location.origin + "/login");
+        // 401 errors are now handled by the axios interceptor
+        // No need to show notification or redirect here
+        return;
       } else if (
         axiosError.response.data &&
         typeof axiosError.response.data === "object" &&
