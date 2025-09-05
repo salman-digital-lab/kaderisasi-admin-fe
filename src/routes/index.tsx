@@ -173,6 +173,10 @@ const routes = createBrowserRouter([
       },
     ],
   },
-]);
+], {
+  future: {
+    v7_relativeSplatPath: true,
+  },
+});
 
 export default routes;
