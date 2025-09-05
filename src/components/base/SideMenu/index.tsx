@@ -12,10 +12,10 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const permissions = usePermissions();
-  
+
   // Memoize menu items based on permissions - will re-calculate when permissions change
   const memoizedMenuItems = useMemo(() => menuItems(permissions), [permissions]);
-  
+
   // Determine selected keys based on current path
   const getSelectedKeys = () => {
     if (currentPath.startsWith('/dashboard')) return ['/dashboard'];
@@ -32,8 +32,8 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
   };
 
   const getOpenKeys = () => {
-    if (currentPath.startsWith('/province') || 
-        currentPath.startsWith('/universities') || 
+    if (currentPath.startsWith('/province') ||
+        currentPath.startsWith('/universities') ||
         currentPath.startsWith('/custom-form')) {
       return ['/data-center'];
     }
@@ -49,89 +49,69 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
       collapsible
       collapsed={collapsed}
       onCollapse={onCollapse}
-      width={200}
+      width={256}
       collapsedWidth={80}
+      theme="light"
       style={{
-        overflow: "hidden",
+        overflow: "auto",
         height: "100vh",
         position: "fixed",
         left: 0,
         top: 0,
         bottom: 0,
         zIndex: 1001,
-        background: 'linear-gradient(135deg, #1F99CB 0%, #229ACC 100%)',
-
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        borderRight: '1px solid #f0f0f0',
       }}
     >
       {/* Logo Section */}
-      <div 
-        className="logo-section"
+      <div
         style={{
-          padding: collapsed ? '16px 8px' : '20px 16px',
-          textAlign: 'center',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          marginBottom: '8px',
-          transition: 'all 0.3s ease',
-        }}>
-        <div style={{
+          height: 64,
           display: 'flex',
           alignItems: 'center',
           justifyContent: collapsed ? 'center' : 'flex-start',
+          padding: collapsed ? '0 16px' : '0 24px',
+          borderBottom: '1px solid #f0f0f0',
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
           gap: collapsed ? 0 : 12,
-          transition: 'all 0.3s ease',
         }}>
-          <div style={{
-            position: 'relative',
-            display: 'inline-block',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}>
-            <img 
-              src={'/BMKA_logo.svg'} 
-              alt="BMKA Logo"
-              style={{
-                width: collapsed ? 42 : 52,
-                height: collapsed ? 42 : 52,
-                borderRadius: collapsed ? '10px' : '12px',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-
-                background: '#ffffff',
-                padding: '6px',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                cursor: 'pointer',
-
-              }}
-              className="bmka-logo"
-            />
-
-          </div>
+          <img
+            src={'/BMKA_logo.svg'}
+            alt="BMKA Logo"
+            style={{
+              width: collapsed ? 32 : 40,
+              height: collapsed ? 32 : 40,
+              background: '#ffffff',
+              padding: '4px',
+              borderRadius: '6px',
+              border: '1px solid #f0f0f0',
+            }}
+          />
           {!collapsed && (
-            <div style={{ 
-              textAlign: 'left',
-              overflow: 'hidden'
-            }}>
-              <Text style={{
-                color: '#ffffff',
-                fontSize: '17px',
-                fontWeight: 700,
-                lineHeight: 1.1,
-                display: 'block',
-                letterSpacing: '0.5px',
-                textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                marginBottom: '2px'
-              }}>
+            <div>
+              <Text
+                style={{
+                  color: '#262626',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  lineHeight: 1.2,
+                  display: 'block',
+                }}
+              >
                 BMKA Admin
               </Text>
-              <Text style={{
-                color: 'rgba(255, 255, 255, 0.85)',
-                fontSize: '11px',
-                lineHeight: 1.1,
-                display: 'block',
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                opacity: 0.9
-              }}>
+              <Text
+                style={{
+                  color: '#8c8c8c',
+                  fontSize: '12px',
+                  lineHeight: 1.2,
+                  display: 'block',
+                }}
+              >
                 Dashboard
               </Text>
             </div>
@@ -140,138 +120,19 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
       </div>
 
       {/* Menu Section */}
-      <div style={{
-        height: 'calc(100vh - 100px)',
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        padding: '0 8px',
-      }}>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={getSelectedKeys()}
-          defaultOpenKeys={getOpenKeys()}
-          items={memoizedMenuItems}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            fontSize: '14px',
-          }}
-          inlineIndent={16}
-        />
-      </div>
+      <Menu
+        theme="light"
+        mode="inline"
+        selectedKeys={getSelectedKeys()}
+        defaultOpenKeys={getOpenKeys()}
+        items={memoizedMenuItems}
+        style={{
+          border: 'none',
+        }}
+      />
     </Sider>
   );
 };
 
 export default SideMenu;
 
-// Add custom styles for sidebar
-const sidebarStyles = `
-  .ant-menu-dark {
-    background: transparent !important;
-  }
-  
-  .ant-menu-dark .ant-menu-item {
-    background: transparent !important;
-    margin: 4px 0 !important;
-    border-radius: 8px !important;
-    height: 40px !important;
-    line-height: 40px !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-  
-  .ant-menu-dark .ant-menu-item:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    transform: translateX(4px);
-  }
-  
-  .ant-menu-dark .ant-menu-item-selected {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-right: 3px solid #ffffff;
-    font-weight: 500;
-  }
-  
-  .ant-menu-dark .ant-menu-submenu-title {
-    background: transparent !important;
-    margin: 4px 0 !important;
-    border-radius: 8px !important;
-    height: 40px !important;
-    line-height: 40px !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-  
-  .ant-menu-dark .ant-menu-submenu-title:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    transform: translateX(4px);
-  }
-  
-  .ant-menu-dark .ant-menu-submenu-open > .ant-menu-submenu-title {
-    background: rgba(255, 255, 255, 0.1) !important;
-  }
-  
-  .ant-menu-dark .ant-menu-sub {
-    background: rgba(0, 0, 0, 0.1) !important;
-    border-radius: 8px;
-    margin: 4px 0;
-  }
-  
-  .ant-menu-dark .ant-menu-sub .ant-menu-item {
-    padding-left: 32px !important;
-    margin: 2px 8px !important;
-    height: 36px !important;
-    line-height: 36px !important;
-  }
-  
-  .ant-menu-dark .ant-menu-item a,
-  .ant-menu-dark .ant-menu-submenu-title {
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
-  
-  .ant-menu-dark .ant-menu-item-selected a {
-    color: #ffffff !important;
-    font-weight: 500;
-  }
-  
-  .ant-menu-dark .ant-menu-item .anticon,
-  .ant-menu-dark .ant-menu-submenu-title .anticon {
-    color: rgba(255, 255, 255, 0.8) !important;
-    font-size: 16px;
-  }
-  
-  .ant-menu-dark .ant-menu-item-selected .anticon {
-    color: #ffffff !important;
-  }
-  
-
-  
-  /* Custom scrollbar for sidebar */
-  .ant-layout-sider::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  .ant-layout-sider::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .ant-layout-sider::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
-  }
-  
-  .ant-layout-sider::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-  }
-
-`;
-
-// Inject sidebar styles
-if (typeof document !== 'undefined') {
-  const existingSidebarStyle = document.getElementById('sidebar-styles');
-  if (!existingSidebarStyle) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'sidebar-styles';
-    styleSheet.textContent = sidebarStyles;
-    document.head.appendChild(styleSheet);
-  }
-}

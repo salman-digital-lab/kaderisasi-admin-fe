@@ -109,7 +109,7 @@ const AppLayout = () => {
       <SideMenu collapsed={collapsed} onCollapse={handleCollapse} />
       <Layout
         style={{
-          marginLeft: isMobile ? 0 : collapsed ? 80 : 200,
+          marginLeft: isMobile ? 0 : collapsed ? 80 : 256,
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           position: "relative",
         }}
