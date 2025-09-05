@@ -92,16 +92,6 @@ const LoginForm = () => {
     padding: "20px",
   };
 
-  const cardStyle = {
-    width: "100%",
-    maxWidth: "420px",
-    margin: "0 auto",
-    borderRadius: "16px",
-
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    overflow: "hidden",
-  };
-
   const logoContainerStyle = {
     textAlign: "center" as const,
     marginBottom: "32px",
@@ -116,7 +106,7 @@ const LoginForm = () => {
     <div>
       <Row justify="center" align="middle" style={containerStyle}>
         <Col xs={24} sm={20} md={16} lg={12} xl={10} xxl={8}>
-          <Card bordered={false} style={cardStyle} className="login-card">
+          <Card className="login-card">
             <div style={formStyle}>
               {/* Logo and Branding Section */}
               <div style={logoContainerStyle} className="logo-container">
@@ -191,6 +181,7 @@ const LoginForm = () => {
                       />
                     }
                     placeholder="Masukkan password Anda"
+                    autoComplete="current-password"
                   />
                 </Form.Item>
 
