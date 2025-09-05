@@ -15,7 +15,7 @@ const MainUniversity = () => {
     per_page: 10,
     name: "",
   });
-  const [editItem, setEditItem] = useState<University>({ id: 0, name: "" });
+  const [editItem, setEditItem] = useState<University>({ id: 0, name: "", province_id: undefined });
   const [state, { toggle }] = useToggle(false);
 
   const { data, loading } = useRequest(
@@ -30,8 +30,10 @@ const MainUniversity = () => {
     },
   );
 
-  const openModal = (id?: number, name?: string) => {
-    id && name ? setEditItem({ id, name }) : setEditItem({ id: 0, name: "" });
+  const openModal = (id?: number, name?: string, province_id?: number) => {
+    id && name
+      ? setEditItem({ id, name, province_id })
+      : setEditItem({ id: 0, name: "", province_id: undefined });
     toggle();
   };
 

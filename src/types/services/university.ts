@@ -16,7 +16,8 @@ export type getUniversitiesReq = {
 
 export type universityReq = {
   data: {
-    name?: string;
+    name: string;
+    provinceId: number;
   };
 };
 

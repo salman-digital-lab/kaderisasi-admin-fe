@@ -16,7 +16,7 @@ interface DataTypeProps {
       name: string;
     }>
   >;
-  openModal: (id: number, name: string) => void;
+  openModal: (id: number, name: string, province_id?: number) => void;
 }
 
 const UniversitiesTable = ({
