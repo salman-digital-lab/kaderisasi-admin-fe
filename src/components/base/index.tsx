@@ -25,6 +25,7 @@ import { Outlet } from "react-router-dom";
 import { logout } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { useUser, useClearAuth } from "../../stores/authStore";
+import Breadcrumb from "../common/Breadcrumb";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -135,9 +136,9 @@ const AppLayout = () => {
             position: "sticky",
             top: 0,
             zIndex: 1000,
-                          padding: "0 16px",
-              background: colorBgContainer,
-              borderBottom: "1px solid #f0f0f0",
+            padding: "0 16px",
+            background: colorBgContainer,
+            borderBottom: "1px solid #f0f0f0",
           }}
         >
           <Flex
@@ -172,6 +173,7 @@ const AppLayout = () => {
                   }}
                 />
               )}
+              <Breadcrumb />
             </Flex>
 
             <Flex align="center" gap={8}>
