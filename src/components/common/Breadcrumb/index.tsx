@@ -1,6 +1,15 @@
 import { Breadcrumb as AntBreadcrumb } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import { HomeOutlined } from "@ant-design/icons";
+import {
+  HomeOutlined,
+  UserOutlined,
+  ScheduleOutlined,
+  DatabaseOutlined,
+  WechatOutlined,
+  SettingOutlined,
+  TrophyOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 interface BreadcrumbItem {
@@ -18,31 +27,31 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
     { path: "/", title: "Beranda", icon: <HomeOutlined /> }
   ],
   "/member": [
-    { path: "/member", title: "Anggota" }
+    { path: "/member", title: "Anggota", icon: <UserOutlined /> }
   ],
   "/activity": [
-    { path: "/activity", title: "Kegiatan" }
+    { path: "/activity", title: "Kegiatan", icon: <ScheduleOutlined /> }
   ],
   "/universities": [
-    { path: "/universities", title: "Universitas" }
+    { path: "/universities", title: "Perguruan Tinggi", icon: <DatabaseOutlined /> }
   ],
   "/province": [
-    { path: "/province", title: "Provinsi" }
+    { path: "/province", title: "Provinsi", icon: <DatabaseOutlined /> }
   ],
   "/ruang-curhat": [
-    { path: "/ruang-curhat", title: "Ruang Curhat" }
+    { path: "/ruang-curhat", title: "Ruang Curhat", icon: <WechatOutlined /> }
   ],
   "/admin-users": [
-    { path: "/admin-users", title: "Akun Admin" }
+    { path: "/admin-users", title: "Akun Admin", icon: <SettingOutlined /> }
   ],
   "/achievement": [
-    { path: "/achievement", title: "Leaderboard" }
+    { path: "/achievement", title: "Leaderboard", icon: <TrophyOutlined /> }
   ],
   "/club": [
-    { path: "/club", title: "Klub" }
+    { path: "/club", title: "Club", icon: <TeamOutlined /> }
   ],
   "/custom-form": [
-    { path: "/custom-form", title: "Form Kustom" }
+    { path: "/custom-form", title: "Form Kustom", icon: <DatabaseOutlined /> }
   ]
 };
 
