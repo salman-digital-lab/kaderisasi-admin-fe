@@ -9,6 +9,9 @@ import {
   Table,
   Select,
   Skeleton,
+  Dropdown,
+  MenuProps,
+  Tooltip,
 } from "antd";
 import {
   SearchOutlined,
@@ -16,6 +19,7 @@ import {
   EditOutlined,
   DownloadOutlined,
   MailOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { useRequest, useToggle } from "ahooks";
@@ -187,6 +191,48 @@ const RegistrantList = () => {
     }));
   }, []);
 
+  // Dropdown menus for better UI organization
+  const statusActionsMenu: MenuProps["items"] = [
+    {
+      key: "bulk-status",
+      label: bulkActions.selectionInfo.hasSelection ? (
+        `Ubah Status (${bulkActions.selectionInfo.count})`
+      ) : (
+        <Tooltip
+          title="Pilih data terlebih dahulu untuk mengubah status"
+          placement="right"
+        >
+          <span>Ubah Status ({bulkActions.selectionInfo.count})</span>
+        </Tooltip>
+      ),
+      icon: <EditOutlined />,
+      disabled: !bulkActions.selectionInfo.hasSelection,
+      onClick: () => toggleChangeStatusModal(),
+    },
+    {
+      key: "email-status",
+      label: "Ubah Status Berdasarkan Email",
+      icon: <MailOutlined />,
+      onClick: () => toggleChangeStatusByEmailModal(),
+    },
+  ];
+
+  const adminActionsMenu: MenuProps["items"] = [
+    {
+      key: "export",
+      label: isExporting ? "Mengexport..." : "Export Data Semua Peserta (CSV)",
+      icon: <DownloadOutlined />,
+      disabled: isExporting,
+      onClick: handleExportRegistrants,
+    },
+    {
+      key: "add-participant",
+      label: "Tambah Peserta",
+      icon: <PlusOutlined />,
+      onClick: () => toggleModal(),
+    },
+  ];
+
   // Clear all selections when page changes
   useEffect(() => {
     bulkActions.clearSelection();
@@ -248,34 +294,22 @@ const RegistrantList = () => {
           </Row>
           <Row justify="end">
             <Space>
-              <Button
-                onClick={() => toggleChangeStatusModal()}
-                icon={<EditOutlined />}
-                disabled={!bulkActions.selectionInfo.hasSelection}
-                type={
-                  bulkActions.selectionInfo.hasSelection ? "primary" : "default"
-                }
-                loading={bulkActions.selectionInfo.isProcessing}
-              >
-                Ubah Status ({bulkActions.selectionInfo.count})
-              </Button>
-              <Button
-                onClick={() => toggleChangeStatusByEmailModal()}
-                icon={<MailOutlined />}
-              >
-                Ubah Status Via Email
-              </Button>
-              <Button
-                onClick={handleExportRegistrants}
-                icon={<DownloadOutlined />}
-                loading={isExporting}
-                disabled={isExporting}
-              >
-                {isExporting ? "Mengexport..." : "Export Peserta"}
-              </Button>
-              <Button onClick={() => toggleModal()} icon={<PlusOutlined />}>
-                Tambah Peserta
-              </Button>
+              <Dropdown menu={{ items: statusActionsMenu }} trigger={["click"]}>
+                <Button
+                  icon={<EditOutlined />}
+                  type={
+                    bulkActions.selectionInfo.hasSelection ? "primary" : "default"
+                  }
+                  loading={bulkActions.selectionInfo.isProcessing}
+                >
+                  Ubah Status <DownOutlined />
+                </Button>
+              </Dropdown>
+              <Dropdown menu={{ items: adminActionsMenu }} trigger={["click"]}>
+                <Button icon={<DownloadOutlined />}>
+                  Aksi Lainnya <DownOutlined />
+                </Button>
+              </Dropdown>
               <Button
                 icon={<SearchOutlined />}
                 type="primary"
