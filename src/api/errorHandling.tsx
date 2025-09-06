@@ -1,5 +1,6 @@
 import { notification, Typography } from "antd";
 import { AxiosError } from "axios";
+import { renderNotification } from "../constants/render";
 
 const { Paragraph } = Typography;
 
@@ -17,13 +18,20 @@ export const handleError = (error: unknown) => {
         "message" in axiosError.response.data &&
         typeof axiosError.response.data.message === "string"
       ) {
+        const translatedMessage = renderNotification(axiosError.response.data.message);
         notification.error({
           message: "Gagal",
           description: (
             <Paragraph>
-              Server membalas dengan:
-              <pre>{axiosError.response.data.message}</pre>
-              Kode error: <pre>{axiosError.response.status}</pre>
+              {translatedMessage !== axiosError.response.data.message ? (
+                <span>{translatedMessage}</span>
+              ) : (
+                <>
+                  Server membalas dengan:
+                  <pre>{axiosError.response.data.message}</pre>
+                  Kode error: <pre>{axiosError.response.status}</pre>
+                </>
+              )}
             </Paragraph>
           ),
         });
@@ -74,3 +82,11 @@ export const handleError = (error: unknown) => {
 function isAxiosError(error: unknown): error is AxiosError {
   return (error as AxiosError).isAxiosError !== undefined;
 }
+
+export const handleSuccess = (message: string) => {
+  const translatedMessage = renderNotification(message);
+  notification.success({
+    message: "Berhasil",
+    description: translatedMessage,
+  });
+};
