@@ -208,7 +208,15 @@ const LoginForm = () => {
                 }}
               >
                 <Text type="secondary" style={{ fontSize: "14px" }}>
-                  Lupa password? Hubungi tim support Web BMKA
+                  Lupa password atau belum punya akun?{" "}
+                  <a
+                    href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#25D366", fontWeight: 500 }}
+                  >
+                    Hubungi tim support Web BMKA via WhatsApp
+                  </a>
                 </Text>
               </div>
             </div>

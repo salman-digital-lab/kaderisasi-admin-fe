@@ -3,10 +3,9 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  QuestionCircleOutlined,
-  ReadOutlined,
   DownOutlined,
   UserOutlined,
+  WhatsAppOutlined,
 } from "@ant-design/icons";
 import {
   Layout,
@@ -32,21 +31,8 @@ const { Text } = Typography;
 
 const items: MenuProps["items"] = [
   {
-    label: (
-      <a
-        href="https://docs.google.com/presentation/d/1zMyotxV5g0kMH42ak_FqZriUmG9UitNErM57wnNx5S8/edit?usp=sharing"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Panduan Penggunaan
-      </a>
-    ),
-    key: "1",
-    icon: <ReadOutlined />,
-  },
-  {
     label: "Logout",
-    key: "2",
+    key: "1",
     icon: <LogoutOutlined />,
   },
 ];
@@ -54,11 +40,11 @@ const items: MenuProps["items"] = [
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   const user = useUser();
   const clearAuth = useClearAuth();
   const navigate = useNavigate();
-  
+
   const displayName = user?.display_name || "Admin";
 
   // Handle responsive behavior
@@ -77,7 +63,7 @@ const AppLayout = () => {
   }, [collapsed]);
 
   const handleMenuClick: MenuProps["onClick"] = async (e) => {
-    if (e.key === "2") {
+    if (e.key === "1") {
       try {
         await logout();
         // Clear auth state when user logs out
@@ -94,8 +80,6 @@ const AppLayout = () => {
     items,
     onClick: handleMenuClick,
   };
-
-
 
   const {
     token: { colorBgContainer },
@@ -180,22 +164,25 @@ const AppLayout = () => {
               <Badge dot={false}>
                 <Button
                   type="text"
-                  icon={<QuestionCircleOutlined />}
+                  icon={<WhatsAppOutlined />}
                   href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
                   target="_blank"
                   style={{
-                    fontSize: "16px",
-                    width: 40,
+                    fontSize: "14px",
                     height: 40,
                     borderRadius: "8px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    gap: "6px",
+                    padding: "0 12px",
                     transition: "all 0.2s",
                   }}
                   className="header-help-btn"
                   title="Bantuan & Dukungan"
-                />
+                >
+                  Bantuan
+                </Button>
               </Badge>
 
               <Dropdown
