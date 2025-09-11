@@ -1,8 +1,7 @@
 import { Alert, Button, Space, Tabs } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import type { TabsProps } from "antd";
-import useUrlState from "@ahooksjs/use-url-state";
 
 import ActivityDetail from "./components/ActivityDetail";
 import RegistrantList from "./components/RegistrantList";
@@ -12,7 +11,8 @@ import MandatoryData from "./components/MandatoryData";
 import ImageList from "./components/ImageList";
 
 const MainActivityDetail = () => {
-  const [state, setState] = useUrlState({ tab: "1" });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "1";
 
   const items: TabsProps["items"] = [
     {
@@ -62,8 +62,8 @@ const MainActivityDetail = () => {
         />
       </Space>
       <Tabs
-        activeKey={state.tab}
-        onTabClick={(key) => setState({ tab: key })}
+        activeKey={activeTab}
+        onTabClick={(key) => setSearchParams({ tab: key })}
         tabPosition="top"
         items={items}
       />

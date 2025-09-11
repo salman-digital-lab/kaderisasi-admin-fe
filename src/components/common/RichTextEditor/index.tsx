@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import type { QuillOptionsStatic } from "quill";
+import type { QuillOptions } from "quill";
 
 interface QuillEditorProps {
   value: string;
@@ -9,7 +9,7 @@ interface QuillEditorProps {
   style?: React.CSSProperties;
 }
 
-const quillModules: QuillOptionsStatic["modules"] = {
+const quillModules: QuillOptions["modules"] = {
   toolbar: {
     container: [
       ["bold", "italic", "underline", "strike"],
@@ -28,7 +28,7 @@ const quillModules: QuillOptionsStatic["modules"] = {
   },
 };
 
-const quillFormats: QuillOptionsStatic["formats"] = [
+const quillFormats: QuillOptions["formats"] = [
   "header",
   "bold",
   "italic",
@@ -64,8 +64,8 @@ const QuillEditor = ({ value, onChange, style }: QuillEditorProps) => {
           const urlStart = match.index;
           
           // Check if this text is already a link
-          const [leaf] = quill.getLeaf(urlStart);
-          if (!leaf.formats?.link) {
+          const format = quill.getFormat(urlStart, match[0].length);
+          if (!format.link) {
             // Format the URL as a link
             quill.formatText(urlStart, match[0].length, 'link', match[0]);
           }
