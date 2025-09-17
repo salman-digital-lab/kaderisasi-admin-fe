@@ -14,5 +14,5 @@ export const removeEmptyValueFromObj = (obj: Record<string, any>) => {
 
 export const getUserRolePermission = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}").user;
-  return ADMIN_ROLE_PERMISSION[user?.role as keyof typeof ADMIN_ROLE_PERMISSION];
+  return ADMIN_ROLE_PERMISSION[user?.role as keyof typeof ADMIN_ROLE_PERMISSION] || [];
 };
