@@ -29,7 +29,7 @@ import {
   ACTIVITY_TYPE_ENUM,
 } from "../../../../types/constants/activity";
 import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
-import { getUserRolePermission } from "../../../../functions";
+import { hasPermission } from "../../../../stores/authStore";
 
 const { Title } = Typography;
 
@@ -221,7 +221,7 @@ const ActivityDetail = () => {
             >
               <Checkbox
                 disabled={
-                  !getUserRolePermission().includes("kegiatan.show") || !isEdit
+                  !hasPermission("kegiatan.show") || !isEdit
                 }
               >
                 <b>Tampilkan</b>
