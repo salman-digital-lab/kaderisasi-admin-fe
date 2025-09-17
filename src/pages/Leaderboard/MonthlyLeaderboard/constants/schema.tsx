@@ -23,6 +23,11 @@ export const TABLE_SCHEMA: TableProps<MonthlyLeaderboardType & { rank: number }>
     dataIndex: ["user", "email"],
   },
   {
+    title: "WhatsApp",
+    dataIndex: ["user", "profile", "whatsapp"],
+    render: (value) => value || "-",
+  },
+  {
     title: "Universitas",
     dataIndex: ["user", "profile", "university", "name"],
     render: (value) => value || "-",

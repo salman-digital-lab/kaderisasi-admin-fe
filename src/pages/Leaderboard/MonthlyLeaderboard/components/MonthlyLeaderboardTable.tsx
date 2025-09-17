@@ -51,7 +51,7 @@ export default function MonthlyLeaderboardTable({
             per_page: pagination.pageSize || 10,
           }))
         }
-        scroll={{ x: 1200 }}
+        scroll={{ x: 1400 }}
       />
     </Card>
   );

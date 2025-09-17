@@ -16,6 +16,7 @@ export interface MonthlyLeaderboardType {
     profile: {
       id: number;
       name: string;
+      whatsapp?: string;
       university: {
         id: number;
         name: string;
@@ -39,6 +40,7 @@ export interface LifetimeLeaderboardType {
     profile: {
       id: number;
       name: string;
+      whatsapp?: string;
       university: {
         id: number;
         name: string;
