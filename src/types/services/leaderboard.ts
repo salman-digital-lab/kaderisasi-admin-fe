@@ -1,4 +1,4 @@
-import { PaginationDataType } from "../api";
+import { Pagination } from "./base";
 
 export interface MonthlyLeaderboardType {
   id: number;
@@ -67,10 +67,16 @@ export interface GetLifetimeLeaderboardReq {
 // Response types
 export interface GetMonthlyLeaderboardResp {
   message: string;
-  data: PaginationDataType<MonthlyLeaderboardType>;
+  data: {
+    meta: Pagination;
+    data: MonthlyLeaderboardType[];
+  };
 }
 
 export interface GetLifetimeLeaderboardResp {
   message: string;
-  data: PaginationDataType<LifetimeLeaderboardType>;
+  data: {
+    meta: Pagination;
+    data: LifetimeLeaderboardType[];
+  };
 }
