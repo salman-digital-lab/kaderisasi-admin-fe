@@ -61,7 +61,7 @@ const MembersListModal = ({ open, toggle, onSuccess }: MembersListModalProps) =>
 
   return (
     <Modal
-      title="Tambah Anggota ke Klub"
+      title="Tambah Anggota ke Unit Kegiatan"
       open={open}
       onOk={onOk}
       confirmLoading={addLoading}

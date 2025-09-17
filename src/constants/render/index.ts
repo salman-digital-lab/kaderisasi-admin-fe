@@ -98,7 +98,7 @@ export function renderNotification(code: string) {
 
     // Club Messages
     case "CLUB_NOT_FOUND":
-      return "Klub tidak ditemukan";
+      return "Unit Kegiatan tidak ditemukan";
     case "UPLOAD_LOGO_SUCCESS":
       return "Logo berhasil diupload";
     case "UPLOAD_MEDIA_SUCCESS":

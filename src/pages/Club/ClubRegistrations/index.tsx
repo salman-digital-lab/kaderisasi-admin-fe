@@ -165,7 +165,7 @@ const ClubRegistrationsPage: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${club?.name || 'club'}_registrations.csv`;
+      link.download = `${club?.name || 'unit-kegiatan'}_registrations.csv`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {

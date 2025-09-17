@@ -102,7 +102,7 @@ const CustomFormFilter = ({ setParameter }: FilterProps) => {
                   allowClear
                   options={[
                     { label: "Pendaftaran Aktivitas", value: "activity_registration" },
-                    { label: "Pendaftaran Klub", value: "club_registration" },
+                    { label: "Pendaftaran Unit Kegiatan", value: "club_registration" },
                   ]}
                 />
               </Form.Item>

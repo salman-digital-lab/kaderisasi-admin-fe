@@ -48,7 +48,7 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
     { path: "/achievement", title: "Leaderboard", icon: <TrophyOutlined /> }
   ],
   "/club": [
-    { path: "/club", title: "Club", icon: <TeamOutlined /> }
+    { path: "/club", title: "Unit Kegiatan", icon: <TeamOutlined /> }
   ],
   "/custom-form": [
     { path: "/custom-form", title: "Form Kustom", icon: <DatabaseOutlined /> }
@@ -106,8 +106,8 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   // Club detail pages
   if (pathname.match(/^\/club\/\d+$/)) {
     return [
-      { path: "/club", title: "Klub" },
-      { path: "", title: "Detail Klub" },
+      { path: "/club", title: "Unit Kegiatan" },
+      { path: "", title: "Detail Unit Kegiatan" },
       { path: "", title: pathname.split('/').pop() || "" }
     ];
   }

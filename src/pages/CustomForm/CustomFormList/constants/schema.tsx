@@ -29,7 +29,7 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
     render: (featureType) => {
       const typeMap: Record<string, string> = {
         activity_registration: "Pendaftaran Aktivitas",
-        club_registration: "Pendaftaran Klub",
+        club_registration: "Pendaftaran Unit Kegiatan",
       };
       return typeMap[featureType] || featureType;
     },

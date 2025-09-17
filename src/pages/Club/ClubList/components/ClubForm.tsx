@@ -59,7 +59,7 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
 
   return (
     <Modal
-      title="Tambah Club"
+      title="Tambah Unit Kegiatan"
       open={open}
       onCancel={handleCancel}
       footer={[
@@ -78,11 +78,11 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
     >
       <Form form={form} layout="vertical">
         <Form.Item
-          label="Nama Club"
+          label="Nama Unit Kegiatan"
           name="name"
-          rules={[{ required: true, message: "Nama club wajib diisi!" }]}
+          rules={[{ required: true, message: "Nama unit kegiatan wajib diisi!" }]}
         >
-          <Input placeholder="Masukkan nama club" />
+          <Input placeholder="Masukkan nama unit kegiatan" />
         </Form.Item>
         <Form.Item
           label="Deskripsi Singkat"
@@ -93,7 +93,7 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
           ]}
         >
           <Input.TextArea
-            placeholder="Masukkan deskripsi singkat club (maks. 200 karakter)"
+            placeholder="Masukkan deskripsi singkat unit kegiatan (maks. 200 karakter)"
             maxLength={200}
             showCount
             rows={3}

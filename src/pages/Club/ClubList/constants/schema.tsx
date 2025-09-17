@@ -7,7 +7,7 @@ import { Club } from "../../../../types/model/club";
 
 export const createTableSchema = (): TableProps<Club>["columns"] => [
   {
-    title: "Nama Club",
+    title: "Nama Unit Kegiatan",
     dataIndex: "name",
     key: "name",
     render: (name, record) => <Link to={`/club/${record.id}`}>{name}</Link>,

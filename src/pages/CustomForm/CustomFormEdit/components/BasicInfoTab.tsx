@@ -70,7 +70,7 @@ export const BasicInfoTab = ({
                 <Text type="secondary">
                   {initialData.feature_type === "activity_registration"
                     ? "Pendaftaran Aktivitas"
-                    : "Pendaftaran Klub"}
+                    : "Pendaftaran Unit Kegiatan"}
                 </Text>
               </div>
 

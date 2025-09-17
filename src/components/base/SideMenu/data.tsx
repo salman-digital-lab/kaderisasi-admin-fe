@@ -63,7 +63,7 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (permissions) =>
     menuItems.push({
       key: "/club",
       icon: <TeamOutlined />,
-      label: <Link to="/club">Club</Link>,
+      label: <Link to="/club">Unit Kegiatan</Link>,
     });
   }
 

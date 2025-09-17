@@ -81,7 +81,7 @@ const ClubDetail = () => {
 
   return (
     <Card 
-      title="Informasi Club"
+      title="Informasi Unit Kegiatan"
       extra={
         <Button 
           type="primary" 
@@ -94,18 +94,18 @@ const ClubDetail = () => {
     >
       <Form form={form} layout="vertical">
         <Form.Item
-          label="Nama Club"
+          label="Nama Unit Kegiatan"
           name="name"
-          rules={[{ required: true, message: "Nama club wajib diisi!" }]}
+          rules={[{ required: true, message: "Nama unit kegiatan wajib diisi!" }]}
         >
-          <Input placeholder="Masukkan nama club" />
+          <Input placeholder="Masukkan nama unit kegiatan" />
         </Form.Item>
         
         <Form.Item label="Deskripsi Singkat">
           <Input.TextArea 
             value={shortDescription}
             onChange={(e) => setShortDescription(e.target.value)}
-            placeholder="Masukkan deskripsi singkat club (maks. 200 karakter)"
+            placeholder="Masukkan deskripsi singkat unit kegiatan (maks. 200 karakter)"
             maxLength={200}
             showCount
             rows={3}
@@ -157,7 +157,7 @@ const ClubDetail = () => {
           </Col>
         </Row>
         
-        <Form.Item label="Tampilkan Club" name="is_show" valuePropName="checked">
+        <Form.Item label="Tampilkan Unit Kegiatan" name="is_show" valuePropName="checked">
           <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
         </Form.Item>
       </Form>

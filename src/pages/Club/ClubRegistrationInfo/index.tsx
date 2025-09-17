@@ -91,7 +91,7 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
 
   return (
     <Card
-      title={`Informasi Pendaftaran Klub${club ? ` - ${club.name}` : ""}`}
+      title={`Informasi Pendaftaran Unit Kegiatan${club ? ` - ${club.name}` : ""}`}
       extra={
         <Button
           type="primary"

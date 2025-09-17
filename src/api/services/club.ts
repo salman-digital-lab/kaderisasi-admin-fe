@@ -43,7 +43,7 @@ export const postClub = async (data: postClubReq) => {
     const res = await axios.post<postClubResp>("/clubs", data);
     notification.success({
       message: "Berhasil",
-      description: "Club berhasil ditambahkan",
+      description: "Unit Kegiatan berhasil ditambahkan",
     });
     return res.data.data;
   } catch (error) {
@@ -56,7 +56,7 @@ export const putClub = async (id: number, data: putClubReq) => {
     const res = await axios.put<putClubResp>("/clubs/" + id, data);
     notification.success({
       message: "Berhasil",
-      description: "Club berhasil diubah",
+      description: "Unit Kegiatan berhasil diubah",
     });
     return res.data.data;
   } catch (error) {

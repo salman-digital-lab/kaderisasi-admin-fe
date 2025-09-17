@@ -1,8 +1,7 @@
 import { Alert, Button, Space, Tabs } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import type { TabsProps } from "antd";
-import useUrlState from "@ahooksjs/use-url-state";
 
 import ClubDetail from "./components/ClubDetail";
 import MediaList from "./components/MediaList";
@@ -13,22 +12,23 @@ import CustomFormAttachment from "./components/CustomFormAttachment";
 
 const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [state, setState] = useUrlState({ tab: "1" });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "1";
 
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: "Detil Klub",
+      label: "Detail Unit Kegiatan",
       children: <ClubDetail />,
     },
     {
       key: "2",
-      label: "Logo Klub",
+      label: "Logo Unit Kegiatan",
       children: <LogoUpload />,
     },
     {
       key: "3",
-      label: "Media Klub",
+      label: "Media Unit Kegiatan",
       children: <MediaList />,
     },
     {
@@ -57,14 +57,18 @@ const MainClubDetail = () => {
           </Link>
         </Button>
         <Alert
-          message="Kelola data club, upload logo, dan media untuk ditampilkan di website"
+          message="Kelola data unit kegiatan, upload logo, dan media untuk ditampilkan di website"
           type="info"
           showIcon
         />
       </Space>
       <Tabs
-        activeKey={state.tab}
-        onTabClick={(key) => setState({ tab: key })}
+        activeKey={activeTab}
+        onTabClick={(key) => {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.set("tab", key);
+          setSearchParams(newParams);
+        }}
         tabPosition="top"
         items={items}
       />
