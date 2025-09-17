@@ -45,7 +45,13 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
     { path: "/admin-users", title: "Akun Admin", icon: <SettingOutlined /> }
   ],
   "/achievement": [
-    { path: "/achievement", title: "Leaderboard", icon: <TrophyOutlined /> }
+    { path: "/achievement", title: "Prestasi", icon: <TrophyOutlined /> }
+  ],
+  "/monthly-leaderboard": [
+    { path: "/monthly-leaderboard", title: "Peringkat Bulanan", icon: <TrophyOutlined /> }
+  ],
+  "/lifetime-leaderboard": [
+    { path: "/lifetime-leaderboard", title: "Peringkat Seumur Hidup", icon: <TrophyOutlined /> }
   ],
   "/club": [
     { path: "/club", title: "Unit Kegiatan", icon: <TeamOutlined /> }
@@ -97,8 +103,8 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   // Achievement detail pages
   if (pathname.match(/^\/achievement\/\d+$/)) {
     return [
-      { path: "/achievement", title: "Leaderboard" },
-      { path: "", title: "Detail Leaderboard" },
+      { path: "/achievement", title: "Prestasi" },
+      { path: "", title: "Detail Prestasi" },
       { path: "", title: pathname.split('/').pop() || "" }
     ];
   }

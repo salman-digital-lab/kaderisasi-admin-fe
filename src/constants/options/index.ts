@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_STATUS_ENUM } from "../../types/constants/achievement";
+import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../../types/constants/achievement";
 import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,
@@ -196,5 +196,20 @@ export const ACHIEVEMENT_STATUS_OPTIONS = [
   {
     label: "Ditolak",
     value: ACHIEVEMENT_STATUS_ENUM.REJECTED,
+  },
+];
+
+export const ACHIEVEMENT_TYPE_OPTIONS = [
+  {
+    label: "Kompetensi",
+    value: ACHIEVEMENT_TYPE_ENUM.KOMPETENSI,
+  },
+  {
+    label: "Organisasi",
+    value: ACHIEVEMENT_TYPE_ENUM.ORGANISASI,
+  },
+  {
+    label: "Akademik",
+    value: ACHIEVEMENT_TYPE_ENUM.AKADEMIK,
   },
 ];

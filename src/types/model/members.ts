@@ -36,6 +36,26 @@ export type Member = {
 export type PublicUser = {
   id: number;
   email: string;
+  profile?: {
+    id: number;
+    name: string;
+    personal_id?: string;
+    gender?: string;
+    whatsapp?: string;
+    line?: string;
+    instagram?: string;
+    tiktok?: string;
+    linkedin?: string;
+    province_id?: number;
+    city_id?: number;
+    university_id?: number;
+    major?: string;
+    intake_year?: string;
+    level?: number;
+    badges?: string;
+    created_at: string;
+    updated_at: string;
+  };
   created_at: string;
   updated_at: string;
 };

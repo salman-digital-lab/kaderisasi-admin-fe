@@ -23,6 +23,8 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
     if (currentPath.startsWith('/member')) return ['/member'];
     if (currentPath.startsWith('/ruang-curhat')) return ['/ruang-curhat'];
     if (currentPath.startsWith('/achievement')) return ['/achievement'];
+    if (currentPath.startsWith('/monthly-leaderboard')) return ['/monthly-leaderboard'];
+    if (currentPath.startsWith('/lifetime-leaderboard')) return ['/lifetime-leaderboard'];
     if (currentPath.startsWith('/club')) return ['/club'];
     if (currentPath.startsWith('/province')) return ['/province'];
     if (currentPath.startsWith('/universities')) return ['/universities'];
@@ -39,6 +41,11 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
     }
     if (currentPath.startsWith('/admin-users')) {
       return ['setting'];
+    }
+    if (currentPath.startsWith('/achievement') ||
+        currentPath.startsWith('/monthly-leaderboard') ||
+        currentPath.startsWith('/lifetime-leaderboard')) {
+      return ['/leaderboard'];
     }
     return [];
   };

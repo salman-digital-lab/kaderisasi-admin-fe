@@ -53,9 +53,23 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (permissions) =>
 
   if (permissions.includes("leaderboard")) {
     menuItems.push({
-      key: "/achievement",
+      key: "/leaderboard",
       icon: <TrophyOutlined />,
-      label: <Link to="/achievement">Leaderboard</Link>,
+      label: "Leaderboard",
+      children: [
+        {
+          key: "/achievement",
+          label: <Link to="/achievement">Prestasi</Link>,
+        },
+        {
+          key: "/monthly-leaderboard",
+          label: <Link to="/monthly-leaderboard">Peringkat Bulanan</Link>,
+        },
+        {
+          key: "/lifetime-leaderboard",
+          label: <Link to="/lifetime-leaderboard">Peringkat Seumur Hidup</Link>,
+        },
+      ],
     });
   }
 

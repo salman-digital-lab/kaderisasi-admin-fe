@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_STATUS_ENUM } from "../constants/achievement";
+import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../constants/achievement";
 import { Achievement } from "../model/achievements";
 import { Pagination } from "./base";
 
@@ -6,6 +6,9 @@ export type GetAchievementsReq = {
   per_page: string;
   page: string;
   status?: ACHIEVEMENT_STATUS_ENUM;
+  email?: string;
+  name?: string;
+  type?: ACHIEVEMENT_TYPE_ENUM;
 };
 
 export type GetAchievementsResp = {

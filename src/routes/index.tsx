@@ -17,6 +17,8 @@ import { RuangCurhatDetail } from "../pages/RuangCurhat/RuangCurhatDetail";
 import AdminUserList from "../pages/AdminUser/AdminUserList";
 import AchievementList from "../pages/Leaderboard/AchievementList";
 import AchievementDetail from "../pages/Leaderboard/AchievementDetail";
+import MonthlyLeaderboard from "../pages/Leaderboard/MonthlyLeaderboard";
+import LifetimeLeaderboard from "../pages/Leaderboard/LifetimeLeaderboard";
 import ClubList from "../pages/Club/ClubList";
 import ClubDetail from "../pages/Club/ClubDetail";
 import CustomFormList from "../pages/CustomForm/CustomFormList";
@@ -145,6 +147,18 @@ const routes = createBrowserRouter([
         path: "/achievement/:id",
         element: (
           <RoleUser element={<AchievementDetail />} permission="leaderboard" />
+        ),
+      },
+      {
+        path: "/monthly-leaderboard",
+        element: (
+          <RoleUser element={<MonthlyLeaderboard />} permission="leaderboard" />
+        ),
+      },
+      {
+        path: "/lifetime-leaderboard",
+        element: (
+          <RoleUser element={<LifetimeLeaderboard />} permission="leaderboard" />
         ),
       },
       {

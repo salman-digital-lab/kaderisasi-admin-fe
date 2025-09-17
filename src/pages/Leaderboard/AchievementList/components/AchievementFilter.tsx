@@ -1,14 +1,17 @@
 import React from "react";
-import { Row, Button, Card, Form, Space, Col, Select } from "antd";
+import { Row, Button, Card, Form, Space, Col, Select, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { ACHIEVEMENT_STATUS_ENUM } from "../../../../types/constants/achievement";
-import { ACHIEVEMENT_STATUS_OPTIONS } from "../../../../constants/options";
+import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../../../../types/constants/achievement";
+import { ACHIEVEMENT_STATUS_OPTIONS, ACHIEVEMENT_TYPE_OPTIONS } from "../../../../constants/options";
 type FilterProps = {
   setParameter: React.Dispatch<
     React.SetStateAction<{
       page: number;
       per_page: number;
       status?: ACHIEVEMENT_STATUS_ENUM;
+      email?: string;
+      name?: string;
+      type?: ACHIEVEMENT_TYPE_ENUM;
     }>
   >;
 };
@@ -18,7 +21,7 @@ const AchievementFilter = ({ setParameter }: FilterProps) => {
 
   return (
     <Card>
-      <Form
+        <Form
         layout="vertical"
         form={form}
         onFinish={(val) =>
@@ -26,10 +29,30 @@ const AchievementFilter = ({ setParameter }: FilterProps) => {
             ...prev,
             page: 1,
             status: val.status,
+            email: val.email,
+            name: val.name,
+            type: val.type,
           }))
         }
       >
         <Row gutter={16}>
+          <Col span={6}>
+            <Form.Item label="Nama" name="name">
+              <Input
+                placeholder="Cari berdasarkan nama"
+                allowClear
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Kategori" name="type">
+              <Select
+                placeholder="Kategori"
+                allowClear
+                options={ACHIEVEMENT_TYPE_OPTIONS}
+              />
+            </Form.Item>
+          </Col>
           <Col span={6}>
             <Form.Item label="Status" name="status">
               <Select
