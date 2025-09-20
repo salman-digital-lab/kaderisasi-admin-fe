@@ -11,10 +11,12 @@ export default function RuangCurhatList() {
     page: number;
     per_page: number;
     status?: PROBLEM_STATUS_ENUM;
+    name?: string;
   }>({
     page: 1,
     per_page: 10,
     status: undefined,
+    name: undefined,
   });
 
   const { data, loading } = useRequest(
@@ -23,6 +25,7 @@ export default function RuangCurhatList() {
         per_page: String(parameters.per_page),
         page: String(parameters.page),
         status: parameters.status,
+        name: parameters.name,
       }),
     {
       refreshDeps: [parameters],

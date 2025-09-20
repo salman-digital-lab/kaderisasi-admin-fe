@@ -18,6 +18,11 @@ export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
     render: (val) => val.email,
   },
   {
+    title: "Nama",
+    dataIndex: "publicUser",
+    render: (val) => val.profile?.name || "Tidak ada nama",
+  },
+  {
     title: "Kepemilikan Masalah",
     dataIndex: "problem_ownership",
     render: (text) => renderProblemOwner(text),

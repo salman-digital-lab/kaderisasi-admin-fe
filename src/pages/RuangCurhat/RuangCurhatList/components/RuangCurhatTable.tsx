@@ -17,6 +17,7 @@ interface DataTypeProps {
       page: number;
       per_page: number;
       status?: PROBLEM_STATUS_ENUM;
+      name?: string;
     }>
   >;
 }

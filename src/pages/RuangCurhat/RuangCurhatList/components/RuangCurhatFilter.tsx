@@ -1,11 +1,12 @@
 import React from "react";
-import { Col, Row, Button, Card, Form, Space, Select } from "antd";
+import { Col, Row, Button, Card, Form, Space, Select, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
 import { PROBLEM_STATUS_OPTIONS } from "../../../../constants/options";
 
 type FieldType = {
   status?: PROBLEM_STATUS_ENUM;
+  name?: string;
 };
 
 type FilterProps = {
@@ -14,6 +15,7 @@ type FilterProps = {
       page: number;
       per_page: number;
       status?: PROBLEM_STATUS_ENUM;
+      name?: string;
     }>
   >;
 };
@@ -30,6 +32,7 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
           setParameter((prev) => ({
             ...prev,
             status: val.status,
+            name: val.name,
             page: 1,
           }))
         }
@@ -41,6 +44,14 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
                 placeholder="Status"
                 allowClear
                 options={PROBLEM_STATUS_OPTIONS}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Nama" name="name">
+              <Input
+                placeholder="Cari berdasarkan nama"
+                allowClear
               />
             </Form.Item>
           </Col>

@@ -13,6 +13,7 @@ export type GetRuangCurhatsReq = {
   per_page: string;
   page: string;
   status?: PROBLEM_STATUS_ENUM;
+  name?: string;
 };
 
 export type GetRuangCurhatReq = {
