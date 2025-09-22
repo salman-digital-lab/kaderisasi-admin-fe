@@ -2,11 +2,13 @@ import React from "react";
 import { Col, Row, Button, Card, Form, Space, Select, Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
-import { PROBLEM_STATUS_OPTIONS } from "../../../../constants/options";
+import { PROBLEM_STATUS_OPTIONS, GENDER_OPTION } from "../../../../constants/options";
+import { GENDER } from "../../../../types/constants/profile";
 
 type FieldType = {
   status?: PROBLEM_STATUS_ENUM;
   name?: string;
+  gender?: GENDER;
 };
 
 type FilterProps = {
@@ -16,6 +18,7 @@ type FilterProps = {
       per_page: number;
       status?: PROBLEM_STATUS_ENUM;
       name?: string;
+      gender?: GENDER;
     }>
   >;
 };
@@ -33,6 +36,7 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
             ...prev,
             status: val.status,
             name: val.name,
+            gender: val.gender,
             page: 1,
           }))
         }
@@ -52,6 +56,15 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
               <Input
                 placeholder="Cari berdasarkan nama"
                 allowClear
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Jenis Kelamin" name="gender">
+              <Select
+                placeholder="Pilih jenis kelamin"
+                allowClear
+                options={GENDER_OPTION}
               />
             </Form.Item>
           </Col>

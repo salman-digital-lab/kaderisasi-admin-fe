@@ -5,6 +5,7 @@ import { Pagination } from "../../../../types/services/base";
 import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
 import { TABLE_SCHEMA } from "../constants/schema";
 import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
+import { GENDER } from "../../../../types/constants/profile";
 
 interface DataTypeProps {
   data?: {
@@ -18,6 +19,7 @@ interface DataTypeProps {
       per_page: number;
       status?: PROBLEM_STATUS_ENUM;
       name?: string;
+      gender?: GENDER;
     }>
   >;
 }

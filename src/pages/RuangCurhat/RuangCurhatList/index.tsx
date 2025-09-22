@@ -5,6 +5,7 @@ import { getRuangCurhats } from "../../../api/services/ruangcurhat";
 import RuangCurhatTable from "./components/RuangCurhatTable";
 import RuangCurhatFilter from "./components/RuangCurhatFilter";
 import { PROBLEM_STATUS_ENUM } from "../../../types/constants/ruangcurhat";
+import { GENDER } from "../../../types/constants/profile";
 
 export default function RuangCurhatList() {
   const [parameters, setParameters] = useState<{
@@ -12,11 +13,13 @@ export default function RuangCurhatList() {
     per_page: number;
     status?: PROBLEM_STATUS_ENUM;
     name?: string;
+    gender?: GENDER;
   }>({
     page: 1,
     per_page: 10,
     status: undefined,
     name: undefined,
+    gender: undefined,
   });
 
   const { data, loading } = useRequest(
@@ -26,6 +29,7 @@ export default function RuangCurhatList() {
         page: String(parameters.page),
         status: parameters.status,
         name: parameters.name,
+        gender: parameters.gender,
       }),
     {
       refreshDeps: [parameters],
