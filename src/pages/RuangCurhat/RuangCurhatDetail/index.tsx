@@ -24,6 +24,7 @@ import {
   renderProblemOwner,
   renderProblemStatus,
   renderProblemStatusColor,
+  renderUserLevel,
 } from "../../../constants/render";
 
 import { UPDATE_STATUS_MENU } from "./utils/constants";
@@ -73,11 +74,6 @@ export function RuangCurhatDetail() {
       children: profileData?.profile[0].whatsapp,
     },
     {
-      key: "4",
-      label: "Provinsi Domisili",
-      children: profileData?.profile[0].province?.name || "-",
-    },
-    {
       key: "5",
       label: "Universitas",
       children: profileData?.profile[0].university?.name || "-",
@@ -89,29 +85,32 @@ export function RuangCurhatDetail() {
     },
     {
       key: "7",
-      label: "Kepemilikan ",
-      children: renderProblemOwner(data?.problem_ownership),
+      label: "Jenis Kelamin",
+      children:
+        profileData?.profile[0].gender === "F" ? "Perempuan" : "Laki-Laki",
     },
     {
       key: "8",
-      label: "Status",
-      children: (
-        <Tag color={renderProblemStatusColor(data?.status)}>
-          {renderProblemStatus(data?.status)}
-        </Tag>
-      ),
-    },
+      label: "Jenjang Kaderisasi",
+      children: renderUserLevel(profileData?.profile[0].level),
+    }
   ];
 
   const problemOwnerData: DescriptionsProps["items"] = [
     {
-      key: "3",
-      label: "Nama",
+      key: "1",
       span: 3,
-      children: data?.owner_name || data?.publicUser?.email,
+      label: "Kepemilikan Masalah",
+      children: renderProblemOwner(data?.problem_ownership),
     },
     {
-      key: "5",
+      key: "2",
+      label: "Nama Pemilik Masalah",
+      span: 3,
+      children: data?.owner_name || profileData?.profile[0].name,
+    },
+    {
+      key: "3",
       label: "Deskripsi Masalah",
       span: 3,
       children: data?.problem_description,
@@ -120,7 +119,16 @@ export function RuangCurhatDetail() {
 
   const counselorData: DescriptionsProps["items"] = [
     {
-      key: "3",
+      key: "1",
+      label: "Status",
+      children: (
+        <Tag color={renderProblemStatusColor(data?.status)}>
+          {renderProblemStatus(data?.status)}
+        </Tag>
+      ),
+    },
+    {
+      key: "2",
       label: "Preferensi Jenis Kelamin",
       span: 3,
       children: data?.counselor_gender,
@@ -132,7 +140,7 @@ export function RuangCurhatDetail() {
       children: data?.adminUser?.display_name,
     },
     {
-      key: "5",
+      key: "4",
       label: "Email",
       span: 3,
       children: data?.adminUser?.email,
@@ -174,10 +182,10 @@ export function RuangCurhatDetail() {
           </Button>
         </Dropdown>
       </Space>
-      <Card title="Informasi Dasar" loading={loading}>
+      <Card title="Informasi Pendaftar" loading={loading}>
         <Descriptions items={basicInfo} bordered />
       </Card>
-      <Card title="Detil Pemilik Masalah" loading={loading}>
+      <Card title="Informasi Masalah" loading={loading}>
         <Descriptions items={problemOwnerData} bordered />
       </Card>
 
