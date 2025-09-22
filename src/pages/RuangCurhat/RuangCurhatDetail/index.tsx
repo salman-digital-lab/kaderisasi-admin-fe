@@ -93,24 +93,36 @@ export function RuangCurhatDetail() {
       key: "8",
       label: "Jenjang Kaderisasi",
       children: renderUserLevel(profileData?.profile[0].level),
-    }
+    },
   ];
 
   const problemOwnerData: DescriptionsProps["items"] = [
     {
       key: "1",
-      span: 3,
+      span: 1,
       label: "Kepemilikan Masalah",
       children: renderProblemOwner(data?.problem_ownership),
     },
     {
       key: "2",
+      span: 2,
       label: "Nama Pemilik Masalah",
-      span: 3,
       children: data?.owner_name || profileData?.profile[0].name,
     },
     {
-      key: "3",
+      key: "4",
+      label: "Kategori Masalah",
+      span: 1,
+      children: data?.problem_category,
+    },
+    {
+      key: "4",
+      label: "Preferensi Teknik Penanganan",
+      span: 2,
+      children: data?.handling_technic,
+    },
+    {
+      key: "5",
       label: "Deskripsi Masalah",
       span: 3,
       children: data?.problem_description,
