@@ -14,12 +14,14 @@ export default function RuangCurhatList() {
     status?: PROBLEM_STATUS_ENUM;
     name?: string;
     gender?: GENDER;
+    admin_display_name?: string;
   }>({
     page: 1,
     per_page: 10,
     status: undefined,
     name: undefined,
     gender: undefined,
+    admin_display_name: undefined,
   });
 
   const { data, loading } = useRequest(
@@ -30,6 +32,7 @@ export default function RuangCurhatList() {
         status: parameters.status,
         name: parameters.name,
         gender: parameters.gender,
+        admin_display_name: parameters.admin_display_name,
       }),
     {
       refreshDeps: [parameters],

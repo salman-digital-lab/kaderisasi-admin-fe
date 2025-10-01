@@ -16,6 +16,7 @@ export type GetRuangCurhatsReq = {
   status?: PROBLEM_STATUS_ENUM;
   name?: string;
   gender?: GENDER;
+  admin_display_name?: string;
 };
 
 export type GetRuangCurhatReq = {

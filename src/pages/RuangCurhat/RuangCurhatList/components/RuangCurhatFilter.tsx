@@ -9,6 +9,7 @@ type FieldType = {
   status?: PROBLEM_STATUS_ENUM;
   name?: string;
   gender?: GENDER;
+  admin_display_name?: string;
 };
 
 type FilterProps = {
@@ -19,6 +20,7 @@ type FilterProps = {
       status?: PROBLEM_STATUS_ENUM;
       name?: string;
       gender?: GENDER;
+      admin_display_name?: string;
     }>
   >;
 };
@@ -37,6 +39,7 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
             status: val.status,
             name: val.name,
             gender: val.gender,
+            admin_display_name: val.admin_display_name,
             page: 1,
           }))
         }
@@ -52,7 +55,7 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item label="Nama" name="name">
+            <Form.Item label="Nama Pendaftar Masalah" name="name">
               <Input
                 placeholder="Cari berdasarkan nama"
                 allowClear
@@ -65,6 +68,14 @@ const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
                 placeholder="Pilih jenis kelamin"
                 allowClear
                 options={GENDER_OPTION}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Nama Konselor" name="admin_display_name">
+              <Input
+                placeholder="Cari berdasarkan nama konselor"
+                allowClear
               />
             </Form.Item>
           </Col>

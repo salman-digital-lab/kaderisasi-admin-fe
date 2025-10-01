@@ -1,13 +1,13 @@
 import { Button, TableProps, Tag } from "antd";
 import { Link } from "react-router-dom";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
 import {
   renderProblemStatus,
   renderProblemStatusColor,
 } from "../../../../constants/render";
-
-import { ArrowRightOutlined } from "@ant-design/icons";
 
 export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
   {
@@ -38,9 +38,13 @@ export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
   {
     title: "Konselor yg Ditugaskan",
     dataIndex: "adminUser",
-    render: (value) => (value ? value.email : "Belum ada yang ditugaskan"),
+    render: (value) => (value ? value.display_name : "Belum ada yang ditugaskan"),
   },
-
+  {
+    title: "Tanggal Dibuat",
+    dataIndex: "created_at",
+    render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
+  },
   {
     title: "",
     dataIndex: "id",
