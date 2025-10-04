@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { message } from "antd";
-import type { FormField } from "../../../../types/model/customForm";
+import type { FormField, FormSection } from "../../../../types/model/customForm";
 import {
   createNewField,
   moveArrayItem,
@@ -8,32 +8,93 @@ import {
   generateFieldKey
 } from "../utils";
 
+// Constants for default fields that cannot be modified
+const IMMUTABLE_FIELDS = ["name", "gender"] as const;
+
+// Helper function to check if a field is immutable
+const isImmutableField = (fieldKey: string): boolean => {
+  return IMMUTABLE_FIELDS.includes(fieldKey as any);
+};
+
 export const useFieldManagement = (
-  customFields: FormField[],
-  setCustomFields: (fields: FormField[]) => void,
+  customFieldSections: FormSection[],
+  setCustomFieldSections: (sections: FormSection[]) => void,
   selectedBasicFields: string[],
   setSelectedBasicFields: (fields: string[]) => void,
-  _profileTemplates: any[],
+  _profileTemplates: readonly any[],
   onRequiredFieldChange?: (fieldKey: string, required: boolean) => void
 ) => {
   const [editingField, setEditingField] = useState<FormField | null>(null);
+  const [editingSectionKey, setEditingSectionKey] = useState<string | null>(null);
   const [fieldModalVisible, setFieldModalVisible] = useState(false);
+  const [basicFieldModalVisible, setBasicFieldModalVisible] = useState(false);
 
-  // Handle adding new custom field
-  const handleAddCustomField = () => {
+  // ===== Modal Management =====
+  
+  const handleOpenBasicFieldModal = () => {
+    setBasicFieldModalVisible(true);
+  };
+
+  // ===== Section Operations =====
+
+  const handleAddSection = () => {
+    const sectionKey = `custom_section_${Date.now()}`;
+    const newSection: FormSection = {
+      section_name: sectionKey,
+      fields: [],
+    };
+    setCustomFieldSections([...customFieldSections, newSection]);
+    message.success("Grup pertanyaan kustom berhasil ditambahkan!");
+  };
+
+  const handleDeleteSection = (sectionKey: string) => {
+    setCustomFieldSections(
+      customFieldSections.filter((section) => section.section_name !== sectionKey)
+    );
+    message.success("Grup pertanyaan berhasil dihapus!");
+  };
+
+  const handleUpdateSectionName = (sectionKey: string, newName: string) => {
+    setCustomFieldSections(
+      customFieldSections.map((section) =>
+        section.section_name === sectionKey
+          ? { ...section, section_name: newName }
+          : section
+      )
+    );
+  };
+
+  const handleMoveSection = (sectionKey: string, direction: "up" | "down") => {
+    const currentIndex = customFieldSections.findIndex(
+      (section) => section.section_name === sectionKey
+    );
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= customFieldSections.length) return;
+
+    const newSections = moveArrayItem(customFieldSections, currentIndex, newIndex);
+    setCustomFieldSections(newSections);
+  };
+
+  // ===== Custom Field Operations =====
+  
+  const handleAddCustomField = (sectionKey: string) => {
     const newField = createNewField();
     setEditingField(newField);
+    setEditingSectionKey(sectionKey);
     setFieldModalVisible(true);
   };
 
-  // Handle editing custom field
-  const handleEditCustomField = (field: FormField) => {
+  const handleEditCustomField = (sectionKey: string, field: FormField) => {
     setEditingField(field);
+    setEditingSectionKey(sectionKey);
     setFieldModalVisible(true);
   };
 
-  // Handle saving custom field
   const handleSaveCustomField = (values: any) => {
+    if (!editingSectionKey) return;
+
     const fieldData: FormField = {
       key: editingField?.key || generateFieldKey(),
       label: values.label,
@@ -49,74 +110,125 @@ export const useFieldManagement = (
       disabled: values.disabled || false,
     };
 
-    // Check if this is an existing field being edited
+    const section = customFieldSections.find(
+      (s) => s.section_name === editingSectionKey
+    );
+    if (!section) return;
+
     const isEditingExistingField =
-      editingField &&
-      editingField.key &&
-      fieldExists(customFields, editingField.key);
+      editingField?.key && fieldExists(section.fields, editingField.key);
 
     if (isEditingExistingField) {
-      // Update existing field
-      setCustomFields(
-        customFields.map((field) =>
-          field.key === editingField.key ? fieldData : field,
-        ),
+      setCustomFieldSections(
+        customFieldSections.map((s) =>
+          s.section_name === editingSectionKey
+            ? {
+                ...s,
+                fields: s.fields.map((field) =>
+                  field.key === editingField.key ? fieldData : field
+                ),
+              }
+            : s
+        )
       );
-      message.success(`Field "${fieldData.label}" berhasil diperbarui!`);
+      message.success(`Pertanyaan "${fieldData.label}" berhasil diperbarui!`);
     } else {
-      // New field
-      setCustomFields([...customFields, fieldData]);
-      message.success(`Field "${fieldData.label}" berhasil ditambahkan!`);
+      setCustomFieldSections(
+        customFieldSections.map((s) =>
+          s.section_name === editingSectionKey
+            ? { ...s, fields: [...s.fields, fieldData] }
+            : s
+        )
+      );
+      message.success(`Pertanyaan "${fieldData.label}" berhasil ditambahkan!`);
     }
+    
     setFieldModalVisible(false);
     setEditingField(null);
+    setEditingSectionKey(null);
   };
 
-  // Handle deleting custom field
-  const handleDeleteCustomField = (fieldKey: string) => {
-    const fieldToDelete = customFields.find((field) => field.key === fieldKey);
+  const handleDeleteCustomField = (sectionKey: string, fieldKey: string) => {
+    const section = customFieldSections.find((s) => s.section_name === sectionKey);
+    if (!section) {
+      message.error("Section tidak ditemukan!");
+      return;
+    }
+
+    const fieldToDelete = section.fields.find((field) => field.key === fieldKey);
     if (!fieldToDelete) {
       message.error("Field tidak ditemukan!");
       return;
     }
 
-    setCustomFields(customFields.filter((field) => field.key !== fieldKey));
-    message.success(`Field "${fieldToDelete.label}" berhasil dihapus!`);
+    setCustomFieldSections(
+      customFieldSections.map((s) =>
+        s.section_name === sectionKey
+          ? { ...s, fields: s.fields.filter((field) => field.key !== fieldKey) }
+          : s
+      )
+    );
+    message.success("Pertanyaan berhasil dihapus!");
   };
 
-  // Handle adding profile data field from template
+  const handleDuplicateField = (sectionKey: string, field: FormField) => {
+    const duplicatedField: FormField = {
+      ...field,
+      key: `${field.key}_copy_${Date.now()}`,
+      label: `${field.label} (Copy)`,
+    };
+    setCustomFieldSections(
+      customFieldSections.map((s) =>
+        s.section_name === sectionKey
+          ? { ...s, fields: [...s.fields, duplicatedField] }
+          : s
+      )
+    );
+    message.success("Pertanyaan berhasil diduplikat!");
+  };
+
+  const handleMoveField = (sectionKey: string, fieldKey: string, direction: "up" | "down") => {
+    const section = customFieldSections.find((s) => s.section_name === sectionKey);
+    if (!section) return;
+
+    const currentIndex = section.fields.findIndex((field) => field.key === fieldKey);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= section.fields.length) return;
+
+    const newFields = moveArrayItem(section.fields, currentIndex, newIndex);
+    setCustomFieldSections(
+      customFieldSections.map((s) =>
+        s.section_name === sectionKey ? { ...s, fields: newFields } : s
+      )
+    );
+  };
+
+  // ===== Profile Field Operations =====
+
   const handleAddProfileDataFromTemplate = (template: any) => {
-    // Check if field already exists in selected basic fields
     if (selectedBasicFields.includes(template.field.key)) {
-      message.warning(`Field "${template.name}" sudah dipilih!`);
+      message.info("Pertanyaan ini sudah ditambahkan!");
       return;
     }
 
-    // Add to selected basic fields
     setSelectedBasicFields([...selectedBasicFields, template.field.key]);
-    message.success(`Field profil "${template.name}" berhasil ditambahkan!`);
+    message.success(`Pertanyaan "${template.name}" berhasil ditambahkan!`);
   };
 
-  // Handle removing profile field
   const handleRemoveProfileField = (fieldKey: string) => {
-    // Prevent removal of default fields (name and gender)
-    if (fieldKey === "name" || fieldKey === "gender") {
-      message.warning("Field default tidak dapat dihapus!");
+    if (isImmutableField(fieldKey)) {
+      message.warning("Pertanyaan ini tidak dapat dihapus!");
       return;
     }
 
     setSelectedBasicFields(selectedBasicFields.filter((key) => key !== fieldKey));
-    message.success("Field profil berhasil dihapus!");
+    message.success("Pertanyaan berhasil dihapus!");
   };
 
-  // Handle moving profile field up/down
-  const handleMoveProfileField = (
-    fieldKey: string,
-    direction: "up" | "down",
-  ) => {
-    const currentIndex = selectedBasicFields.findIndex(
-      (key) => key === fieldKey,
-    );
+  const handleMoveProfileField = (fieldKey: string, direction: "up" | "down") => {
+    const currentIndex = selectedBasicFields.findIndex((key) => key === fieldKey);
     if (currentIndex === -1) return;
 
     const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
@@ -130,35 +242,9 @@ export const useFieldManagement = (
     setSelectedBasicFields(newFields);
   };
 
-  // Handle duplicating a field
-  const handleDuplicateField = (field: FormField) => {
-    const duplicatedField = {
-      ...field,
-      key: `${field.key}_copy_${Date.now()}`,
-      label: `${field.label} (Copy)`,
-    };
-    setCustomFields([...customFields, duplicatedField]);
-    message.success("Field berhasil diduplikat!");
-  };
-
-  // Handle moving field up/down
-  const handleMoveField = (fieldKey: string, direction: "up" | "down") => {
-    const currentIndex = customFields.findIndex(
-      (field) => field.key === fieldKey,
-    );
-    if (currentIndex === -1) return;
-
-    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= customFields.length) return;
-
-    const newFields = moveArrayItem(customFields, currentIndex, newIndex);
-    setCustomFields(newFields);
-  };
-
-  // Handle toggling required status for profile fields
   const handleToggleRequiredField = (fieldKey: string, required: boolean) => {
-    // Prevent changing required status for name and gender
-    if (fieldKey === "name" || fieldKey === "gender") {
+    if (isImmutableField(fieldKey)) {
+      message.warning("Status wajib untuk pertanyaan ini tidak dapat diubah!");
       return;
     }
 
@@ -168,8 +254,17 @@ export const useFieldManagement = (
   return {
     editingField,
     setEditingField,
+    editingSectionKey,
+    setEditingSectionKey,
     fieldModalVisible,
     setFieldModalVisible,
+    basicFieldModalVisible,
+    setBasicFieldModalVisible,
+    handleOpenBasicFieldModal,
+    handleAddSection,
+    handleDeleteSection,
+    handleUpdateSectionName,
+    handleMoveSection,
     handleAddCustomField,
     handleEditCustomField,
     handleSaveCustomField,

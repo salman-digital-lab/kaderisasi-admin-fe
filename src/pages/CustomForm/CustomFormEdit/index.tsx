@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, Form, Button, Space, Typography, Spin, Tabs } from "antd";
 import { SaveOutlined, FormOutlined } from "@ant-design/icons";
 
-import { BasicInfoTab, SchemaTab, FieldModal } from "./components";
+import { BasicInfoTab, SchemaTab, FieldModal, BasicFieldModal } from "./components";
 import { useFormData, useFieldManagement } from "./hooks";
 import {
   FIELD_TYPES,
@@ -14,18 +14,16 @@ import { fieldTypeNeedsOptions } from "./utils";
 
 const { Text } = Typography;
 
-
 const CustomFormEdit: React.FC = () => {
   const [form] = Form.useForm();
-  const [editingField, setEditingField] = useState<any>(null);
 
-  // Use custom hooks
+  // Fetch and manage form data
   const {
     initialData,
     selectedBasicFields,
     setSelectedBasicFields,
-    customFields,
-    setCustomFields,
+    customFieldSections,
+    setCustomFieldSections,
     profileFieldRequiredOverrides,
     activeTab,
     handleTabChange,
@@ -35,34 +33,45 @@ const CustomFormEdit: React.FC = () => {
     updateForm,
   } = useFormData();
 
-  const {
-    editingField: fieldEditingField,
-    fieldModalVisible,
-    setFieldModalVisible,
-    handleAddCustomField,
-    handleEditCustomField,
-    handleSaveCustomField,
-    handleDeleteCustomField,
-    handleAddProfileDataFromTemplate,
-    handleRemoveProfileField,
-    handleMoveProfileField,
-    handleToggleRequiredField,
-    handleDuplicateField,
-    handleMoveField,
-  } = useFieldManagement(
-    customFields,
-    setCustomFields,
+  // Manage field operations (add, edit, delete, move, etc.)
+  const fieldManagement = useFieldManagement(
+    customFieldSections,
+    setCustomFieldSections,
     selectedBasicFields,
     setSelectedBasicFields,
-    [...PROFILE_DATA_TEMPLATES],
+    PROFILE_DATA_TEMPLATES,
     handleRequiredFieldChange,
   );
 
-  // Update local editingField state when it changes from the hook
-  React.useEffect(() => {
-    setEditingField(fieldEditingField);
-  }, [fieldEditingField, setEditingField]);
+  // Handle field type change
+  const handleFieldTypeChange = (value: string) => {
+    fieldManagement.setEditingField((prev: any) => {
+      if (!prev) return prev;
+      const updated = { ...prev, type: value };
+      if (!fieldTypeNeedsOptions(value)) {
+        updated.options = [];
+      }
+      return updated;
+    });
+  };
 
+  // Handle closing field modal
+  const handleCloseFieldModal = () => {
+    fieldManagement.setFieldModalVisible(false);
+    fieldManagement.setEditingField(null);
+  };
+
+  // Handle save button click
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      await updateForm(values);
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
+  };
+
+  // Loading state
   if (fetchLoading) {
     return (
       <div
@@ -78,6 +87,7 @@ const CustomFormEdit: React.FC = () => {
     );
   }
 
+  // Empty state
   if (!initialData) {
     return (
       <div
@@ -92,6 +102,48 @@ const CustomFormEdit: React.FC = () => {
       </div>
     );
   }
+
+  const tabItems = [
+    {
+      key: "basic",
+      label: "Informasi Dasar",
+      children: (
+        <BasicInfoTab 
+          form={form} 
+          initialData={initialData} 
+          onSave={updateForm} 
+        />
+      ),
+    },
+    {
+      key: "schema",
+      label: "Ubah Formulir",
+      children: (
+        <SchemaTab
+          selectedBasicFields={selectedBasicFields}
+          customFieldSections={customFieldSections}
+          profileDataCategories={PROFILE_DATA_CATEGORIES}
+          profileDataTemplates={PROFILE_DATA_TEMPLATES}
+          fieldTypes={FIELD_TYPES}
+          fieldCategories={FIELD_CATEGORIES}
+          profileFieldRequiredOverrides={profileFieldRequiredOverrides}
+          onRemoveProfileField={fieldManagement.handleRemoveProfileField}
+          onMoveProfileField={fieldManagement.handleMoveProfileField}
+          onToggleRequiredField={fieldManagement.handleToggleRequiredField}
+          onOpenBasicFieldModal={fieldManagement.handleOpenBasicFieldModal}
+          onAddSection={fieldManagement.handleAddSection}
+          onDeleteSection={fieldManagement.handleDeleteSection}
+          onMoveSection={fieldManagement.handleMoveSection}
+          onUpdateSectionName={fieldManagement.handleUpdateSectionName}
+          onAddCustomField={fieldManagement.handleAddCustomField}
+          onEditCustomField={fieldManagement.handleEditCustomField}
+          onDeleteCustomField={fieldManagement.handleDeleteCustomField}
+          onDuplicateField={fieldManagement.handleDuplicateField}
+          onMoveCustomField={fieldManagement.handleMoveField}
+        />
+      ),
+    },
+  ];
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
@@ -108,7 +160,7 @@ const CustomFormEdit: React.FC = () => {
             type="primary"
             icon={<SaveOutlined />}
             loading={updateLoading}
-            onClick={() => form.submit()}
+            onClick={handleSave}
           >
             Simpan Perubahan
           </Button>
@@ -118,60 +170,28 @@ const CustomFormEdit: React.FC = () => {
           activeKey={activeTab}
           onChange={handleTabChange}
           type="card"
-          items={[
-            {
-              key: "basic",
-              label: "Informasi Dasar",
-              children: <BasicInfoTab form={form} initialData={initialData} onSave={updateForm} />
-            },
-            {
-              key: "schema",
-              label: "Ubah Formulir",
-              children: (
-                <SchemaTab
-                  selectedBasicFields={selectedBasicFields}
-                  customFields={customFields}
-                  profileDataCategories={[...PROFILE_DATA_CATEGORIES]}
-                  profileDataTemplates={[...PROFILE_DATA_TEMPLATES]}
-                  fieldTypes={[...FIELD_TYPES]}
-                  fieldCategories={[...FIELD_CATEGORIES]}
-                  profileFieldRequiredOverrides={profileFieldRequiredOverrides}
-                  onAddProfileField={handleAddProfileDataFromTemplate}
-                  onRemoveProfileField={handleRemoveProfileField}
-                  onMoveProfileField={handleMoveProfileField}
-                  onToggleRequiredField={handleToggleRequiredField}
-                  onAddCustomField={handleAddCustomField}
-                  onEditCustomField={handleEditCustomField}
-                  onDeleteCustomField={handleDeleteCustomField}
-                  onDuplicateField={handleDuplicateField}
-                  onMoveCustomField={handleMoveField}
-                />
-              )
-            }
-          ]}
+          items={tabItems}
         />
       </Card>
 
+      {/* Basic Field Modal */}
+      <BasicFieldModal
+        visible={fieldManagement.basicFieldModalVisible}
+        selectedBasicFields={selectedBasicFields}
+        profileDataCategories={PROFILE_DATA_CATEGORIES}
+        profileDataTemplates={PROFILE_DATA_TEMPLATES}
+        onCancel={() => fieldManagement.setBasicFieldModalVisible(false)}
+        onAddProfileField={fieldManagement.handleAddProfileDataFromTemplate}
+      />
+
       {/* Field Modal */}
       <FieldModal
-        visible={fieldModalVisible}
-        editingField={editingField}
-        fieldTypes={[...FIELD_TYPES]}
-        onCancel={() => {
-          setFieldModalVisible(false);
-          setEditingField(null);
-        }}
-        onSave={handleSaveCustomField}
-        onFieldTypeChange={(value) => {
-          setEditingField((prev: any) => {
-            if (!prev) return prev;
-            const updated = { ...prev, type: value };
-            if (!fieldTypeNeedsOptions(value)) {
-              updated.options = [];
-            }
-            return updated;
-          });
-        }}
+        visible={fieldManagement.fieldModalVisible}
+        editingField={fieldManagement.editingField}
+        fieldTypes={FIELD_TYPES}
+        onCancel={handleCloseFieldModal}
+        onSave={fieldManagement.handleSaveCustomField}
+        onFieldTypeChange={handleFieldTypeChange}
       />
     </Space>
   );

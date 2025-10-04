@@ -20,7 +20,7 @@ const { Text } = Typography;
 interface FieldModalProps {
   visible: boolean;
   editingField: FormField | null;
-  fieldTypes: any[];
+  fieldTypes: readonly any[];
   onCancel: () => void;
   onSave: (values: any) => void;
   onFieldTypeChange?: (value: string) => void;
@@ -63,8 +63,8 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         <Space>
           <FormOutlined />
           {editingField?.key?.startsWith("custom_")
-            ? "Tambah Field Baru"
-            : "Edit Field"}
+            ? "Tambah Pertanyaan Baru"
+            : "Edit Pertanyaan"}
         </Space>
       }
       open={visible}
@@ -82,12 +82,12 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Label Field"
+              label="Label Pertanyaan"
               name="label"
               rules={[
                 {
                   required: true,
-                  message: "Label field wajib diisi!",
+                  message: "Label pertanyaan wajib diisi!",
                 },
                 { min: 2, message: "Label minimal 2 karakter!" },
                 {
@@ -96,23 +96,23 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                 },
               ]}
             >
-              <Input placeholder="Masukkan label field" />
+              <Input placeholder="Masukkan label pertanyaan" />
             </Form.Item>
           </Col>
 
           <Col span={12}>
             <Form.Item
-              label="Tipe Field"
+              label="Tipe Pertanyaan"
               name="type"
               rules={[
                 {
                   required: true,
-                  message: "Tipe field wajib dipilih!",
+                  message: "Tipe pertanyaan wajib dipilih!",
                 },
               ]}
             >
               <Select
-                placeholder="Pilih tipe field"
+                placeholder="Pilih tipe pertanyaan"
                 onChange={handleFieldTypeChange}
               >
                 {fieldTypes.map((type) => (
@@ -170,7 +170,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         </Row>
 
         <Form.Item
-          label="Field Wajib Diisi"
+          label="Pertanyaan Wajib Diisi"
           name="required"
           valuePropName="checked"
         >
@@ -185,7 +185,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
               type="secondary"
               style={{ marginBottom: 16, display: "block" }}
             >
-              Konfigurasi opsi untuk field pilihan (Select, Radio, Checkbox)
+              Konfigurasi opsi untuk pertanyaan pilihan (Select, Radio, Checkbox)
             </Text>
 
             <Form.List name="options">
@@ -270,7 +270,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
           <Space>
             <Button onClick={onCancel}>Batal</Button>
             <Button type="primary" htmlType="submit">
-              Simpan Field
+              Simpan Pertanyaan
             </Button>
           </Space>
         </Form.Item>

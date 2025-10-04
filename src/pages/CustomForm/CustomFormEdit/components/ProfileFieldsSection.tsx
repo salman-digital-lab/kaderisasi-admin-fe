@@ -2,36 +2,37 @@ import React from "react";
 import {
   Card,
   Space,
-  Tabs,
-  Row,
-  Col,
   Avatar,
   Button,
   Tooltip,
-  Divider,
   Typography,
   Switch,
+  Badge,
 } from "antd";
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   DeleteOutlined,
+  PlusOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
-const { TabPane } = Tabs;
 
 interface ProfileFieldsSectionProps {
   selectedBasicFields: string[];
-  profileDataCategories: any[];
-  profileDataTemplates: any[];
-  fieldTypes: any[];
+  profileDataCategories: readonly any[];
+  profileDataTemplates: readonly any[];
+  fieldTypes: readonly any[];
   profileFieldRequiredOverrides?: Record<string, boolean>;
-  onAddProfileField: (template: any) => void;
   onRemoveProfileField: (fieldKey: string) => void;
   onMoveProfileField: (fieldKey: string, direction: "up" | "down") => void;
   onToggleRequiredField?: (fieldKey: string, required: boolean) => void;
+  onOpenAddModal: () => void;
 }
+
+// Constants for immutable fields
+const IMMUTABLE_FIELD_KEYS = ["name", "gender"];
 
 export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
   selectedBasicFields,
@@ -39,226 +40,153 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
   profileDataTemplates,
   fieldTypes,
   profileFieldRequiredOverrides = {},
-  onAddProfileField,
   onRemoveProfileField,
   onMoveProfileField,
   onToggleRequiredField,
+  onOpenAddModal,
 }) => {
-  // Handle required toggle
-  const handleRequiredToggle = (fieldKey: string, required: boolean) => {
-    onToggleRequiredField?.(fieldKey, required);
+  // Check if a field is immutable (cannot be edited or deleted)
+  const isImmutableField = (fieldKey: string): boolean => {
+    return IMMUTABLE_FIELD_KEYS.includes(fieldKey);
   };
 
   // Get the effective required status for a field
-  const getEffectiveRequired = (fieldKey: string, defaultRequired: boolean) => {
-    if (fieldKey === "name" || fieldKey === "gender") {
-      return defaultRequired; // Name and gender cannot be changed
+  const getEffectiveRequired = (fieldKey: string, defaultRequired: boolean): boolean => {
+    if (isImmutableField(fieldKey)) {
+      return defaultRequired;
     }
     return profileFieldRequiredOverrides[fieldKey] ?? defaultRequired;
+  };
+
+  // Find template by field key
+  const findTemplate = (fieldKey: string) => {
+    return profileDataTemplates.find((t) => t.field.key === fieldKey);
+  };
+
+  // Get field type label
+  const getFieldTypeLabel = (fieldType: string): string | undefined => {
+    return fieldTypes.find((type) => type.value === fieldType)?.label;
+  };
+
+  // Get category color
+  const getCategoryColor = (categoryKey: string): string | undefined => {
+    return profileDataCategories.find((cat) => cat.key === categoryKey)?.color;
   };
 
   return (
     <Card
       title={
         <Space>
-          <span>👤</span>
+          <UserOutlined />
           <span>Pertanyaan Dasar</span>
+          <Badge count={selectedBasicFields.length} showZero />
         </Space>
       }
       size="small"
+      extra={
+        <Button
+          type="primary"
+          size="small"
+          icon={<PlusOutlined />}
+          onClick={onOpenAddModal}
+        >
+          Tambah Pertanyaan
+        </Button>
+      }
     >
       <Space direction="vertical" style={{ width: "100%" }}>
-        {/* Available Profile Fields */}
-        <div>
-          <Tabs size="small" type="card">
-            {profileDataCategories.map((category) => (
-              <TabPane
-                key={category.key}
-                tab={
-                  <Space>
-                    <category.icon />
-                    {category.label}
-                  </Space>
-                }
-              >
-                <Row gutter={[12, 12]}>
-                  {profileDataTemplates
-                    .filter((template) => template.category === category.key)
-                    .map((template) => (
-                      <Col span={8} key={template.name}>
-                        <Card
-                          size="small"
-                          hoverable
-                          style={{
-                            cursor: selectedBasicFields.includes(
-                              template.field.key,
-                            )
-                              ? "not-allowed"
-                              : "pointer",
-                            borderColor: selectedBasicFields.includes(
-                              template.field.key,
-                            )
-                              ? "#d9d9d9"
-                              : "#1890ff",
-                            backgroundColor: selectedBasicFields.includes(
-                              template.field.key,
-                            )
-                              ? "#f5f5f5"
-                              : "white",
-                            opacity: selectedBasicFields.includes(
-                              template.field.key,
-                            )
-                              ? 0.6
-                              : 1,
-                          }}
-                          onClick={() =>
-                            !selectedBasicFields.includes(template.field.key) &&
-                            onAddProfileField(template)
-                          }
-                        >
-                          <Space
-                            direction="vertical"
-                            style={{
-                              width: "100%",
-                              textAlign: "center",
-                            }}
-                          >
-                            <Avatar
-                              style={{
-                                backgroundColor: selectedBasicFields.includes(
-                                  template.field.key,
-                                )
-                                  ? "#d9d9d9"
-                                  : category.color,
-                              }}
-                            >
-                              <template.icon />
-                            </Avatar>
-                            <div>
-                              <Text strong>{template.name}</Text>
-                              <br />
-                              <Text
-                                type="secondary"
-                                style={{ fontSize: "12px" }}
-                              >
-                                {template.description}
-                              </Text>
-                            </div>
-                          </Space>
-                        </Card>
-                      </Col>
-                    ))}
-                </Row>
-              </TabPane>
-            ))}
-          </Tabs>
-        </div>
-
-        {/* Selected Profile Fields - Draggable List */}
-        {selectedBasicFields.length > 0 && (
-          <div>
-            <Divider />
-            <Text strong style={{ marginBottom: 16, display: "block" }}>
-              Field Profil Terpilih ({selectedBasicFields.length})
-            </Text>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              {selectedBasicFields.map((fieldKey, index) => {
-                const template = profileDataTemplates.find(
-                  (t) => t.field.key === fieldKey,
-                );
-                if (!template) return null;
-
-                return (
-                  <Card key={fieldKey} size="small">
-                    <Row align="middle" gutter={16}>
-                      <Col flex="auto">
-                        <Space>
-                          <Avatar
-                            size="small"
-                            style={{
-                              backgroundColor: profileDataCategories.find(
-                                (cat) => cat.key === template.category,
-                              )?.color,
-                            }}
-                          >
-                            <template.icon />
-                          </Avatar>
-                          <div style={{ flex: 1 }}>
-                            <Text strong>{template.name}</Text>
-                            <br />
-                            <Text type="secondary" style={{ fontSize: "12px" }}>
-                              {
-                                fieldTypes.find(
-                                  (type) => type.value === template.field.type,
-                                )?.label
-                              }
-                            </Text>
-                            {fieldKey !== "name" && fieldKey !== "gender" && (
-                              <div style={{ marginTop: 8 }}>
-                                <Space>
-                                  <Text style={{ fontSize: "12px" }}>
-                                    Wajib:
-                                  </Text>
-                                  <Switch
-                                    size="small"
-                                    checked={getEffectiveRequired(
-                                      fieldKey,
-                                      template.field.required,
-                                    )}
-                                    onChange={(checked) =>
-                                      handleRequiredToggle(fieldKey, checked)
-                                    }
-                                  />
-                                </Space>
-                              </div>
-                            )}
-                          </div>
-                        </Space>
-                      </Col>
-                      <Col flex="none">
-                        <Space size="small">
-                          <Tooltip title="Pindah Ke Atas">
-                            <Button
-                              type="text"
-                              size="small"
-                              icon={<ArrowUpOutlined />}
-                              onClick={() => onMoveProfileField(fieldKey, "up")}
-                              disabled={index === 0}
-                            />
-                          </Tooltip>
-                          <Tooltip title="Pindah Ke Bawah">
-                            <Button
-                              type="text"
-                              size="small"
-                              icon={<ArrowDownOutlined />}
-                              onClick={() =>
-                                onMoveProfileField(fieldKey, "down")
-                              }
-                              disabled={
-                                index === selectedBasicFields.length - 1
-                              }
-                            />
-                          </Tooltip>
-                          <Tooltip title="Hapus">
-                            <Button
-                              type="text"
-                              size="small"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => onRemoveProfileField(fieldKey)}
-                              disabled={
-                                fieldKey === "name" || fieldKey === "gender"
-                              } // Nama lengkap dan jenis kelamin tidak dapat dihapus
-                            />
-                          </Tooltip>
-                        </Space>
-                      </Col>
-                    </Row>
-                  </Card>
-                );
-              })}
-            </Space>
+        {selectedBasicFields.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 20px" }}>
+            <Text type="secondary">Belum ada pertanyaan dasar</Text>
           </div>
+        ) : (
+          selectedBasicFields.map((fieldKey, index) => {
+            const template = findTemplate(fieldKey);
+            if (!template) return null;
+
+            const isFirst = index === 0;
+            const isLast = index === selectedBasicFields.length - 1;
+            const canModifyRequired = !isImmutableField(fieldKey);
+            const categoryColor = getCategoryColor(template.category);
+            const fieldTypeLabel = getFieldTypeLabel(template.field.type);
+
+            return (
+              <Card key={fieldKey} size="small">
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  {/* Field Info */}
+                  <div style={{ flex: 1 }}>
+                    <Space>
+                      <Avatar size="small" style={{ backgroundColor: categoryColor }}>
+                        <template.icon />
+                      </Avatar>
+                      <div>
+                        <Text strong>{template.name}</Text>
+                        <br />
+                        <Text type="secondary" style={{ fontSize: "12px" }}>
+                          {fieldTypeLabel}
+                        </Text>
+                        {canModifyRequired && (
+                          <div style={{ marginTop: 8 }}>
+                            <Space>
+                              <Text style={{ fontSize: "12px" }}>Wajib:</Text>
+                              <Switch
+                                size="small"
+                                checked={getEffectiveRequired(
+                                  fieldKey,
+                                  template.field.required
+                                )}
+                                onChange={(checked) =>
+                                  onToggleRequiredField?.(fieldKey, checked)
+                                }
+                              />
+                            </Space>
+                          </div>
+                        )}
+                      </div>
+                    </Space>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <Space size="small">
+                    <Tooltip title="Pindah Ke Atas">
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<ArrowUpOutlined />}
+                        onClick={() => onMoveProfileField(fieldKey, "up")}
+                        disabled={isFirst}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Pindah Ke Bawah">
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<ArrowDownOutlined />}
+                        onClick={() => onMoveProfileField(fieldKey, "down")}
+                        disabled={isLast}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Hapus">
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => onRemoveProfileField(fieldKey)}
+                        disabled={isImmutableField(fieldKey)}
+                      />
+                    </Tooltip>
+                  </Space>
+                </div>
+              </Card>
+            );
+          })
         )}
       </Space>
     </Card>

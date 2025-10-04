@@ -12,6 +12,7 @@ import type {
   CustomForm,
   FormSchema,
   FormField,
+  FormSection,
 } from "../../../../types/model/customForm";
 import { BASIC_PROFILE_FIELDS } from "../constants";
 
@@ -21,7 +22,7 @@ export const useFormData = () => {
 
   const [initialData, setInitialData] = useState<CustomForm | null>(null);
   const [selectedBasicFields, setSelectedBasicFields] = useState<string[]>([]);
-  const [customFields, setCustomFields] = useState<FormField[]>([]);
+  const [customFieldSections, setCustomFieldSections] = useState<FormSection[]>([]);
   const [profileFieldRequiredOverrides, setProfileFieldRequiredOverrides] = useState<Record<string, boolean>>({});
 
   // Active tab state with URL sync
@@ -62,12 +63,12 @@ export const useFormData = () => {
 
         // Initialize form schema data
         if (data.form_schema) {
-          // Extract basic fields and custom fields from existing schema
+          // Extract basic fields and custom field sections from existing schema
           const profileSection = data.form_schema.fields.find(
             (section) => section.section_name === "profile_data",
           );
-          const customSection = data.form_schema.fields.find(
-            (section) => section.section_name === "custom_form",
+          const customSections = data.form_schema.fields.filter(
+            (section) => section.section_name !== "profile_data",
           );
 
           if (profileSection) {
@@ -81,9 +82,8 @@ export const useFormData = () => {
             setSelectedBasicFields(["name", "gender"]);
           }
 
-          if (customSection) {
-            setCustomFields(customSection.fields);
-          }
+          // Load custom sections (excluding profile_data)
+          setCustomFieldSections(customSections);
         }
       }
     },
@@ -110,10 +110,7 @@ export const useFormData = () => {
             section_name: "profile_data",
             fields: profileFields,
           },
-          {
-            section_name: "custom_form",
-            fields: customFields,
-          },
+          ...customFieldSections,
         ],
       };
 
@@ -142,8 +139,8 @@ export const useFormData = () => {
     initialData,
     selectedBasicFields,
     setSelectedBasicFields,
-    customFields,
-    setCustomFields,
+    customFieldSections,
+    setCustomFieldSections,
     profileFieldRequiredOverrides,
     activeTab,
     handleTabChange,
