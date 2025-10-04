@@ -109,6 +109,26 @@ export const getUnattachedForms = async (props: { page?: string; per_page?: stri
   }
 };
 
+export const getAvailableActivities = async (currentFormId?: number) => {
+  try {
+    const params = currentFormId ? `?current_form_id=${currentFormId}` : '';
+    const res = await axios.get(`/custom-forms/available-activities${params}`);
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getAvailableClubs = async (currentFormId?: number) => {
+  try {
+    const params = currentFormId ? `?current_form_id=${currentFormId}` : '';
+    const res = await axios.get(`/custom-forms/available-clubs${params}`);
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const attachFormToClub = async (formId: number, clubId: number) => {
   try {
     const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/attach-club`, { clubId });

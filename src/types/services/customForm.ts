@@ -6,7 +6,7 @@ export interface GetCustomFormsReq {
   page?: string;
   per_page?: string;
   search?: string;
-  feature_type?: 'activity_registration' | 'club_registration';
+  feature_type?: 'activity_registration' | 'club_registration' | 'independent_form';
   feature_id?: string;
   is_active?: string;
 }
@@ -14,8 +14,8 @@ export interface GetCustomFormsReq {
 export interface CreateCustomFormReq {
   formName: string;
   formDescription?: string;
-  featureType?: 'activity_registration' | 'club_registration';
-  featureId?: number;
+  featureType?: 'activity_registration' | 'club_registration' | 'independent_form';
+  featureId?: number | null;
   formSchema?: {
     fields: {
       section_name: string;

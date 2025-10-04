@@ -2,8 +2,8 @@ export interface CustomForm {
   id: number;
   form_name: string;
   form_description?: string;
-  feature_type: 'activity_registration' | 'club_registration';
-  feature_id: number;
+  feature_type: 'activity_registration' | 'club_registration' | 'independent_form';
+  feature_id: number | null;
   form_schema: FormSchema;
   is_active: boolean;
   created_at: string;
