@@ -1,6 +1,6 @@
 import { Input, Col, Row, Card, Form, Button, Space, Select, Modal, message } from "antd";
 import { SearchOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { FilterType } from "../constants/type";
 import { createCustomForm } from "../../../../api/services/customForm";
@@ -19,9 +19,10 @@ type CreateFormType = {
 
 type FilterProps = {
   setParameter: React.Dispatch<React.SetStateAction<FilterType>>;
+  autoOpenModal?: boolean;
 };
 
-const CustomFormFilter = ({ setParameter }: FilterProps) => {
+const CustomFormFilter = ({ setParameter, autoOpenModal }: FilterProps) => {
   const [form] = Form.useForm<FieldType>();
   const [createForm] = Form.useForm<CreateFormType>();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -43,6 +44,14 @@ const CustomFormFilter = ({ setParameter }: FilterProps) => {
     setIsModalVisible(true);
     createForm.resetFields();
   };
+
+  // Auto-open modal if requested
+  useEffect(() => {
+    if (autoOpenModal) {
+      setIsModalVisible(true);
+      createForm.resetFields();
+    }
+  }, [autoOpenModal, createForm]);
 
   const handleCancel = () => {
     setIsModalVisible(false);

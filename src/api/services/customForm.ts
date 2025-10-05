@@ -156,3 +156,31 @@ export const detachFormFromClub = async (formId: number) => {
     throw error;
   }
 };
+
+export const attachFormToActivity = async (formId: number, activityId: number) => {
+  try {
+    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/attach-activity`, { activityId });
+    notification.success({
+      message: "Berhasil",
+      description: "Form berhasil dilampirkan ke kegiatan",
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const detachFormFromActivity = async (formId: number) => {
+  try {
+    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/detach-activity`);
+    notification.success({
+      message: "Berhasil",
+      description: "Form berhasil dilepas dari kegiatan",
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};

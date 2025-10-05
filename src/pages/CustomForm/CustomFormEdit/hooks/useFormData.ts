@@ -93,7 +93,12 @@ export const useFormData = () => {
   );
 
   const { loading: updateLoading, run: updateForm } = useRequest(
-    async (values: { formName: string; formDescription: string }) => {
+    async (values: { 
+      formName: string; 
+      formDescription: string;
+      featureType?: "activity_registration" | "club_registration" | "independent_form";
+      featureId?: number | null;
+    }) => {
       if (!id) return;
 
       // Build form schema from current state
@@ -117,6 +122,8 @@ export const useFormData = () => {
       await updateCustomForm(parseInt(id), {
         formName: values.formName,
         formDescription: values.formDescription,
+        featureType: values.featureType,
+        featureId: values.featureId,
         formSchema: updatedFormSchema,
       });
       message.success("Formulir berhasil diperbarui!");

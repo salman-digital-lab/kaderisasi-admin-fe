@@ -81,19 +81,6 @@ export const BasicInfoTab = ({
     form.setFieldValue("featureId", null);
   };
 
-  const getFeatureTypeName = (type: string) => {
-    switch (type) {
-      case "activity_registration":
-        return "Pendaftaran Aktivitas";
-      case "club_registration":
-        return "Pendaftaran Unit Kegiatan";
-      case "independent_form":
-        return "Form Independen";
-      default:
-        return type;
-    }
-  };
-
   return (
     <Form
       form={form}

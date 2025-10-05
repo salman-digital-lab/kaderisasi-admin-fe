@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Space } from "antd";
 import { useRequest } from "ahooks";
+import { useSearchParams } from "react-router-dom";
 
 import { getCustomForms } from "../../../api/services/customForm";
 
@@ -9,6 +10,7 @@ import CustomFormFilter from "./components/CustomFormFilter";
 import { FilterType } from "./constants/type";
 
 const CustomFormList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [parameters, setParameters] = useState<FilterType>({
     page: 1,
     per_page: 10,
@@ -17,6 +19,16 @@ const CustomFormList = () => {
     feature_id: "",
     is_active: undefined,
   });
+
+  // Check if modal should auto-open
+  const shouldAutoOpenModal = searchParams.get("create") === "true";
+
+  // Clear the query param after reading it
+  useEffect(() => {
+    if (shouldAutoOpenModal) {
+      setSearchParams({});
+    }
+  }, [shouldAutoOpenModal, setSearchParams]);
 
   const { data, loading, refresh } = useRequest(
     () =>
@@ -35,7 +47,10 @@ const CustomFormList = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <CustomFormFilter setParameter={setParameters} />
+      <CustomFormFilter 
+        setParameter={setParameters} 
+        autoOpenModal={shouldAutoOpenModal}
+      />
       <CustomFormTable
         data={data}
         loading={loading}

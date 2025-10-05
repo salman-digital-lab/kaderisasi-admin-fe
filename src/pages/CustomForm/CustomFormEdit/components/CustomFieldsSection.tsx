@@ -27,6 +27,7 @@ const { Text } = Typography;
 
 interface CustomFieldsSectionProps {
   sectionKey: string;
+  sectionNumber: number;
   customFields: FormField[];
   fieldTypes: readonly any[];
   fieldCategories: readonly any[];
@@ -44,6 +45,7 @@ interface CustomFieldsSectionProps {
 
 export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
   sectionKey,
+  sectionNumber,
   customFields,
   fieldTypes,
   fieldCategories,
@@ -60,7 +62,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(
-    sectionKey.startsWith("custom_section_") ? "Pertanyaan Kustom" : sectionKey
+    sectionKey.startsWith("custom_section_") ? `Bagian ${sectionNumber}` : sectionKey
   );
   // Find field type configuration by value
   const findFieldType = (fieldType: string) => {

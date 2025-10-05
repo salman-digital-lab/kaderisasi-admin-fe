@@ -68,6 +68,7 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
         <CustomFieldsSection
           key={section.section_name}
           sectionKey={section.section_name}
+          sectionNumber={index + 1}
           customFields={section.fields}
           fieldTypes={fieldTypes}
           fieldCategories={fieldCategories}
