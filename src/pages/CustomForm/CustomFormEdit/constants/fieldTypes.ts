@@ -1,13 +1,9 @@
 import {
   FontSizeOutlined,
   AlignLeftOutlined,
-  PhoneOutlined,
-  GlobalOutlined,
   NumberOutlined,
   DownOutlined,
   CheckSquareOutlined,
-  UploadOutlined,
-  FileTextOutlined,
   DatabaseOutlined,
 } from "@ant-design/icons";
 
@@ -27,20 +23,6 @@ export const FIELD_TYPES = [
     icon: AlignLeftOutlined,
     category: "text",
     description: "Input teks multi-baris",
-  },
-  {
-    value: "phone",
-    label: "Telepon",
-    icon: PhoneOutlined,
-    category: "text",
-    description: "Input nomor telepon",
-  },
-  {
-    value: "url",
-    label: "URL",
-    icon: GlobalOutlined,
-    category: "text",
-    description: "Input URL website",
   },
 
   // Number Fields
@@ -74,22 +56,6 @@ export const FIELD_TYPES = [
     category: "selection",
     description: "Pemilihan multi-pilihan",
   },
-
-  // File & Media Fields
-  {
-    value: "file",
-    label: "Upload File",
-    icon: UploadOutlined,
-    category: "file",
-    description: "Upload file",
-  },
-  {
-    value: "image",
-    label: "Upload Gambar",
-    icon: FileTextOutlined,
-    category: "file",
-    description: "Upload gambar",
-  },
 ] as const;
 
 // Field categories for better organization
@@ -117,11 +83,5 @@ export const FIELD_CATEGORIES = [
     label: "Field Pilihan",
     icon: DownOutlined,
     color: "#fa8c16",
-  },
-  {
-    key: "file",
-    label: "Upload File",
-    icon: UploadOutlined,
-    color: "#eb2f96",
   },
 ] as const;
