@@ -135,11 +135,7 @@ export const BasicInfoTab = ({
             />
           </Form.Item>
 
-          <Form.Item
-            label="Tipe Form"
-            name="featureType"
-            rules={[{ required: true, message: "Tipe fitur harus dipilih!" }]}
-          >
+          <Form.Item label="Tipe Form" name="featureType">
             <Select
               placeholder="Pilih tipe fitur"
               onChange={handleFeatureTypeChange}

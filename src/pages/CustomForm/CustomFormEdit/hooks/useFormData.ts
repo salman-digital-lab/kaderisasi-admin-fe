@@ -76,6 +76,16 @@ export const useFormData = () => {
             const defaultFields = ["name", "gender"];
             const allFields = [...new Set([...defaultFields, ...existingFields])];
             setSelectedBasicFields(allFields);
+
+            // Extract required field overrides by comparing with defaults
+            const requiredOverrides: Record<string, boolean> = {};
+            profileSection.fields.forEach((field) => {
+              const defaultField = BASIC_PROFILE_FIELDS.find(f => f.key === field.key);
+              if (defaultField && field.required !== defaultField.required) {
+                requiredOverrides[field.key] = field.required;
+              }
+            });
+            setProfileFieldRequiredOverrides(requiredOverrides);
           } else {
             // If no existing profile section, set default fields
             setSelectedBasicFields(["name", "gender"]);
