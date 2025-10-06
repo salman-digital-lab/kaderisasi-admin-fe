@@ -102,11 +102,8 @@ export const useFieldManagement = (
       type: values.type,
       placeholder: values.placeholder,
       helpText: values.helpText,
-      description: values.description,
       options: values.options || [],
       validation: values.validation,
-      defaultValue: values.defaultValue,
-      hidden: values.hidden || false,
       disabled: values.disabled || false,
     };
 

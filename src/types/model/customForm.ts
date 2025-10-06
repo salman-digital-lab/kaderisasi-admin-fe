@@ -17,11 +17,8 @@ export interface FormField {
   type: string;
   placeholder?: string;
   helpText?: string;
-  description?: string;
   options?: FieldOption[];
   validation?: FieldValidation;
-  defaultValue?: any;
-  hidden?: boolean;
   disabled?: boolean;
 }
 
