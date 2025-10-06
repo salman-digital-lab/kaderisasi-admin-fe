@@ -4,7 +4,7 @@ import { SaveOutlined } from "@ant-design/icons";
 import { updateClubRegistrationInfo } from "../../../api/services/clubRegistration";
 import { getClub } from "../../../api/services/club";
 import { Club } from "../../../types/model/club";
-import QuillEditor from "../../../components/common/RichTextEditor";
+import { RichTextEditor } from "../../../components/common/RichTextEditor";
 
 interface ClubRegistrationInfoProps {
   clubId: number;
@@ -110,10 +110,10 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
             label="Deskripsi Pendaftaran (Opsional)"
             help="Informasi ini akan ditampilkan kepada pengguna di halaman pendaftaran klub. Anda dapat menggunakan editor teks kaya untuk memformat teks, menambahkan daftar, dan styling lainnya. Biarkan kosong jika tidak diperlukan."
           >
-            <QuillEditor
+            <RichTextEditor
               value={registrationInfo}
               onChange={handleEditorChange}
-              style={{ minHeight: "300px" }}
+              minHeight="300px"
             />
           </Form.Item>
 
@@ -122,10 +122,10 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
             label="Informasi Setelah Pendaftaran (Opsional)"
             help="Informasi ini akan ditampilkan kepada pengguna setelah mereka berhasil mendaftar ke klub. Anda dapat menggunakan editor teks kaya untuk memformat teks, menambahkan daftar, dan styling lainnya. Biarkan kosong jika tidak diperlukan."
           >
-            <QuillEditor
+            <RichTextEditor
               value={afterRegistrationInfo}
               onChange={handleAfterEditorChange}
-              style={{ minHeight: "300px" }}
+              minHeight="300px"
             />
           </Form.Item>
         </Space>

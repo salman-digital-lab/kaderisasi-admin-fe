@@ -8,6 +8,7 @@ import {
   getAvailableActivities,
   getAvailableClubs,
 } from "../../../../api/services/customForm";
+import { RichTextEditor } from "../../../../components";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -18,6 +19,7 @@ interface BasicInfoTabProps {
   onSave: (values: {
     formName: string;
     formDescription: string;
+    postSubmissionInfo: string;
     featureType:
       | "activity_registration"
       | "club_registration"
@@ -89,6 +91,7 @@ export const BasicInfoTab = ({
       initialValues={{
         formName: initialData.form_name,
         formDescription: initialData.form_description || "",
+        postSubmissionInfo: initialData.post_submission_info || "",
         featureType: initialData.feature_type,
         featureId: initialData.feature_id,
       }}
@@ -117,6 +120,18 @@ export const BasicInfoTab = ({
               rows={4}
               showCount
               maxLength={500}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Informasi Pasca Pengisian Form (Opsional)"
+            name="postSubmissionInfo"
+            tooltip="Informasi ini akan ditampilkan setelah pengguna berhasil mengisi form"
+          >
+            <RichTextEditor
+              placeholder="Masukkan informasi pasca pengisian form (opsional)"
+              minHeight="200px"
+              maxHeight="400px"
             />
           </Form.Item>
 

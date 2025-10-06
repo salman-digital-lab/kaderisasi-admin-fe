@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 
 import { getClub, putClub } from "../../../../api/services/club";
 import { Club } from "../../../../types/model/club";
-import QuillEditor from "../../../../components/common/RichTextEditor";
+import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 
 type FieldType = {
   name: string;
@@ -113,10 +113,10 @@ const ClubDetail = () => {
         </Form.Item>
         
         <Form.Item label="Deskripsi">
-          <QuillEditor
+          <RichTextEditor
             value={description}
             onChange={setDescription}
-            style={{ minHeight: "200px" }}
+            minHeight="200px"
           />
         </Form.Item>
 

@@ -11,7 +11,6 @@ import {
 import type {
   CustomForm,
   FormSchema,
-  FormField,
   FormSection,
 } from "../../../../types/model/customForm";
 import { BASIC_PROFILE_FIELDS } from "../constants";
@@ -96,6 +95,7 @@ export const useFormData = () => {
     async (values: { 
       formName: string; 
       formDescription: string;
+      postSubmissionInfo: string;
       featureType?: "activity_registration" | "club_registration" | "independent_form";
       featureId?: number | null;
     }) => {
@@ -122,6 +122,7 @@ export const useFormData = () => {
       await updateCustomForm(parseInt(id), {
         formName: values.formName,
         formDescription: values.formDescription,
+        postSubmissionInfo: values.postSubmissionInfo,
         featureType: values.featureType,
         featureId: values.featureId,
         formSchema: updatedFormSchema,

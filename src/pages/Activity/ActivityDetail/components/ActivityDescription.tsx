@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { SaveOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 
-import QuillEditor from "../../../../components/common/RichTextEditor";
+import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 import { getActivity, putActivity } from "../../../../api/services/activity";
 
 const { Title } = Typography;
@@ -51,8 +51,8 @@ const ActivityDescription = () => {
       <Title level={3} style={{ marginTop: 10 }}>
         Deskripsi
       </Title>
-      <QuillEditor
-        style={{ minHeight: "calc(100vh - 400px)" }}
+      <RichTextEditor
+        minHeight="calc(100vh - 400px)"
         value={description}
         onChange={(value) => setDescription(value)}
       />
