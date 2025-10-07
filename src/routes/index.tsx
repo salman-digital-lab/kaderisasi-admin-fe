@@ -176,13 +176,13 @@ const routes = createBrowserRouter([
       {
         path: "/custom-form",
         element: (
-          <RoleUser element={<CustomFormList />} permission="pusatdata" />
+          <RoleUser element={<CustomFormList />} permission="formkustom" />
         ),
       },
       {
         path: "/custom-form/:id/edit",
         element: (
-          <RoleUser element={<CustomFormEdit />} permission="pusatdata" />
+          <RoleUser element={<CustomFormEdit />} permission="formkustom" />
         ),
       },
     ],
