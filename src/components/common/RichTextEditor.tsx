@@ -211,13 +211,15 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
       )}
 
-      <EditorContent
-        editor={editor}
+      <div 
+        className="rich-text-editor-content"
         style={{
           minHeight,
           maxHeight,
         }}
-      />
+      >
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 };

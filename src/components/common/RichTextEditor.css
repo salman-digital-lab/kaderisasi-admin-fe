@@ -23,16 +23,22 @@
 }
 
 .rich-text-editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   padding: 8px;
   border-bottom: 1px solid #d9d9d9;
   background-color: #fafafa;
   border-radius: 6px 6px 0 0;
 }
 
+.rich-text-editor-content {
+  overflow-y: auto;
+}
+
 .rich-text-editor .ProseMirror {
   padding: 12px;
   outline: none;
-  overflow-y: auto;
 }
 
 .rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
