@@ -130,11 +130,11 @@ const RegistrantList = () => {
     try {
       const data = await getExportRegistrants(id);
       if (data) {
-        const blob = new Blob([data], { type: "text/csv" });
+        const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `export-pendaftar-${new Date().toISOString().split("T")[0]}.csv`;
+        a.download = `export-pendaftar-${new Date().toISOString().split("T")[0]}.xlsx`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -220,7 +220,7 @@ const RegistrantList = () => {
   const adminActionsMenu: MenuProps["items"] = [
     {
       key: "export",
-      label: isExporting ? "Mengexport..." : "Export Data Semua Peserta (CSV)",
+      label: isExporting ? "Mengexport..." : "Export Data Semua Peserta (XLSX)",
       icon: <DownloadOutlined />,
       disabled: isExporting,
       onClick: handleExportRegistrants,

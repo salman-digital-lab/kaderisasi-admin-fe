@@ -159,13 +159,13 @@ const ClubRegistrationsPage: React.FC = () => {
 
   const handleExport = async () => {
     if (!clubId) return;
-    
+
     try {
       const blob = await exportClubRegistrations(Number(clubId));
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${club?.name || 'unit-kegiatan'}_registrations.csv`;
+      link.download = `${club?.name || 'unit-kegiatan'}_registrations.xlsx`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -298,7 +298,7 @@ const ClubRegistrationsPage: React.FC = () => {
                   onClick={handleExport}
                   icon={<DownloadOutlined />}
                 >
-                  Export CSV
+                  Export XLSX
                 </Button>
                 <Button onClick={handleAddMember} icon={<PlusOutlined />}>
                   Tambah Keanggotaan

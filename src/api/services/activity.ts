@@ -137,8 +137,11 @@ export const getRegistrant = async (id: string | undefined) => {
 
 export const getExportRegistrants = async (id: string | undefined) => {
   try {
-    const res = await axios.get<string>(
+    const res = await axios.get(
       `/activities/${id}/registrations-export`,
+      {
+        responseType: 'blob',
+      }
     );
     return res.data;
   } catch (error) {
