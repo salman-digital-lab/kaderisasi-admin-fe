@@ -38,7 +38,15 @@ export const useFieldManagement = (
   // ===== Section Operations =====
 
   const handleAddSection = () => {
-    const sectionKey = `custom_section_${Date.now()}`;
+    // Count existing custom sections (excluding profile_data)
+    const customSectionCount = customFieldSections.filter(
+      section => section.section_name !== 'profile_data'
+    ).length;
+
+    // Generate sequential section name
+    const nextSectionNumber = customSectionCount + 1;
+    const sectionKey = `Bagian ${nextSectionNumber}`;
+
     const newSection: FormSection = {
       section_name: sectionKey,
       fields: [],

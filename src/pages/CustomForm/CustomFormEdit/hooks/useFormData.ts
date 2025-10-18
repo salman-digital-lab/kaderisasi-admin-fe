@@ -119,13 +119,21 @@ export const useFormData = () => {
           required: profileFieldRequiredOverrides[field.key] ?? field.required
         }));
 
+      // Filter out sections with empty fields
+      const nonEmptyCustomSections = customFieldSections.filter(
+        (section) => section.fields && section.fields.length > 0
+      );
+
+      // Check if any sections were removed
+      const removedSectionsCount = customFieldSections.length - nonEmptyCustomSections.length;
+
       const updatedFormSchema: FormSchema = {
         fields: [
           {
             section_name: "profile_data",
             fields: profileFields,
           },
-          ...customFieldSections,
+          ...nonEmptyCustomSections,
         ],
       };
 
@@ -137,7 +145,12 @@ export const useFormData = () => {
         featureId: values.featureId,
         formSchema: updatedFormSchema,
       });
-      message.success("Formulir berhasil diperbarui!");
+
+      if (removedSectionsCount > 0) {
+        message.success(`Formulir berhasil diperbarui! ${removedSectionsCount} grup kosong dihapus.`);
+      } else {
+        message.success("Formulir berhasil diperbarui!");
+      }
     },
     {
       manual: true,

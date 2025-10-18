@@ -93,7 +93,7 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
         size="large"
         style={{ marginTop: customFieldSections.length > 0 ? "8px" : "0" }}
       >
-        Tambah Grup Pertanyaan Kustom
+        Tambah Grup Pertanyaan
       </Button>
     </Space>
   );

@@ -61,9 +61,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
   onUpdateSectionName,
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [titleValue, setTitleValue] = useState(
-    sectionKey.startsWith("custom_section_") ? `Bagian ${sectionNumber}` : sectionKey
-  );
+  const [titleValue, setTitleValue] = useState(sectionKey);
   // Find field type configuration by value
   const findFieldType = (fieldType: string) => {
     return fieldTypes.find((type) => type.value === fieldType);
@@ -142,14 +140,6 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
               disabled={isLast}
             />
           </Tooltip>
-          <Button
-            type="primary"
-            size="small"
-            icon={<PlusOutlined />}
-            onClick={onAddField}
-          >
-            Tambah Pertanyaan
-          </Button>
           <Tooltip title="Hapus Grup">
             <Button
               type="text"
@@ -258,6 +248,17 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
             );
           })
         )}
+
+        {/* Add Question Button at the bottom of the section */}
+        <Button
+          type="dashed"
+          block
+          icon={<PlusOutlined />}
+          onClick={onAddField}
+          style={{ marginTop: customFields.length > 0 ? "8px" : "0" }}
+        >
+          Tambah Pertanyaan
+        </Button>
       </Space>
     </Card>
   );
