@@ -61,7 +61,9 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
   onUpdateSectionName,
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [titleValue, setTitleValue] = useState(sectionKey);
+  const [titleValue, setTitleValue] = useState(
+    sectionKey.startsWith("custom_section_") ? `Bagian ${sectionNumber}` : sectionKey
+  );
   // Find field type configuration by value
   const findFieldType = (fieldType: string) => {
     return fieldTypes.find((type) => type.value === fieldType);
