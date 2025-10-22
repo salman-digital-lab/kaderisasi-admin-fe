@@ -10,7 +10,7 @@ import {
   Alert,
   Divider,
 } from "antd";
-import { PlusOutlined, DeleteOutlined, EyeOutlined, FormOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import { useRequest } from "ahooks";
 import { useState } from "react";
@@ -20,8 +20,10 @@ import {
   getUnattachedForms,
   attachFormToActivity,
   detachFormFromActivity,
+  createCustomForm,
 } from "../../../../api/services/customForm";
 import type { CustomForm } from "../../../../types/model/customForm";
+import { getActivity } from "../../../../api/services/activity";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -30,6 +32,18 @@ const CustomFormSelection = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState<number | undefined>();
+
+  // Fetch activity data to get activity name
+  const { data: activityData } = useRequest(
+    () => {
+      if (!id) return Promise.resolve(undefined);
+      return getActivity(Number(id));
+    },
+    {
+      refreshDeps: [id],
+      ready: !!id,
+    },
+  );
 
   // Fetch currently attached form
   const {
@@ -81,9 +95,43 @@ const CustomFormSelection = () => {
     },
   );
 
+  // Create and attach form action
+  const { loading: createAndAttachLoading, runAsync: runCreateAndAttach } = useRequest(
+    async () => {
+      if (!activityData || !id) return;
+
+      // Create the custom form with activity name
+      const newForm = await createCustomForm({
+        formName: activityData.name,
+        formDescription: `Form pendaftaran untuk kegiatan ${activityData.name}`,
+        featureType: "activity_registration",
+        featureId: Number(id),
+        isActive: true,
+        formSchema: {
+          fields: []
+        }
+      });
+
+      if (!newForm?.id) {
+        throw new Error("Failed to create form");
+      }
+
+      // The form is already attached via featureId, just refresh
+      refreshCurrentForm();
+      return newForm;
+    },
+    {
+      manual: true,
+    },
+  );
+
   const handleAttachForm = async () => {
     if (!selectedFormId || !id) return;
     await runAttach(selectedFormId, Number(id));
+  };
+
+  const handleCreateAndAttachForm = async () => {
+    await runCreateAndAttach();
   };
 
   const handleDetachForm = () => {
@@ -121,10 +169,10 @@ const CustomFormSelection = () => {
             description={
               <Space direction="vertical" size="small">
                 <Text>
-                  • <strong>Lampirkan form yang sudah ada:</strong> Klik tombol "Lampirkan Form Pendaftaran" di bawah untuk memilih dari form yang tersedia
+                  • <strong>Buat form baru otomatis:</strong> Klik tombol "Buat Form Pendaftaran" untuk membuat form baru secara otomatis dengan nama kegiatan
                 </Text>
                 <Text>
-                  • <strong>Buat form baru:</strong> Klik tombol "Kelola Form Pendaftaran" untuk membuat form baru terlebih dahulu
+                  • <strong>Lampirkan form yang sudah ada:</strong> Klik tombol "Lampirkan Form yang Ada" untuk memilih dari form yang tersedia
                 </Text>
               </Space>
             }
@@ -134,10 +182,12 @@ const CustomFormSelection = () => {
               <Button
                 size="small"
                 type="primary"
-                icon={<FormOutlined />}
-                onClick={() => navigate("/custom-form?create=true")}
+                icon={<PlusOutlined />}
+                onClick={handleCreateAndAttachForm}
+                loading={createAndAttachLoading}
+                disabled={!activityData}
               >
-                Kelola Form Pendaftaran
+                Buat Form Pendaftaran
               </Button>
             }
           />
@@ -204,19 +254,28 @@ const CustomFormSelection = () => {
                   Kegiatan ini belum memiliki form pendaftaran
                 </Text>
                 <Text type="secondary" style={{ fontSize: "12px" }}>
-                  Lampirkan form pendaftaran untuk menambahkan pertanyaan
-                  tambahan pada pendaftaran
+                  Klik tombol untuk membuat form pendaftaran baru secara otomatis dengan nama kegiatan
                 </Text>
               </Space>
             }
           >
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setIsModalOpen(true)}
-            >
-              Lampirkan Form Pendaftaran
-            </Button>
+            <Space>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleCreateAndAttachForm}
+                loading={createAndAttachLoading}
+                disabled={!activityData}
+              >
+                Buat Form Pendaftaran
+              </Button>
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => setIsModalOpen(true)}
+              >
+                Lampirkan Form yang Ada
+              </Button>
+            </Space>
           </Empty>
         )}
       </Space>
@@ -237,8 +296,8 @@ const CustomFormSelection = () => {
       >
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
           <Paragraph type="secondary">
-            Pilih form pendaftaran yang akan dilampirkan ke kegiatan ini. Hanya
-            form yang belum terlampir yang ditampilkan.
+            Pilih form pendaftaran yang akan disambungkan ke kegiatan ini. Hanya
+            form yang belum tersambung dengan kegiatan yang ditampilkan.
           </Paragraph>
           <Select
             showSearch
@@ -267,18 +326,20 @@ const CustomFormSelection = () => {
           )}
           
           <Divider>atau</Divider>
-          
+
           <div style={{ textAlign: "center" }}>
             <Paragraph type="secondary" style={{ marginBottom: 12 }}>
-              Belum ada form yang sesuai? Buat form baru terlebih dahulu
+              Belum ada form yang sesuai? Buat form baru secara otomatis dengan nama kegiatan
             </Paragraph>
             <Button
               type="dashed"
-              icon={<FormOutlined />}
-              onClick={() => {
+              icon={<PlusOutlined />}
+              onClick={async () => {
                 setIsModalOpen(false);
-                navigate("/custom-form?create=true");
+                await handleCreateAndAttachForm();
               }}
+              loading={createAndAttachLoading}
+              disabled={!activityData}
               block
             >
               Buat Form Pendaftaran Baru
