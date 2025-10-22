@@ -12,6 +12,7 @@ import {
   Checkbox,
   notification,
   Tooltip,
+  Collapse,
 } from "antd";
 import { EditOutlined, SaveOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
@@ -321,40 +322,51 @@ const ActivityDetail = () => {
         </Row>
 
         <Divider />
-        <Row>
-          <Title level={3}>Lain-Lain</Title>
-        </Row>
-        <Row gutter={48}>
-          <Col span={12}>
-            <Form.Item
-              name="badge"
-              label="Lencana Kegiatan"
-              tooltip="Hanya untuk kegiatan khusus. Lencana akan diberikan saat peserta lulus kegiatan (Tolong konsultasi melalui Grup BMKA IT Support jika perlu)"
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="custom_selection_status"
-              label="Status Pendaftaran Kegiatan Tambahan"
-              tooltip="Hanya untuk kegiatan khusus yang memiliki seleksi lebih dari 1 tahap! (Tolong konsultasi melalui Grup BMKA IT Support jika perlu)"
-            >
-              <Select
-                mode="tags"
-                style={{ width: "100%" }}
-                options={
-                  activityData?.additional_config?.custom_selection_status?.map(
-                    (val) => ({
-                      label: val,
-                      value: val,
-                    }),
-                  ) || []
-                }
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        <Collapse
+          bordered={false}
+          ghost
+          size="small"
+          style={{ background: 'transparent' }}
+          items={[
+            {
+              key: "1",
+              label: "Pengaturan Tambahan",
+              children: (
+                <Row gutter={48}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="badge"
+                      label="Lencana Kegiatan"
+                      tooltip="Hanya untuk kegiatan khusus. Lencana akan diberikan saat peserta lulus kegiatan (Tolong konsultasi melalui Grup BMKA IT Support jika perlu)"
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="custom_selection_status"
+                      label="Status Pendaftaran Kegiatan Tambahan"
+                      tooltip="Hanya untuk kegiatan khusus yang memiliki seleksi lebih dari 1 tahap! (Tolong konsultasi melalui Grup BMKA IT Support jika perlu)"
+                    >
+                      <Select
+                        mode="tags"
+                        style={{ width: "100%" }}
+                        options={
+                          activityData?.additional_config?.custom_selection_status?.map(
+                            (val) => ({
+                              label: val,
+                              value: val,
+                            }),
+                          ) || []
+                        }
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              ),
+            },
+          ]}
+        />
       </Form>
     </Card>
   );
