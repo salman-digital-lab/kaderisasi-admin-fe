@@ -87,13 +87,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
         >
           <Alert
             style={{ marginBottom: 16 }}
-            type="warning"
-            message="Fitur ini merupakan fitur manajemen kegiatan, bukan hanya media publikasi kegiatan."
-            showIcon
-          />
-          <Alert
-            style={{ marginBottom: 16 }}
-            message="Pengisian gambar/poster dan deskripsi kegiatan dilakukan setelah anda membuat kegiatan"
+            message="Pengisian gambar/poster, deskripsi kegiatan, dan form pendaftarandilakukan setelah anda membuat kegiatan"
             showIcon
           />
           <Row gutter={24}>
@@ -159,6 +153,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
               <Form.Item
                 name="activity_category"
                 label="Kategori Kegiatan"
+                tooltip="Jika belum tahu, silahkan konsultasikan dengan Asmen"
                 required
               >
                 <Select
@@ -170,7 +165,12 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
           </Row>
           <Row gutter={24}>
             <Col span={12}>
-              <Form.Item name="activity_type" label="Tipe Kegiatan" required>
+              <Form.Item
+                name="activity_type"
+                label="Tipe Kegiatan"
+                tooltip="Jika belum tahu, silahkan pilih Umum-Hanya Pendaftaran"
+                required
+              >
                 <Select
                   optionRender={(option) => {
                     const content = (
@@ -216,6 +216,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
               <Form.Item
                 name="registration_date"
                 label="Tanggal Mulai & Selesai Pendaftaran"
+                tooltip="Kegiatan akan otomatis di tutup jika tanggal selesai pendaftaran sudah lewat"
                 required
               >
                 <DatePicker.RangePicker style={{ width: "100%" }} />

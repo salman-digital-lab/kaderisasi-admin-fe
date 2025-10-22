@@ -11,8 +11,9 @@ import {
   Divider,
   Checkbox,
   notification,
+  Tooltip,
 } from "antd";
-import { EditOutlined, SaveOutlined } from "@ant-design/icons";
+import { EditOutlined, SaveOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useRequest, useToggle } from "ahooks";
@@ -177,6 +178,38 @@ const ActivityDetail = () => {
             >
               <Select
                 placeholder="Pilih Minimum Jenjang"
+                optionRender={(option) => {
+                  const content = (
+                    <div
+                      style={{
+                        padding: "4px 0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <span>{option.data.label}</span>
+                      {option.data.title && (
+                        <InfoCircleOutlined
+                          style={{
+                            color: "#1890ff",
+                            fontSize: "12px",
+                            opacity: 0.6,
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+
+                  return option.data.title ? (
+                    <Tooltip title={option.data.title} placement="right">
+                      {content}
+                    </Tooltip>
+                  ) : (
+                    content
+                  );
+                }}
                 options={USER_LEVEL_OPTIONS}
               />
             </Form.Item>
@@ -200,11 +233,43 @@ const ActivityDetail = () => {
             <Form.Item
               name="activity_type"
               label="Tipe Kegiatan"
-              extra="Jika belum tahu, silahkan pilih Umum"
+              extra="Jika belum tahu, silahkan pilih Umum-Hanya Pendaftaran"
               tooltip="Pilihan tipe mempengaruhi jenjang pendaftar, Tolong baca Guideline atau tolong konsultasikan dengan Asmen atau Admin IT jika perlu"
               required
             >
               <Select
+                optionRender={(option) => {
+                  const content = (
+                    <div
+                      style={{
+                        padding: "4px 0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <span>{option.data.label}</span>
+                      {option.data.title && (
+                        <InfoCircleOutlined
+                          style={{
+                            color: "#1890ff",
+                            fontSize: "12px",
+                            opacity: 0.6,
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+
+                  return option.data.title ? (
+                    <Tooltip title={option.data.title} placement="right">
+                      {content}
+                    </Tooltip>
+                  ) : (
+                    content
+                  );
+                }}
                 options={ACTIVITY_TYPE_OPTIONS}
                 placeholder="Pilih Tipe Kegiatan"
               />
