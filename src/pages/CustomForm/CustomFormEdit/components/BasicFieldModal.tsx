@@ -53,7 +53,7 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
       onCancel={onCancel}
       footer={null}
       width={900}
-      destroyOnClose
+      destroyOnHidden
     >
       {availableTemplates.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px 20px" }}>

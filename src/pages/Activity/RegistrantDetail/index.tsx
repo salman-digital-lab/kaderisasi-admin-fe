@@ -35,6 +35,14 @@ const RegistrantDetail = () => {
     },
   );
 
+  // Helper function to format boolean values to Indonesian strings
+  const formatAnswerValue = (value: any) => {
+    if (typeof value === "boolean") {
+      return value ? "Ya" : "Tidak";
+    }
+    return value || "-";
+  };
+
   const questionnaireAnswerDescription: DescriptionsProps["items"] = (() => {
     // Use custom form if it exists and is active
     if (customFormData?.is_active && customFormData?.form_schema?.fields) {
@@ -46,7 +54,7 @@ const RegistrantDetail = () => {
       return allFields.map((field) => ({
         key: field.key,
         label: field.label,
-        children: registrantData?.questionnaire_answer[field.key] || "-",
+        children: formatAnswerValue(registrantData?.questionnaire_answer[field.key]),
       }));
     }
 
@@ -55,7 +63,7 @@ const RegistrantDetail = () => {
       (question) => ({
         key: question.name,
         label: question.label,
-        children: registrantData?.questionnaire_answer[question.name!] || "-",
+        children: formatAnswerValue(registrantData?.questionnaire_answer[question.name!]),
       }),
     );
   })();

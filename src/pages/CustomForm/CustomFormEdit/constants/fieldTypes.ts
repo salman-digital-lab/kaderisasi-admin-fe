@@ -11,7 +11,7 @@ import {
 export const FIELD_TYPES = [
   // Text Input Fields
   {
-    value: "text_input",
+    value: "text",
     label: "Input Teks",
     icon: FontSizeOutlined,
     category: "text",
@@ -27,7 +27,7 @@ export const FIELD_TYPES = [
 
   // Number Fields
   {
-    value: "number_input",
+    value: "number",
     label: "Angka",
     icon: NumberOutlined,
     category: "number",

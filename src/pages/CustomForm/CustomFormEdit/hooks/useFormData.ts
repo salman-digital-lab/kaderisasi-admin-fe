@@ -139,8 +139,8 @@ export const useFormData = () => {
 
       await updateCustomForm(parseInt(id), {
         formName: values.formName,
-        formDescription: values.formDescription,
-        postSubmissionInfo: values.postSubmissionInfo,
+        formDescription: values.formDescription || "",
+        postSubmissionInfo: values.postSubmissionInfo || "",
         featureType: values.featureType,
         featureId: values.featureId,
         formSchema: updatedFormSchema,

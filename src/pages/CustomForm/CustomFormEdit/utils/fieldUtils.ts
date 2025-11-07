@@ -22,7 +22,7 @@ export const createNewField = (key?: string): FormField => {
     key: key || generateFieldKey(),
     label: "",
     required: false,
-    type: "text_input",
+    type: "text",
   };
 };
 

@@ -7,7 +7,6 @@ import {
   Switch,
   Space,
   Button,
-  Divider,
   Row,
   Col,
   Typography,
@@ -38,14 +37,17 @@ export const FieldModal: React.FC<FieldModalProps> = ({
 
   // Reset form values when editingField changes
   useEffect(() => {
-    if (visible && editingField) {
-      form.setFieldsValue({
-        ...editingField,
-        options: editingField.options || [],
-      });
-    } else if (visible && !editingField) {
-      // Reset form for new field
+    if (visible) {
+      // Always reset form first to clear previous values
       form.resetFields();
+
+      if (editingField) {
+        // Then set the new values
+        form.setFieldsValue({
+          ...editingField,
+          options: editingField.options || [],
+        });
+      }
     }
   }, [editingField, visible, form]);
 
@@ -55,6 +57,10 @@ export const FieldModal: React.FC<FieldModalProps> = ({
 
   const hasOptionsField = (fieldType: string) => {
     return ["select", "radio", "checkbox"].includes(fieldType);
+  };
+
+  const handleOk = () => {
+    form.submit();
   };
 
   return (
@@ -69,135 +75,122 @@ export const FieldModal: React.FC<FieldModalProps> = ({
       }
       open={visible}
       onCancel={onCancel}
-      footer={null}
+      onOk={handleOk}
+      okText="Simpan Pertanyaan"
+      cancelText="Batal"
       width={800}
-      destroyOnClose
+      destroyOnHidden
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onSave}
-      >
-        {/* Basic Settings Tab */}
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Label Pertanyaan"
-              name="label"
-              rules={[
-                {
-                  required: true,
-                  message: "Label pertanyaan wajib diisi!",
-                },
-                { min: 2, message: "Label minimal 2 karakter!" },
-                {
-                  max: 100,
-                  message: "Label maksimal 100 karakter!",
-                },
-              ]}
-            >
-              <Input placeholder="Masukkan label pertanyaan" />
-            </Form.Item>
-          </Col>
+      <Form form={form} layout="vertical" onFinish={onSave}>
+        {/* Basic Settings Section */}
+        <div style={{ marginBottom: 24 }}>
+          <Form.Item
+            label="Label Pertanyaan"
+            name="label"
+            rules={[
+              {
+                required: true,
+                message: "Label pertanyaan wajib diisi!",
+              },
+              { min: 2, message: "Label minimal 2 karakter!" },
+            ]}
+          >
+            <Input.TextArea
+              placeholder="Masukkan label pertanyaan"
+              rows={2}
+              autoSize={{ minRows: 2, maxRows: 4 }}
+            />
+          </Form.Item>
 
-          <Col span={12}>
-            <Form.Item
-              label="Tipe Pertanyaan"
-              name="type"
-              rules={[
-                {
-                  required: true,
-                  message: "Tipe pertanyaan wajib dipilih!",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Pilih tipe pertanyaan"
-                onChange={handleFieldTypeChange}
+          <Row gutter={16}>
+            <Col span={16}>
+              <Form.Item
+                label="Tipe Pertanyaan"
+                name="type"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tipe pertanyaan wajib dipilih!",
+                  },
+                ]}
               >
-                {fieldTypes.map((type) => (
-                  <Select.Option
-                    key={type.value}
-                    value={type.value}
-                  >
-                    <Space>
-                      <type.icon />
-                      {type.label}
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: "12px" }}
-                      >
-                        {type.description}
-                      </Text>
-                    </Space>
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
+                <Select
+                  placeholder="Pilih tipe pertanyaan"
+                  onChange={handleFieldTypeChange}
+                >
+                  {fieldTypes.map((type) => (
+                    <Select.Option key={type.value} value={type.value}>
+                      <Space>
+                        <type.icon />
+                        {type.label}
+                        <Text type="secondary">{type.description}</Text>
+                      </Space>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Teks Placeholder"
-              name="placeholder"
-              rules={[
-                {
-                  max: 200,
-                  message: "Placeholder maksimal 200 karakter!",
-                },
-              ]}
-            >
-              <Input placeholder="Masukkan teks placeholder (opsional)" />
-            </Form.Item>
-          </Col>
+            <Col span={8}>
+              <Form.Item
+                label="Wajib Diisi"
+                name="required"
+                valuePropName="checked"
+              >
+                <Switch />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          <Col span={12}>
-            <Form.Item
-              label="Teks Bantuan"
-              name="helpText"
-              rules={[
-                {
-                  max: 300,
-                  message: "Teks bantuan maksimal 300 karakter!",
-                },
-              ]}
-            >
-              <Input placeholder="Masukkan teks bantuan (opsional)" />
-            </Form.Item>
-          </Col>
-        </Row>
+          <Form.Item label="Teks Bantuan (Opsional)" name="helpText">
+            <Input.TextArea
+              placeholder="Masukkan teks bantuan untuk membantu pengguna mengisi pertanyaan ini"
+              rows={2}
+              autoSize={{ minRows: 2, maxRows: 4 }}
+            />
+          </Form.Item>
+        </div>
 
-        <Form.Item
-          label="Pertanyaan Wajib Diisi"
-          name="required"
-          valuePropName="checked"
-        >
-          <Switch />
-        </Form.Item>
-
-        {/* Options Tab - Only shown for fields that need options */}
+        {/* Options Section - Only shown for fields that need options */}
         {editingField?.type && hasOptionsField(editingField.type) && (
-          <>
-            <Divider />
-            <Text
-              type="secondary"
-              style={{ marginBottom: 16, display: "block" }}
-            >
-              Konfigurasi opsi untuk pertanyaan pilihan (Select, Radio, Checkbox)
-            </Text>
+          <div
+            style={{
+              backgroundColor: "#f5f5f5",
+              padding: "20px",
+              borderRadius: "8px",
+              marginBottom: 24,
+            }}
+          >
+            <div style={{ marginBottom: 16 }}>
+              <Text strong>Opsi Pilihan</Text>
+              <br />
+              <Text type="secondary">
+                Konfigurasi opsi untuk pertanyaan pilihan (Select, Radio,
+                Checkbox)
+              </Text>
+            </div>
 
             <Form.List name="options">
               {(fields, { add, remove }) => (
                 <>
-                  {fields.map(({ key, name, ...restField }) => (
+                  {fields.map(({ key, name, ...restField }, index) => (
                     <Row
                       key={key}
-                      gutter={16}
+                      gutter={12}
                       align="middle"
-                      style={{ marginBottom: 8 }}
+                      style={{
+                        marginBottom: 12,
+                        backgroundColor: "white",
+                        padding: "12px",
+                        borderRadius: "6px",
+                        border: "1px solid #e8e8e8",
+                      }}
                     >
+                      <Col flex="none" style={{ width: 40 }}>
+                        <Text type="secondary" strong>
+                          {index + 1}.
+                        </Text>
+                      </Col>
                       <Col flex="auto">
                         <Form.Item
                           {...restField}
@@ -208,13 +201,15 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                               message: "Label opsi wajib diisi",
                             },
                           ]}
+                          style={{ marginBottom: 0 }}
                         >
                           <Input
                             placeholder="Label opsi (akan otomatis mengisi nilai)"
                             onChange={(e) => {
                               const labelValue = e.target.value;
                               // Auto-sync label to value
-                              const currentOptions = form.getFieldValue('options') || [];
+                              const currentOptions =
+                                form.getFieldValue("options") || [];
                               const updatedOptions = [...currentOptions];
                               if (updatedOptions[name]) {
                                 updatedOptions[name] = {
@@ -241,14 +236,12 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                           danger
                           icon={<DeleteOutlined />}
                           onClick={() => remove(name)}
-                          style={{ height: "32px" }}
-                        >
-                          Hapus
-                        </Button>
+                          title="Hapus opsi"
+                        />
                       </Col>
                     </Row>
                   ))}
-                  <Form.Item>
+                  <Form.Item style={{ marginBottom: 0, marginTop: 12 }}>
                     <Button
                       type="dashed"
                       onClick={() => add()}
@@ -261,19 +254,8 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                 </>
               )}
             </Form.List>
-          </>
+          </div>
         )}
-
-        <Divider />
-
-        <Form.Item style={{ marginBottom: 0, textAlign: "right" }}>
-          <Space>
-            <Button onClick={onCancel}>Batal</Button>
-            <Button type="primary" htmlType="submit">
-              Simpan Pertanyaan
-            </Button>
-          </Space>
-        </Form.Item>
       </Form>
     </Modal>
   );

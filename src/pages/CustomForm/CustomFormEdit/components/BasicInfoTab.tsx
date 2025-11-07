@@ -113,13 +113,11 @@ export const BasicInfoTab = ({
           <Form.Item
             label="Informasi Awal Pengisian Form (Opsional)"
             name="formDescription"
-            rules={[{ max: 500, message: "Maksimal 500 karakter!" }]}
           >
             <TextArea
               placeholder="Masukkan informasi awal pengisian form"
               rows={4}
               showCount
-              maxLength={500}
             />
           </Form.Item>
 
