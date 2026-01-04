@@ -1,4 +1,4 @@
-import { Form, Input, Row, Col, Card, Space, Typography, Select } from "antd";
+import { Form, Input, Row, Col, Card, Space, Typography, Select, Collapse } from "antd";
 import type { CustomForm } from "../../../../types/model/customForm";
 import type { Activity } from "../../../../types/model/activity";
 import type { Club } from "../../../../types/model/club";
@@ -133,75 +133,90 @@ export const BasicInfoTab = ({
             />
           </Form.Item>
 
-          <Form.Item label="Tipe Form" name="featureType">
-            <Select
-              placeholder="Pilih tipe fitur"
-              onChange={handleFeatureTypeChange}
-            >
-              <Select.Option value="activity_registration">
-                Pendaftaran Aktivitas
-              </Select.Option>
-              <Select.Option value="club_registration">
-                Pendaftaran Unit Kegiatan
-              </Select.Option>
-              <Select.Option value="independent_form">
-                Form Independen
-              </Select.Option>
-            </Select>
-          </Form.Item>
+          <Collapse
+            ghost
+            defaultActiveKey={[]}
+            style={{ marginLeft: -16, marginRight: -16 }}
+            items={[
+              {
+                key: "pengaturan-tambahan",
+                label: <Typography.Text strong>Pengaturan Tambahan</Typography.Text>,
+                children: (
+                  <>
+                    <Form.Item label="Tipe Form" name="featureType">
+                      <Select
+                        placeholder="Pilih tipe fitur"
+                        onChange={handleFeatureTypeChange}
+                      >
+                        <Select.Option value="activity_registration">
+                          Pendaftaran Aktivitas
+                        </Select.Option>
+                        <Select.Option value="club_registration">
+                          Pendaftaran Unit Kegiatan
+                        </Select.Option>
+                        <Select.Option value="independent_form">
+                          Form Independen
+                        </Select.Option>
+                      </Select>
+                    </Form.Item>
 
-          {featureType === "activity_registration" && (
-            <Form.Item
-              label="Pilih Aktivitas"
-              name="featureId"
-              rules={[{ required: true, message: "Aktivitas harus dipilih!" }]}
-            >
-              <Select
-                placeholder="Pilih aktivitas"
-                loading={loadingActivities}
-                showSearch
-                optionFilterProp="children"
-              >
-                {availableActivities.map((activity) => (
-                  <Select.Option key={activity.id} value={activity.id}>
-                    {activity.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
+                    {featureType === "activity_registration" && (
+                      <Form.Item
+                        label="Pilih Aktivitas"
+                        name="featureId"
+                        rules={[{ required: true, message: "Aktivitas harus dipilih!" }]}
+                      >
+                        <Select
+                          placeholder="Pilih aktivitas"
+                          loading={loadingActivities}
+                          showSearch
+                          optionFilterProp="children"
+                        >
+                          {availableActivities.map((activity) => (
+                            <Select.Option key={activity.id} value={activity.id}>
+                              {activity.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    )}
 
-          {featureType === "club_registration" && (
-            <Form.Item
-              label="Pilih Unit Kegiatan"
-              name="featureId"
-              rules={[
-                { required: true, message: "Unit kegiatan harus dipilih!" },
-              ]}
-            >
-              <Select
-                placeholder="Pilih unit kegiatan"
-                loading={loadingClubs}
-                showSearch
-                optionFilterProp="children"
-              >
-                {availableClubs.map((club) => (
-                  <Select.Option key={club.id} value={club.id}>
-                    {club.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
+                    {featureType === "club_registration" && (
+                      <Form.Item
+                        label="Pilih Unit Kegiatan"
+                        name="featureId"
+                        rules={[
+                          { required: true, message: "Unit kegiatan harus dipilih!" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Pilih unit kegiatan"
+                          loading={loadingClubs}
+                          showSearch
+                          optionFilterProp="children"
+                        >
+                          {availableClubs.map((club) => (
+                            <Select.Option key={club.id} value={club.id}>
+                              {club.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    )}
 
-          {featureType === "independent_form" && (
-            <Form.Item
-              label="ID Fitur"
-              help="Form independen tidak memerlukan ID fitur"
-            >
-              <Input value="Tidak ada" disabled />
-            </Form.Item>
-          )}
+                    {featureType === "independent_form" && (
+                      <Form.Item
+                        label="ID Fitur"
+                        help="Form independen tidak memerlukan ID fitur"
+                      >
+                        <Input value="Tidak ada" disabled />
+                      </Form.Item>
+                    )}
+                  </>
+                ),
+              },
+            ]}
+          />
         </Col>
 
         <Col span={8}>

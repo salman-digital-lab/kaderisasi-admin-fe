@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { message } from "antd";
+import { notification } from "antd";
 import type { FormField, FormSection } from "../../../../types/model/customForm";
 import {
   createNewField,
@@ -52,14 +52,12 @@ export const useFieldManagement = (
       fields: [],
     };
     setCustomFieldSections([...customFieldSections, newSection]);
-    message.success("Grup pertanyaan kustom berhasil ditambahkan!");
   };
 
   const handleDeleteSection = (sectionKey: string) => {
     setCustomFieldSections(
       customFieldSections.filter((section) => section.section_name !== sectionKey)
     );
-    message.success("Grup pertanyaan berhasil dihapus!");
   };
 
   const handleUpdateSectionName = (sectionKey: string, newName: string) => {
@@ -136,7 +134,6 @@ export const useFieldManagement = (
             : s
         )
       );
-      message.success(`Pertanyaan "${fieldData.label}" berhasil diperbarui!`);
     } else {
       setCustomFieldSections(
         customFieldSections.map((s) =>
@@ -145,7 +142,6 @@ export const useFieldManagement = (
             : s
         )
       );
-      message.success(`Pertanyaan "${fieldData.label}" berhasil ditambahkan!`);
     }
     
     setFieldModalVisible(false);
@@ -156,13 +152,13 @@ export const useFieldManagement = (
   const handleDeleteCustomField = (sectionKey: string, fieldKey: string) => {
     const section = customFieldSections.find((s) => s.section_name === sectionKey);
     if (!section) {
-      message.error("Section tidak ditemukan!");
+      notification.error({ message: "Section tidak ditemukan!" });
       return;
     }
 
     const fieldToDelete = section.fields.find((field) => field.key === fieldKey);
     if (!fieldToDelete) {
-      message.error("Field tidak ditemukan!");
+      notification.error({ message: "Field tidak ditemukan!" });
       return;
     }
 
@@ -173,7 +169,6 @@ export const useFieldManagement = (
           : s
       )
     );
-    message.success("Pertanyaan berhasil dihapus!");
   };
 
   const handleDuplicateField = (sectionKey: string, field: FormField) => {
@@ -189,7 +184,6 @@ export const useFieldManagement = (
           : s
       )
     );
-    message.success("Pertanyaan berhasil diduplikat!");
   };
 
   const handleMoveField = (sectionKey: string, fieldKey: string, direction: "up" | "down") => {
@@ -214,22 +208,20 @@ export const useFieldManagement = (
 
   const handleAddProfileDataFromTemplate = (template: any) => {
     if (selectedBasicFields.includes(template.field.key)) {
-      message.info("Pertanyaan ini sudah ditambahkan!");
+      notification.info({ message: "Pertanyaan ini sudah ditambahkan!" });
       return;
     }
 
     setSelectedBasicFields([...selectedBasicFields, template.field.key]);
-    message.success(`Pertanyaan "${template.name}" berhasil ditambahkan!`);
   };
 
   const handleRemoveProfileField = (fieldKey: string) => {
     if (isImmutableField(fieldKey)) {
-      message.warning("Pertanyaan ini tidak dapat dihapus!");
+      notification.warning({ message: "Pertanyaan ini tidak dapat dihapus!" });
       return;
     }
 
     setSelectedBasicFields(selectedBasicFields.filter((key) => key !== fieldKey));
-    message.success("Pertanyaan berhasil dihapus!");
   };
 
   const handleMoveProfileField = (fieldKey: string, direction: "up" | "down") => {
@@ -249,7 +241,7 @@ export const useFieldManagement = (
 
   const handleToggleRequiredField = (fieldKey: string, required: boolean) => {
     if (isImmutableField(fieldKey)) {
-      message.warning("Status wajib untuk pertanyaan ini tidak dapat diubah!");
+      notification.warning({ message: "Status wajib untuk pertanyaan ini tidak dapat diubah!" });
       return;
     }
 
