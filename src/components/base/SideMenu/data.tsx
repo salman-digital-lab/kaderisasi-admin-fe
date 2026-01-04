@@ -7,6 +7,7 @@ import {
   SettingOutlined,
   TrophyOutlined,
   TeamOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
@@ -17,8 +18,9 @@ type MenuItem = Required<MenuProps>["items"][number];
 // Re-export clearAuth as clearMenuCache for backward compatibility
 export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 
-export const menuItems: (permissions: string[]) => MenuItem[] = (permissions) => {
-
+export const menuItems: (permissions: string[]) => MenuItem[] = (
+  permissions,
+) => {
   let menuItems: MenuItem[] = [
     {
       key: "/dashboard",
@@ -81,6 +83,14 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (permissions) =>
     });
   }
 
+  if (permissions.includes("formkustom")) {
+    menuItems.push({
+      key: "/custom-form",
+      icon: <FormOutlined />,
+      label: <Link to="/custom-form">Form Digital</Link>,
+    });
+  }
+
   if (permissions.includes("pusatdata")) {
     menuItems.push({
       key: "/data-center",
@@ -94,10 +104,6 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (permissions) =>
         {
           key: "/universities",
           label: <Link to="/universities">Perguruan Tinggi</Link>,
-        },
-        {
-          key: "/custom-form",
-          label: <Link to="/custom-form">Form Kustom</Link>,
         },
       ],
     });

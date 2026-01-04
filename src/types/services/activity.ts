@@ -61,6 +61,8 @@ export type putActivityImagesReq = File;
 
 export type putRemoveActivityImageReq = { index: number };
 
+export type putReorderActivityImagesReq = { images: string[] };
+
 export type postActivityReq = Partial<Activity>;
 
 export type postActivityResp = {

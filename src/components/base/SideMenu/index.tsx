@@ -35,8 +35,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
 
   const getOpenKeys = () => {
     if (currentPath.startsWith('/province') ||
-        currentPath.startsWith('/universities') ||
-        currentPath.startsWith('/custom-form')) {
+        currentPath.startsWith('/universities')) {
       return ['/data-center'];
     }
     if (currentPath.startsWith('/admin-users')) {

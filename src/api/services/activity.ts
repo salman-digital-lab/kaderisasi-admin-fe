@@ -15,6 +15,7 @@ import {
   putRegistrantReq,
   putActivityImagesReq,
   putRemoveActivityImageReq,
+  putReorderActivityImagesReq,
 } from "../../types/services/activity";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -65,6 +66,21 @@ export const putRemoveActivityImage = async (
       message: "Berhasil",
       description: "Gambar berhasil dihapus",
     });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const putReorderActivityImages = async (
+  id: number,
+  data: putReorderActivityImagesReq,
+) => {
+  try {
+    const res = await axios.put<putActivityResp>(
+      "/activities/" + id + "/reorder-images",
+      data,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
