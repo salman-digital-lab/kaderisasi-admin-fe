@@ -1,6 +1,6 @@
-import { Alert, Button, Space, Tabs, Dropdown } from "antd";
-import { ArrowLeftOutlined, MoreOutlined } from "@ant-design/icons";
-import { Link, useSearchParams } from "react-router-dom";
+import { Alert, Button, Tabs, Dropdown } from "antd";
+import { MoreOutlined } from "@ant-design/icons";
+import { useSearchParams } from "react-router-dom";
 import type { TabsProps, MenuProps } from "antd";
 
 import ActivityDetail from "./components/ActivityDetail";
@@ -101,33 +101,17 @@ const MainActivityDetail = () => {
   ];
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-        <Space>
-          <Button>
-            <Link to="/activity">
-              <ArrowLeftOutlined /> Kembali
-            </Link>
-          </Button>
-          <Alert
-            message="Setiap kegiatan harus melalui proses review oleh Admin sebelum bisa dibuka ke publik. Silahkan konsultasi melalui Grup BMKA IT Support"
-            type="warning"
-            showIcon
-          />
-        </Space>
+    <Tabs
+      activeKey={activeTab}
+      onTabClick={(key) => setSearchParams({ tab: key })}
+      tabPosition="top"
+      items={items}
+      tabBarExtraContent={
         <Dropdown menu={{ items: moreMenuItems }} placement="bottomRight" trigger={["click"]}>
-          <Button icon={<MoreOutlined />} title="Akses form legacy">
-            Lainnya
-          </Button>
+          <Button type="text" icon={<MoreOutlined />} title="Akses form legacy" />
         </Dropdown>
-      </div>
-      <Tabs
-        activeKey={activeTab}
-        onTabClick={(key) => setSearchParams({ tab: key })}
-        tabPosition="top"
-        items={items}
-      />
-    </Space>
+      }
+    />
   );
 };
 

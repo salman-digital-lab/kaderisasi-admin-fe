@@ -12,9 +12,8 @@ import {
   Form,
   Input,
 } from "antd";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-  ArrowLeftOutlined,
   DownloadOutlined,
   DownOutlined,
 } from "@ant-design/icons";
@@ -182,14 +181,8 @@ const AchievementDetail = () => {
   return (
     <>
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-        <Space>
-          <Button>
-            <Link to="/achievement">
-              <ArrowLeftOutlined /> Kembali
-            </Link>
-          </Button>
-          {data?.status === ACHIEVEMENT_STATUS_ENUM.PENDING && (
-            <Dropdown
+        {data?.status === ACHIEVEMENT_STATUS_ENUM.PENDING && (
+          <Dropdown
               menu={{
                 items: UPDATE_STATUS_MENU?.map((item) => ({
                   ...item,
@@ -203,9 +196,8 @@ const AchievementDetail = () => {
                   <DownOutlined />
                 </Space>
               </Button>
-            </Dropdown>
-          )}
-        </Space>
+          </Dropdown>
+        )}
 
         <Card title="Informasi Dasar" loading={loading}>
           <Descriptions column={2} items={basicInfo} bordered />

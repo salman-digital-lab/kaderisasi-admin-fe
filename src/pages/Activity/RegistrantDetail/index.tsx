@@ -1,6 +1,5 @@
-import { Button, Card, Descriptions, DescriptionsProps, Space, Image } from "antd";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Card, Descriptions, DescriptionsProps, Space, Image } from "antd";
+import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 
 import { getActivity, getRegistrant } from "../../../api/services/activity";
@@ -140,11 +139,6 @@ const RegistrantDetail = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <Button>
-        <Link to={`/activity/${registrantData?.activity_id}?tab=5`}>
-          <ArrowLeftOutlined /> Kembali
-        </Link>
-      </Button>
       <Image
         style={{ flex: 1 }}
         width={200}

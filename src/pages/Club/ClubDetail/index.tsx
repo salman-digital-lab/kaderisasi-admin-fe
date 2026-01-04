@@ -1,6 +1,5 @@
-import { Alert, Button, Space, Tabs } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Space, Tabs } from "antd";
+import { useParams, useSearchParams } from "react-router-dom";
 import type { TabsProps } from "antd";
 
 import ClubDetail from "./components/ClubDetail";
@@ -50,18 +49,6 @@ const MainClubDetail = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <Space>
-        <Button>
-          <Link to="/club">
-            <ArrowLeftOutlined /> Kembali
-          </Link>
-        </Button>
-        <Alert
-          message="Kelola data unit kegiatan, upload logo, dan media untuk ditampilkan di website"
-          type="info"
-          showIcon
-        />
-      </Space>
       <Tabs
         activeKey={activeTab}
         onTabClick={(key) => {

@@ -12,8 +12,8 @@ import {
   Typography,
   Input,
 } from "antd";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeftOutlined, DownOutlined } from "@ant-design/icons";
+import { useParams } from "react-router-dom";
+import { DownOutlined } from "@ant-design/icons";
 import { useState } from "react";
 
 import {
@@ -168,32 +168,6 @@ export function RuangCurhatDetail() {
         toggle={toggleModal}
         dataRefresh={refresh}
       />
-      <Space>
-        <Button>
-          <Link to="/ruang-curhat">
-            <ArrowLeftOutlined /> Kembali
-          </Link>
-        </Button>
-        <Dropdown
-          menu={{
-            items: UPDATE_STATUS_MENU?.map((item) => ({
-              ...item,
-              onClick: () =>
-                runAsync({
-                  id: id || "",
-                  data: { status: Number(item?.key || "0") },
-                }).finally(refresh),
-            })) as MenuProps["items"],
-          }}
-        >
-          <Button loading={editLoading}>
-            <Space>
-              Ubah Status
-              <DownOutlined />
-            </Space>
-          </Button>
-        </Dropdown>
-      </Space>
       <Card title="Informasi Pendaftar" loading={loading}>
         <Descriptions items={basicInfo} bordered />
       </Card>
@@ -205,9 +179,30 @@ export function RuangCurhatDetail() {
         title="Konselor"
         loading={loading}
         extra={
-          <Button type="primary" onClick={() => toggleModal()}>
-            Ubah Konselor
-          </Button>
+          <Space>
+            <Dropdown
+              menu={{
+                items: UPDATE_STATUS_MENU?.map((item) => ({
+                  ...item,
+                  onClick: () =>
+                    runAsync({
+                      id: id || "",
+                      data: { status: Number(item?.key || "0") },
+                    }).finally(refresh),
+                })) as MenuProps["items"],
+              }}
+            >
+              <Button loading={editLoading}>
+                <Space>
+                  Ubah Status
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
+            <Button type="primary" onClick={() => toggleModal()}>
+              Ubah Konselor
+            </Button>
+          </Space>
         }
       >
         <Descriptions items={counselorData} bordered />

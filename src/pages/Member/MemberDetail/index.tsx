@@ -17,7 +17,6 @@ import {
 } from "antd";
 import {
   EditOutlined,
-  ArrowLeftOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
@@ -117,17 +116,6 @@ const MemberDetailPage = () => {
 
   return (
     <Space direction="vertical">
-      <Link to="/member" style={{ display: 'inline-block' }}>
-        <Button 
-          icon={<ArrowLeftOutlined />}
-          style={{ 
-            pointerEvents: 'auto',
-            transition: 'none' // Remove transitions for immediate responsiveness
-          }}
-        >
-          Kembali
-        </Button>
-      </Link>
       <Card>
         <Flex justify="flex-end">
           <EditAuthDataModal
