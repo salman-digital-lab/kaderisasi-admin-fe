@@ -15,7 +15,7 @@ const customTheme = {
     colorWarning: "#faad14",
     colorError: "#ff4d4f",
     colorInfo: "#1F99CB",
-    borderRadius: 8,
+    borderRadius: 0,
     fontFamily:
       "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
   },
@@ -24,6 +24,7 @@ const customTheme = {
       borderRadius: 0,
       headerBorderRadius: 0,
       footerBorderRadius: 0,
+      borderColor: "transparent",
     },
   },
 };

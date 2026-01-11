@@ -49,14 +49,14 @@ body {
 
 /* Notification styles */
 .ant-notification {
-  border-radius: 12px;
+  border-radius: 0px;
 }
 
 /* Responsive enhancements */
 @media (max-width: 768px) {
   .login-card {
     margin: 10px;
-    border-radius: 12px;
+    border-radius: 0px;
   }
   
   .ant-form-item {
@@ -82,12 +82,12 @@ body {
 
 ::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 3px;
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--bmka-primary);
-  border-radius: 3px;
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -122,7 +122,7 @@ body {
 
 .content-card {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 0px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
@@ -131,7 +131,7 @@ body {
 
 /* Enhanced Button Styles */
 .ant-btn {
-  border-radius: 8px;
+  border-radius: 0px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -149,7 +149,7 @@ body {
 
 /* Enhanced Table Styles */
 .ant-table {
-  border-radius: 12px;
+  border-radius: 0px;
   overflow: hidden;
 }
 
@@ -166,7 +166,7 @@ body {
 
 /* Enhanced Card Styles */
 .ant-card {
-  border-radius: 12px;
+  border-radius: 0px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -178,12 +178,12 @@ body {
 
 /* Enhanced Modal Styles */
 .ant-modal {
-  border-radius: 16px;
+  border-radius: 0px;
   overflow: hidden;
 }
 
 .ant-modal-content {
-  border-radius: 16px;
+  border-radius: 0px;
 }
 
 .ant-modal-header {
@@ -219,7 +219,7 @@ body {
 }
 
 .ant-tag {
-  border-radius: 16px;
+  border-radius: 0px;
   padding: 4px 12px;
   font-weight: 500;
   border: none;
@@ -236,7 +236,7 @@ body {
   
   .ant-card {
     margin: 8px;
-    border-radius: 8px;
+    border-radius: 0px;
   }
   
   .ant-modal {
@@ -245,7 +245,7 @@ body {
   }
   
   .content-card {
-    border-radius: 12px;
+    border-radius: 0px;
     margin: 0;
   }
 }
