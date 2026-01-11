@@ -69,13 +69,12 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             options={PROBLEM_STATUS_OPTIONS}
           />
 
-          <Input.Search
+          <Input
             placeholder="Nama pendaftar"
             allowClear
             style={{ width: 180 }}
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            onSearch={handleSearch}
             onPressEnter={handleSearch}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
           />
@@ -94,6 +93,7 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             allowClear
             style={{ width: 160 }}
             value={adminNameInput}
+            onPressEnter={handleSearch}
             onChange={(e) => setAdminNameInput(e.target.value)}
           />
 

@@ -45,7 +45,13 @@ export default function RuangCurhatList() {
         refresh={refresh}
         loading={loading}
       />
-      <div style={{ marginTop: 12 }}>
+      <div
+        style={{
+          marginTop: 12,
+          borderRadius: 0,
+          boxShadow: "none",
+        }}
+      >
         <RuangCurhatTable
           data={data}
           loading={loading}

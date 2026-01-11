@@ -1,6 +1,6 @@
-import { Button, TableProps, Tag } from "antd";
+import { Button, TableProps, Tag, Tooltip } from "antd";
 import { Link } from "react-router-dom";
-import { ArrowRightOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
@@ -14,7 +14,32 @@ export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
     title: "Pendaftar Masalah",
     dataIndex: "publicUser",
     key: "name",
-    render: (val) => val.profile?.name || "Tidak ada nama",
+    render: (val, record) => (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        <span>{val.profile?.name || "Tidak ada nama"}</span>
+        <Tooltip title="Lihat Detail">
+          <Link to={`/ruang-curhat/${record.id}`}>
+            <Button
+              size="small"
+              icon={<EyeOutlined />}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                borderRadius: "4px",
+              }}
+            />
+          </Link>
+        </Tooltip>
+      </div>
+    ),
+    width: 260,
   },
   {
     title: "Jenis Kelamin",
@@ -38,22 +63,12 @@ export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
   {
     title: "Konselor yg Ditugaskan",
     dataIndex: "adminUser",
-    render: (value) => (value ? value.display_name : "Belum ada yang ditugaskan"),
+    render: (value) =>
+      value ? value.display_name : "Belum ada yang ditugaskan",
   },
   {
     title: "Tanggal Dibuat",
     dataIndex: "created_at",
     render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
-  },
-  {
-    title: "",
-    dataIndex: "id",
-    render: (text) => (
-      <Link to={`/ruang-curhat/${text}`}>
-        <Button icon={<ArrowRightOutlined />} iconPosition="end">
-          Lihat Detil
-        </Button>
-      </Link>
-    ),
   },
 ];

@@ -14,7 +14,10 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
     dataIndex: "name",
     key: "name",
     render: (name, record) => (
-      <Space size={8}>
+      <Space
+        size={8}
+        style={{ width: "100%", justifyContent: "space-between" }}
+      >
         <div>
           <Text
             ellipsis={{ tooltip: name }}

@@ -1,7 +1,6 @@
 import { useRequest, useToggle } from "ahooks";
 import {
   Button,
-  Card,
   Descriptions,
   DescriptionsProps,
   Dropdown,
@@ -11,6 +10,7 @@ import {
   Tag,
   Typography,
   Input,
+  Divider,
 } from "antd";
 import { useParams } from "react-router-dom";
 import { DownOutlined } from "@ant-design/icons";
@@ -39,12 +39,9 @@ export function RuangCurhatDetail() {
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [modalIsOpen, { toggle: toggleModal }] = useToggle();
 
-  const { data, loading, refresh } = useRequest(
-    () => getRuangCurhat({ id: id || "" }),
-    {
-      onSuccess: (data) => setAdditionalNotes(data?.additional_notes || ""),
-    },
-  );
+  const { data, refresh } = useRequest(() => getRuangCurhat({ id: id || "" }), {
+    onSuccess: (data) => setAdditionalNotes(data?.additional_notes || ""),
+  });
 
   const { data: profileData } = useRequest(
     () => getProfileByUserId(String(data?.publicUser.id)),
@@ -160,7 +157,7 @@ export function RuangCurhatDetail() {
   ];
 
   return (
-    <Flex vertical gap="middle">
+    <Flex vertical gap="large" style={{ padding: 12 }}>
       <EditCounselorModal
         counselorId={data?.counselor_id}
         isOpen={modalIsOpen}
@@ -168,17 +165,32 @@ export function RuangCurhatDetail() {
         toggle={toggleModal}
         dataRefresh={refresh}
       />
-      <Card title="Informasi Pendaftar" loading={loading}>
-        <Descriptions items={basicInfo} bordered />
-      </Card>
-      <Card title="Informasi Masalah" loading={loading}>
-        <Descriptions items={problemOwnerData} bordered />
-      </Card>
+      <div>
+        <Title level={5} style={{ marginBottom: 12 }}>
+          Informasi Pendaftar
+        </Title>
+        <Descriptions items={basicInfo} bordered size="small" />
+      </div>
+      <Divider style={{ margin: 0 }} />
 
-      <Card
-        title="Konselor"
-        loading={loading}
-        extra={
+      <div>
+        <Title level={5} style={{ marginBottom: 12 }}>
+          Informasi Masalah
+        </Title>
+        <Descriptions items={problemOwnerData} bordered size="small" />
+      </div>
+
+      <Divider style={{ margin: 0 }} />
+
+      <div>
+        <Flex
+          justify="space-between"
+          align="center"
+          style={{ marginBottom: 12 }}
+        >
+          <Title level={5} style={{ margin: 0 }}>
+            Konselor
+          </Title>
           <Space>
             <Dropdown
               menu={{
@@ -203,13 +215,15 @@ export function RuangCurhatDetail() {
               Ubah Konselor
             </Button>
           </Space>
-        }
-      >
-        <Descriptions items={counselorData} bordered />
-      </Card>
+        </Flex>
+        <Descriptions items={counselorData} bordered size="small" />
+      </div>
+      <Divider style={{ margin: 0 }} />
 
-      <Card loading={loading}>
-        <Title level={5}>Catatan</Title>
+      <div>
+        <Title level={5} style={{ marginBottom: 12 }}>
+          Catatan
+        </Title>
         <TextArea
           rows={4}
           value={additionalNotes}
@@ -230,7 +244,7 @@ export function RuangCurhatDetail() {
             ? "Ubah Catatan"
             : "Tambahkan Catatan"}
         </Button>
-      </Card>
+      </div>
     </Flex>
   );
 }

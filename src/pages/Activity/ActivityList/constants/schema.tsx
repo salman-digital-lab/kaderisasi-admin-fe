@@ -16,7 +16,10 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     dataIndex: "name",
     key: "name",
     render: (name, record) => (
-      <Space size={8}>
+      <Space
+        size={8}
+        style={{ width: "100%", justifyContent: "space-between" }}
+      >
         <Text
           ellipsis={{ tooltip: name }}
           style={{
