@@ -290,7 +290,7 @@ const ActivityParticipants = () => {
         {/* Right: Actions */}
         <Space size={8} wrap>
           {selectedRowKeys.length > 0 && (
-            <Tag color="blue" bordered={false} style={{ marginRight: 8 }}>
+            <Tag color="blue" variant="filled" style={{ marginRight: 8 }}>
               {selectedRowKeys.length} dipilih
             </Tag>
           )}

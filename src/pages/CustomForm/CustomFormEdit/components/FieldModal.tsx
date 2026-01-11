@@ -229,6 +229,9 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                             }}
                           />
                         </Form.Item>
+                        <Form.Item {...restField} name={[name, "value"]} hidden>
+                          <Input />
+                        </Form.Item>
                       </Col>
                       <Col flex="none">
                         <Button

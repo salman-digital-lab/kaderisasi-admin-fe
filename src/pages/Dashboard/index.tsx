@@ -16,7 +16,7 @@ const DashboardPage = () => {
   return (
     <Row gutter={16}>
       <Col span={12}>
-        <Card bordered={false}>
+        <Card variant="borderless">
           <Statistic
             title="Jumlah Pengguna"
             value={profileData?.meta.total}
@@ -26,7 +26,7 @@ const DashboardPage = () => {
         </Card>
       </Col>
       <Col span={12}>
-        <Card bordered={false}>
+        <Card variant="borderless">
           <Statistic
             title="Jumlah Kegiatan"
             value={activityData?.meta.total}
