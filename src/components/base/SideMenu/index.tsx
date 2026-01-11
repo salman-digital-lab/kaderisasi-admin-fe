@@ -64,8 +64,8 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
       collapsible
       collapsed={collapsed}
       onCollapse={onCollapse}
-      width={256}
-      collapsedWidth={80}
+      width={220}
+      collapsedWidth={64}
       theme="light"
       style={{
         overflow: "auto",
@@ -80,11 +80,11 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
       {/* Logo Section */}
       <div
         style={{
-          height: 64,
+          height: 48,
           display: "flex",
           alignItems: "center",
           justifyContent: collapsed ? "center" : "flex-start",
-          padding: collapsed ? "0 16px" : "0 24px",
+          padding: collapsed ? "0 12px" : "0 16px",
           borderBottom: "1px solid #f0f0f0",
         }}
       >
@@ -99,8 +99,8 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
             src={"/BMKA_logo.svg"}
             alt="BMKA Logo"
             style={{
-              width: collapsed ? 32 : 40,
-              height: collapsed ? 32 : 40,
+              width: collapsed ? 24 : 32,
+              height: collapsed ? 24 : 32,
               background: "#ffffff",
               padding: "4px",
               borderRadius: "6px",
@@ -112,7 +112,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
               <Text
                 style={{
                   color: "#262626",
-                  fontSize: "16px",
+                  fontSize: "14px",
                   fontWeight: 600,
                   lineHeight: 1.2,
                   display: "block",
@@ -123,7 +123,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
               <Text
                 style={{
                   color: "#8c8c8c",
-                  fontSize: "12px",
+                  fontSize: "11px",
                   lineHeight: 1.2,
                   display: "block",
                 }}
@@ -144,6 +144,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
         items={memoizedMenuItems}
         style={{
           border: "none",
+          fontSize: "13px",
         }}
       />
     </Sider>

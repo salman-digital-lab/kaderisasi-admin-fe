@@ -94,7 +94,7 @@ const AppLayout = () => {
       <SideMenu collapsed={collapsed} onCollapse={handleCollapse} />
       <Layout
         style={{
-          marginLeft: isMobile ? 0 : collapsed ? 80 : 256,
+          marginLeft: isMobile ? 0 : collapsed ? 64 : 220,
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           position: "relative",
         }}
@@ -123,12 +123,14 @@ const AppLayout = () => {
             padding: "0 16px",
             background: colorBgContainer,
             borderBottom: "1px solid #f0f0f0",
+            height: "48px",
+            lineHeight: "48px",
           }}
         >
           <Flex
             justify="space-between"
             align="center"
-            style={{ height: "64px" }}
+            style={{ height: "48px" }}
           >
             <Flex align="center" gap={16}>
               <Button
@@ -137,8 +139,8 @@ const AppLayout = () => {
                 onClick={() => setCollapsed(!collapsed)}
                 style={{
                   fontSize: "16px",
-                  width: 48,
-                  height: 48,
+                  width: 32,
+                  height: 32,
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
@@ -169,7 +171,7 @@ const AppLayout = () => {
                   target="_blank"
                   style={{
                     fontSize: "14px",
-                    height: 40,
+                    height: 32,
                     borderRadius: "8px",
                     display: "flex",
                     alignItems: "center",
@@ -193,9 +195,9 @@ const AppLayout = () => {
                 <Button
                   type="text"
                   style={{
-                    height: 48,
-                    padding: "0 12px",
-                    borderRadius: "12px",
+                    height: 36,
+                    padding: "0 8px",
+                    borderRadius: "8px",
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
@@ -205,7 +207,7 @@ const AppLayout = () => {
                   className="header-profile-btn"
                 >
                   <Avatar
-                    size={32}
+                    size={24}
                     icon={<UserOutlined />}
                     style={{
                       backgroundColor: "#1F99CB",
@@ -216,7 +218,7 @@ const AppLayout = () => {
                     <Flex vertical align="start" style={{ minWidth: 0 }}>
                       <Text
                         style={{
-                          fontSize: "14px",
+                          fontSize: "13px",
                           fontWeight: 500,
                           lineHeight: 1.2,
                           color: "#262626",
@@ -230,7 +232,7 @@ const AppLayout = () => {
                       </Text>
                       <Text
                         style={{
-                          fontSize: "12px",
+                          fontSize: "11px",
                           color: "#8c8c8c",
                           lineHeight: 1.2,
                         }}
@@ -254,7 +256,7 @@ const AppLayout = () => {
 
         <Content
           style={{
-            minHeight: "calc(100vh - 64px)",
+            minHeight: "calc(100vh - 48px)",
             overflow: "auto",
             backgroundColor: "white",
           }}
