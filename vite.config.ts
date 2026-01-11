@@ -9,4 +9,24 @@ export default defineConfig({
     port: 3005,
     strictPort: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom", "zustand"],
+          antd: ["antd"],
+          tiptap: [
+            "@tiptap/react",
+            "@tiptap/starter-kit",
+            "@tiptap/extension-link",
+            "@tiptap/extension-placeholder",
+            "@tiptap/extension-text-align",
+            "@tiptap/extension-underline",
+          ],
+          "dnd-kit": ["@dnd-kit/core", "@dnd-kit/sortable"],
+          utils: ["axios", "dayjs", "ahooks"],
+        },
+      },
+    },
+  },
 });

@@ -1,34 +1,67 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-
-import LoginPage from "../pages/LoginPage";
-import MainMember from "../pages/Member/MemberList";
-import AppLayout from "../components/base";
-import MainMemberDetail from "../pages/Member/MemberDetail";
-import MainActivity from "../pages/Activity/ActivityList";
-import MainUniversity from "../pages/University";
-import MainProvince from "../pages/Province";
-import ActivityDetail from "../pages/Activity/ActivityDetail";
-import ActivityParticipants from "../pages/Activity/ActivityParticipants";
-import { ReactNode } from "react";
-import DashboardPage from "../pages/Dashboard";
-import RegistrantDetail from "../pages/Activity/RegistrantDetail";
-import RuangCurhatList from "../pages/RuangCurhat/RuangCurhatList";
-import { RuangCurhatDetail } from "../pages/RuangCurhat/RuangCurhatDetail";
-import AdminUserList from "../pages/AdminUser/AdminUserList";
-import AchievementList from "../pages/Leaderboard/AchievementList";
-import AchievementDetail from "../pages/Leaderboard/AchievementDetail";
-import MonthlyLeaderboard from "../pages/Leaderboard/MonthlyLeaderboard";
-import LifetimeLeaderboard from "../pages/Leaderboard/LifetimeLeaderboard";
-import ClubList from "../pages/Club/ClubList";
-import ClubDetail from "../pages/Club/ClubDetail";
-import CustomFormList from "../pages/CustomForm/CustomFormList";
-import CustomFormEdit from "../pages/CustomForm/CustomFormEdit";
+import { ReactNode, Suspense, lazy } from "react";
+import { Spin } from "antd";
 import {
   useIsAuthenticated,
   useIsInitialized,
   useHasPermission,
 } from "../stores/authStore";
+
+import AppLayout from "../components/base";
+
+// Lazy load pages
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const MainMember = lazy(() => import("../pages/Member/MemberList"));
+const MainMemberDetail = lazy(() => import("../pages/Member/MemberDetail"));
+const MainActivity = lazy(() => import("../pages/Activity/ActivityList"));
+const MainUniversity = lazy(() => import("../pages/University"));
+const MainProvince = lazy(() => import("../pages/Province"));
+const ActivityDetail = lazy(() => import("../pages/Activity/ActivityDetail"));
+const ActivityParticipants = lazy(
+  () => import("../pages/Activity/ActivityParticipants"),
+);
+const DashboardPage = lazy(() => import("../pages/Dashboard"));
+const RegistrantDetail = lazy(
+  () => import("../pages/Activity/RegistrantDetail"),
+);
+const RuangCurhatList = lazy(
+  () => import("../pages/RuangCurhat/RuangCurhatList"),
+);
+const RuangCurhatDetail = lazy(() =>
+  import("../pages/RuangCurhat/RuangCurhatDetail").then((module) => ({
+    default: module.RuangCurhatDetail,
+  })),
+);
+const AdminUserList = lazy(() => import("../pages/AdminUser/AdminUserList"));
+const AchievementList = lazy(
+  () => import("../pages/Leaderboard/AchievementList"),
+);
+const AchievementDetail = lazy(
+  () => import("../pages/Leaderboard/AchievementDetail"),
+);
+const MonthlyLeaderboard = lazy(
+  () => import("../pages/Leaderboard/MonthlyLeaderboard"),
+);
+const LifetimeLeaderboard = lazy(
+  () => import("../pages/Leaderboard/LifetimeLeaderboard"),
+);
+const ClubList = lazy(() => import("../pages/Club/ClubList"));
+const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
+const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
+const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
+
+// Loading Component
+const Loading = () => (
+  <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+    <Spin size="large" />
+  </div>
+);
+
+// Wrapper for lazy loaded components
+const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
+  <Suspense fallback={<Loading />}>{children}</Suspense>
+);
 
 // eslint-disable-next-line react-refresh/only-export-components
 const AuthUser = ({ element }: { element: ReactNode }) => {
@@ -37,7 +70,7 @@ const AuthUser = ({ element }: { element: ReactNode }) => {
 
   // Wait for initialization to prevent infinite loops
   if (!isInitialized) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (!isAuthenticated) {
@@ -61,7 +94,7 @@ const RoleUser = ({
 
   // Wait for initialization to prevent infinite loops
   if (!isInitialized) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (!isAuthenticated || !hasPermission(permission)) {
@@ -75,7 +108,11 @@ const routes = createBrowserRouter(
   [
     {
       path: "/login",
-      element: <LoginPage />,
+      element: (
+        <SuspenseWrapper>
+          <LoginPage />
+        </SuspenseWrapper>
+      ),
     },
     {
       path: "/",
@@ -83,37 +120,76 @@ const routes = createBrowserRouter(
       children: [
         {
           path: "/",
-          element: <DashboardPage />,
+          element: (
+            <SuspenseWrapper>
+              <DashboardPage />
+            </SuspenseWrapper>
+          ),
         },
         {
           path: "dashboard",
-          element: <DashboardPage />,
+          element: (
+            <SuspenseWrapper>
+              <DashboardPage />
+            </SuspenseWrapper>
+          ),
         },
         {
           path: "member",
-          element: <RoleUser element={<MainMember />} permission="anggota" />,
+          element: (
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <MainMember />
+                </SuspenseWrapper>
+              }
+              permission="anggota"
+            />
+          ),
         },
         {
           path: "member/:id",
           element: (
-            <RoleUser element={<MainMemberDetail />} permission="anggota" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <MainMemberDetail />
+                </SuspenseWrapper>
+              }
+              permission="anggota"
+            />
           ),
         },
         {
           path: "activity",
-          element: <MainActivity />,
+          element: (
+            <SuspenseWrapper>
+              <MainActivity />
+            </SuspenseWrapper>
+          ),
         },
         {
           path: "activity/:id",
           element: (
-            <RoleUser element={<ActivityDetail />} permission="kegiatan" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <ActivityDetail />
+                </SuspenseWrapper>
+              }
+              permission="kegiatan"
+            />
           ),
         },
         {
           path: "activity/:id/participants",
           element: (
             <RoleUser
-              element={<ActivityParticipants />}
+              element={
+                <SuspenseWrapper>
+                  <ActivityParticipants />
+                </SuspenseWrapper>
+              }
               permission="kegiatan"
             />
           ),
@@ -121,44 +197,90 @@ const routes = createBrowserRouter(
         {
           path: "activity/:id/participants/:participantId",
           element: (
-            <RoleUser element={<RegistrantDetail />} permission="kegiatan" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <RegistrantDetail />
+                </SuspenseWrapper>
+              }
+              permission="kegiatan"
+            />
           ),
         },
         {
           path: "activity/:activityId/form/:formId/edit",
           element: (
-            <RoleUser element={<CustomFormEdit />} permission="kegiatan" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <CustomFormEdit />
+                </SuspenseWrapper>
+              }
+              permission="kegiatan"
+            />
           ),
         },
         {
           path: "registrant/:id",
           element: (
-            <RoleUser element={<RegistrantDetail />} permission="kegiatan" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <RegistrantDetail />
+                </SuspenseWrapper>
+              }
+              permission="kegiatan"
+            />
           ),
         },
         {
           path: "universities",
           element: (
-            <RoleUser element={<MainUniversity />} permission="pusatdata" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <MainUniversity />
+                </SuspenseWrapper>
+              }
+              permission="pusatdata"
+            />
           ),
         },
         {
           path: "province",
           element: (
-            <RoleUser element={<MainProvince />} permission="pusatdata" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <MainProvince />
+                </SuspenseWrapper>
+              }
+              permission="pusatdata"
+            />
           ),
         },
         {
           path: "ruang-curhat",
           element: (
-            <RoleUser element={<RuangCurhatList />} permission="ruangcurhat" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <RuangCurhatList />
+                </SuspenseWrapper>
+              }
+              permission="ruangcurhat"
+            />
           ),
         },
         {
           path: "ruang-curhat/:id",
           element: (
             <RoleUser
-              element={<RuangCurhatDetail />}
+              element={
+                <SuspenseWrapper>
+                  <RuangCurhatDetail />
+                </SuspenseWrapper>
+              }
               permission="ruangcurhat"
             />
           ),
@@ -166,20 +288,38 @@ const routes = createBrowserRouter(
         {
           path: "/admin-users",
           element: (
-            <RoleUser element={<AdminUserList />} permission="akunadmin" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <AdminUserList />
+                </SuspenseWrapper>
+              }
+              permission="akunadmin"
+            />
           ),
         },
         {
           path: "/achievement",
           element: (
-            <RoleUser element={<AchievementList />} permission="leaderboard" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <AchievementList />
+                </SuspenseWrapper>
+              }
+              permission="leaderboard"
+            />
           ),
         },
         {
           path: "/achievement/:id",
           element: (
             <RoleUser
-              element={<AchievementDetail />}
+              element={
+                <SuspenseWrapper>
+                  <AchievementDetail />
+                </SuspenseWrapper>
+              }
               permission="leaderboard"
             />
           ),
@@ -188,7 +328,11 @@ const routes = createBrowserRouter(
           path: "/monthly-leaderboard",
           element: (
             <RoleUser
-              element={<MonthlyLeaderboard />}
+              element={
+                <SuspenseWrapper>
+                  <MonthlyLeaderboard />
+                </SuspenseWrapper>
+              }
               permission="leaderboard"
             />
           ),
@@ -197,29 +341,65 @@ const routes = createBrowserRouter(
           path: "/lifetime-leaderboard",
           element: (
             <RoleUser
-              element={<LifetimeLeaderboard />}
+              element={
+                <SuspenseWrapper>
+                  <LifetimeLeaderboard />
+                </SuspenseWrapper>
+              }
               permission="leaderboard"
             />
           ),
         },
         {
           path: "/club",
-          element: <RoleUser element={<ClubList />} permission="pusatdata" />,
+          element: (
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <ClubList />
+                </SuspenseWrapper>
+              }
+              permission="pusatdata"
+            />
+          ),
         },
         {
           path: "/club/:id",
-          element: <RoleUser element={<ClubDetail />} permission="pusatdata" />,
+          element: (
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <ClubDetail />
+                </SuspenseWrapper>
+              }
+              permission="pusatdata"
+            />
+          ),
         },
         {
           path: "/custom-form",
           element: (
-            <RoleUser element={<CustomFormList />} permission="formkustom" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <CustomFormList />
+                </SuspenseWrapper>
+              }
+              permission="formkustom"
+            />
           ),
         },
         {
           path: "/custom-form/:formId/edit",
           element: (
-            <RoleUser element={<CustomFormEdit />} permission="formkustom" />
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <CustomFormEdit />
+                </SuspenseWrapper>
+              }
+              permission="formkustom"
+            />
           ),
         },
       ],
