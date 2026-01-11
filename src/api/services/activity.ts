@@ -16,6 +16,7 @@ import {
   putActivityImagesReq,
   putRemoveActivityImageReq,
   putReorderActivityImagesReq,
+  getRegistrantStatisticsResp,
 } from "../../types/services/activity";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -153,12 +154,9 @@ export const getRegistrant = async (id: string | undefined) => {
 
 export const getExportRegistrants = async (id: string | undefined) => {
   try {
-    const res = await axios.get(
-      `/activities/${id}/registrations-export`,
-      {
-        responseType: 'blob',
-      }
-    );
+    const res = await axios.get(`/activities/${id}/registrations-export`, {
+      responseType: "blob",
+    });
     return res.data;
   } catch (error) {
     handleError(error);
@@ -172,9 +170,12 @@ export const putRegistrant = async (data: putRegistrantReq) => {
 
 export const updateRegistrantsByEmail = async (
   activityId: string,
-  data: { emails: string[]; status: string }
+  data: { emails: string[]; status: string },
 ) => {
-  const res = await axios.put(`/activities/${activityId}/registrations/status-by-email`, data);
+  const res = await axios.put(
+    `/activities/${activityId}/registrations/status-by-email`,
+    data,
+  );
   return res.data;
 };
 
@@ -187,4 +188,15 @@ export const postRegistrant = async (
     data,
   );
   return res.data.data;
+};
+
+export const getRegistrantStatistics = async (id: string | undefined) => {
+  try {
+    const res = await axios.get<getRegistrantStatisticsResp>(
+      `/activities/${id}/registrations/statistics`,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
 };

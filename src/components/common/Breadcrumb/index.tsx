@@ -20,45 +20,49 @@ interface BreadcrumbItem {
 
 // Hardcoded breadcrumb mappings for all routes
 const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
-  "/": [
-    { path: "/", title: "Beranda", icon: <HomeOutlined /> }
-  ],
-  "/dashboard": [
-    { path: "/", title: "Beranda", icon: <HomeOutlined /> }
-  ],
-  "/member": [
-    { path: "/member", title: "Anggota", icon: <UserOutlined /> }
-  ],
+  "/": [{ path: "/", title: "Beranda", icon: <HomeOutlined /> }],
+  "/dashboard": [{ path: "/", title: "Beranda", icon: <HomeOutlined /> }],
+  "/member": [{ path: "/member", title: "Anggota", icon: <UserOutlined /> }],
   "/activity": [
-    { path: "/activity", title: "Kegiatan", icon: <ScheduleOutlined /> }
+    { path: "/activity", title: "Kegiatan", icon: <ScheduleOutlined /> },
   ],
   "/universities": [
-    { path: "/universities", title: "Perguruan Tinggi", icon: <DatabaseOutlined /> }
+    {
+      path: "/universities",
+      title: "Perguruan Tinggi",
+      icon: <DatabaseOutlined />,
+    },
   ],
   "/province": [
-    { path: "/province", title: "Provinsi", icon: <DatabaseOutlined /> }
+    { path: "/province", title: "Provinsi", icon: <DatabaseOutlined /> },
   ],
   "/ruang-curhat": [
-    { path: "/ruang-curhat", title: "Ruang Curhat", icon: <WechatOutlined /> }
+    { path: "/ruang-curhat", title: "Ruang Curhat", icon: <WechatOutlined /> },
   ],
   "/admin-users": [
-    { path: "/admin-users", title: "Akun Admin", icon: <SettingOutlined /> }
+    { path: "/admin-users", title: "Akun Admin", icon: <SettingOutlined /> },
   ],
   "/achievement": [
-    { path: "/achievement", title: "Prestasi", icon: <TrophyOutlined /> }
+    { path: "/achievement", title: "Prestasi", icon: <TrophyOutlined /> },
   ],
   "/monthly-leaderboard": [
-    { path: "/monthly-leaderboard", title: "Peringkat Bulanan", icon: <TrophyOutlined /> }
+    {
+      path: "/monthly-leaderboard",
+      title: "Peringkat Bulanan",
+      icon: <TrophyOutlined />,
+    },
   ],
   "/lifetime-leaderboard": [
-    { path: "/lifetime-leaderboard", title: "Peringkat Seumur Hidup", icon: <TrophyOutlined /> }
+    {
+      path: "/lifetime-leaderboard",
+      title: "Peringkat Seumur Hidup",
+      icon: <TrophyOutlined />,
+    },
   ],
-  "/club": [
-    { path: "/club", title: "Unit Kegiatan", icon: <TeamOutlined /> }
-  ],
+  "/club": [{ path: "/club", title: "Unit Kegiatan", icon: <TeamOutlined /> }],
   "/custom-form": [
-    { path: "/custom-form", title: "Form Kustom", icon: <DatabaseOutlined /> }
-  ]
+    { path: "/custom-form", title: "Form Kustom", icon: <DatabaseOutlined /> },
+  ],
 };
 
 // Helper function to get breadcrumbs for dynamic routes
@@ -68,7 +72,7 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     return [
       { path: "/member", title: "Anggota" },
       { path: "", title: "Detail Anggota" },
-      { path: "", title: pathname.split('/').pop() || "" }
+      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
@@ -77,7 +81,7 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     return [
       { path: "/activity", title: "Kegiatan" },
       { path: "", title: "Detail Kegiatan" },
-      { path: "", title: pathname.split('/').pop() || "" }
+      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
@@ -87,7 +91,17 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
       { path: "/activity", title: "Kegiatan" },
       { path: "", title: "Detail Kegiatan" },
       { path: "", title: "Detail Peserta" },
-      { path: "", title: pathname.split('/').pop() || "" }
+      { path: "", title: pathname.split("/").pop() || "" },
+    ];
+  }
+
+  // Activity participants management page
+  if (pathname.match(/^\/activity\/\d+\/participants$/)) {
+    const activityId = pathname.split("/")[2];
+    return [
+      { path: "/activity", title: "Kegiatan" },
+      { path: `/activity/${activityId}`, title: "Detail Kegiatan" },
+      { path: "", title: "Kelola Peserta" },
     ];
   }
 
@@ -96,7 +110,7 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     return [
       { path: "/ruang-curhat", title: "Ruang Curhat" },
       { path: "", title: "Detail Ruang Curhat" },
-      { path: "", title: pathname.split('/').pop() || "" }
+      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
@@ -105,7 +119,7 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     return [
       { path: "/achievement", title: "Prestasi" },
       { path: "", title: "Detail Prestasi" },
-      { path: "", title: pathname.split('/').pop() || "" }
+      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
@@ -114,7 +128,7 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     return [
       { path: "/club", title: "Unit Kegiatan" },
       { path: "", title: "Detail Unit Kegiatan" },
-      { path: "", title: pathname.split('/').pop() || "" }
+      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
@@ -123,14 +137,12 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     return [
       { path: "/custom-form", title: "Form Kustom" },
       { path: "", title: "Ubah Form Kustom" },
-      { path: "", title: pathname.split('/')[2] || "" }
+      { path: "", title: pathname.split("/")[2] || "" },
     ];
   }
 
   // Default fallback
-  return [
-    { path: "/", title: "Beranda", icon: <HomeOutlined /> }
-  ];
+  return [{ path: "/", title: "Beranda", icon: <HomeOutlined /> }];
 };
 
 const Breadcrumb: React.FC = () => {
@@ -163,7 +175,8 @@ const Breadcrumb: React.FC = () => {
   const breadcrumbs = getBreadcrumbs();
 
   const handleBreadcrumbClick = (path: string) => {
-    if (path) { // Only navigate if path is not empty
+    if (path) {
+      // Only navigate if path is not empty
       navigate(path);
     }
   };
@@ -173,8 +186,8 @@ const Breadcrumb: React.FC = () => {
 
   const items = displayBreadcrumbs.map((crumb, index) => {
     const isLast = index === displayBreadcrumbs.length - 1;
-    
-    const isClickable = crumb.path && crumb.path !== '';
+
+    const isClickable = crumb.path && crumb.path !== "";
 
     return {
       title: isLast ? (
@@ -187,7 +200,7 @@ const Breadcrumb: React.FC = () => {
           style={{
             cursor: isClickable ? "pointer" : "default",
             color: isClickable ? "#1890ff" : "#666",
-            transition: isClickable ? "color 0.3s" : "none"
+            transition: isClickable ? "color 0.3s" : "none",
           }}
           onClick={() => handleBreadcrumbClick(crumb.path)}
           onMouseEnter={(e) => {
@@ -204,16 +217,16 @@ const Breadcrumb: React.FC = () => {
           {crumb.icon && <span style={{ marginRight: 4 }}>{crumb.icon}</span>}
           {crumb.title}
         </span>
-      )
+      ),
     };
   });
 
   return (
     <AntBreadcrumb
       items={items}
-      style={{ 
+      style={{
         margin: 0,
-        fontSize: isMobile ? "12px" : "13px"
+        fontSize: isMobile ? "12px" : "13px",
       }}
       separator=">"
     />

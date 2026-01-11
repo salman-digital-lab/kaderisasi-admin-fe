@@ -73,6 +73,19 @@ export type postActivityResp = {
 export type getRegistrantReq = {
   per_page: string;
   page: string;
-  name?: string;
+  search?: string;
   status?: string;
+  university_id?: string;
+  province_id?: string;
+  intake_year?: string;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
+};
+
+export type getRegistrantStatisticsResp = {
+  message: string;
+  data: {
+    total: number;
+    by_status: Record<string, number>;
+  };
 };
