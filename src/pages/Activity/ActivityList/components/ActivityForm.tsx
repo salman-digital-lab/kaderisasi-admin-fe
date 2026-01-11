@@ -57,6 +57,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
         okText="Buat Kegiatan"
         okButtonProps={{ htmlType: "submit", form: "add-activity-form" }}
         confirmLoading={loading}
+        centered
       >
         <Form
           id="add-activity-form"

@@ -1,5 +1,5 @@
-import { Input, Col, Row, Card, Form, Button, Space, Select } from "antd";
-import { useToggle, useDebounce } from "ahooks";
+import { Input, Col, Row, Form, Select, Button } from "antd";
+import { useDebounce } from "ahooks";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
@@ -9,8 +9,6 @@ import {
 } from "../../../../constants/options";
 
 import { FilterType } from "../constants/type";
-
-import ActivityForm from "./ActivityForm";
 import { ACTIVITY_CATEGORY_ENUM } from "../../../../types/constants/activity";
 import { ACTIVITY_TYPE_ENUM } from "../../../../types/constants/activity";
 
@@ -22,11 +20,11 @@ type FieldType = {
 type FilterProps = {
   setParameter: React.Dispatch<React.SetStateAction<FilterType>>;
   refresh: () => void;
+  onCreate: () => void;
 };
 
-const ActivityFilter = ({ setParameter, refresh }: FilterProps) => {
+const ActivityFilter = ({ setParameter, onCreate }: FilterProps) => {
   const [form] = Form.useForm<FieldType>();
-  const [state, { toggle }] = useToggle(false);
   const [searchValue, setSearchValue] = useState<string>("");
 
   // Debounce search input for better performance
@@ -53,85 +51,82 @@ const ActivityFilter = ({ setParameter, refresh }: FilterProps) => {
   };
 
   return (
-    <Card>
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={handleSearch}
-        onValuesChange={(changedValues) => {
-          // Auto-apply filters for selects (except search)
-          if (
-            changedValues.activity_type !== undefined ||
-            changedValues.activity_category !== undefined
-          ) {
-            const formValues = form.getFieldsValue();
-            setParameter((prev) => ({
-              ...prev,
-              activity_type: formValues.activity_type,
-              activity_category: formValues.activity_category,
-              page: 1,
-            }));
-          }
-        }}
-      >
-        <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="Nama Aktivitas">
-              <Input
-                placeholder="Ketik untuk mencari..."
-                allowClear
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onPressEnter={handleSearch}
-                suffix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="Tipe Aktivitas" name="activity_type">
-              <Select
-                placeholder="Pilih tipe aktivitas"
-                allowClear
-                options={ACTIVITY_TYPE_OPTIONS}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={6}>
-            <Form.Item label="Kategori Aktivitas" name="activity_category">
-              <Select
-                placeholder="Pilih kategori aktivitas"
-                allowClear
-                options={ACTIVITY_CATEGORY_OPTIONS}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row justify="end">
-          <Form.Item style={{ marginBottom: 0, width: "100%" }}>
-            <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-              <Button
-                onClick={toggle}
-                icon={<PlusOutlined />}
-                type="primary"
-                title="Tambah aktivitas baru"
-              >
-                Tambah Kegiatan
-              </Button>
-              <Button
-                icon={<SearchOutlined />}
-                onClick={handleSearch}
-                title="Cari aktivitas"
-              >
-                Cari
-              </Button>
-            </Space>
+    <Form
+      layout="vertical"
+      form={form}
+      onFinish={handleSearch}
+      onValuesChange={(changedValues) => {
+        // Auto-apply filters for selects (except search)
+        if (
+          changedValues.activity_type !== undefined ||
+          changedValues.activity_category !== undefined
+        ) {
+          const formValues = form.getFieldsValue();
+          setParameter((prev) => ({
+            ...prev,
+            activity_type: formValues.activity_type,
+            activity_category: formValues.activity_category,
+            page: 1,
+          }));
+        }
+      }}
+      style={{ marginBottom: 0 }}
+    >
+      <Row gutter={12} align="bottom">
+        <Col xs={24} md={8}>
+          <Form.Item label="Pencarian" style={{ marginBottom: 0 }}>
+            <Input
+              placeholder="Cari nama aktivitas..."
+              allowClear
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onPressEnter={handleSearch}
+              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+            />
           </Form.Item>
-        </Row>
-      </Form>
+        </Col>
+        <Col xs={12} md={6}>
+          <Form.Item
+            label="Tipe"
+            name="activity_type"
+            style={{ marginBottom: 0 }}
+          >
+            <Select
+              placeholder="Semua Tipe"
+              allowClear
+              options={ACTIVITY_TYPE_OPTIONS}
+            />
+          </Form.Item>
+        </Col>
 
-      <ActivityForm open={state} onClose={toggle} refresh={refresh} />
-    </Card>
+        <Col xs={12} md={6}>
+          <Form.Item
+            label="Kategori"
+            name="activity_category"
+            style={{ marginBottom: 0 }}
+          >
+            <Select
+              placeholder="Semua Kategori"
+              allowClear
+              options={ACTIVITY_CATEGORY_OPTIONS}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col xs={24} md={4}>
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={onCreate}
+              block
+            >
+              Tambah
+            </Button>
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

@@ -14,37 +14,46 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
   const permissions = usePermissions();
 
   // Memoize menu items based on permissions - will re-calculate when permissions change
-  const memoizedMenuItems = useMemo(() => menuItems(permissions), [permissions]);
+  const memoizedMenuItems = useMemo(
+    () => menuItems(permissions),
+    [permissions],
+  );
 
   // Determine selected keys based on current path
   const getSelectedKeys = () => {
-    if (currentPath.startsWith('/dashboard')) return ['/dashboard'];
-    if (currentPath.startsWith('/activity')) return ['/activity'];
-    if (currentPath.startsWith('/member')) return ['/member'];
-    if (currentPath.startsWith('/ruang-curhat')) return ['/ruang-curhat'];
-    if (currentPath.startsWith('/achievement')) return ['/achievement'];
-    if (currentPath.startsWith('/monthly-leaderboard')) return ['/monthly-leaderboard'];
-    if (currentPath.startsWith('/lifetime-leaderboard')) return ['/lifetime-leaderboard'];
-    if (currentPath.startsWith('/club')) return ['/club'];
-    if (currentPath.startsWith('/province')) return ['/province'];
-    if (currentPath.startsWith('/universities')) return ['/universities'];
-    if (currentPath.startsWith('/custom-form')) return ['/custom-form'];
-    if (currentPath.startsWith('/admin-users')) return ['/admin-users'];
-    return ['/dashboard'];
+    if (currentPath.startsWith("/dashboard")) return ["/dashboard"];
+    if (currentPath.startsWith("/activity")) return ["/activity"];
+    if (currentPath.startsWith("/member")) return ["/member"];
+    if (currentPath.startsWith("/ruang-curhat")) return ["/ruang-curhat"];
+    if (currentPath.startsWith("/achievement")) return ["/achievement"];
+    if (currentPath.startsWith("/monthly-leaderboard"))
+      return ["/monthly-leaderboard"];
+    if (currentPath.startsWith("/lifetime-leaderboard"))
+      return ["/lifetime-leaderboard"];
+    if (currentPath.startsWith("/club")) return ["/club"];
+    if (currentPath.startsWith("/province")) return ["/province"];
+    if (currentPath.startsWith("/universities")) return ["/universities"];
+    if (currentPath.startsWith("/custom-form")) return ["/custom-form"];
+    if (currentPath.startsWith("/admin-users")) return ["/admin-users"];
+    return ["/dashboard"];
   };
 
   const getOpenKeys = () => {
-    if (currentPath.startsWith('/province') ||
-        currentPath.startsWith('/universities')) {
-      return ['/data-center'];
+    if (
+      currentPath.startsWith("/province") ||
+      currentPath.startsWith("/universities")
+    ) {
+      return ["/data-center"];
     }
-    if (currentPath.startsWith('/admin-users')) {
-      return ['setting'];
+    if (currentPath.startsWith("/admin-users")) {
+      return ["setting"];
     }
-    if (currentPath.startsWith('/achievement') ||
-        currentPath.startsWith('/monthly-leaderboard') ||
-        currentPath.startsWith('/lifetime-leaderboard')) {
-      return ['/leaderboard'];
+    if (
+      currentPath.startsWith("/achievement") ||
+      currentPath.startsWith("/monthly-leaderboard") ||
+      currentPath.startsWith("/lifetime-leaderboard")
+    ) {
+      return ["/leaderboard"];
     }
     return [];
   };
@@ -65,57 +74,58 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
         left: 0,
         top: 0,
         bottom: 0,
-        zIndex: 1001,
-        borderRight: '1px solid #f0f0f0',
+        borderRight: "1px solid #f0f0f0",
       }}
     >
       {/* Logo Section */}
       <div
         style={{
           height: 64,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? '0 16px' : '0 24px',
-          borderBottom: '1px solid #f0f0f0',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "flex-start",
+          padding: collapsed ? "0 16px" : "0 24px",
+          borderBottom: "1px solid #f0f0f0",
         }}
       >
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: collapsed ? 0 : 12,
-        }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: collapsed ? 0 : 12,
+          }}
+        >
           <img
-            src={'/BMKA_logo.svg'}
+            src={"/BMKA_logo.svg"}
             alt="BMKA Logo"
             style={{
               width: collapsed ? 32 : 40,
               height: collapsed ? 32 : 40,
-              background: '#ffffff',
-              padding: '4px',
-              borderRadius: '6px',
-              border: '1px solid #f0f0f0',
+              background: "#ffffff",
+              padding: "4px",
+              borderRadius: "6px",
+              border: "1px solid #f0f0f0",
             }}
           />
           {!collapsed && (
             <div>
               <Text
                 style={{
-                  color: '#262626',
-                  fontSize: '16px',
+                  color: "#262626",
+                  fontSize: "16px",
                   fontWeight: 600,
                   lineHeight: 1.2,
-                  display: 'block',
+                  display: "block",
                 }}
               >
                 BMKA Admin
               </Text>
               <Text
                 style={{
-                  color: '#8c8c8c',
-                  fontSize: '12px',
+                  color: "#8c8c8c",
+                  fontSize: "12px",
                   lineHeight: 1.2,
-                  display: 'block',
+                  display: "block",
                 }}
               >
                 Dashboard
@@ -133,7 +143,7 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
         defaultOpenKeys={getOpenKeys()}
         items={memoizedMenuItems}
         style={{
-          border: 'none',
+          border: "none",
         }}
       />
     </Sider>
@@ -141,4 +151,3 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
 };
 
 export default SideMenu;
-
