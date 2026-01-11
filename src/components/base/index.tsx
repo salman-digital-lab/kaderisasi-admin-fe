@@ -254,10 +254,9 @@ const AppLayout = () => {
 
         <Content
           style={{
-            padding: isMobile ? 16 : 24,
             minHeight: "calc(100vh - 64px)",
-            backgroundColor: "#fafafa",
             overflow: "auto",
+            backgroundColor: "white",
           }}
         >
           <Outlet />

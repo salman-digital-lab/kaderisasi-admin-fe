@@ -91,12 +91,14 @@ interface ColumnManagerProps {
   columns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
   activityId: string;
+  size?: "large" | "middle" | "small";
 }
 
 const ColumnManager = ({
   columns,
   onColumnsChange,
   activityId,
+  size = "middle",
 }: ColumnManagerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [localColumns, setLocalColumns] = useState<ColumnConfig[]>(columns);
@@ -152,7 +154,7 @@ const ColumnManager = ({
 
   return (
     <>
-      <Button icon={<SettingOutlined />} onClick={handleOpen}>
+      <Button icon={<SettingOutlined />} onClick={handleOpen} size={size}>
         Atur Kolom
       </Button>
 

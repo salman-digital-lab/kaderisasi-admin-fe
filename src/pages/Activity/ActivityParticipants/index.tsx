@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Card,
   Table,
   Button,
   Space,
   Typography,
   Skeleton,
   message,
+  Input,
+  Select,
+  Tag,
+  Tooltip,
 } from "antd";
 import {
   DownloadOutlined,
   PlusOutlined,
   ReloadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { useRequest, useToggle } from "ahooks";
@@ -32,12 +36,16 @@ import {
 } from "./constants/columns";
 
 import ColumnManager from "./components/ColumnManager";
-import ParticipantStats from "./components/ParticipantStats";
-import FilterPanel, { FilterValues } from "./components/FilterPanel";
 import StatusBulkActions from "./components/StatusBulkActions";
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
+import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../constants/options";
 
 const { Text } = Typography;
+
+interface FilterValues {
+  search?: string;
+  status?: string;
+}
 
 const ActivityParticipants = () => {
   const { id } = useParams<{ id: string }>();
@@ -58,6 +66,7 @@ const ActivityParticipants = () => {
   const [sortBy, setSortBy] = useState<string>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState<FilterValues>({});
+  const [searchInput, setSearchInput] = useState("");
 
   // Load column preferences from localStorage
   useEffect(() => {
@@ -99,7 +108,7 @@ const ActivityParticipants = () => {
         ...filters,
       }),
     {
-      refreshDeps: [id, pagination, sortBy, sortOrder],
+      refreshDeps: [id, pagination, sortBy, sortOrder, filters],
       loadingDelay: 200,
     },
   );
@@ -129,9 +138,15 @@ const ActivityParticipants = () => {
     [sortBy],
   );
 
-  // Handle filter search
-  const handleSearch = useCallback((values: FilterValues) => {
-    setFilters(values);
+  // Handle search
+  const handleSearch = useCallback(() => {
+    setFilters((prev) => ({ ...prev, search: searchInput || undefined }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [searchInput]);
+
+  // Handle status filter
+  const handleStatusFilter = useCallback((value: string | undefined) => {
+    setFilters((prev) => ({ ...prev, status: value }));
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, []);
 
@@ -189,6 +204,18 @@ const ActivityParticipants = () => {
     [activity],
   );
 
+  // Status options
+  const statusOptions = useMemo(
+    () => [
+      ...ACTIVITY_REGISTRANT_STATUS_OPTIONS,
+      ...(customSelectionStatus?.map((val: string) => ({
+        label: val,
+        value: val,
+      })) || []),
+    ],
+    [customSelectionStatus],
+  );
+
   // Row selection config
   const rowSelection = {
     selectedRowKeys,
@@ -205,101 +232,127 @@ const ActivityParticipants = () => {
   }
 
   return (
-    <div>
+    <div style={{ padding: 12 }}>
       {/* Add Participant Modal */}
       <MembersListModal
         open={addParticipantModal}
         toggle={toggleAddParticipant}
       />
 
-      {/* Statistics */}
-      <ParticipantStats
-        total={stats?.total || 0}
-        byStatus={stats?.by_status || {}}
-        loading={statsLoading}
-      />
+      {/* Compact Toolbar */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        {/* Left: Search & Filter */}
+        <Space size={12} wrap>
+          <Input.Search
+            placeholder="Cari nama atau email..."
+            allowClear
+            style={{ width: 240 }}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onSearch={handleSearch}
+            onPressEnter={handleSearch}
+            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          />
 
-      {/* Filter Panel */}
-      <FilterPanel
-        onSearch={handleSearch}
-        customSelectionStatus={customSelectionStatus}
-        loading={participantsLoading}
-      />
+          <Select
+            placeholder="Semua Status"
+            allowClear
+            style={{ width: 160 }}
+            options={statusOptions}
+            onChange={handleStatusFilter}
+            value={filters.status}
+          />
 
-      {/* Table Actions */}
-      <Card size="small" style={{ marginBottom: 16 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Space>
-            <StatusBulkActions
-              selectedRowKeys={selectedRowKeys}
-              activityId={id || ""}
-              customSelectionStatus={customSelectionStatus}
-              onSuccess={handleRefresh}
-            />
+          <div
+            style={{
+              width: 1,
+              height: 24,
+              background: "#f0f0f0",
+              margin: "0 4px",
+            }}
+          />
+
+          <Text type="secondary" style={{ fontSize: 13 }}>
+            Total:{" "}
+            <Text strong>{statsLoading ? "..." : stats?.total || 0}</Text>
+          </Text>
+        </Space>
+
+        {/* Right: Actions */}
+        <Space size={8} wrap>
+          {selectedRowKeys.length > 0 && (
+            <Tag color="blue" bordered={false} style={{ marginRight: 8 }}>
+              {selectedRowKeys.length} dipilih
+            </Tag>
+          )}
+
+          <StatusBulkActions
+            selectedRowKeys={selectedRowKeys}
+            activityId={id || ""}
+            customSelectionStatus={customSelectionStatus}
+            onSuccess={handleRefresh}
+          />
+
+          <Tooltip title="Export Data">
             <Button
               icon={<DownloadOutlined />}
               onClick={handleExport}
               loading={isExporting}
-            >
-              Export
-            </Button>
-            <Button icon={<PlusOutlined />} onClick={toggleAddParticipant}>
-              Tambah Peserta
-            </Button>
-          </Space>
+            />
+          </Tooltip>
 
-          <Space>
-            {selectedRowKeys.length > 0 && (
-              <Text type="secondary">
-                {selectedRowKeys.length} peserta dipilih
-              </Text>
-            )}
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={toggleAddParticipant}
+          >
+            Tambah
+          </Button>
+
+          <Tooltip title="Refresh Data">
             <Button
               icon={<ReloadOutlined />}
               onClick={handleRefresh}
               loading={participantsLoading}
-            >
-              Refresh
-            </Button>
-            <ColumnManager
-              columns={columns}
-              onColumnsChange={handleColumnsChange}
-              activityId={id || ""}
             />
-          </Space>
-        </div>
-      </Card>
+          </Tooltip>
+
+          <ColumnManager
+            columns={columns}
+            onColumnsChange={handleColumnsChange}
+            activityId={id || ""}
+          />
+        </Space>
+      </div>
 
       {/* Participants Table */}
-      <Card>
-        <Table
-          rowKey="id"
-          columns={tableColumns}
-          dataSource={participantsData?.data}
-          loading={participantsLoading}
-          rowSelection={rowSelection}
-          pagination={{
-            current: participantsData?.meta?.current_page || pagination.page,
-            pageSize: participantsData?.meta?.per_page || pagination.per_page,
-            total: participantsData?.meta?.total,
-            showSizeChanger: true,
-            pageSizeOptions: ["25", "50", "100", "200"],
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} dari ${total} data`,
-            showQuickJumper: (participantsData?.meta?.total || 0) > 100,
-          }}
-          onChange={handleTableChange}
-          scroll={{ x: 1400, y: 600 }}
-          size="middle"
-          sticky={{ offsetHeader: 64 }}
-        />
-      </Card>
+      <Table
+        rowKey="id"
+        columns={tableColumns}
+        dataSource={participantsData?.data}
+        loading={participantsLoading}
+        rowSelection={rowSelection}
+        pagination={{
+          current: participantsData?.meta?.current_page || pagination.page,
+          pageSize: participantsData?.meta?.per_page || pagination.per_page,
+          total: participantsData?.meta?.total,
+          showSizeChanger: true,
+          pageSizeOptions: ["25", "50", "100", "200"],
+          showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total}`,
+        }}
+        onChange={handleTableChange}
+        scroll={{ x: 1400, y: "calc(100vh - 280px)" }}
+        sticky={{ offsetHeader: 0 }}
+      />
     </div>
   );
 };

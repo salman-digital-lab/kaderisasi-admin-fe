@@ -32,6 +32,7 @@ interface StatusBulkActionsProps {
   activityId: string;
   customSelectionStatus?: string[];
   onSuccess: () => void;
+  size?: "large" | "middle" | "small";
 }
 
 const StatusBulkActions = ({
@@ -39,6 +40,7 @@ const StatusBulkActions = ({
   activityId,
   customSelectionStatus = [],
   onSuccess,
+  size = "middle",
 }: StatusBulkActionsProps) => {
   const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
   const [emailStatusModalOpen, setEmailStatusModalOpen] = useState(false);
@@ -152,6 +154,7 @@ const StatusBulkActions = ({
         <Button
           icon={<EditOutlined />}
           type={selectedRowKeys.length > 0 ? "primary" : "default"}
+          size={size}
         >
           Ubah Status <DownOutlined />
         </Button>
