@@ -28,5 +28,5 @@ export function UniversityRender({ universityId }: UniversityRenderProps) {
 
   if (loading) return <Spin />;
 
-  return <>{data?.data.find((val) => val.id === universityId)?.name || "-"}</>;
+  return data?.data.find((val) => val.id === universityId)?.name || "-";
 }

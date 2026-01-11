@@ -91,7 +91,7 @@ const MainActivity = () => {
         {/* Left: Filters */}
         <Space size={12} wrap>
           <Input.Search
-            placeholder="Cari nama aktivitas..."
+            placeholder="Cari nama aktivitas"
             allowClear
             style={{ width: 240 }}
             value={searchInput}

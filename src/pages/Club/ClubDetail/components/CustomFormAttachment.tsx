@@ -148,7 +148,7 @@ const CustomFormAttachment = () => {
         <Form layout="vertical">
           <Form.Item label="Pilih Form">
             <Select
-              placeholder="Pilih form yang ingin dilampirkan..."
+              placeholder="Pilih form yang ingin dilampirkan"
               value={selectedFormId}
               onChange={setSelectedFormId}
               loading={loading}

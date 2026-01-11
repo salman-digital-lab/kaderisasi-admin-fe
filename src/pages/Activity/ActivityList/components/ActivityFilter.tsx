@@ -76,7 +76,7 @@ const ActivityFilter = ({ setParameter, onCreate }: FilterProps) => {
         <Col xs={24} md={8}>
           <Form.Item label="Pencarian" style={{ marginBottom: 0 }}>
             <Input
-              placeholder="Cari nama aktivitas..."
+              placeholder="Cari nama aktivitas"
               allowClear
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}

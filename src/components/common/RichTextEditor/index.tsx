@@ -34,7 +34,7 @@ interface RichTextEditorProps {
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value = "",
   onChange,
-  placeholder = "Tulis sesuatu...",
+  placeholder = "Tulis sesuatu",
   minHeight = "200px",
   maxHeight = "400px",
   disabled = false,
@@ -211,7 +211,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
       )}
 
-      <div 
+      <div
         className="rich-text-editor-content"
         style={{
           minHeight,
@@ -223,4 +223,3 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     </div>
   );
 };
-
