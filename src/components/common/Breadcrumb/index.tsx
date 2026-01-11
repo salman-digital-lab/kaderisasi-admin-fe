@@ -100,11 +100,21 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     ];
   }
 
-  // Custom form edit pages
+  // Custom form edit pages (standalone)
   if (pathname.match(/^\/custom-form\/\d+\/edit$/)) {
     return [
       { path: "/custom-form", title: "Daftar Form Kustom" },
       { path: "", title: "Ubah Form Kustom" },
+    ];
+  }
+
+  // Custom form edit pages (from activity)
+  if (pathname.match(/^\/activity\/\d+\/form\/\d+\/edit$/)) {
+    const activityId = pathname.split("/")[2];
+    return [
+      { path: "/activity", title: "Daftar Kegiatan" },
+      { path: `/activity/${activityId}?tab=7`, title: "Detail Kegiatan" },
+      { path: "", title: "Ubah Form Pendaftaran" },
     ];
   }
 

@@ -1,15 +1,5 @@
+import { Button, Space, Row, Col, Skeleton, Tag, Typography } from "antd";
 import {
-  Button,
-  Space,
-  Row,
-  Col,
-  Statistic,
-  Skeleton,
-  Tag,
-  Typography,
-} from "antd";
-import {
-  UserOutlined,
   TeamOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -17,7 +7,7 @@ import {
   CloseCircleOutlined,
   ArrowRightOutlined,
 } from "@ant-design/icons";
-import { useCallback, memo } from "react";
+import { useCallback, memo, ReactNode } from "react";
 import { useRequest, useToggle } from "ahooks";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -31,7 +21,7 @@ import MembersListModal from "./Modal/MembersListModal";
 // Status configuration for display
 const statusConfig: Record<
   string,
-  { color: string; icon: React.ReactNode; label: string }
+  { color: string; icon: ReactNode; label: string }
 > = {
   TERDAFTAR: {
     color: "blue",
@@ -105,27 +95,44 @@ const RegistrantList = () => {
   }
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+    <div>
       <MembersListModal open={modalState} toggle={toggleModal} />
 
-      {/* Header Card */}
-      <div>
+      {/* Summary Banner */}
+      <div
+        style={{
+          background: "#e6f7ff",
+          border: "1px solid #91d5ff",
+          borderRadius: 8,
+          padding: "24px",
+          marginBottom: 24,
+        }}
+      >
         <Row justify="space-between" align="middle" gutter={[16, 16]}>
           <Col>
-            <Statistic
-              title="Total Peserta"
-              value={total}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: "#1890ff" }}
-            />
+            <Space direction="vertical" size={4}>
+              <Typography.Text type="secondary" style={{ fontSize: 14 }}>
+                Total Peserta Terdaftar
+              </Typography.Text>
+              <Space align="center" size="small">
+                <TeamOutlined style={{ fontSize: 28, color: "#1890ff" }} />
+                <Typography.Title
+                  level={2}
+                  style={{ margin: 0, color: "#1890ff" }}
+                >
+                  {total}
+                </Typography.Title>
+                <Typography.Text type="secondary">Orang</Typography.Text>
+              </Space>
+            </Space>
           </Col>
           <Col>
             <Button
               type="primary"
-              icon={<TeamOutlined />}
+              icon={<ArrowRightOutlined />}
               onClick={handleManageParticipants}
             >
-              Kelola Peserta <ArrowRightOutlined />
+              Kelola & Lihat Detail Peserta
             </Button>
           </Col>
         </Row>
@@ -133,8 +140,8 @@ const RegistrantList = () => {
 
       {/* Statistics by Status */}
       <div>
-        <Typography.Title level={5}>
-          Statistik Berdasarkan Status
+        <Typography.Title level={5} style={{ marginBottom: 16 }}>
+          Ringkasan Status Peserta
         </Typography.Title>
         <Row gutter={[16, 16]}>
           {primaryStatuses.map((status) => {
@@ -149,28 +156,67 @@ const RegistrantList = () => {
               <Col xs={12} sm={8} md={6} lg={4} key={status}>
                 <div
                   style={{
-                    padding: "12px",
+                    padding: "16px",
                     borderRadius: "8px",
-                    border: "1px solid #f0f0f0",
-                    background: "#fafafa",
+                    border: "1px solid #e8e8e8",
+                    background: "#fff",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    transition: "all 0.3s",
+                    cursor: "default",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.08)";
+                    e.currentTarget.style.borderColor = "#d9d9d9";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = "none";
+                    e.currentTarget.style.borderColor = "#e8e8e8";
                   }}
                 >
-                  <Tag
-                    color={config.color}
-                    icon={config.icon}
-                    style={{ marginBottom: 8 }}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 12,
+                    }}
                   >
-                    {config.label}
-                  </Tag>
-                  <div>
-                    <span style={{ fontSize: 24, fontWeight: 600 }}>
-                      {count}
-                    </span>
-                    <span
-                      style={{ fontSize: 12, color: "#999", marginLeft: 4 }}
+                    <div
+                      style={{
+                        marginRight: 8,
+                        display: "flex",
+                        padding: 6,
+                        background: `${config.color === "blue" ? "#e6f7ff" : config.color === "green" ? "#f6ffed" : config.color === "red" ? "#fff1f0" : "#f9f0ff"}`,
+                        borderRadius: "50%",
+                        color:
+                          config.color === "blue"
+                            ? "#1890ff"
+                            : config.color === "green"
+                              ? "#52c41a"
+                              : config.color === "red"
+                                ? "#ff4d4f"
+                                : "#722ed1",
+                      }}
                     >
-                      ({percentage}%)
-                    </span>
+                      {config.icon}
+                    </div>
+                    <Typography.Text
+                      strong
+                      style={{ fontSize: 13, lineHeight: 1.2 }}
+                    >
+                      {config.label}
+                    </Typography.Text>
+                  </div>
+                  <div>
+                    <Typography.Title level={3} style={{ margin: 0 }}>
+                      {count}
+                    </Typography.Title>
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      {percentage}% dari total
+                    </Typography.Text>
                   </div>
                 </div>
               </Col>
@@ -187,24 +233,35 @@ const RegistrantList = () => {
               <Col xs={12} sm={8} md={6} lg={4} key={status}>
                 <div
                   style={{
-                    padding: "12px",
+                    padding: "16px",
                     borderRadius: "8px",
-                    border: "1px solid #f0f0f0",
-                    background: "#fafafa",
+                    border: "1px solid #e8e8e8",
+                    background: "#fff",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <Tag color="default" style={{ marginBottom: 8 }}>
-                    {status}
-                  </Tag>
-                  <div>
-                    <span style={{ fontSize: 24, fontWeight: 600 }}>
-                      {count}
-                    </span>
-                    <span
-                      style={{ fontSize: 12, color: "#999", marginLeft: 4 }}
+                  <div style={{ marginBottom: 12 }}>
+                    <Tag
+                      style={{
+                        margin: 0,
+                        maxWidth: "100%",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
                     >
-                      ({percentage}%)
-                    </span>
+                      {status}
+                    </Tag>
+                  </div>
+                  <div>
+                    <Typography.Title level={3} style={{ margin: 0 }}>
+                      {count}
+                    </Typography.Title>
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      {percentage}% dari total
+                    </Typography.Text>
                   </div>
                 </div>
               </Col>
@@ -212,7 +269,7 @@ const RegistrantList = () => {
           })}
         </Row>
       </div>
-    </Space>
+    </div>
   );
 };
 

@@ -9,6 +9,7 @@ import {
   Divider,
   Skeleton,
   notification,
+  Card,
 } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
@@ -131,68 +132,139 @@ const CustomFormSelection = () => {
   return (
     <Skeleton loading={currentFormLoading}>
       <div>
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        {!currentForm ? (
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              padding: "48px 24px",
+              textAlign: "center",
+              background: "#fafafa",
+              borderRadius: 8,
+              border: "1px dashed #d9d9d9",
             }}
           >
-            <Title level={3} style={{ margin: 0 }}>
-              Form Pendaftaran
-            </Title>
-            {!currentForm && (
+            <Space direction="vertical" size="large">
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <Space direction="vertical" size="small">
+                    <Text strong style={{ fontSize: 16 }}>
+                      Belum Ada Form Pendaftaran
+                    </Text>
+                    <Text type="secondary" style={{ maxWidth: 400 }}>
+                      Kegiatan ini belum memiliki form pendaftaran. Anda dapat
+                      membuat form baru atau memilih dari form yang sudah ada.
+                    </Text>
+                  </Space>
+                }
+              />
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
+                size="large"
                 onClick={() => setIsModalOpen(true)}
               >
-                Tambah Form
+                Buat atau Pilih Form
               </Button>
-            )}
+            </Space>
           </div>
-
-          {currentForm ? (
+        ) : (
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
             <div
               style={{
-                padding: 16,
-                borderRadius: 8,
-                border: "1px solid #f0f0f0",
-                background: "#fafafa",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: 16,
-                }}
-              >
+              <Title level={4} style={{ margin: 0 }}>
+                Form Terlampir
+              </Title>
+              {/* If we want to allow replacing the form, we can adding a change button later */}
+            </div>
+
+            <Card
+              type="inner"
+              title={
                 <Space>
-                  <Text strong>{currentForm.form_name}</Text>
+                  <Text strong style={{ fontSize: 16 }}>
+                    {currentForm.form_name}
+                  </Text>
                   <Tag color={currentForm.is_active ? "success" : "default"}>
                     {currentForm.is_active ? "Aktif" : "Tidak Aktif"}
                   </Tag>
                 </Space>
+              }
+              extra={
                 <Button
+                  type="primary"
+                  ghost
                   icon={<EditOutlined />}
                   onClick={() =>
-                    navigate(`/custom-form/${currentForm.id}/edit`)
+                    navigate(`/activity/${id}/form/${currentForm.id}/edit`)
                   }
                 >
-                  Ubah Form
+                  Edit Form & Pertanyaan
                 </Button>
-              </div>
-              {currentForm.form_description && (
-                <Text type="secondary">{currentForm.form_description}</Text>
-              )}
-            </div>
-          ) : (
-            <Empty description="Belum ada form pendaftaran" />
-          )}
-        </Space>
+              }
+              style={{
+                boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+                borderRadius: 8,
+              }}
+            >
+              <Space
+                direction="vertical"
+                size="middle"
+                style={{ width: "100%" }}
+              >
+                <div>
+                  <Text type="secondary" style={{ fontSize: 13 }}>
+                    Deskripsi Form
+                  </Text>
+                  <div style={{ marginTop: 4 }}>
+                    {currentForm.form_description ? (
+                      <Text>{currentForm.form_description}</Text>
+                    ) : (
+                      <Text type="secondary" italic>
+                        Tidak ada deskripsi
+                      </Text>
+                    )}
+                  </div>
+                </div>
+
+                <Divider style={{ margin: "8px 0" }} />
+
+                <div
+                  style={{
+                    background: "#f9f9f9",
+                    padding: "12px 16px",
+                    borderRadius: 6,
+                    border: "1px solid #f0f0f0",
+                  }}
+                >
+                  <Space size="middle" split={<Divider type="vertical" />}>
+                    <div>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Total Pertanyaan
+                      </Text>
+                      <div style={{ fontSize: 18, fontWeight: 500 }}>
+                        {currentForm.form_schema?.fields?.length || 0}
+                      </div>
+                    </div>
+                    <div>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Terakhir Diupdate
+                      </Text>
+                      <div style={{ fontSize: 14 }}>
+                        {/* Assuming we might have updated_at later, for now placeholder or nothing */}
+                        -
+                      </div>
+                    </div>
+                  </Space>
+                </div>
+              </Space>
+            </Card>
+          </Space>
+        )}
 
         <Modal
           title="Tambah Form Pendaftaran"
@@ -205,18 +277,29 @@ const CustomFormSelection = () => {
           width={500}
         >
           <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-            <div>
+            <div
+              style={{
+                background: "#f5f5f5",
+                padding: 16,
+                borderRadius: 8,
+                marginBottom: 8,
+              }}
+            >
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Opsi 1: Pilih Form Tersedia
+              </Text>
               <Text
                 type="secondary"
-                style={{ marginBottom: 8, display: "block" }}
+                style={{ fontSize: 13, display: "block", marginBottom: 12 }}
               >
-                Pilih form yang sudah ada
+                Gunakan form yang sudah pernah dibuat tetapi belum digunakan
+                dimanapun.
               </Text>
               <Space.Compact style={{ width: "100%" }}>
                 <Select
                   showSearch
                   style={{ width: "100%" }}
-                  placeholder="Pilih form"
+                  placeholder="Cari nama form..."
                   loading={unattachedLoading}
                   value={selectedFormId}
                   onChange={setSelectedFormId}
@@ -230,7 +313,10 @@ const CustomFormSelection = () => {
                       .includes(input.toLowerCase())
                   }
                   notFoundContent={
-                    <Empty description="Tidak ada form tersedia" />
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description="Tidak ada form tersedia"
+                    />
                   }
                 />
                 <Button
@@ -239,23 +325,46 @@ const CustomFormSelection = () => {
                   loading={attachLoading}
                   disabled={!selectedFormId}
                 >
-                  Pakai
+                  Gunakan
                 </Button>
               </Space.Compact>
             </div>
 
-            <Divider style={{ margin: "12px 0" }}>atau</Divider>
+            <div style={{ textAlign: "center", color: "#999" }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                ATAU
+              </Text>
+            </div>
 
-            <Button
-              type="dashed"
-              icon={<PlusOutlined />}
-              onClick={() => runCreateAndAttach()}
-              loading={createAndAttachLoading}
-              disabled={!activityData}
-              block
+            <div
+              style={{
+                background: "#e6f7ff",
+                padding: 16,
+                borderRadius: 8,
+                border: "1px solid #91d5ff",
+              }}
             >
-              Buat Form Baru
-            </Button>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Opsi 2: Buat Baru
+              </Text>
+              <Text
+                type="secondary"
+                style={{ fontSize: 13, display: "block", marginBottom: 12 }}
+              >
+                Buat form pendaftaran baru khusus untuk kegiatan ini secara
+                otomatis.
+              </Text>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => runCreateAndAttach()}
+                loading={createAndAttachLoading}
+                disabled={!activityData}
+                block
+              >
+                Buat Form Baru Sekarang
+              </Button>
+            </div>
           </Space>
         </Modal>
       </div>

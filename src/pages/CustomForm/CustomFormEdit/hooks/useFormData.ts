@@ -16,13 +16,16 @@ import type {
 import { BASIC_PROFILE_FIELDS } from "../constants";
 
 export const useFormData = () => {
-  const { id } = useParams<{ id: string }>();
+  const { formId } = useParams<{ formId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [initialData, setInitialData] = useState<CustomForm | null>(null);
   const [selectedBasicFields, setSelectedBasicFields] = useState<string[]>([]);
-  const [customFieldSections, setCustomFieldSections] = useState<FormSection[]>([]);
-  const [profileFieldRequiredOverrides, setProfileFieldRequiredOverrides] = useState<Record<string, boolean>>({});
+  const [customFieldSections, setCustomFieldSections] = useState<FormSection[]>(
+    [],
+  );
+  const [profileFieldRequiredOverrides, setProfileFieldRequiredOverrides] =
+    useState<Record<string, boolean>>({});
 
   // Active tab state with URL sync
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -47,16 +50,16 @@ export const useFormData = () => {
 
   // Handle required field changes
   const handleRequiredFieldChange = (fieldKey: string, required: boolean) => {
-    setProfileFieldRequiredOverrides(prev => ({
+    setProfileFieldRequiredOverrides((prev) => ({
       ...prev,
-      [fieldKey]: required
+      [fieldKey]: required,
     }));
   };
 
   const { loading: fetchLoading, run: fetchCustomForm } = useRequest(
     async () => {
-      if (!id) return;
-      const data = await getCustomForm(parseInt(id));
+      if (!formId) return;
+      const data = await getCustomForm(parseInt(formId));
       if (data) {
         setInitialData(data);
 
@@ -71,16 +74,22 @@ export const useFormData = () => {
           );
 
           if (profileSection) {
-            const existingFields = profileSection.fields.map((field) => field.key);
+            const existingFields = profileSection.fields.map(
+              (field) => field.key,
+            );
             // Always include name and gender as default fields
             const defaultFields = ["name", "gender"];
-            const allFields = [...new Set([...defaultFields, ...existingFields])];
+            const allFields = [
+              ...new Set([...defaultFields, ...existingFields]),
+            ];
             setSelectedBasicFields(allFields);
 
             // Extract required field overrides by comparing with defaults
             const requiredOverrides: Record<string, boolean> = {};
             profileSection.fields.forEach((field) => {
-              const defaultField = BASIC_PROFILE_FIELDS.find(f => f.key === field.key);
+              const defaultField = BASIC_PROFILE_FIELDS.find(
+                (f) => f.key === field.key,
+              );
               if (defaultField && field.required !== defaultField.required) {
                 requiredOverrides[field.key] = field.required;
               }
@@ -102,30 +111,34 @@ export const useFormData = () => {
   );
 
   const { loading: updateLoading, run: updateForm } = useRequest(
-    async (values: { 
-      formName: string; 
+    async (values: {
+      formName: string;
       formDescription: string;
       postSubmissionInfo: string;
-      featureType?: "activity_registration" | "club_registration" | "independent_form";
+      featureType?:
+        | "activity_registration"
+        | "club_registration"
+        | "independent_form";
       featureId?: number | null;
     }) => {
-      if (!id) return;
+      if (!formId) return;
 
       // Build form schema from current state
-      const profileFields = BASIC_PROFILE_FIELDS
-        .filter((field) => selectedBasicFields.includes(field.key))
-        .map((field) => ({
-          ...field,
-          required: profileFieldRequiredOverrides[field.key] ?? field.required
-        }));
+      const profileFields = BASIC_PROFILE_FIELDS.filter((field) =>
+        selectedBasicFields.includes(field.key),
+      ).map((field) => ({
+        ...field,
+        required: profileFieldRequiredOverrides[field.key] ?? field.required,
+      }));
 
       // Filter out sections with empty fields
       const nonEmptyCustomSections = customFieldSections.filter(
-        (section) => section.fields && section.fields.length > 0
+        (section) => section.fields && section.fields.length > 0,
       );
 
       // Check if any sections were removed
-      const removedSectionsCount = customFieldSections.length - nonEmptyCustomSections.length;
+      const removedSectionsCount =
+        customFieldSections.length - nonEmptyCustomSections.length;
 
       const updatedFormSchema: FormSchema = {
         fields: [
@@ -137,7 +150,7 @@ export const useFormData = () => {
         ],
       };
 
-      await updateCustomForm(parseInt(id), {
+      await updateCustomForm(parseInt(formId), {
         formName: values.formName,
         formDescription: values.formDescription || "",
         postSubmissionInfo: values.postSubmissionInfo || "",
@@ -147,7 +160,9 @@ export const useFormData = () => {
       });
 
       if (removedSectionsCount > 0) {
-        message.success(`Formulir berhasil diperbarui! ${removedSectionsCount} grup kosong dihapus.`);
+        message.success(
+          `Formulir berhasil diperbarui! ${removedSectionsCount} grup kosong dihapus.`,
+        );
       } else {
         message.success("Formulir berhasil diperbarui!");
       }
@@ -161,10 +176,10 @@ export const useFormData = () => {
   );
 
   useEffect(() => {
-    if (id) {
+    if (formId) {
       fetchCustomForm();
     }
-  }, [id]);
+  }, [formId]);
 
   return {
     initialData,

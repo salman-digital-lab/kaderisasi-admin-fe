@@ -1,8 +1,13 @@
 import React from "react";
-import { Card, Form, Button, Space, Typography, Spin, Tabs } from "antd";
+import { Form, Button, Space, Typography, Spin, Tabs } from "antd";
 import { SaveOutlined, FormOutlined } from "@ant-design/icons";
 
-import { BasicInfoTab, SchemaTab, FieldModal, BasicFieldModal } from "./components";
+import {
+  BasicInfoTab,
+  SchemaTab,
+  FieldModal,
+  BasicFieldModal,
+} from "./components";
 import { useFormData, useFieldManagement } from "./hooks";
 import {
   FIELD_TYPES,
@@ -108,10 +113,10 @@ const CustomFormEdit: React.FC = () => {
       key: "basic",
       label: "Informasi Dasar",
       children: (
-        <BasicInfoTab 
-          form={form} 
-          initialData={initialData} 
-          onSave={updateForm} 
+        <BasicInfoTab
+          form={form}
+          initialData={initialData}
+          onSave={updateForm}
         />
       ),
     },
@@ -148,14 +153,22 @@ const CustomFormEdit: React.FC = () => {
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       {/* Form Card */}
-      <Card
-        title={
+      {/* Form Container */}
+      <div style={{ background: "#fff", padding: "12px", borderRadius: "8px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <FormOutlined style={{ color: "#1890ff" }} />
-            <span>Ubah Form Kustom - {initialData.form_name}</span>
+            <FormOutlined style={{ color: "#1890ff", fontSize: "20px" }} />
+            <Text strong style={{ fontSize: "16px" }}>
+              Ubah Form Kustom - {initialData.form_name}
+            </Text>
           </div>
-        }
-        extra={
           <Button
             type="primary"
             icon={<SaveOutlined />}
@@ -164,15 +177,15 @@ const CustomFormEdit: React.FC = () => {
           >
             Simpan Perubahan
           </Button>
-        }
-      >
+        </div>
+
         <Tabs
           activeKey={activeTab}
           onChange={handleTabChange}
           type="card"
           items={tabItems}
         />
-      </Card>
+      </div>
 
       {/* Basic Field Modal */}
       <BasicFieldModal

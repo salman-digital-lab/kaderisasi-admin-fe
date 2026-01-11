@@ -119,6 +119,12 @@ const routes = createBrowserRouter(
           ),
         },
         {
+          path: "activity/:activityId/form/:formId/edit",
+          element: (
+            <RoleUser element={<CustomFormEdit />} permission="kegiatan" />
+          ),
+        },
+        {
           path: "registrant/:id",
           element: (
             <RoleUser element={<RegistrantDetail />} permission="kegiatan" />
@@ -205,7 +211,7 @@ const routes = createBrowserRouter(
           ),
         },
         {
-          path: "/custom-form/:id/edit",
+          path: "/custom-form/:formId/edit",
           element: (
             <RoleUser element={<CustomFormEdit />} permission="formkustom" />
           ),
