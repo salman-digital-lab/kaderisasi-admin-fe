@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
-import { PlusOutlined, HolderOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  HolderOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import {
   DndContext,
   closestCenter,
@@ -19,7 +24,16 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import type { GetProp, UploadProps } from "antd";
-import { Card, Typography, Upload, Image, notification, Spin, Tooltip, Button } from "antd";
+import {
+  Typography,
+  Upload,
+  Image,
+  notification,
+  Spin,
+  Tooltip,
+  Button,
+  Skeleton,
+} from "antd";
 import { useParams } from "react-router-dom";
 import {
   getActivity,
@@ -184,7 +198,11 @@ const SortableImageItem = ({
                 <Button
                   type="text"
                   size="small"
-                  icon={<DeleteOutlined style={{ color: "#ff4d4f", fontSize: 14 }} />}
+                  icon={
+                    <DeleteOutlined
+                      style={{ color: "#ff4d4f", fontSize: 14 }}
+                    />
+                  }
                   onClick={() => onRemove(item, index)}
                   style={{ padding: 2, minWidth: 24, height: 24 }}
                 />
@@ -214,7 +232,7 @@ const ImageList = () => {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const { loading } = useRequest(() => getActivity(Number(id)), {
@@ -225,7 +243,7 @@ const ImageList = () => {
           uid: imageFile,
           name: imageFile,
           url: `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${imageFile}`,
-        })) || []
+        })) || [],
       );
     },
   });
@@ -281,7 +299,7 @@ const ImageList = () => {
         }
       }
     },
-    [fileList, id]
+    [fileList, id],
   );
 
   const handleUpload = async (file: RcFile) => {
@@ -293,7 +311,8 @@ const ImageList = () => {
     if (!isCorrectImageType) {
       notification.error({
         message: "Gagal",
-        description: "Hanya dapat mengupload file Gambar dengan format JPG, PNG, atau WebP",
+        description:
+          "Hanya dapat mengupload file Gambar dengan format JPG, PNG, atau WebP",
       });
       return false;
     }
@@ -333,142 +352,154 @@ const ImageList = () => {
   };
 
   return (
-    <Card
-      loading={loading}
-      style={{
-        borderRadius: 8,
-      }}
-    >
-      <div style={{ marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0, marginBottom: 4 }}>
-          Galeri Gambar
-        </Title>
-        <Text type="secondary" style={{ fontSize: 13 }}>
-          Seret gambar untuk mengatur urutan. Gambar pertama akan menjadi gambar utama.
-        </Text>
-      </div>
-
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext items={fileList.map((f) => f.uid)} strategy={rectSortingStrategy}>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 16,
-              padding: 16,
-              background: "#f5f5f5",
-              borderRadius: 8,
-              minHeight: 160,
-            }}
-          >
-            {fileList.map((item, index) => (
-              <SortableImageItem
-                key={item.uid}
-                item={item}
-                index={index}
-                onPreview={handlePreview}
-                onRemove={handleRemove}
-                isRemoving={removingId}
-              />
-            ))}
-
-            {/* Upload button */}
-            {fileList.length < 8 && (
-              <Upload
-                showUploadList={false}
-                beforeUpload={handleUpload}
-                accept="image/jpeg,image/png,image/jpg,image/webp"
-                disabled={uploading}
-              >
-                <div
-                  style={{
-                    width: 128,
-                    height: 128,
-                    borderRadius: 8,
-                    border: "2px dashed #d9d9d9",
-                    background: "#fff",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: uploading ? "not-allowed" : "pointer",
-                    transition: "all 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!uploading) {
-                      e.currentTarget.style.borderColor = "#1677ff";
-                      e.currentTarget.style.background = "#f0f5ff";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "#d9d9d9";
-                    e.currentTarget.style.background = "#fff";
-                  }}
-                >
-                  {uploading ? (
-                    <Spin />
-                  ) : (
-                    <>
-                      <PlusOutlined style={{ fontSize: 24, color: "#8c8c8c" }} />
-                      <Text type="secondary" style={{ marginTop: 8, fontSize: 12 }}>
-                        Tambah Gambar
-                      </Text>
-                    </>
-                  )}
-                </div>
-              </Upload>
-            )}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      {/* Empty state */}
-      {fileList.length === 0 && !loading && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "24px 0",
-            color: "#8c8c8c",
-          }}
-        >
-          <Text type="secondary">Belum ada gambar. Klik tombol di atas untuk menambahkan.</Text>
-        </div>
-      )}
-
-      {/* Image count indicator */}
+    <Skeleton loading={loading}>
       <div
         style={{
-          marginTop: 12,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          borderRadius: 8,
         }}
       >
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          {fileList.length}/8 gambar
-        </Text>
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          Format: JPG, PNG, WebP • Maks: 1MB
-        </Text>
-      </div>
+        <div style={{ marginBottom: 16 }}>
+          <Title level={4} style={{ margin: 0, marginBottom: 4 }}>
+            Galeri Gambar
+          </Title>
+          <Text type="secondary" style={{ fontSize: 13 }}>
+            Seret gambar untuk mengatur urutan. Gambar pertama akan menjadi
+            gambar utama.
+          </Text>
+        </div>
 
-      {/* Preview modal */}
-      {previewImage && (
-        <Image
-          wrapperStyle={{ display: "none" }}
-          preview={{
-            visible: previewOpen,
-            onVisibleChange: (visible) => setPreviewOpen(visible),
-            afterOpenChange: (visible) => !visible && setPreviewImage(""),
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={fileList.map((f) => f.uid)}
+            strategy={rectSortingStrategy}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 16,
+                padding: 16,
+                background: "#f5f5f5",
+                borderRadius: 8,
+                minHeight: 160,
+              }}
+            >
+              {fileList.map((item, index) => (
+                <SortableImageItem
+                  key={item.uid}
+                  item={item}
+                  index={index}
+                  onPreview={handlePreview}
+                  onRemove={handleRemove}
+                  isRemoving={removingId}
+                />
+              ))}
+
+              {/* Upload button */}
+              {fileList.length < 8 && (
+                <Upload
+                  showUploadList={false}
+                  beforeUpload={handleUpload}
+                  accept="image/jpeg,image/png,image/jpg,image/webp"
+                  disabled={uploading}
+                >
+                  <div
+                    style={{
+                      width: 128,
+                      height: 128,
+                      borderRadius: 8,
+                      border: "2px dashed #d9d9d9",
+                      background: "#fff",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: uploading ? "not-allowed" : "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!uploading) {
+                        e.currentTarget.style.borderColor = "#1677ff";
+                        e.currentTarget.style.background = "#f0f5ff";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#d9d9d9";
+                      e.currentTarget.style.background = "#fff";
+                    }}
+                  >
+                    {uploading ? (
+                      <Spin />
+                    ) : (
+                      <>
+                        <PlusOutlined
+                          style={{ fontSize: 24, color: "#8c8c8c" }}
+                        />
+                        <Text
+                          type="secondary"
+                          style={{ marginTop: 8, fontSize: 12 }}
+                        >
+                          Tambah Gambar
+                        </Text>
+                      </>
+                    )}
+                  </div>
+                </Upload>
+              )}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        {/* Empty state */}
+        {fileList.length === 0 && !loading && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "24px 0",
+              color: "#8c8c8c",
+            }}
+          >
+            <Text type="secondary">
+              Belum ada gambar. Klik tombol di atas untuk menambahkan.
+            </Text>
+          </div>
+        )}
+
+        {/* Image count indicator */}
+        <div
+          style={{
+            marginTop: 12,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
-          src={previewImage}
-        />
-      )}
-    </Card>
+        >
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {fileList.length}/8 gambar
+          </Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            Format: JPG, PNG, WebP • Maks: 1MB
+          </Text>
+        </div>
+
+        {/* Preview modal */}
+        {previewImage && (
+          <Image
+            wrapperStyle={{ display: "none" }}
+            preview={{
+              visible: previewOpen,
+              onVisibleChange: (visible) => setPreviewOpen(visible),
+              afterOpenChange: (visible) => !visible && setPreviewImage(""),
+            }}
+            src={previewImage}
+          />
+        )}
+      </div>
+    </Skeleton>
   );
 };
 

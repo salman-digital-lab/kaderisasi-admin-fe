@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, Flex, notification, Table, Typography } from "antd";
+import { Button, Flex, notification, Table, Typography, Skeleton } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import { SaveOutlined } from "@ant-design/icons";
@@ -48,55 +48,57 @@ const MandatoryData = () => {
   });
 
   return (
-    <Card loading={loading}>
-      <Flex justify="end" align="middle">
-        <Button
-          type="primary"
-          loading={editLoading}
-          icon={<SaveOutlined />}
-          onClick={async () => {
-            const newData = toggleData.reduce<MandatoryProfileData[]>(
-              (acc, val, idx) => {
-                if (val.is_shown) {
-                  acc.push({
-                    name: PROFILE_DATA[idx].fieldname,
-                    required: val.required,
-                  });
-                }
-                return acc;
-              },
-              [],
-            );
+    <Skeleton loading={loading}>
+      <div>
+        <Flex justify="end" align="middle">
+          <Button
+            type="primary"
+            loading={editLoading}
+            icon={<SaveOutlined />}
+            onClick={async () => {
+              const newData = toggleData.reduce<MandatoryProfileData[]>(
+                (acc, val, idx) => {
+                  if (val.is_shown) {
+                    acc.push({
+                      name: PROFILE_DATA[idx].fieldname,
+                      required: val.required,
+                    });
+                  }
+                  return acc;
+                },
+                [],
+              );
 
-            await runAsync(Number(id), {
-              additional_config: {
-                ...activityData?.additional_config,
-                mandatory_profile_data: newData,
-              },
-            });
+              await runAsync(Number(id), {
+                additional_config: {
+                  ...activityData?.additional_config,
+                  mandatory_profile_data: newData,
+                },
+              });
 
-            notification.success({
-              message: "Berhasil",
-              description: "Data berhasil diubah",
-            });
-          }}
-        >
-          Simpan
-        </Button>
-      </Flex>
-      <Title level={3}>Keperluan Data Diri Peserta</Title>
-      <Table
-        rowKey="fieldname"
-        columns={MANDATORY_DATA_TABLE_COLUMNS(setToggleData)}
-        dataSource={PROFILE_DATA.map((val, idx) => {
-          return {
-            ...val,
-            is_shown: toggleData[idx]?.is_shown,
-            required: toggleData[idx]?.required,
-          };
-        })}
-      />
-    </Card>
+              notification.success({
+                message: "Berhasil",
+                description: "Data berhasil diubah",
+              });
+            }}
+          >
+            Simpan
+          </Button>
+        </Flex>
+        <Title level={3}>Keperluan Data Diri Peserta</Title>
+        <Table
+          rowKey="fieldname"
+          columns={MANDATORY_DATA_TABLE_COLUMNS(setToggleData)}
+          dataSource={PROFILE_DATA.map((val, idx) => {
+            return {
+              ...val,
+              is_shown: toggleData[idx]?.is_shown,
+              required: toggleData[idx]?.required,
+            };
+          })}
+        />
+      </div>
+    </Skeleton>
   );
 };
 

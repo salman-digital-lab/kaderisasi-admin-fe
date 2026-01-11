@@ -1,4 +1,13 @@
-import { Card, Button, Space, Row, Col, Statistic, Skeleton, Tag } from "antd";
+import {
+  Button,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  Skeleton,
+  Tag,
+  Typography,
+} from "antd";
 import {
   UserOutlined,
   TeamOutlined,
@@ -92,11 +101,7 @@ const RegistrantList = () => {
   );
 
   if (statsLoading || activityLoading) {
-    return (
-      <Card>
-        <Skeleton active paragraph={{ rows: 4 }} />
-      </Card>
-    );
+    return <Skeleton active paragraph={{ rows: 4 }} />;
   }
 
   return (
@@ -104,7 +109,7 @@ const RegistrantList = () => {
       <MembersListModal open={modalState} toggle={toggleModal} />
 
       {/* Header Card */}
-      <Card>
+      <div>
         <Row justify="space-between" align="middle" gutter={[16, 16]}>
           <Col>
             <Statistic
@@ -124,10 +129,13 @@ const RegistrantList = () => {
             </Button>
           </Col>
         </Row>
-      </Card>
+      </div>
 
       {/* Statistics by Status */}
-      <Card title="Statistik Berdasarkan Status" size="small">
+      <div>
+        <Typography.Title level={5}>
+          Statistik Berdasarkan Status
+        </Typography.Title>
         <Row gutter={[16, 16]}>
           {primaryStatuses.map((status) => {
             const count = byStatus[status] || 0;
@@ -203,7 +211,7 @@ const RegistrantList = () => {
             );
           })}
         </Row>
-      </Card>
+      </div>
     </Space>
   );
 };

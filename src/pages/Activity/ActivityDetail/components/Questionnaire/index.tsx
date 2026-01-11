@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, Col, Empty, notification, Row, Space } from "antd";
+import { Button, Col, Empty, notification, Row, Space } from "antd";
 import { PlusOutlined, SaveFilled } from "@ant-design/icons";
 
 import QuestionField from "./components/QuestionField";
@@ -66,7 +66,7 @@ const QuestionnaireForm = () => {
   };
 
   return (
-    <Card>
+    <div>
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
         <Row justify="end">
           <Space>
@@ -111,7 +111,7 @@ const QuestionnaireForm = () => {
           </Col>
         </Row>
       </Space>
-    </Card>
+    </div>
   );
 };
 
