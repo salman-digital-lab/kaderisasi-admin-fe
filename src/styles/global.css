@@ -1,4 +1,4 @@
-Global Styles for Enhanced UI
+/* Global Styles for Enhanced UI */
 
 /* Import Inter font for better typography */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -151,6 +151,29 @@ body {
 .ant-table {
   border-radius: 0px;
   overflow: hidden;
+}
+
+/* Pagination styling */
+.ant-table-pagination {
+  display: flex !important;
+  justify-content: flex-end; /* Keep default but allow spreading */
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: none; /* Merge with table */
+  padding: 12px 8px;
+  background: #ffffff;
+  border-radius: 0px;
+  margin: 0 !important; /* Remove gap */
+  font-size: 13px;
+}
+
+.ant-table-pagination .ant-pagination-total-text {
+  flex: 1 1 auto;
+  text-align: left;
+  margin-right: auto !important;
+  padding-left: 0 !important; /* Remove any default padding if needed */
+  order: -1;
+  color: #00000080;
 }
 
 .ant-table-thead > tr > th {
