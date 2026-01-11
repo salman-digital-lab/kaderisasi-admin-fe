@@ -97,6 +97,7 @@ const ActivityTable = ({
       scroll={{ x: 800 }}
       size="small"
       className={styles["activity-table"]}
+      bordered
     />
   );
 };

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { getLifetimeLeaderboard } from "../../../api/services/leaderboard";
 import LifetimeLeaderboardTable from "./components/LifetimeLeaderboardTable";
 import LifetimeLeaderboardFilter from "./components/LifetimeLeaderboardFilter";
-import { Flex } from "antd";
 
 export default function LifetimeLeaderboard() {
   const [parameters, setParameters] = useState({
@@ -13,26 +12,33 @@ export default function LifetimeLeaderboard() {
     name: "",
   });
 
-  const { data, loading } = useRequest(() =>
-    getLifetimeLeaderboard({
-      page: String(parameters.page),
-      per_page: String(parameters.per_page),
-      email: parameters.email || undefined,
-      name: parameters.name || undefined,
-    }),
+  const { data, loading, refresh } = useRequest(
+    () =>
+      getLifetimeLeaderboard({
+        page: String(parameters.page),
+        per_page: String(parameters.per_page),
+        email: parameters.email || undefined,
+        name: parameters.name || undefined,
+      }),
     {
       refreshDeps: [parameters],
     },
   );
 
   return (
-    <Flex vertical gap="middle">
-      <LifetimeLeaderboardFilter setParameter={setParameters} />
-      <LifetimeLeaderboardTable
-        data={data}
-        loading={loading}
+    <div style={{ padding: 12 }}>
+      <LifetimeLeaderboardFilter
         setParameter={setParameters}
+        refresh={refresh}
+        loading={loading}
       />
-    </Flex>
+      <div style={{ marginTop: 12 }}>
+        <LifetimeLeaderboardTable
+          data={data}
+          loading={loading}
+          setParameter={setParameters}
+        />
+      </div>
+    </div>
   );
 }

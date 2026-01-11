@@ -1,9 +1,10 @@
-import { Input, Col, Row, Card, Form, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Input, Card, Button, Space, Tooltip } from "antd";
+import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
+import { useState } from "react";
 
-type FieldType = {
-  name?: string;
-  email?: string;
+const cardStyle = {
+  borderRadius: 0,
+  boxShadow: "none",
 };
 
 interface LifetimeLeaderboardFilterProps {
@@ -15,45 +16,81 @@ interface LifetimeLeaderboardFilterProps {
       name: string;
     }>
   >;
+  refresh?: () => void;
+  loading?: boolean;
 }
 
 export default function LifetimeLeaderboardFilter({
   setParameter,
+  refresh,
+  loading,
 }: LifetimeLeaderboardFilterProps) {
-  const [form] = Form.useForm<FieldType>();
+  const [nameInput, setNameInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+
+  const handleSearch = () => {
+    setParameter((prev) => ({
+      ...prev,
+      name: nameInput,
+      email: emailInput,
+      page: 1,
+    }));
+  };
 
   return (
-    <Card>
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={(val) =>
-          setParameter((prev) => ({
-            ...prev,
-            name: val.name || "",
-            email: val.email || "",
-            page: 1,
-          }))
-        }
+    <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
       >
-        <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="Nama" name="name">
-              <Input placeholder="Nama" allowClear />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="Email" name="email">
-              <Input placeholder="Email" allowClear />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row justify="end">
-          <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+        {/* Left: Filters */}
+        <Space size={12} wrap>
+          <Input.Search
+            placeholder="Cari nama"
+            allowClear
+            style={{ width: 200 }}
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            onSearch={handleSearch}
+            onPressEnter={handleSearch}
+            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          />
+
+          <Input
+            placeholder="Cari email"
+            allowClear
+            style={{ width: 220 }}
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+          />
+
+          <Button
+            icon={<SearchOutlined />}
+            type="primary"
+            onClick={handleSearch}
+          >
             Cari
           </Button>
-        </Row>
-      </Form>
+        </Space>
+
+        {/* Right: Actions */}
+        <Space size={8} wrap>
+          {refresh && (
+            <Tooltip title="Refresh Data">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={refresh}
+                loading={loading}
+              />
+            </Tooltip>
+          )}
+        </Space>
+      </div>
     </Card>
   );
 }

@@ -2,7 +2,6 @@ import { useRequest } from "ahooks";
 import { useState } from "react";
 import { getMonthlyLeaderboard } from "../../../api/services/leaderboard";
 import MonthlyLeaderboardTable from "./components/MonthlyLeaderboardTable";
-import { Flex } from "antd";
 import MonthlyLeaderboardFilter from "./components/MonthlyLeaderboardFilter";
 
 export default function MonthlyLeaderboard() {
@@ -15,28 +14,35 @@ export default function MonthlyLeaderboard() {
     name: "",
   });
 
-  const { data, loading } = useRequest(() =>
-    getMonthlyLeaderboard({
-      page: String(parameters.page),
-      per_page: String(parameters.per_page),
-      month: parameters.month || undefined,
-      year: parameters.year || undefined,
-      email: parameters.email || undefined,
-      name: parameters.name || undefined,
-    }),
+  const { data, loading, refresh } = useRequest(
+    () =>
+      getMonthlyLeaderboard({
+        page: String(parameters.page),
+        per_page: String(parameters.per_page),
+        month: parameters.month || undefined,
+        year: parameters.year || undefined,
+        email: parameters.email || undefined,
+        name: parameters.name || undefined,
+      }),
     {
       refreshDeps: [parameters],
     },
   );
 
   return (
-    <Flex vertical gap="middle">
-      <MonthlyLeaderboardFilter setParameter={setParameters} />
-      <MonthlyLeaderboardTable
-        data={data}
-        loading={loading}
+    <div style={{ padding: 12 }}>
+      <MonthlyLeaderboardFilter
         setParameter={setParameters}
+        refresh={refresh}
+        loading={loading}
       />
-    </Flex>
+      <div style={{ marginTop: 12 }}>
+        <MonthlyLeaderboardTable
+          data={data}
+          loading={loading}
+          setParameter={setParameters}
+        />
+      </div>
+    </div>
   );
 }

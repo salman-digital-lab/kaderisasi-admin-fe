@@ -9,6 +9,7 @@ import {
   Select,
   Tag,
   Tooltip,
+  Card,
 } from "antd";
 import {
   DownloadOutlined,
@@ -42,6 +43,11 @@ interface FilterValues {
   search?: string;
   status?: string;
 }
+
+const cardStyle = {
+  borderRadius: 0,
+  boxShadow: "none",
+};
 
 const ActivityParticipants = () => {
   const { id } = useParams<{ id: string }>();
@@ -225,106 +231,112 @@ const ActivityParticipants = () => {
         toggle={toggleAddParticipant}
       />
 
-      {/* Compact Toolbar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        {/* Left: Search & Filter */}
-        <Space size={12} wrap>
-          <Input.Search
-            placeholder="Cari nama atau email..."
-            allowClear
-            style={{ width: 240 }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onSearch={handleSearch}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
-
-          <Select
-            placeholder="Semua Status"
-            allowClear
-            style={{ width: 160 }}
-            options={statusOptions}
-            onChange={handleStatusFilter}
-            value={filters.status}
-          />
-        </Space>
-
-        {/* Right: Actions */}
-        <Space size={8} wrap>
-          {selectedRowKeys.length > 0 && (
-            <Tag color="blue" variant="filled" style={{ marginRight: 8 }}>
-              {selectedRowKeys.length} dipilih
-            </Tag>
-          )}
-
-          <StatusBulkActions
-            selectedRowKeys={selectedRowKeys}
-            activityId={id || ""}
-            customSelectionStatus={customSelectionStatus}
-            onSuccess={handleRefresh}
-          />
-
-          <Tooltip title="Export Data">
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleExport}
-              loading={isExporting}
+      {/* Filter Section */}
+      <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          {/* Left: Search & Filter */}
+          <Space size={12} wrap>
+            <Input.Search
+              placeholder="Cari nama atau email..."
+              allowClear
+              style={{ width: 240 }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onSearch={handleSearch}
+              onPressEnter={handleSearch}
+              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
             />
-          </Tooltip>
 
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={toggleAddParticipant}
-          >
-            Tambah
-          </Button>
-
-          <Tooltip title="Refresh Data">
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleRefresh}
-              loading={participantsLoading}
+            <Select
+              placeholder="Semua Status"
+              allowClear
+              style={{ width: 160 }}
+              options={statusOptions}
+              onChange={handleStatusFilter}
+              value={filters.status}
             />
-          </Tooltip>
+          </Space>
 
-          <ColumnManager
-            columns={columns}
-            onColumnsChange={handleColumnsChange}
-            activityId={id || ""}
-          />
-        </Space>
-      </div>
+          {/* Right: Actions */}
+          <Space size={8} wrap>
+            {selectedRowKeys.length > 0 && (
+              <Tag color="blue" variant="filled" style={{ marginRight: 8 }}>
+                {selectedRowKeys.length} dipilih
+              </Tag>
+            )}
+
+            <StatusBulkActions
+              selectedRowKeys={selectedRowKeys}
+              activityId={id || ""}
+              customSelectionStatus={customSelectionStatus}
+              onSuccess={handleRefresh}
+            />
+
+            <Tooltip title="Export Data">
+              <Button
+                icon={<DownloadOutlined />}
+                onClick={handleExport}
+                loading={isExporting}
+              />
+            </Tooltip>
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={toggleAddParticipant}
+            >
+              Tambah
+            </Button>
+
+            <Tooltip title="Refresh Data">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                loading={participantsLoading}
+              />
+            </Tooltip>
+
+            <ColumnManager
+              columns={columns}
+              onColumnsChange={handleColumnsChange}
+              activityId={id || ""}
+            />
+          </Space>
+        </div>
+      </Card>
 
       {/* Participants Table */}
-      <Table
-        rowKey="id"
-        columns={tableColumns}
-        dataSource={participantsData?.data}
-        loading={participantsLoading}
-        rowSelection={rowSelection}
-        pagination={{
-          current: participantsData?.meta?.current_page || pagination.page,
-          pageSize: participantsData?.meta?.per_page || pagination.per_page,
-          total: participantsData?.meta?.total,
-          showSizeChanger: true,
-          pageSizeOptions: ["25", "50", "100", "200"],
-          showTotal: (total, range) => `${range[0]}-${range[1]} dari ${total}`,
-        }}
-        onChange={handleTableChange}
-        scroll={{ x: 1400, y: "calc(100vh - 280px)" }}
-        sticky={{ offsetHeader: 0 }}
-      />
+      <div style={{ marginTop: 12 }}>
+        <Table
+          rowKey="id"
+          columns={tableColumns}
+          dataSource={participantsData?.data}
+          loading={participantsLoading}
+          rowSelection={rowSelection}
+          pagination={{
+            current: participantsData?.meta?.current_page || pagination.page,
+            pageSize: participantsData?.meta?.per_page || pagination.per_page,
+            total: participantsData?.meta?.total,
+            showSizeChanger: true,
+            pageSizeOptions: ["25", "50", "100", "200"],
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} dari ${total}`,
+          }}
+          onChange={handleTableChange}
+          scroll={{ x: 1400, y: "calc(100vh - 280px)" }}
+          sticky={{ offsetHeader: 0 }}
+          size="small"
+          bordered
+        />
+      </div>
     </div>
   );
 };

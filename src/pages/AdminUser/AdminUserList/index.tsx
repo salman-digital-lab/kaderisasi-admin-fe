@@ -1,9 +1,8 @@
-import { Flex } from "antd";
+import { useState } from "react";
+import { useRequest } from "ahooks";
 
 import AdminUserTable from "./components/AdminUserTable";
 import { getAdminUsers } from "../../../api/services/adminuser";
-import { useRequest } from "ahooks";
-import { useState } from "react";
 import AdminUserFilter from "./components/AdminUserFilter";
 
 export default function AdminUserList() {
@@ -13,8 +12,7 @@ export default function AdminUserList() {
     name: "",
   });
 
-
-  const { data, loading } = useRequest(
+  const { data, loading, refresh } = useRequest(
     () =>
       getAdminUsers({
         per_page: String(adminUserParam.per_page),
@@ -25,14 +23,21 @@ export default function AdminUserList() {
       refreshDeps: [adminUserParam],
     },
   );
+
   return (
-    <Flex vertical gap="middle">
-      <AdminUserFilter setParameter={setAdminUserParam} />
-      <AdminUserTable
-        data={data}
+    <div style={{ padding: 12 }}>
+      <AdminUserFilter
+        setParameter={setAdminUserParam}
+        refresh={refresh}
         loading={loading}
-        setAdminUserParam={setAdminUserParam}
       />
-    </Flex>
+      <div style={{ marginTop: 12 }}>
+        <AdminUserTable
+          data={data}
+          loading={loading}
+          setAdminUserParam={setAdminUserParam}
+        />
+      </div>
+    </div>
   );
 }

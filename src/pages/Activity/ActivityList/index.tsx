@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Space, Button, Input, Select, Tooltip } from "antd";
+import { Space, Button, Input, Select, Tooltip, Card } from "antd";
 import { useRequest, useToggle } from "ahooks";
 import {
   PlusOutlined,
@@ -16,6 +16,11 @@ import {
 import ActivityTable from "./components/ActivityTable";
 import ActivityForm from "./components/ActivityForm";
 import { FilterType } from "./constants/type";
+
+const cardStyle = {
+  borderRadius: 0,
+  boxShadow: "none",
+};
 
 const MainActivity = () => {
   const [isFormOpen, { toggle: toggleForm }] = useToggle(false);
@@ -77,72 +82,76 @@ const MainActivity = () => {
 
   return (
     <div style={{ padding: 12 }}>
-      {/* Toolbar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        {/* Left: Filters */}
-        <Space size={12} wrap>
-          <Input.Search
-            placeholder="Cari nama aktivitas"
-            allowClear
-            style={{ width: 240 }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onSearch={handleSearch}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
-
-          <Select
-            placeholder="Semua Tipe"
-            allowClear
-            style={{ width: 150 }}
-            options={ACTIVITY_TYPE_OPTIONS}
-            onChange={handleTypeChange}
-            value={parameters.activity_type}
-          />
-
-          <Select
-            placeholder="Semua Kategori"
-            allowClear
-            style={{ width: 160 }}
-            options={ACTIVITY_CATEGORY_OPTIONS}
-            onChange={handleCategoryChange}
-            value={parameters.activity_category}
-          />
-        </Space>
-
-        {/* Right: Actions */}
-        <Space size={8} wrap>
-          <Button type="primary" icon={<PlusOutlined />} onClick={toggleForm}>
-            Tambah
-          </Button>
-
-          <Tooltip title="Refresh Data">
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={refresh}
-              loading={loading}
+      {/* Filter Section */}
+      <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          {/* Left: Filters */}
+          <Space size={12} wrap>
+            <Input.Search
+              placeholder="Cari nama aktivitas"
+              allowClear
+              style={{ width: 240 }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onSearch={handleSearch}
+              onPressEnter={handleSearch}
+              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
             />
-          </Tooltip>
-        </Space>
-      </div>
 
-      <ActivityTable
-        data={data}
-        loading={loading}
-        error={error}
-        onRetry={refresh}
-        setParameter={setParameters}
-      />
+            <Select
+              placeholder="Semua Tipe"
+              allowClear
+              style={{ width: 150 }}
+              options={ACTIVITY_TYPE_OPTIONS}
+              onChange={handleTypeChange}
+              value={parameters.activity_type}
+            />
+
+            <Select
+              placeholder="Semua Kategori"
+              allowClear
+              style={{ width: 160 }}
+              options={ACTIVITY_CATEGORY_OPTIONS}
+              onChange={handleCategoryChange}
+              value={parameters.activity_category}
+            />
+          </Space>
+
+          {/* Right: Actions */}
+          <Space size={8} wrap>
+            <Button type="primary" icon={<PlusOutlined />} onClick={toggleForm}>
+              Tambah
+            </Button>
+
+            <Tooltip title="Refresh Data">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={refresh}
+                loading={loading}
+              />
+            </Tooltip>
+          </Space>
+        </div>
+      </Card>
+
+      {/* Table Section */}
+      <div style={{ marginTop: 12 }}>
+        <ActivityTable
+          data={data}
+          loading={loading}
+          error={error}
+          onRetry={refresh}
+          setParameter={setParameters}
+        />
+      </div>
 
       <ActivityForm open={isFormOpen} onClose={toggleForm} refresh={refresh} />
     </div>

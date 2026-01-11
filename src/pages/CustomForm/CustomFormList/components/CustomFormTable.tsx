@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Table, Button, Popconfirm, message } from "antd";
+import { Table, Button, Popconfirm, message } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -19,7 +19,7 @@ interface CustomFormTableProps {
       page: number;
       per_page: number;
       search: string;
-      feature_type?: 'activity_registration' | 'club_registration';
+      feature_type?: "activity_registration" | "club_registration";
       feature_id?: string;
       is_active?: boolean;
     }>
@@ -27,11 +27,11 @@ interface CustomFormTableProps {
   refresh: () => void;
 }
 
-const CustomFormTable: React.FC<CustomFormTableProps> = ({ 
-  data, 
-  loading, 
+const CustomFormTable: React.FC<CustomFormTableProps> = ({
+  data,
+  loading,
   setParameter,
-  refresh 
+  refresh,
 }) => {
   const handleDelete = async (id: number) => {
     try {
@@ -42,14 +42,12 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
     }
   };
 
-
-
-  const enhancedSchema = TABLE_SCHEMA?.map(column => {
-    if (column.key === 'actions') {
+  const enhancedSchema = TABLE_SCHEMA?.map((column) => {
+    if (column.key === "actions") {
       return {
         ...column,
         render: (_: any, record: CustomForm) => (
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <Link to={`/custom-form/${record.id}/edit`}>
               <Button icon={<EditOutlined />} size="small">
                 Edit
@@ -74,30 +72,32 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
   });
 
   return (
-    <Card>
-      <Table
-        rowKey="id"
-        columns={enhancedSchema}
-        dataSource={data?.data}
-        pagination={{
-          current: data?.meta.current_page,
-          pageSize: data?.meta.per_page,
-          showSizeChanger: true,
-          total: data?.meta.total,
-          showTotal: (total, range) =>
-            `${range[0]}-${range[1]} of ${total} items`,
-        }}
-        loading={loading}
-        onChange={(pagination) =>
-          setParameter((prev) => ({
-            ...prev,
-            page: pagination.current || 1,
-            per_page: pagination.pageSize || 10,
-          }))
-        }
-        scroll={{ x: 1500 }}
-      />
-    </Card>
+    <Table
+      rowKey="id"
+      columns={enhancedSchema}
+      dataSource={data?.data}
+      pagination={{
+        current: data?.meta.current_page,
+        pageSize: data?.meta.per_page,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        total: data?.meta.total,
+        showTotal: (total, range) =>
+          `Menampilkan ${range[0]}-${range[1]} dari ${total} form`,
+        pageSizeOptions: ["10", "20", "50", "100"],
+      }}
+      loading={loading}
+      onChange={(pagination) =>
+        setParameter((prev) => ({
+          ...prev,
+          page: pagination.current || 1,
+          per_page: pagination.pageSize || 10,
+        }))
+      }
+      scroll={{ x: 1200 }}
+      size="small"
+      bordered
+    />
   );
 };
 

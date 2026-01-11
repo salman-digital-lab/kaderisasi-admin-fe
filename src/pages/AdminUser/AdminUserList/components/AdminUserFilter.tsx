@@ -1,10 +1,15 @@
 import React, { useState } from "react";
-import { Input, Col, Row, Button, Card, Form, Space } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Input, Button, Card, Space, Tooltip } from "antd";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import AddAdminUser from "./modal/AddAdminUser";
 
-type FieldType = {
-  name?: string;
+const cardStyle = {
+  borderRadius: 0,
+  boxShadow: "none",
 };
 
 type FilterProps = {
@@ -15,48 +20,68 @@ type FilterProps = {
       name: string;
     }>
   >;
+  refresh?: () => void;
+  loading?: boolean;
 };
 
-const AdminUserFilter = ({ setParameter }: FilterProps) => {
-  const [form] = Form.useForm<FieldType>();
+const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+
+  const handleSearch = () => {
+    setParameter((prev) => ({
+      ...prev,
+      name: searchInput,
+      page: 1,
+    }));
+  };
 
   return (
-    <Card>
+    <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
       <AddAdminUser isOpen={isOpen} setIsOpen={setIsOpen} />
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={(val) =>
-          setParameter((prev) => ({
-            ...prev,
-            name: val.name || "",
-            page: 1,
-          }))
-        }
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
       >
-        <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="Email" name="name">
-              <Input placeholder="Email" allowClear />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row justify="end">
-          <Space>
-            <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
-              Cari
-            </Button>
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              onClick={() => setIsOpen(true)}
-            >
-              Tambah
-            </Button>
-          </Space>
-        </Row>
-      </Form>
+        {/* Left: Filters */}
+        <Space size={12} wrap>
+          <Input.Search
+            placeholder="Cari email"
+            allowClear
+            style={{ width: 280 }}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onSearch={handleSearch}
+            onPressEnter={handleSearch}
+            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          />
+        </Space>
+
+        {/* Right: Actions */}
+        <Space size={8} wrap>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsOpen(true)}
+          >
+            Tambah
+          </Button>
+          {refresh && (
+            <Tooltip title="Refresh Data">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={refresh}
+                loading={loading}
+              />
+            </Tooltip>
+          )}
+        </Space>
+      </div>
     </Card>
   );
 };

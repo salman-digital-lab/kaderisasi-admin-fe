@@ -1,15 +1,16 @@
-import React from "react";
-import { Col, Row, Button, Card, Form, Space, Select, Input } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
+import { Button, Card, Space, Select, Input, Tooltip } from "antd";
+import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
-import { PROBLEM_STATUS_OPTIONS, GENDER_OPTION } from "../../../../constants/options";
+import {
+  PROBLEM_STATUS_OPTIONS,
+  GENDER_OPTION,
+} from "../../../../constants/options";
 import { GENDER } from "../../../../types/constants/profile";
 
-type FieldType = {
-  status?: PROBLEM_STATUS_ENUM;
-  name?: string;
-  gender?: GENDER;
-  admin_display_name?: string;
+const cardStyle = {
+  borderRadius: 0,
+  boxShadow: "none",
 };
 
 type FilterProps = {
@@ -23,71 +24,101 @@ type FilterProps = {
       admin_display_name?: string;
     }>
   >;
+  refresh?: () => void;
+  loading?: boolean;
 };
 
-const RuangCurhatFilter = ({ setParameter }: FilterProps) => {
-  const [form] = Form.useForm<FieldType>();
+const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
+  const [nameInput, setNameInput] = useState("");
+  const [statusValue, setStatusValue] = useState<
+    PROBLEM_STATUS_ENUM | undefined
+  >();
+  const [genderValue, setGenderValue] = useState<GENDER | undefined>();
+  const [adminNameInput, setAdminNameInput] = useState("");
+
+  const handleSearch = () => {
+    setParameter((prev) => ({
+      ...prev,
+      status: statusValue,
+      name: nameInput || undefined,
+      gender: genderValue,
+      admin_display_name: adminNameInput || undefined,
+      page: 1,
+    }));
+  };
 
   return (
-    <Card>
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={(val) =>
-          setParameter((prev) => ({
-            ...prev,
-            status: val.status,
-            name: val.name,
-            gender: val.gender,
-            admin_display_name: val.admin_display_name,
-            page: 1,
-          }))
-        }
+    <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
       >
-        <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="Status" name="status">
-              <Select
-                placeholder="Status"
-                allowClear
-                options={PROBLEM_STATUS_OPTIONS}
+        {/* Left: Filters */}
+        <Space size={12} wrap>
+          <Select
+            placeholder="Status"
+            allowClear
+            style={{ width: 140 }}
+            value={statusValue}
+            onChange={setStatusValue}
+            options={PROBLEM_STATUS_OPTIONS}
+          />
+
+          <Input.Search
+            placeholder="Nama pendaftar"
+            allowClear
+            style={{ width: 180 }}
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            onSearch={handleSearch}
+            onPressEnter={handleSearch}
+            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          />
+
+          <Select
+            placeholder="Jenis Kelamin"
+            allowClear
+            style={{ width: 140 }}
+            value={genderValue}
+            onChange={setGenderValue}
+            options={GENDER_OPTION}
+          />
+
+          <Input
+            placeholder="Nama konselor"
+            allowClear
+            style={{ width: 160 }}
+            value={adminNameInput}
+            onChange={(e) => setAdminNameInput(e.target.value)}
+          />
+
+          <Button
+            icon={<SearchOutlined />}
+            type="primary"
+            onClick={handleSearch}
+          >
+            Cari
+          </Button>
+        </Space>
+
+        {/* Right: Actions */}
+        <Space size={8} wrap>
+          {refresh && (
+            <Tooltip title="Refresh Data">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={refresh}
+                loading={loading}
               />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="Nama Pendaftar Masalah" name="name">
-              <Input
-                placeholder="Cari berdasarkan nama"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="Jenis Kelamin" name="gender">
-              <Select
-                placeholder="Pilih jenis kelamin"
-                allowClear
-                options={GENDER_OPTION}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="Nama Konselor" name="admin_display_name">
-              <Input
-                placeholder="Cari berdasarkan nama konselor"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row justify="end">
-          <Space>
-            <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
-              Cari
-            </Button>
-          </Space>
-        </Row>
-      </Form>
+            </Tooltip>
+          )}
+        </Space>
+      </div>
     </Card>
   );
 };

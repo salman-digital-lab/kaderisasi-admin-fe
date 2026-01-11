@@ -1,4 +1,4 @@
-import { Card, Table } from "antd";
+import { Table } from "antd";
 
 import { TABLE_SCHEMA } from "../constants/schema";
 import EditAdminUser from "./modal/EditAdminUser";
@@ -32,9 +32,8 @@ const AdminUserTable = ({
   const [editedRow, setEditedRow] = useState<AdminUser | undefined>();
   const [passwordRow, setPasswordRow] = useState<AdminUser | undefined>();
 
-
   return (
-    <Card>
+    <>
       <EditAdminUser data={editedRow} setData={setEditedRow} />
       <EditPasswordAdminUser data={passwordRow} setData={setPasswordRow} />
       <Table
@@ -45,9 +44,11 @@ const AdminUserTable = ({
           current: data?.meta.current_page,
           pageSize: data?.meta.per_page,
           showSizeChanger: true,
+          showQuickJumper: true,
           total: data?.meta.total,
           showTotal: (total, range) =>
-            `${range[0]}-${range[1]} of ${total} items`,
+            `Menampilkan ${range[0]}-${range[1]} dari ${total} admin`,
+          pageSizeOptions: ["10", "20", "50", "100"],
         }}
         loading={loading}
         onChange={(pagination) =>
@@ -57,9 +58,11 @@ const AdminUserTable = ({
             per_page: pagination.pageSize || 10,
           }))
         }
-        scroll={{ x: 1200 }}
+        scroll={{ x: 800 }}
+        size="small"
+        bordered
       />
-    </Card>
+    </>
   );
 };
 

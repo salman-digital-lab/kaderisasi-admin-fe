@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Space } from "antd";
 import { useRequest } from "ahooks";
 
 import { getClubs } from "../../../api/services/club";
@@ -24,18 +23,20 @@ const ClubList = () => {
       }),
     {
       refreshDeps: [parameters],
-    }
+    },
   );
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <ClubFilter setParameter={setParameters} refresh={refresh} />
-      <ClubTable
-        data={data}
-        loading={loading}
+    <div style={{ padding: 12 }}>
+      <ClubFilter
         setParameter={setParameters}
+        refresh={refresh}
+        loading={loading}
       />
-    </Space>
+      <div style={{ marginTop: 12 }}>
+        <ClubTable data={data} loading={loading} setParameter={setParameters} />
+      </div>
+    </div>
   );
 };
 

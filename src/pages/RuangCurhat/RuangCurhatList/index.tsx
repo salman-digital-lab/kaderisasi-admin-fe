@@ -1,4 +1,3 @@
-import { Flex } from "antd";
 import { useRequest } from "ahooks";
 import { useState } from "react";
 import { getRuangCurhats } from "../../../api/services/ruangcurhat";
@@ -24,7 +23,7 @@ export default function RuangCurhatList() {
     admin_display_name: undefined,
   });
 
-  const { data, loading } = useRequest(
+  const { data, loading, refresh } = useRequest(
     () =>
       getRuangCurhats({
         per_page: String(parameters.per_page),
@@ -40,13 +39,19 @@ export default function RuangCurhatList() {
   );
 
   return (
-    <Flex vertical gap="middle">
-      <RuangCurhatFilter setParameter={setParameters} />
-      <RuangCurhatTable
-        data={data}
-        loading={loading}
+    <div style={{ padding: 12 }}>
+      <RuangCurhatFilter
         setParameter={setParameters}
+        refresh={refresh}
+        loading={loading}
       />
-    </Flex>
+      <div style={{ marginTop: 12 }}>
+        <RuangCurhatTable
+          data={data}
+          loading={loading}
+          setParameter={setParameters}
+        />
+      </div>
+    </div>
   );
 }
