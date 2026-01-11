@@ -8,6 +8,7 @@ import {
   Tag,
   Divider,
   Skeleton,
+  notification,
 } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
@@ -78,6 +79,10 @@ const CustomFormSelection = () => {
         refreshCurrentForm();
         setIsModalOpen(false);
         setSelectedFormId(undefined);
+        notification.success({
+          message: "Berhasil",
+          description: "Form berhasil dilampirkan ke kegiatan",
+        });
       },
     },
   );
@@ -105,6 +110,10 @@ const CustomFormSelection = () => {
 
         refreshCurrentForm();
         setIsModalOpen(false);
+        notification.success({
+          message: "Berhasil",
+          description: "Form berhasil dibuat",
+        });
         return newForm;
       },
       {

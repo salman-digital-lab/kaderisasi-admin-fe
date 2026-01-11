@@ -1,4 +1,3 @@
-import { notification } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
   GetCustomFormsReq,
@@ -17,7 +16,9 @@ export const getCustomForms = async (props: GetCustomFormsReq) => {
   try {
     const searchParams = removeEmptyValueFromObj(props);
     const urlSearch = new URLSearchParams(searchParams).toString();
-    const res = await axios.get<GetCustomFormsResp>("/custom-forms?" + urlSearch);
+    const res = await axios.get<GetCustomFormsResp>(
+      "/custom-forms?" + urlSearch,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -36,10 +37,6 @@ export const getCustomForm = async (id: number) => {
 export const createCustomForm = async (data: CreateCustomFormReq) => {
   try {
     const res = await axios.post<CreateCustomFormResp>("/custom-forms", data);
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil dibuat",
-    });
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -47,13 +44,15 @@ export const createCustomForm = async (data: CreateCustomFormReq) => {
   }
 };
 
-export const updateCustomForm = async (id: number, data: UpdateCustomFormReq) => {
+export const updateCustomForm = async (
+  id: number,
+  data: UpdateCustomFormReq,
+) => {
   try {
-    const res = await axios.put<UpdateCustomFormResp>("/custom-forms/" + id, data);
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil diubah",
-    });
+    const res = await axios.put<UpdateCustomFormResp>(
+      "/custom-forms/" + id,
+      data,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -64,10 +63,6 @@ export const updateCustomForm = async (id: number, data: UpdateCustomFormReq) =>
 export const deleteCustomForm = async (id: number) => {
   try {
     const res = await axios.delete<DeleteCustomFormResp>("/custom-forms/" + id);
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil dihapus",
-    });
     return res.data;
   } catch (error) {
     handleError(error);
@@ -77,11 +72,9 @@ export const deleteCustomForm = async (id: number) => {
 
 export const toggleCustomFormActive = async (id: number) => {
   try {
-    const res = await axios.put<UpdateCustomFormResp>("/custom-forms/" + id + "/toggle-active");
-    notification.success({
-      message: "Berhasil",
-      description: "Status form berhasil diubah",
-    });
+    const res = await axios.put<UpdateCustomFormResp>(
+      "/custom-forms/" + id + "/toggle-active",
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -89,20 +82,31 @@ export const toggleCustomFormActive = async (id: number) => {
   }
 };
 
-export const getCustomFormByFeature = async (featureType: string, featureId: string) => {
+export const getCustomFormByFeature = async (
+  featureType: string,
+  featureId: string,
+) => {
   try {
-    const res = await axios.get<GetCustomFormResp>(`/custom-forms/by-feature?feature_type=${featureType}&feature_id=${featureId}`);
+    const res = await axios.get<GetCustomFormResp>(
+      `/custom-forms/by-feature?feature_type=${featureType}&feature_id=${featureId}`,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-export const getUnattachedForms = async (props: { page?: string; per_page?: string; search?: string }) => {
+export const getUnattachedForms = async (props: {
+  page?: string;
+  per_page?: string;
+  search?: string;
+}) => {
   try {
     const searchParams = removeEmptyValueFromObj(props);
     const urlSearch = new URLSearchParams(searchParams).toString();
-    const res = await axios.get<GetCustomFormsResp>("/custom-forms/unattached?" + urlSearch);
+    const res = await axios.get<GetCustomFormsResp>(
+      "/custom-forms/unattached?" + urlSearch,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -111,7 +115,7 @@ export const getUnattachedForms = async (props: { page?: string; per_page?: stri
 
 export const getAvailableActivities = async (currentFormId?: number) => {
   try {
-    const params = currentFormId ? `?current_form_id=${currentFormId}` : '';
+    const params = currentFormId ? `?current_form_id=${currentFormId}` : "";
     const res = await axios.get(`/custom-forms/available-activities${params}`);
     return res.data.data;
   } catch (error) {
@@ -121,7 +125,7 @@ export const getAvailableActivities = async (currentFormId?: number) => {
 
 export const getAvailableClubs = async (currentFormId?: number) => {
   try {
-    const params = currentFormId ? `?current_form_id=${currentFormId}` : '';
+    const params = currentFormId ? `?current_form_id=${currentFormId}` : "";
     const res = await axios.get(`/custom-forms/available-clubs${params}`);
     return res.data.data;
   } catch (error) {
@@ -131,11 +135,10 @@ export const getAvailableClubs = async (currentFormId?: number) => {
 
 export const attachFormToClub = async (formId: number, clubId: number) => {
   try {
-    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/attach-club`, { clubId });
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil dilampirkan ke klub",
-    });
+    const res = await axios.put<UpdateCustomFormResp>(
+      `/custom-forms/${formId}/attach-club`,
+      { clubId },
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -145,11 +148,9 @@ export const attachFormToClub = async (formId: number, clubId: number) => {
 
 export const detachFormFromClub = async (formId: number) => {
   try {
-    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/detach-club`);
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil dilepas dari klub",
-    });
+    const res = await axios.put<UpdateCustomFormResp>(
+      `/custom-forms/${formId}/detach-club`,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -157,13 +158,15 @@ export const detachFormFromClub = async (formId: number) => {
   }
 };
 
-export const attachFormToActivity = async (formId: number, activityId: number) => {
+export const attachFormToActivity = async (
+  formId: number,
+  activityId: number,
+) => {
   try {
-    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/attach-activity`, { activityId });
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil dilampirkan ke kegiatan",
-    });
+    const res = await axios.put<UpdateCustomFormResp>(
+      `/custom-forms/${formId}/attach-activity`,
+      { activityId },
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -173,11 +176,9 @@ export const attachFormToActivity = async (formId: number, activityId: number) =
 
 export const detachFormFromActivity = async (formId: number) => {
   try {
-    const res = await axios.put<UpdateCustomFormResp>(`/custom-forms/${formId}/detach-activity`);
-    notification.success({
-      message: "Berhasil",
-      description: "Form berhasil dilepas dari kegiatan",
-    });
+    const res = await axios.put<UpdateCustomFormResp>(
+      `/custom-forms/${formId}/detach-activity`,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);

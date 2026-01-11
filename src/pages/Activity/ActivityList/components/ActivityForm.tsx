@@ -6,6 +6,7 @@ import {
   Form,
   Input,
   Modal,
+  notification,
   Row,
   Select,
   Tooltip,
@@ -80,6 +81,10 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
               activity_end: value.activity_date
                 ? value.activity_date[1].format("YYYY-MM-DD")
                 : undefined,
+            });
+            notification.success({
+              message: "Berhasil",
+              description: "Kegiatan berhasil ditambahkan",
             });
             form.resetFields();
             refresh();

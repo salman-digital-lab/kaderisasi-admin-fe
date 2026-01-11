@@ -1,4 +1,3 @@
-import { notification } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
   getActivitiesResp,
@@ -44,10 +43,6 @@ export const getActivity = async (id: number) => {
 export const putActivity = async (id: number, data: putActivityReq) => {
   try {
     const res = await axios.put<putActivityResp>("/activities/" + id, data);
-    notification.success({
-      message: "Berhasil",
-      description: "Data berhasil diubah",
-    });
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -63,10 +58,6 @@ export const putRemoveActivityImage = async (
       "/activities/" + id + "/delete-image",
       data,
     );
-    notification.success({
-      message: "Berhasil",
-      description: "Gambar berhasil dihapus",
-    });
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -101,10 +92,6 @@ export const postActivityImages = async (
       "/activities/" + id + "/images",
       formData,
     );
-    notification.success({
-      message: "Berhasil",
-      description: "Gambar berhasil diunggah",
-    });
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -115,10 +102,6 @@ export const postActivityImages = async (
 export const postActivity = async (data: postActivityReq) => {
   try {
     const res = await axios.post<postActivityResp>("/activities", data);
-    notification.success({
-      message: "Berhasil",
-      description: "Kegiatan berhasil ditambahkan",
-    });
     return res.data.data;
   } catch (error) {
     handleError(error);

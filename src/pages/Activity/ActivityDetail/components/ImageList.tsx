@@ -259,6 +259,10 @@ const ImageList = () => {
       await putRemoveActivityImage(Number(id) || 0, { index });
       const newFileList = fileList.filter((_, i) => i !== index);
       setFileList(newFileList);
+      notification.success({
+        message: "Berhasil",
+        description: "Gambar berhasil dihapus",
+      });
     } catch {
       notification.error({
         message: "Gagal",
@@ -340,6 +344,10 @@ const ImageList = () => {
           url: await getBase64(file),
         },
       ]);
+      notification.success({
+        message: "Berhasil",
+        description: "Gambar berhasil diunggah",
+      });
     } catch {
       notification.error({
         message: "Gagal",
