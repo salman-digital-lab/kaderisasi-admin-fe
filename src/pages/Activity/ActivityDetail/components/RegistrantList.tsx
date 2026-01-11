@@ -1,4 +1,4 @@
-import { Button, Space, Row, Col, Skeleton, Tag, Typography } from "antd";
+import { Button, Space, Row, Col, Skeleton, Tag, Typography, Card } from "antd";
 import {
   TeamOutlined,
   CheckCircleOutlined,
@@ -99,26 +99,22 @@ const RegistrantList = () => {
       <MembersListModal open={modalState} toggle={toggleModal} />
 
       {/* Summary Banner */}
-      <div
-        style={{
-          background: "#e6f7ff",
-          border: "1px solid #91d5ff",
-          borderRadius: 8,
-          padding: "24px",
-          marginBottom: 24,
-        }}
+      <Card
+        variant="outlined"
+        style={{ borderRadius: 0, marginBottom: 24 }}
+        styles={{ body: { padding: "24px" } }}
       >
         <Row justify="space-between" align="middle" gutter={[16, 16]}>
           <Col>
             <Space direction="vertical" size={4}>
-              <Typography.Text type="secondary" style={{ fontSize: 14 }}>
+              <Typography.Text type="secondary" style={{ fontSize: 13 }}>
                 Total Peserta Terdaftar
               </Typography.Text>
               <Space align="center" size="small">
-                <TeamOutlined style={{ fontSize: 28, color: "#1890ff" }} />
+                <TeamOutlined style={{ fontSize: 24, color: "#8c8c8c" }} />
                 <Typography.Title
-                  level={2}
-                  style={{ margin: 0, color: "#1890ff" }}
+                  level={3}
+                  style={{ margin: 0, fontWeight: 600 }}
                 >
                   {total}
                 </Typography.Title>
@@ -128,7 +124,6 @@ const RegistrantList = () => {
           </Col>
           <Col>
             <Button
-              type="primary"
               icon={<ArrowRightOutlined />}
               onClick={handleManageParticipants}
             >
@@ -136,7 +131,7 @@ const RegistrantList = () => {
             </Button>
           </Col>
         </Row>
-      </div>
+      </Card>
 
       {/* Statistics by Status */}
       <div>
@@ -149,48 +144,47 @@ const RegistrantList = () => {
             const config = statusConfig[status];
             if (!config) return null;
 
-            const percentage =
-              total > 0 ? Math.round((count / total) * 100) : 0;
-
             return (
               <Col xs={12} sm={8} md={6} lg={4} key={status}>
-                <div
+                <Card
+                  variant="outlined"
                   style={{
-                    padding: "16px",
-                    borderRadius: "8px",
-                    border: "1px solid #e8e8e8",
-                    background: "#fff",
                     height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    transition: "all 0.3s",
-                    cursor: "default",
+                    borderRadius: 0,
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow =
-                      "0 2px 8px rgba(0,0,0,0.08)";
-                    e.currentTarget.style.borderColor = "#d9d9d9";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = "none";
-                    e.currentTarget.style.borderColor = "#e8e8e8";
-                  }}
+                  styles={{ body: { padding: "16px" } }}
                 >
                   <div
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      marginBottom: 12,
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
                     }}
                   >
+                    <div>
+                      <Typography.Text
+                        type="secondary"
+                        style={{ fontSize: 13 }}
+                      >
+                        {config.label}
+                      </Typography.Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Typography.Title
+                          level={3}
+                          style={{ margin: 0, fontWeight: 600 }}
+                        >
+                          {count}
+                        </Typography.Title>
+                        <Typography.Text
+                          type="secondary"
+                          style={{ fontSize: 12 }}
+                        >
+                          {total > 0 ? Math.round((count / total) * 100) : 0}%
+                        </Typography.Text>
+                      </div>
+                    </div>
                     <div
                       style={{
-                        marginRight: 8,
-                        display: "flex",
-                        padding: 6,
-                        background: `${config.color === "blue" ? "#e6f7ff" : config.color === "green" ? "#f6ffed" : config.color === "red" ? "#fff1f0" : "#f9f0ff"}`,
-                        borderRadius: "50%",
                         color:
                           config.color === "blue"
                             ? "#1890ff"
@@ -199,26 +193,13 @@ const RegistrantList = () => {
                               : config.color === "red"
                                 ? "#ff4d4f"
                                 : "#722ed1",
+                        fontSize: 20,
                       }}
                     >
                       {config.icon}
                     </div>
-                    <Typography.Text
-                      strong
-                      style={{ fontSize: 13, lineHeight: 1.2 }}
-                    >
-                      {config.label}
-                    </Typography.Text>
                   </div>
-                  <div>
-                    <Typography.Title level={3} style={{ margin: 0 }}>
-                      {count}
-                    </Typography.Title>
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      {percentage}% dari total
-                    </Typography.Text>
-                  </div>
-                </div>
+                </Card>
               </Col>
             );
           })}
@@ -226,44 +207,52 @@ const RegistrantList = () => {
           {/* Custom statuses */}
           {customStatuses.map((status) => {
             const count = byStatus[status] || 0;
-            const percentage =
-              total > 0 ? Math.round((count / total) * 100) : 0;
 
             return (
               <Col xs={12} sm={8} md={6} lg={4} key={status}>
-                <div
+                <Card
+                  variant="outlined"
                   style={{
-                    padding: "16px",
-                    borderRadius: "8px",
-                    border: "1px solid #e8e8e8",
-                    background: "#fff",
                     height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
+                    borderRadius: 0,
                   }}
+                  styles={{ body: { padding: "16px" } }}
                 >
-                  <div style={{ marginBottom: 12 }}>
-                    <Tag
-                      style={{
-                        margin: 0,
-                        maxWidth: "100%",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {status}
-                    </Tag>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div style={{ width: "100%" }}>
+                      <Tag
+                        style={{
+                          margin: "0 0 4px 0",
+                          maxWidth: "100%",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {status}
+                      </Tag>
+                      <div>
+                        <Typography.Title
+                          level={3}
+                          style={{ margin: 0, fontWeight: 600 }}
+                        >
+                          {count}
+                        </Typography.Title>
+                        <Typography.Text
+                          type="secondary"
+                          style={{ fontSize: 12 }}
+                        >
+                          {total > 0 ? Math.round((count / total) * 100) : 0}%
+                        </Typography.Text>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Typography.Title level={3} style={{ margin: 0 }}>
-                      {count}
-                    </Typography.Title>
-                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                      {percentage}% dari total
-                    </Typography.Text>
-                  </div>
-                </div>
+                </Card>
               </Col>
             );
           })}
