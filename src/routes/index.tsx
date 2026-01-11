@@ -119,6 +119,12 @@ const routes = createBrowserRouter(
           ),
         },
         {
+          path: "activity/:id/participants/:participantId",
+          element: (
+            <RoleUser element={<RegistrantDetail />} permission="kegiatan" />
+          ),
+        },
+        {
           path: "activity/:activityId/form/:formId/edit",
           element: (
             <RoleUser element={<CustomFormEdit />} permission="kegiatan" />

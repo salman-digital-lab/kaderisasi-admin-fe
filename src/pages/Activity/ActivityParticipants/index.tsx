@@ -318,7 +318,10 @@ const ActivityParticipants = () => {
         <Table
           rowKey="id"
           columns={tableColumns}
-          dataSource={participantsData?.data}
+          dataSource={participantsData?.data?.map((item: any) => ({
+            ...item,
+            activity_id: Number(id),
+          }))}
           loading={participantsLoading}
           rowSelection={rowSelection}
           pagination={{

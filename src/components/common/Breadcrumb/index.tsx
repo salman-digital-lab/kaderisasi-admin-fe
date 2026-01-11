@@ -40,7 +40,10 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
 };
 
 // Helper function to get breadcrumbs for dynamic routes
-const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
+const getDynamicBreadcrumbs = (
+  pathname: string,
+  state?: any,
+): BreadcrumbItem[] => {
   // Member detail pages
   if (pathname.match(/^\/member\/\d+$/)) {
     return [
@@ -59,6 +62,17 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
 
   // Registrant detail pages
   if (pathname.match(/^\/registrant\/\d+$/)) {
+    if (state?.activityId) {
+      return [
+        { path: "/activity", title: "Daftar Kegiatan" },
+        { path: `/activity/${state.activityId}`, title: "Detail Kegiatan" },
+        {
+          path: `/activity/${state.activityId}/participants`,
+          title: "Kelola Peserta",
+        },
+        { path: "", title: "Detail Peserta" },
+      ];
+    }
     return [
       { path: "/activity", title: "Daftar Kegiatan" },
       { path: "", title: "Detail Kegiatan" },
@@ -73,6 +87,20 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
       { path: "/activity", title: "Daftar Kegiatan" },
       { path: `/activity/${activityId}`, title: "Detail Kegiatan" },
       { path: "", title: "Kelola Peserta" },
+    ];
+  }
+
+  // Registrant detail pages (Nested URL)
+  if (pathname.match(/^\/activity\/\d+\/participants\/\d+$/)) {
+    const activityId = pathname.split("/")[2];
+    return [
+      { path: "/activity", title: "Daftar Kegiatan" },
+      { path: `/activity/${activityId}`, title: "Detail Kegiatan" },
+      {
+        path: `/activity/${activityId}/participants`,
+        title: "Kelola Peserta",
+      },
+      { path: "", title: "Detail Peserta" },
     ];
   }
 
@@ -146,7 +174,7 @@ const Breadcrumb: React.FC = () => {
     }
 
     // Then check for dynamic routes
-    return getDynamicBreadcrumbs(location.pathname);
+    return getDynamicBreadcrumbs(location.pathname, location.state);
   };
 
   const breadcrumbs = getBreadcrumbs();

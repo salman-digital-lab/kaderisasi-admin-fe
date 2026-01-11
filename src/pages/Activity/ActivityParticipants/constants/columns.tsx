@@ -34,10 +34,12 @@ const NameLink = memo(
     text,
     recordId,
     email,
+    activityId,
   }: {
     text: string;
     recordId: number;
     email?: string;
+    activityId: number;
   }) => (
     <div
       style={{
@@ -81,7 +83,7 @@ const NameLink = memo(
           </Tooltip>
         )}
       </div>
-      <Link to={"/registrant/" + recordId}>
+      <Link to={`/activity/${activityId}/participants/${recordId}`}>
         <Button size="small" icon={<EyeOutlined />} />
       </Link>
     </div>
@@ -146,6 +148,7 @@ export const ALL_COLUMNS: ColumnConfig[] = [
         text={text as string}
         recordId={record.id}
         email={record.email}
+        activityId={record.activity_id}
       />
     ),
   },
