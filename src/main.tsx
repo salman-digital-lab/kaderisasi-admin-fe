@@ -24,7 +24,6 @@ const customTheme = {
       borderRadius: 0,
       headerBorderRadius: 0,
       footerBorderRadius: 0,
-      borderColor: "transparent",
     },
   },
 };
