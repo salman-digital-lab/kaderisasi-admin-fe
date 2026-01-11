@@ -1,68 +1,42 @@
 import { Breadcrumb as AntBreadcrumb } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  HomeOutlined,
-  UserOutlined,
-  ScheduleOutlined,
-  DatabaseOutlined,
-  WechatOutlined,
-  SettingOutlined,
-  TrophyOutlined,
-  TeamOutlined,
-} from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 interface BreadcrumbItem {
   path: string;
   title: string;
-  icon?: React.ReactNode;
 }
 
 // Hardcoded breadcrumb mappings for all routes
 const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
-  "/": [{ path: "/", title: "Beranda", icon: <HomeOutlined /> }],
-  "/dashboard": [{ path: "/", title: "Beranda", icon: <HomeOutlined /> }],
-  "/member": [{ path: "/member", title: "Anggota", icon: <UserOutlined /> }],
-  "/activity": [
-    { path: "/activity", title: "Kegiatan", icon: <ScheduleOutlined /> },
-  ],
+  "/": [{ path: "/", title: "Beranda" }],
+  "/dashboard": [{ path: "/", title: "Beranda" }],
+  "/member": [{ path: "/member", title: "Daftar Anggota" }],
+  "/activity": [{ path: "/activity", title: "Daftar Kegiatan" }],
   "/universities": [
     {
       path: "/universities",
-      title: "Perguruan Tinggi",
-      icon: <DatabaseOutlined />,
+      title: "Daftar Perguruan Tinggi",
     },
   ],
-  "/province": [
-    { path: "/province", title: "Provinsi", icon: <DatabaseOutlined /> },
-  ],
-  "/ruang-curhat": [
-    { path: "/ruang-curhat", title: "Ruang Curhat", icon: <WechatOutlined /> },
-  ],
-  "/admin-users": [
-    { path: "/admin-users", title: "Akun Admin", icon: <SettingOutlined /> },
-  ],
-  "/achievement": [
-    { path: "/achievement", title: "Prestasi", icon: <TrophyOutlined /> },
-  ],
+  "/province": [{ path: "/province", title: "Daftar Provinsi" }],
+  "/ruang-curhat": [{ path: "/ruang-curhat", title: "Daftar Ruang Curhat" }],
+  "/admin-users": [{ path: "/admin-users", title: "Daftar Akun Admin" }],
+  "/achievement": [{ path: "/achievement", title: "Daftar Prestasi" }],
   "/monthly-leaderboard": [
     {
       path: "/monthly-leaderboard",
-      title: "Peringkat Bulanan",
-      icon: <TrophyOutlined />,
+      title: "Daftar Peringkat Bulanan",
     },
   ],
   "/lifetime-leaderboard": [
     {
       path: "/lifetime-leaderboard",
-      title: "Peringkat Seumur Hidup",
-      icon: <TrophyOutlined />,
+      title: "Daftar Peringkat Seumur Hidup",
     },
   ],
-  "/club": [{ path: "/club", title: "Unit Kegiatan", icon: <TeamOutlined /> }],
-  "/custom-form": [
-    { path: "/custom-form", title: "Form Kustom", icon: <DatabaseOutlined /> },
-  ],
+  "/club": [{ path: "/club", title: "Daftar Unit Kegiatan" }],
+  "/custom-form": [{ path: "/custom-form", title: "Daftar Form Kustom" }],
 };
 
 // Helper function to get breadcrumbs for dynamic routes
@@ -70,28 +44,25 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   // Member detail pages
   if (pathname.match(/^\/member\/\d+$/)) {
     return [
-      { path: "/member", title: "Anggota" },
+      { path: "/member", title: "Daftar Anggota" },
       { path: "", title: "Detail Anggota" },
-      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
   // Activity detail pages
   if (pathname.match(/^\/activity\/\d+$/)) {
     return [
-      { path: "/activity", title: "Kegiatan" },
+      { path: "/activity", title: "Daftar Kegiatan" },
       { path: "", title: "Detail Kegiatan" },
-      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
   // Registrant detail pages
   if (pathname.match(/^\/registrant\/\d+$/)) {
     return [
-      { path: "/activity", title: "Kegiatan" },
+      { path: "/activity", title: "Daftar Kegiatan" },
       { path: "", title: "Detail Kegiatan" },
       { path: "", title: "Detail Peserta" },
-      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
@@ -99,7 +70,7 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   if (pathname.match(/^\/activity\/\d+\/participants$/)) {
     const activityId = pathname.split("/")[2];
     return [
-      { path: "/activity", title: "Kegiatan" },
+      { path: "/activity", title: "Daftar Kegiatan" },
       { path: `/activity/${activityId}`, title: "Detail Kegiatan" },
       { path: "", title: "Kelola Peserta" },
     ];
@@ -108,41 +79,37 @@ const getDynamicBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
   // Ruang Curhat detail pages
   if (pathname.match(/^\/ruang-curhat\/\d+$/)) {
     return [
-      { path: "/ruang-curhat", title: "Ruang Curhat" },
+      { path: "/ruang-curhat", title: "Daftar Ruang Curhat" },
       { path: "", title: "Detail Ruang Curhat" },
-      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
   // Achievement detail pages
   if (pathname.match(/^\/achievement\/\d+$/)) {
     return [
-      { path: "/achievement", title: "Prestasi" },
+      { path: "/achievement", title: "Daftar Prestasi" },
       { path: "", title: "Detail Prestasi" },
-      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
   // Club detail pages
   if (pathname.match(/^\/club\/\d+$/)) {
     return [
-      { path: "/club", title: "Unit Kegiatan" },
+      { path: "/club", title: "Daftar Unit Kegiatan" },
       { path: "", title: "Detail Unit Kegiatan" },
-      { path: "", title: pathname.split("/").pop() || "" },
     ];
   }
 
   // Custom form edit pages
   if (pathname.match(/^\/custom-form\/\d+\/edit$/)) {
     return [
-      { path: "/custom-form", title: "Form Kustom" },
+      { path: "/custom-form", title: "Daftar Form Kustom" },
       { path: "", title: "Ubah Form Kustom" },
-      { path: "", title: pathname.split("/")[2] || "" },
     ];
   }
 
   // Default fallback
-  return [{ path: "/", title: "Beranda", icon: <HomeOutlined /> }];
+  return [{ path: "/", title: "Beranda" }];
 };
 
 const Breadcrumb: React.FC = () => {
@@ -191,10 +158,7 @@ const Breadcrumb: React.FC = () => {
 
     return {
       title: isLast ? (
-        <span style={{ color: "#666" }}>
-          {crumb.icon && <span style={{ marginRight: 4 }}>{crumb.icon}</span>}
-          {crumb.title}
-        </span>
+        <span style={{ color: "#666" }}>{crumb.title}</span>
       ) : (
         <span
           style={{
@@ -214,7 +178,6 @@ const Breadcrumb: React.FC = () => {
             }
           }}
         >
-          {crumb.icon && <span style={{ marginRight: 4 }}>{crumb.icon}</span>}
           {crumb.title}
         </span>
       ),
