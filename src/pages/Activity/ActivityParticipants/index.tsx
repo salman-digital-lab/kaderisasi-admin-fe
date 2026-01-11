@@ -3,7 +3,6 @@ import {
   Table,
   Button,
   Space,
-  Typography,
   Skeleton,
   message,
   Input,
@@ -22,7 +21,6 @@ import { useRequest, useToggle } from "ahooks";
 
 import {
   getRegistrants,
-  getRegistrantStatistics,
   getActivity,
   getExportRegistrants,
 } from "../../../api/services/activity";
@@ -39,8 +37,6 @@ import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../constants/options";
-
-const { Text } = Typography;
 
 interface FilterValues {
   search?: string;
@@ -83,15 +79,6 @@ const ActivityParticipants = () => {
       cacheKey: `activity-${id}`,
     },
   );
-
-  // Fetch participant statistics
-  const {
-    data: stats,
-    loading: statsLoading,
-    run: refreshStats,
-  } = useRequest(() => getRegistrantStatistics(id), {
-    refreshDeps: [id],
-  });
 
   // Fetch participants
   const {
@@ -162,9 +149,8 @@ const ActivityParticipants = () => {
   // Handle refresh
   const handleRefresh = useCallback(() => {
     fetchParticipants();
-    refreshStats();
     setSelectedRowKeys([]);
-  }, [fetchParticipants, refreshStats]);
+  }, [fetchParticipants]);
 
   // Handle export
   const handleExport = useCallback(async () => {
@@ -271,20 +257,6 @@ const ActivityParticipants = () => {
             onChange={handleStatusFilter}
             value={filters.status}
           />
-
-          <div
-            style={{
-              width: 1,
-              height: 24,
-              background: "#f0f0f0",
-              margin: "0 4px",
-            }}
-          />
-
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Total:{" "}
-            <Text strong>{statsLoading ? "..." : stats?.total || 0}</Text>
-          </Text>
         </Space>
 
         {/* Right: Actions */}

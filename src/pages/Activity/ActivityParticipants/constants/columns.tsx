@@ -1,9 +1,11 @@
-import { TableProps, Tooltip, Tag } from "antd";
+import { TableProps, Tooltip, Tag, Button } from "antd";
 import { Link } from "react-router-dom";
+import { EyeOutlined } from "@ant-design/icons";
 import { memo } from "react";
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
 import { Registrant } from "../../../../types/model/activity";
+import { USER_LEVEL_OPTIONS } from "../../../../constants/options";
 
 // Memoized text cell component
 const TextCell = memo(
@@ -28,22 +30,61 @@ TextCell.displayName = "TextCell";
 
 // Memoized name link component
 const NameLink = memo(
-  ({ text, recordId }: { text: string; recordId: number }) => (
-    <Link to={"/registrant/" + recordId}>
-      <Tooltip title={text} placement="topLeft">
-        <span
-          style={{
-            display: "block",
-            maxWidth: "180px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {text}
-        </span>
-      </Tooltip>
-    </Link>
+  ({
+    text,
+    recordId,
+    email,
+  }: {
+    text: string;
+    recordId: number;
+    email?: string;
+  }) => (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8,
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <Tooltip title={text} placement="topLeft">
+          <span
+            style={{
+              display: "block",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              lineHeight: "1.2",
+              fontWeight: 500,
+            }}
+          >
+            {text}
+          </span>
+        </Tooltip>
+        {email && (
+          <Tooltip title={email} placement="topLeft">
+            <span
+              style={{
+                display: "block",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontSize: "11px",
+                color: "#8c8c8c",
+                marginTop: "2px",
+                lineHeight: "1.2",
+              }}
+            >
+              {email}
+            </span>
+          </Tooltip>
+        )}
+      </div>
+      <Link to={"/registrant/" + recordId}>
+        <Button size="small" icon={<EyeOutlined />} />
+      </Link>
+    </div>
   ),
 );
 
@@ -101,26 +142,18 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     sortable: true,
     filterable: true,
     render: (text, record) => (
-      <NameLink text={text as string} recordId={record.id} />
+      <NameLink
+        text={text as string}
+        recordId={record.id}
+        email={record.email}
+      />
     ),
-  },
-  {
-    key: "email",
-    title: "Email",
-    dataIndex: "email",
-    visible: true,
-    fixed: "left",
-    width: 220,
-    sortable: true,
-    filterable: true,
-    render: (text) => <TextCell text={text as string} maxWidth={200} />,
   },
   {
     key: "status",
     title: "Status",
     dataIndex: "status",
     visible: true,
-    fixed: "left",
     width: 150,
     sortable: true,
     filterable: true,
@@ -231,20 +264,15 @@ export const ALL_COLUMNS: ColumnConfig[] = [
   },
   {
     key: "level",
-    title: "Level",
+    title: "Jenjang",
     dataIndex: "level",
     visible: false,
     width: 100,
     sortable: true,
     filterable: false,
     render: (level) => {
-      const levelLabels: Record<number, string> = {
-        1: "JAMAAH",
-        2: "AKTIVIS",
-        3: "KADER",
-        4: "KADER LANJUT",
-      };
-      return levelLabels[level as number] || String(level);
+      const option = USER_LEVEL_OPTIONS.find((opt) => opt.value === level);
+      return option?.label || String(level);
     },
   },
 ];
