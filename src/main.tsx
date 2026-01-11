@@ -16,7 +16,15 @@ const customTheme = {
     colorError: "#ff4d4f",
     colorInfo: "#1F99CB",
     borderRadius: 8,
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+    fontFamily:
+      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  },
+  components: {
+    Table: {
+      borderRadius: 0,
+      headerBorderRadius: 0,
+      footerBorderRadius: 0,
+    },
   },
 };
 
