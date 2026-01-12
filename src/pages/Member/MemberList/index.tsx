@@ -41,16 +41,8 @@ const MemberListPage = () => {
   const handleSearch = () => {
     setParameters((prev) => ({
       ...prev,
-      search: searchInput,
-      badge: badgeInput,
-      page: 1,
-    }));
-  };
-
-  const handleBadgeSearch = () => {
-    setParameters((prev) => ({
-      ...prev,
-      badge: badgeInput,
+      search: searchInput.trim(),
+      badge: badgeInput.trim(),
       page: 1,
     }));
   };
@@ -75,24 +67,28 @@ const MemberListPage = () => {
         >
           {/* Left: Filters */}
           <Space size={12} wrap>
-            <Input.Search
+            <Input
               placeholder="Cari nama atau email"
               allowClear
               style={{ width: 280 }}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onSearch={handleSearch}
               onPressEnter={handleSearch}
-              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
             />
 
-            <Input.Search
+            <Input
               placeholder="Cari lencana"
               allowClear
               style={{ width: 180 }}
               value={badgeInput}
               onChange={(e) => setBadgeInput(e.target.value)}
-              onSearch={handleBadgeSearch}
+              onPressEnter={handleSearch}
+            />
+
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={handleSearch}
             />
           </Space>
 
