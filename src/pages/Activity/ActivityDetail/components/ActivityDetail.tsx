@@ -16,8 +16,6 @@ import {
   Tag,
   Space,
   Alert,
-  Switch,
-  Card,
 } from "antd";
 import { SaveOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
