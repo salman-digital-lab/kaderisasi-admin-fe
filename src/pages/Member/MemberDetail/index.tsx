@@ -14,11 +14,9 @@ import {
   Divider,
   Image,
   Table,
+  DatePicker,
 } from "antd";
-import {
-  EditOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, SaveOutlined } from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import { useRequest, useToggle } from "ahooks";
 
@@ -48,6 +46,7 @@ type FormType = {
   university_id?: number;
   major?: string;
   intake_year?: number;
+  birth_date?: string;
   level?: number;
   badges?: string[];
 };
@@ -75,6 +74,7 @@ const MemberDetailPage = () => {
         level: data?.profile[0].level,
         gender: data?.profile[0].gender,
         badges: data?.profile[0].badges,
+        birth_date: data?.profile[0].birth_date,
       });
     },
   });
@@ -193,6 +193,7 @@ const MemberDetailPage = () => {
                   intake_year: value.intake_year,
                   badges: JSON.stringify(value.badges || []),
                   name: value.name,
+                  birth_date: value.birth_date,
                 },
               });
               toggleEdit();
@@ -232,6 +233,10 @@ const MemberDetailPage = () => {
 
                 <Form.Item name="gender" label="Jenis Kelamin">
                   <Select style={{ width: "100%" }} options={GENDER_OPTION} />
+                </Form.Item>
+
+                <Form.Item name="birth_date" label="Tanggal Lahir">
+                  <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
                 </Form.Item>
               </Col>
               <Col span={12}>

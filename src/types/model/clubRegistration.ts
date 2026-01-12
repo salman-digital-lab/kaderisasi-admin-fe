@@ -16,6 +16,7 @@ export interface Profile {
   university_id?: number;
   major?: string;
   intake_year?: string;
+  birth_date?: string;
   level?: number;
   badges?: string;
   created_at: string;
@@ -34,11 +35,11 @@ export interface ClubRegistration {
   id: number;
   club_id: number;
   member_id: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: "PENDING" | "APPROVED" | "REJECTED";
   additional_data: Record<string, any>;
   created_at: string;
   updated_at: string;
-  
+
   // Relations
   club?: Club;
   member?: PublicUserWithProfile;
@@ -50,19 +51,17 @@ export interface ClubRegistrationCreateRequest {
 }
 
 export interface ClubRegistrationUpdateRequest {
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: "PENDING" | "APPROVED" | "REJECTED";
   additional_data?: Record<string, any>;
 }
 
 export interface ClubRegistrationBulkUpdateRequest {
   registrations: Array<{
     id: number;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    status: "PENDING" | "APPROVED" | "REJECTED";
     additional_data?: Record<string, any>;
   }>;
 }
-
-
 
 export interface ClubRegistrationInfoUpdateRequest {
   registration_info: string;

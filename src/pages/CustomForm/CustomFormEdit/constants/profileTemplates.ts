@@ -55,6 +55,19 @@ export const PROFILE_DATA_TEMPLATES = [
     icon: UserOutlined,
     description: "Pemilihan jenis kelamin",
   },
+  {
+    name: "Tanggal Lahir",
+    field: {
+      key: "birth_date",
+      label: "Tanggal Lahir",
+      required: false,
+      type: "date",
+      placeholder: "Pilih tanggal lahir",
+    },
+    category: "personal",
+    icon: CalendarOutlined,
+    description: "Tanggal lahir pengguna",
+  },
 
   // Contact Information
   {

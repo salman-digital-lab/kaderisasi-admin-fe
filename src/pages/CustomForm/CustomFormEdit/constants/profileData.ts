@@ -8,10 +8,10 @@ import {
 
 // Basic user profile fields for "Pertanyaan Dasar"
 export const BASIC_PROFILE_FIELDS: FormField[] = [
-  { 
-    key: "name", 
-    label: "Nama Lengkap", 
-    required: true, 
+  {
+    key: "name",
+    label: "Nama Lengkap",
+    required: true,
     type: "text",
     placeholder: "Masukkan nama lengkap Anda",
   },
@@ -21,19 +21,27 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
     required: false,
     type: "text",
     placeholder: "Masukkan nomor KTP/Paspor/KTM",
-    helpText: "Nomor identitas resmi seperti KTP, Paspor, atau Kartu Tanda Mahasiswa.",
+    helpText:
+      "Nomor identitas resmi seperti KTP, Paspor, atau Kartu Tanda Mahasiswa.",
   },
-  { 
-    key: "gender", 
-    label: "Jenis Kelamin", 
-    required: false, 
+  {
+    key: "gender",
+    label: "Jenis Kelamin",
+    required: false,
     type: "select",
     placeholder: "Pilih jenis kelamin",
   },
-  { 
-    key: "level", 
-    label: "Level", 
-    required: false, 
+  {
+    key: "birth_date",
+    label: "Tanggal Lahir",
+    required: false,
+    type: "date",
+    placeholder: "Pilih tanggal lahir",
+  },
+  {
+    key: "level",
+    label: "Level",
+    required: false,
     type: "select",
     placeholder: "Pilih level",
   },
@@ -45,49 +53,49 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
     placeholder: "6281234567890",
     helpText: "Format: 628xxxxxxxxxx. Pastikan nomor WhatsApp kamu aktif.",
   },
-  { 
-    key: "line", 
-    label: "Line", 
-    required: false, 
+  {
+    key: "line",
+    label: "Line",
+    required: false,
     type: "text",
     placeholder: "Masukkan ID Line Anda",
     helpText: "ID Line Anda (tanpa @).",
   },
-  { 
-    key: "instagram", 
-    label: "Instagram", 
-    required: false, 
+  {
+    key: "instagram",
+    label: "Instagram",
+    required: false,
     type: "text",
     placeholder: "@username",
     helpText: "Username Instagram Anda (dengan atau tanpa @).",
   },
-  { 
-    key: "tiktok", 
-    label: "TikTok", 
-    required: false, 
+  {
+    key: "tiktok",
+    label: "TikTok",
+    required: false,
     type: "text",
     placeholder: "@username",
     helpText: "Username TikTok Anda (dengan atau tanpa @).",
   },
-  { 
-    key: "linkedin", 
-    label: "LinkedIn", 
-    required: false, 
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    required: false,
     type: "text",
     placeholder: "linkedin.com/in/username atau username",
     helpText: "URL profil LinkedIn atau username Anda.",
   },
-  { 
-    key: "province_id", 
-    label: "Provinsi", 
-    required: false, 
+  {
+    key: "province_id",
+    label: "Provinsi",
+    required: false,
     type: "select",
     placeholder: "Pilih provinsi",
   },
-  { 
-    key: "city_id", 
-    label: "Kota", 
-    required: false, 
+  {
+    key: "city_id",
+    label: "Kota",
+    required: false,
     type: "select",
     placeholder: "Pilih kota",
     helpText: "Pilih provinsi terlebih dahulu.",
@@ -99,10 +107,10 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
     type: "select",
     placeholder: "Pilih universitas",
   },
-  { 
-    key: "major", 
-    label: "Jurusan", 
-    required: false, 
+  {
+    key: "major",
+    label: "Jurusan",
+    required: false,
     type: "text",
     placeholder: "Masukkan program studi/jurusan Anda",
     helpText: "Contoh: Teknik Informatika, Manajemen, Pendidikan Dokter.",

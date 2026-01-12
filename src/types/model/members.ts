@@ -28,7 +28,8 @@ export type Member = {
 
   major: string | undefined;
   intake_year: number | undefined;
-  
+  birth_date: string | undefined;
+
   created_at: string;
   updated_at: string;
 };
@@ -51,6 +52,7 @@ export type PublicUser = {
     university_id?: number;
     major?: string;
     intake_year?: string;
+    birth_date?: string;
     level?: number;
     badges?: string;
     created_at: string;
