@@ -98,7 +98,7 @@ const MemberListPage = () => {
 
           {/* Right: Actions */}
           <Space size={8} wrap>
-            <Tooltip title="Refresh Data">
+            <Tooltip placement="left" title="Refresh Data">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={refresh}

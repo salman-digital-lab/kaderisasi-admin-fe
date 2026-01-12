@@ -96,7 +96,7 @@ export default function MonthlyLeaderboardFilter({
         {/* Right: Actions */}
         <Space size={8} wrap>
           {refresh && (
-            <Tooltip title="Refresh Data">
+            <Tooltip placement="left" title="Refresh Data">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={refresh}

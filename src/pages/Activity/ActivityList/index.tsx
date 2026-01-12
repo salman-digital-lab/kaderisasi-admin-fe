@@ -131,7 +131,7 @@ const MainActivity = () => {
               Tambah
             </Button>
 
-            <Tooltip title="Refresh Data">
+            <Tooltip placement="left" title="Refresh Data">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={refresh}

@@ -63,7 +63,7 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           <Button type="primary" icon={<PlusOutlined />} onClick={toggle}>
             Tambah Club
           </Button>
-          <Tooltip title="Refresh Data">
+          <Tooltip placement="left" title="Refresh Data">
             <Button
               icon={<ReloadOutlined />}
               onClick={refresh}

@@ -182,7 +182,7 @@ const CustomFormFilter = ({
               Tambah Form
             </Button>
             {refresh && (
-              <Tooltip title="Refresh Data">
+              <Tooltip placement="left" title="Refresh Data">
                 <Button
                   icon={<ReloadOutlined />}
                   onClick={refresh}
