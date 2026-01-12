@@ -98,8 +98,9 @@ body {
 .ant-btn:focus,
 .ant-input:focus,
 .ant-input-password:focus {
-  outline: 2px solid var(--bmka-primary);
-  outline-offset: 2px;
+  /* outline: 2px solid var(--bmka-primary);
+  outline-offset: 2px; */
+  box-shadow: 0 0 0 2px rgba(31, 153, 203, 0.2);
 }
 
 /* High contrast mode support */
@@ -140,11 +141,12 @@ body {
 
 .ant-btn-primary {
   background: linear-gradient(135deg, var(--bmka-primary) 0%, var(--bmka-secondary) 100%);
-  border: none;
+  border: 1px solid transparent;
 }
 
 .ant-btn-primary:hover {
   background: linear-gradient(135deg, var(--bmka-secondary) 0%, var(--bmka-accent) 100%) !important;
+  border-color: transparent !important;
 }
 
 /* Enhanced Table Styles */
