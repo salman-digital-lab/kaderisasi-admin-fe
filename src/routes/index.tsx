@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { ReactNode, Suspense, lazy } from "react";
-import { Spin } from "antd";
+import { Skeleton } from "antd";
 import {
   useIsAuthenticated,
   useIsInitialized,
@@ -53,8 +53,11 @@ const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
 
 // Loading Component
 const Loading = () => (
-  <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-    <Spin size="large" />
+  <div className="w-full bg-white p-6">
+    <Skeleton active paragraph={{ rows: 2 }} title={{ width: "30%" }} />
+    <div className="mt-6">
+      <Skeleton active paragraph={{ rows: 8 }} title={false} />
+    </div>
   </div>
 );
 
