@@ -10,11 +10,13 @@ import {
   Skeleton,
   notification,
   Card,
+  Tooltip,
 } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import { useRequest } from "ahooks";
 import { useState } from "react";
+import dayjs from "dayjs";
 
 import {
   getCustomFormByFeature,
@@ -192,19 +194,15 @@ const CustomFormSelection = () => {
                   <Tag color={currentForm.is_active ? "success" : "default"}>
                     {currentForm.is_active ? "Aktif" : "Tidak Aktif"}
                   </Tag>
+                  <Tooltip title="Edit Form & Pertanyaan">
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() =>
+                        navigate(`/activity/${id}/form/${currentForm.id}/edit`)
+                      }
+                    />
+                  </Tooltip>
                 </Space>
-              }
-              extra={
-                <Button
-                  type="primary"
-                  ghost
-                  icon={<EditOutlined />}
-                  onClick={() =>
-                    navigate(`/activity/${id}/form/${currentForm.id}/edit`)
-                  }
-                >
-                  Edit Form & Pertanyaan
-                </Button>
               }
               style={{
                 boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
@@ -212,7 +210,7 @@ const CustomFormSelection = () => {
               }}
             >
               <Space
-                direction="vertical"
+                orientation="vertical"
                 size="middle"
                 style={{ width: "100%" }}
               >
@@ -247,7 +245,10 @@ const CustomFormSelection = () => {
                         Total Pertanyaan
                       </Text>
                       <div style={{ fontSize: 18, fontWeight: 500 }}>
-                        {currentForm.form_schema?.fields?.length || 0}
+                        {currentForm.form_schema?.fields?.reduce(
+                          (acc, section) => acc + (section.fields?.length || 0),
+                          0,
+                        ) || 0}
                       </div>
                     </div>
                     <div>
@@ -255,8 +256,11 @@ const CustomFormSelection = () => {
                         Terakhir Diupdate
                       </Text>
                       <div style={{ fontSize: 14 }}>
-                        {/* Assuming we might have updated_at later, for now placeholder or nothing */}
-                        -
+                        {currentForm.updated_at
+                          ? dayjs(currentForm.updated_at).format(
+                              "DD MMM YYYY HH:mm",
+                            )
+                          : "-"}
                       </div>
                     </div>
                   </Space>

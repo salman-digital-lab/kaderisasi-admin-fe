@@ -167,7 +167,7 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     title: "Whatsapp",
     dataIndex: "whatsapp",
     visible: true,
-    width: 140,
+    width: 160,
     sortable: false,
     filterable: false,
     render: (text) =>
@@ -177,7 +177,7 @@ export const ALL_COLUMNS: ColumnConfig[] = [
           target="_blank"
           rel="noopener noreferrer"
         >
-          <TextCell text={text as string} maxWidth={120} />
+          <TextCell text={text as string} maxWidth={140} />
         </a>
       ) : (
         "-"
@@ -229,10 +229,10 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     title: "Nomor Identitas",
     dataIndex: "personal_id",
     visible: false,
-    width: 140,
+    width: 200,
     sortable: false,
     filterable: false,
-    render: (text) => <TextCell text={text as string} maxWidth={120} />,
+    render: (text) => <TextCell text={text as string} maxWidth={180} />,
   },
   {
     key: "instagram",
@@ -270,7 +270,7 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     title: "Jenjang",
     dataIndex: "level",
     visible: false,
-    width: 100,
+    width: 120,
     sortable: true,
     filterable: false,
     render: (level) => {

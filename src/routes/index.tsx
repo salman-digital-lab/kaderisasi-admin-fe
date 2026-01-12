@@ -53,9 +53,9 @@ const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
 
 // Loading Component
 const Loading = () => (
-  <div className="w-full bg-white p-6">
+  <div style={{ padding: "12px", backgroundColor: "white" }}>
     <Skeleton active paragraph={{ rows: 2 }} title={{ width: "30%" }} />
-    <div className="mt-6">
+    <div style={{ marginTop: "12px" }}>
       <Skeleton active paragraph={{ rows: 8 }} title={false} />
     </div>
   </div>
