@@ -44,6 +44,10 @@ export type Activity = {
     custom_selection_status?: string[];
     mandatory_profile_data?: MandatoryProfileData[];
     images?: string[];
+    status_visibility?: {
+      is_visible: boolean;
+      visible_at?: string;
+    };
   };
   is_published: number;
   created_at: string;

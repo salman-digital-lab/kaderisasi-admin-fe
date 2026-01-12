@@ -1,4 +1,19 @@
-import { Button, Space, Row, Col, Skeleton, Tag, Typography, Card } from "antd";
+import {
+  Button,
+  Space,
+  Row,
+  Col,
+  Skeleton,
+  Tag,
+  Typography,
+  Card,
+  Form,
+  Switch,
+  DatePicker,
+  Alert,
+  notification,
+  Divider,
+} from "antd";
 import {
   TeamOutlined,
   CheckCircleOutlined,
@@ -6,14 +21,17 @@ import {
   TrophyOutlined,
   CloseCircleOutlined,
   ArrowRightOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
-import { useCallback, memo, ReactNode } from "react";
+import { useCallback, memo, ReactNode, useState } from "react";
 import { useRequest, useToggle } from "ahooks";
 import { useParams, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
 import {
   getActivity,
   getRegistrantStatistics,
+  putActivity,
 } from "../../../../api/services/activity";
 
 import MembersListModal from "./Modal/MembersListModal";
@@ -55,12 +73,62 @@ const RegistrantList = () => {
   const navigate = useNavigate();
 
   const [modalState, { toggle: toggleModal }] = useToggle();
+  const [form] = Form.useForm();
+  const [isChanged, setIsChanged] = useState(false);
+  const statusIsVisible = Form.useWatch("status_is_visible", form);
+  const statusVisibleAt = Form.useWatch("status_visible_at", form);
 
   // Fetch activity details
-  const { loading: activityLoading } = useRequest(
-    () => getActivity(Number(id)),
+  const {
+    data: activityData,
+    loading: activityLoading,
+    refresh: refreshActivity,
+  } = useRequest(() => getActivity(Number(id)), {
+    cacheKey: `activity-${id}`,
+    onSuccess: (data) => {
+      form.setFieldsValue({
+        status_is_visible:
+          data?.additional_config?.status_visibility?.is_visible ?? true,
+        status_visible_at: data?.additional_config?.status_visibility
+          ?.visible_at
+          ? dayjs(data.additional_config.status_visibility.visible_at)
+          : undefined,
+      });
+    },
+  });
+
+  // Save status visibility settings
+  const { loading: saveLoading, runAsync: saveSettings } = useRequest(
+    async (values: {
+      status_is_visible: boolean;
+      status_visible_at?: dayjs.Dayjs;
+    }) => {
+      if (!activityData) {
+        throw new Error("Activity data not loaded");
+      }
+      return putActivity(Number(id), {
+        additional_config: {
+          ...activityData.additional_config,
+          status_visibility: {
+            is_visible: values.status_is_visible ?? true,
+            visible_at: values.status_visible_at
+              ? values.status_visible_at.toISOString()
+              : undefined,
+          },
+        },
+      });
+    },
     {
-      cacheKey: `activity-${id}`,
+      manual: true,
+      onSuccess: () => {
+        notification.success({
+          message: "Berhasil",
+          description: "Pengaturan pengumuman status berhasil disimpan",
+        });
+        setIsChanged(false);
+        // Refresh the activity data to update the cache
+        refreshActivity();
+      },
     },
   );
 
@@ -132,6 +200,82 @@ const RegistrantList = () => {
           </Col>
         </Row>
       </Card>
+
+      {/* Status Visibility Settings */}
+      <Form
+        form={form}
+        layout="vertical"
+        onValuesChange={() => setIsChanged(true)}
+        onFinish={async (values) => {
+          await saveSettings(values);
+        }}
+      >
+        <Card variant="outlined" style={{ borderRadius: 0, marginBottom: 24 }}>
+          <Row
+            justify="space-between"
+            align="middle"
+            style={{ marginBottom: 16 }}
+          >
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              Pengaturan Pengumuman Status
+            </Typography.Title>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              loading={saveLoading}
+              disabled={!isChanged || !activityData}
+              htmlType="submit"
+              size="small"
+            >
+              Simpan
+            </Button>
+          </Row>
+          <Divider style={{ margin: "0 0 16px 0" }} />
+          <Row gutter={16} align="middle">
+            <Col span={12}>
+              <Form.Item
+                name="status_is_visible"
+                label="Tampilkan Status ke Peserta"
+                valuePropName="checked"
+                tooltip="Jika dimatikan, peserta akan melihat 'Status Belum Diumumkan' hingga waktu pengumuman tiba"
+                style={{ marginBottom: 0 }}
+              >
+                <Switch checkedChildren="Tampil" unCheckedChildren="Sembunyi" />
+              </Form.Item>
+            </Col>
+            {!statusIsVisible && (
+              <Col span={12}>
+                <Form.Item
+                  name="status_visible_at"
+                  label="Waktu Pengumuman Status"
+                  tooltip="Tanggal dan waktu kapan estimasi status akan ditampilkan ke peserta"
+                  style={{ marginBottom: 0 }}
+                >
+                  <DatePicker
+                    showTime
+                    format="YYYY-MM-DD HH:mm"
+                    placeholder="Pilih waktu pengumuman"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            )}
+          </Row>
+          {!statusIsVisible && (
+            <Alert
+              message="Status saat ini disembunyikan dari peserta"
+              description={
+                statusVisibleAt
+                  ? `Status akan ditampilkan pada ${statusVisibleAt.format("DD MMMM YYYY, HH:mm")}`
+                  : "Silakan tentukan waktu pengumuman"
+              }
+              type="info"
+              showIcon
+              style={{ marginTop: 16 }}
+            />
+          )}
+        </Card>
+      </Form>
 
       {/* Statistics by Status */}
       <div>
