@@ -16,6 +16,10 @@ import {
 import ActivityTable from "./components/ActivityTable";
 import ActivityForm from "./components/ActivityForm";
 import { FilterType } from "./constants/type";
+import {
+  ACTIVITY_CATEGORY_ENUM,
+  ACTIVITY_TYPE_ENUM,
+} from "../../../types/constants/activity";
 
 const cardStyle = {
   borderRadius: 0,
@@ -36,6 +40,12 @@ const MainActivity = () => {
 
   // Local state for search input to avoid too many re-renders/requests
   const [searchInput, setSearchInput] = useState("");
+  const [typeInput, setTypeInput] = useState<ACTIVITY_TYPE_ENUM | undefined>(
+    undefined,
+  );
+  const [categoryInput, setCategoryInput] = useState<
+    ACTIVITY_CATEGORY_ENUM | undefined
+  >(undefined);
 
   const { data, loading, error, refresh } = useRequest(
     () =>
@@ -60,22 +70,8 @@ const MainActivity = () => {
     setParameters((prev) => ({
       ...prev,
       name: searchInput,
-      page: 1,
-    }));
-  };
-
-  const handleTypeChange = (value: any) => {
-    setParameters((prev) => ({
-      ...prev,
-      activity_type: value,
-      page: 1,
-    }));
-  };
-
-  const handleCategoryChange = (value: any) => {
-    setParameters((prev) => ({
-      ...prev,
-      activity_category: value,
+      activity_type: typeInput,
+      activity_category: categoryInput,
       page: 1,
     }));
   };
@@ -95,15 +91,13 @@ const MainActivity = () => {
         >
           {/* Left: Filters */}
           <Space size={12} wrap>
-            <Input.Search
+            <Input
               placeholder="Cari nama aktivitas"
               allowClear
               style={{ width: 240 }}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              onSearch={handleSearch}
               onPressEnter={handleSearch}
-              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
             />
 
             <Select
@@ -111,8 +105,8 @@ const MainActivity = () => {
               allowClear
               style={{ width: 150 }}
               options={ACTIVITY_TYPE_OPTIONS}
-              onChange={handleTypeChange}
-              value={parameters.activity_type}
+              onChange={setTypeInput}
+              value={typeInput}
             />
 
             <Select
@@ -120,8 +114,14 @@ const MainActivity = () => {
               allowClear
               style={{ width: 160 }}
               options={ACTIVITY_CATEGORY_OPTIONS}
-              onChange={handleCategoryChange}
-              value={parameters.activity_category}
+              onChange={setCategoryInput}
+              value={categoryInput}
+            />
+
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={handleSearch}
             />
           </Space>
 
