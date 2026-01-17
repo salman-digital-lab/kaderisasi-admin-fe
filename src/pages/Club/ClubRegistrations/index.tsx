@@ -1,27 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, Table, Button, Tag, Modal, Form, Select, Input, Space, message, Row, Col } from 'antd';
-import { 
-  EditOutlined, 
-  DeleteOutlined, 
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Card,
+  Table,
+  Button,
+  Tag,
+  Modal,
+  Form,
+  Select,
+  Input,
+  Space,
+  message,
+  Row,
+  Col,
+} from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
   DownloadOutlined,
   PlusOutlined,
   ExclamationCircleOutlined,
-  SearchOutlined
-} from '@ant-design/icons';
-import { 
-  getClubRegistrations, 
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  getClubRegistrations,
   createClubRegistration,
   updateClubRegistration,
   deleteClubRegistration,
   bulkUpdateClubRegistrations,
-  exportClubRegistrations
-} from '../../../api/services/clubRegistration';
-import { getClub } from '../../../api/services/club';
-import { ClubRegistration } from '../../../types/model/clubRegistration';
-import { Club } from '../../../types/model/club';
-import MembersListModal from './components/MembersListModal';
-import { CLUB_REGISTRATION_STATUS_OPTIONS } from '../../../constants/options';
+  exportClubRegistrations,
+} from "../../../api/services/clubRegistration";
+import { getClub } from "../../../api/services/club";
+import { ClubRegistration } from "../../../types/model/clubRegistration";
+import { Club } from "../../../types/model/club";
+import MembersListModal from "./components/MembersListModal";
+import { CLUB_REGISTRATION_STATUS_OPTIONS } from "../../../constants/options";
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -35,10 +48,11 @@ const ClubRegistrationsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMembersModalVisible, setIsMembersModalVisible] = useState(false);
-  const [selectedRegistration, setSelectedRegistration] = useState<ClubRegistration | null>(null);
+  const [selectedRegistration, setSelectedRegistration] =
+    useState<ClubRegistration | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const pageSize = 20;
@@ -57,26 +71,26 @@ const ClubRegistrationsPage: React.FC = () => {
         setClub(response);
       }
     } catch (error) {
-      message.error('Gagal memuat data klub');
+      message.error("Gagal memuat data klub");
     }
   };
 
   const fetchRegistrations = async () => {
     if (!clubId) return;
-    
+
     setLoading(true);
     try {
       const response = await getClubRegistrations(Number(clubId), {
         page: currentPage.toString(),
         limit: pageSize.toString(),
-        status: statusFilter || undefined
+        status: statusFilter || undefined,
       });
       if (response) {
         setRegistrations(response.data);
         setTotalItems(response.meta.total);
       }
     } catch (error) {
-      message.error('Gagal memuat keanggotaan');
+      message.error("Gagal memuat keanggotaan");
     } finally {
       setLoading(false);
     }
@@ -97,7 +111,7 @@ const ClubRegistrationsPage: React.FC = () => {
 
   const handleDeleteRegistration = (registration: ClubRegistration) => {
     confirm({
-      title: 'Hapus Keanggotaan',
+      title: "Hapus Keanggotaan",
       icon: <ExclamationCircleOutlined />,
       content: `Apakah Anda yakin ingin menghapus keanggotaan untuk ${registration.member?.profile?.name || registration.member?.email}?`,
       onOk: async () => {
@@ -114,21 +128,25 @@ const ClubRegistrationsPage: React.FC = () => {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
-      
+
       if (selectedRegistration) {
         // Update existing registration
         await updateClubRegistration(selectedRegistration.id, {
           status: values.status,
-          additional_data: values.additional_data ? JSON.parse(values.additional_data) : {},
+          additional_data: values.additional_data
+            ? JSON.parse(values.additional_data)
+            : {},
         });
       } else {
         // Create new registration
         await createClubRegistration(Number(clubId!), {
           member_id: values.member_id,
-          additional_data: values.additional_data ? JSON.parse(values.additional_data) : {},
+          additional_data: values.additional_data
+            ? JSON.parse(values.additional_data)
+            : {},
         });
       }
-      
+
       setIsModalVisible(false);
       form.resetFields();
       fetchRegistrations();
@@ -139,15 +157,15 @@ const ClubRegistrationsPage: React.FC = () => {
 
   const handleBulkStatusUpdate = async (status: string) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Silakan pilih keanggotaan yang akan diperbarui');
+      message.warning("Silakan pilih keanggotaan yang akan diperbarui");
       return;
     }
 
     try {
       await bulkUpdateClubRegistrations({
-        registrations: selectedRowKeys.map(key => ({
+        registrations: selectedRowKeys.map((key) => ({
           id: Number(key),
-          status: status as 'PENDING' | 'APPROVED' | 'REJECTED',
+          status: status as "PENDING" | "APPROVED" | "REJECTED",
         })),
       });
       setSelectedRowKeys([]);
@@ -163,9 +181,9 @@ const ClubRegistrationsPage: React.FC = () => {
     try {
       const blob = await exportClubRegistrations(Number(clubId));
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `${club?.name || 'unit-kegiatan'}_registrations.xlsx`;
+      link.download = `${club?.name || "unit-kegiatan"}_registrations.xlsx`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -175,33 +193,34 @@ const ClubRegistrationsPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     const colors = {
-      PENDING: 'orange',
-      APPROVED: 'green',
-      REJECTED: 'red',
-
+      PENDING: "orange",
+      APPROVED: "green",
+      REJECTED: "red",
     };
-    return colors[status as keyof typeof colors] || 'default';
+    return colors[status as keyof typeof colors] || "default";
   };
 
   const columns = [
     {
-      title: 'Nama Anggota',
-      dataIndex: ['member', 'profile', 'name'],
-      key: 'memberName',
-      render: (name: string, record: ClubRegistration) => 
-        name || record.member?.email || 'N/A',
+      title: "Nama Anggota",
+      dataIndex: ["member", "profile", "name"],
+      key: "memberName",
+      render: (name: string, record: ClubRegistration) =>
+        name || record.member?.email || "N/A",
     },
     {
-      title: 'Email',
-      dataIndex: ['member', 'email'],
-      key: 'email',
+      title: "Email",
+      dataIndex: ["member", "email"],
+      key: "email",
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (status: string) => {
-        const statusOption = CLUB_REGISTRATION_STATUS_OPTIONS.find(option => option.value === status);
+        const statusOption = CLUB_REGISTRATION_STATUS_OPTIONS.find(
+          (option) => option.value === status,
+        );
         return (
           <Tag color={getStatusColor(status)}>
             {statusOption ? statusOption.label : status}
@@ -210,14 +229,14 @@ const ClubRegistrationsPage: React.FC = () => {
       },
     },
     {
-      title: 'Tanggal Keanggotaan',
-      dataIndex: 'created_at',
-      key: 'registrationDate',
+      title: "Tanggal Keanggotaan",
+      dataIndex: "created_at",
+      key: "registrationDate",
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Aksi',
-      key: 'actions',
+      title: "Aksi",
+      key: "actions",
       render: (_: any, record: ClubRegistration) => (
         <Space>
           <Button
@@ -242,8 +261,8 @@ const ClubRegistrationsPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: '24px' }}>
+    <div style={{ padding: "24px" }}>
+      <div style={{ marginBottom: "24px" }}>
         <h2>{club?.name} - Keanggotaan</h2>
       </div>
 
@@ -261,7 +280,7 @@ const ClubRegistrationsPage: React.FC = () => {
             layout="vertical"
             form={form}
             onFinish={(val) => {
-              setStatusFilter(val.status || '');
+              setStatusFilter(val.status || "");
               setCurrentPage(1);
             }}
           >
@@ -279,7 +298,7 @@ const ClubRegistrationsPage: React.FC = () => {
             <Row justify="end">
               <Space>
                 <Button
-                  onClick={() => handleBulkStatusUpdate('APPROVED')}
+                  onClick={() => handleBulkStatusUpdate("APPROVED")}
                   icon={<EditOutlined />}
                   disabled={!selectedRowKeys.length}
                   type="primary"
@@ -287,17 +306,14 @@ const ClubRegistrationsPage: React.FC = () => {
                   Terima
                 </Button>
                 <Button
-                  onClick={() => handleBulkStatusUpdate('REJECTED')}
+                  onClick={() => handleBulkStatusUpdate("REJECTED")}
                   icon={<EditOutlined />}
                   disabled={!selectedRowKeys.length}
                   danger
                 >
                   Tolak
                 </Button>
-                <Button
-                  onClick={handleExport}
-                  icon={<DownloadOutlined />}
-                >
+                <Button onClick={handleExport} icon={<DownloadOutlined />}>
                   Export XLSX
                 </Button>
                 <Button onClick={handleAddMember} icon={<PlusOutlined />}>
@@ -307,9 +323,7 @@ const ClubRegistrationsPage: React.FC = () => {
                   icon={<SearchOutlined />}
                   type="primary"
                   htmlType="submit"
-                >
-                  Cari
-                </Button>
+                />
               </Space>
             </Row>
           </Form>
@@ -337,7 +351,7 @@ const ClubRegistrationsPage: React.FC = () => {
       </Space>
 
       <Modal
-        title={selectedRegistration ? 'Edit Keanggotaan' : 'Buat Keanggotaan'}
+        title={selectedRegistration ? "Edit Keanggotaan" : "Buat Keanggotaan"}
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={() => setIsModalVisible(false)}
@@ -348,27 +362,27 @@ const ClubRegistrationsPage: React.FC = () => {
             <Form.Item
               name="member_id"
               label="ID Anggota"
-              rules={[{ required: true, message: 'Silakan masukkan ID anggota' }]}
+              rules={[
+                { required: true, message: "Silakan masukkan ID anggota" },
+              ]}
             >
               <Input placeholder="Masukkan ID anggota" />
             </Form.Item>
           )}
-          
+
           <Form.Item
             name="status"
             label="Status"
-            rules={[{ required: true, message: 'Silakan pilih status' }]}
+            rules={[{ required: true, message: "Silakan pilih status" }]}
           >
             <Select placeholder="Pilih status">
-              {CLUB_REGISTRATION_STATUS_OPTIONS.map(option => (
+              {CLUB_REGISTRATION_STATUS_OPTIONS.map((option) => (
                 <Option key={option.value} value={option.value}>
                   {option.label}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          
-
         </Form>
       </Modal>
     </div>

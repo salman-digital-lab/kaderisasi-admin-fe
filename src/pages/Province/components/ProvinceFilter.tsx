@@ -40,9 +40,11 @@ const ProvinceFilter = ({ setParameter }: FilterProps) => {
         </Row>
         <Row justify="end">
           <Space>
-            <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
-              Cari
-            </Button>
+            <Button
+              icon={<SearchOutlined />}
+              type="primary"
+              htmlType="submit"
+            />
           </Space>
         </Row>
       </Form>

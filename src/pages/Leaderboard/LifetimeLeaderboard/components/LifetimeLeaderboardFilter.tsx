@@ -50,13 +50,12 @@ export default function LifetimeLeaderboardFilter({
       >
         {/* Left: Filters */}
         <Space size={12} wrap>
-          <Input.Search
+          <Input
             placeholder="Cari nama"
             allowClear
             style={{ width: 200 }}
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            onSearch={handleSearch}
             onPressEnter={handleSearch}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
           />
@@ -73,9 +72,7 @@ export default function LifetimeLeaderboardFilter({
             icon={<SearchOutlined />}
             type="primary"
             onClick={handleSearch}
-          >
-            Cari
-          </Button>
+          />
         </Space>
 
         {/* Right: Actions */}

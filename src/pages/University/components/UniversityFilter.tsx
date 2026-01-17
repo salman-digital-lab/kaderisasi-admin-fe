@@ -42,9 +42,11 @@ const UniversitiesFilter = ({ setParameter, openModal }: FilterProps) => {
         </Row>
         <Row justify="end">
           <Space>
-            <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
-              Cari
-            </Button>
+            <Button
+              icon={<SearchOutlined />}
+              type="primary"
+              htmlType="submit"
+            />
             <Button onClick={openModal} icon={<PlusOutlined />}>
               Tambah Universitas
             </Button>

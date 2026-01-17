@@ -101,9 +101,7 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             icon={<SearchOutlined />}
             type="primary"
             onClick={handleSearch}
-          >
-            Cari
-          </Button>
+          />
         </Space>
 
         {/* Right: Actions */}

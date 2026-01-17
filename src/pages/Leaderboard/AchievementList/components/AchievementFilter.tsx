@@ -62,13 +62,12 @@ const AchievementFilter = ({ setParameter, refresh, loading }: FilterProps) => {
       >
         {/* Left: Filters */}
         <Space size={12} wrap>
-          <Input.Search
+          <Input
             placeholder="Cari nama"
             allowClear
             style={{ width: 200 }}
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            onSearch={handleSearch}
             onPressEnter={handleSearch}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
           />
@@ -95,9 +94,7 @@ const AchievementFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             icon={<SearchOutlined />}
             type="primary"
             onClick={handleSearch}
-          >
-            Cari
-          </Button>
+          />
         </Space>
 
         {/* Right: Actions */}

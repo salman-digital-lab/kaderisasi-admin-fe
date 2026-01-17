@@ -56,13 +56,12 @@ export default function MonthlyLeaderboardFilter({
       >
         {/* Left: Filters */}
         <Space size={12} wrap>
-          <Input.Search
+          <Input
             placeholder="Cari nama"
             allowClear
             style={{ width: 180 }}
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            onSearch={handleSearch}
             onPressEnter={handleSearch}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
           />
@@ -88,9 +87,7 @@ export default function MonthlyLeaderboardFilter({
             icon={<SearchOutlined />}
             type="primary"
             onClick={handleSearch}
-          >
-            Cari
-          </Button>
+          />
         </Space>
 
         {/* Right: Actions */}
