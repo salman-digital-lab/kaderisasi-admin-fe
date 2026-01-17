@@ -8,6 +8,7 @@ import {
   TrophyOutlined,
   TeamOutlined,
   FormOutlined,
+  SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
@@ -90,6 +91,13 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (
       label: <Link to="/custom-form">Form Digital</Link>,
     });
   }
+
+  // Experimental: Digital Certificate - available to all authenticated admins
+  menuItems.push({
+    key: "/digital-certificate",
+    icon: <SafetyCertificateOutlined />,
+    label: <Link to="/digital-certificate">Sertifikat Digital</Link>,
+  });
 
   if (permissions.includes("pusatdata")) {
     menuItems.push({

@@ -50,6 +50,7 @@ const ClubList = lazy(() => import("../pages/Club/ClubList"));
 const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
 const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
 const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
+const DigitalCertificate = lazy(() => import("../pages/DigitalCertificate"));
 
 // Loading Component
 const Loading = () => (
@@ -403,6 +404,14 @@ const routes = createBrowserRouter(
               }
               permission="formkustom"
             />
+          ),
+        },
+        {
+          path: "/digital-certificate",
+          element: (
+            <SuspenseWrapper>
+              <DigitalCertificate />
+            </SuspenseWrapper>
           ),
         },
       ],
