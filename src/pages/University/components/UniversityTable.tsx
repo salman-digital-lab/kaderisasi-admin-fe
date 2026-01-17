@@ -1,14 +1,19 @@
 import React from "react";
-import { Table, Card } from "antd";
+import { Table, Empty, Alert, Button } from "antd";
+import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+
 import { Pagination } from "../../../types/services/base";
 import { TABLE_SCHEMA } from "../constants/schema";
 import { University } from "../../../types/model/university";
+
 interface DataTypeProps {
   data?: {
     meta: Pagination;
     data: University[];
   };
   loading: boolean;
+  error?: Error | null;
+  onRetry?: () => void;
   setParameter: React.Dispatch<
     React.SetStateAction<{
       page: number;
@@ -22,34 +27,76 @@ interface DataTypeProps {
 const UniversitiesTable = ({
   data,
   loading,
+  error,
+  onRetry,
   setParameter,
   openModal,
 }: DataTypeProps) => {
-  return (
-    <Card>
-      <Table
-        rowKey="id"
-        columns={TABLE_SCHEMA(openModal)}
-        dataSource={data?.data}
-        pagination={{
-          current: data?.meta?.current_page,
-          pageSize: data?.meta?.per_page,
-          showSizeChanger: true,
-          total: data?.meta?.total,
-          showTotal: (total, range) =>
-            `${range[0]}-${range[1]} of ${total} items`,
-        }}
-        loading={loading}
-        onChange={(pagination) =>
-          setParameter((prev) => ({
-            ...prev,
-            page: pagination.current || 1,
-            per_page: pagination.pageSize || 10,
-          }))
+  // Custom empty state
+  const customEmpty = () => (
+    <Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE}
+      description={
+        <span style={{ color: "#999" }}>
+          Belum ada data universitas yang tersedia
+        </span>
+      }
+    />
+  );
+
+  // Error state
+  if (error && !loading) {
+    return (
+      <Alert
+        message="Gagal memuat data universitas"
+        description={
+          error.message ||
+          "Terjadi kesalahan saat memuat data. Silakan coba lagi."
         }
-        scroll={{ x: 1200 }}
+        type="error"
+        showIcon
+        icon={<ExclamationCircleOutlined />}
+        action={
+          onRetry && (
+            <Button size="small" onClick={onRetry} icon={<ReloadOutlined />}>
+              Coba Lagi
+            </Button>
+          )
+        }
+        style={{ margin: "24px 0" }}
       />
-    </Card>
+    );
+  }
+
+  return (
+    <Table
+      rowKey="id"
+      columns={TABLE_SCHEMA(openModal)}
+      dataSource={data?.data}
+      pagination={{
+        current: data?.meta?.current_page,
+        pageSize: data?.meta?.per_page,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        total: data?.meta?.total,
+        showTotal: (total, range) =>
+          `Menampilkan ${range[0]} - ${range[1]} dari ${total} data`,
+      }}
+      loading={loading}
+      locale={{
+        emptyText: customEmpty(),
+      }}
+      onChange={(pagination) =>
+        setParameter((prev) => ({
+          ...prev,
+          page: pagination.current || 1,
+          per_page: pagination.pageSize || 10,
+        }))
+      }
+      scroll={{ x: 1200 }}
+      size="small"
+      bordered
+    />
   );
 };
 
