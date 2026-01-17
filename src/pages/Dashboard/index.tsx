@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, Col, Row, Statistic, Typography } from "antd";
 import { useRequest } from "ahooks";
 import {
@@ -6,35 +7,20 @@ import {
   TeamOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
-import { getProfiles } from "../../api/services/member";
-import { getActivities } from "../../api/services/activity";
-import { getClubs } from "../../api/services/club";
-import { getRuangCurhats } from "../../api/services/ruangcurhat";
+import { getDashboardStats } from "../../api/services/dashboard";
 
 const { Text } = Typography;
 
-const DashboardPage = () => {
-  const { data: profileData, loading: profileLoading } = useRequest(() =>
-    getProfiles({ page: "1", per_page: "1" }),
-  );
+interface StatsCardProps {
+  title: string;
+  value: number | undefined;
+  loading: boolean;
+  icon: React.ReactNode;
+}
 
-  const { data: activityData, loading: activityLoading } = useRequest(() =>
-    getActivities({ page: "1", per_page: "1" }),
-  );
-
-  const { data: clubData, loading: clubLoading } = useRequest(() =>
-    getClubs({ page: "1", per_page: "1" }),
-  );
-
-  const { data: curhatData, loading: curhatLoading } = useRequest(() =>
-    getRuangCurhats({
-      page: "1",
-      per_page: "1",
-    }),
-  );
-
-  // Compact Stats Card Component
-  const StatsCard = ({ title, value, loading, icon }: any) => (
+// Extracted outside DashboardPage to prevent recreation on every render
+const StatsCard = React.memo(
+  ({ title, value, loading, icon }: StatsCardProps) => (
     <Card
       variant="outlined"
       style={{
@@ -72,7 +58,17 @@ const DashboardPage = () => {
         </div>
       </div>
     </Card>
-  );
+  ),
+);
+
+StatsCard.displayName = "StatsCard";
+
+const DashboardPage = () => {
+  // Single API call with caching
+  const { data, loading } = useRequest(getDashboardStats, {
+    cacheKey: "dashboard-stats",
+    staleTime: 60000, // 60 seconds - data considered fresh, no refetch
+  });
 
   return (
     <div
@@ -87,32 +83,32 @@ const DashboardPage = () => {
         <Col xs={24} sm={12} md={6}>
           <StatsCard
             title="Total Pengguna"
-            value={profileData?.meta.total}
-            loading={profileLoading}
+            value={data?.totalProfiles}
+            loading={loading}
             icon={<UserOutlined />}
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatsCard
             title="Total Kegiatan"
-            value={activityData?.meta.total}
-            loading={activityLoading}
+            value={data?.totalActivities}
+            loading={loading}
             icon={<AppstoreOutlined />}
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatsCard
             title="Total Unit Kegiatan"
-            value={clubData?.meta.total}
-            loading={clubLoading}
+            value={data?.totalClubs}
+            loading={loading}
             icon={<TeamOutlined />}
           />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatsCard
             title="Total Request Curhat"
-            value={curhatData?.meta.total}
-            loading={curhatLoading}
+            value={data?.totalRuangCurhats}
+            loading={loading}
             icon={<MessageOutlined />}
           />
         </Col>
