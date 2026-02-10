@@ -49,7 +49,9 @@ export type Activity = {
       visible_at?: string;
     };
   };
+  };
   is_published: number;
+  is_registration_open: boolean;
   created_at: string;
   updated_at: string;
 };

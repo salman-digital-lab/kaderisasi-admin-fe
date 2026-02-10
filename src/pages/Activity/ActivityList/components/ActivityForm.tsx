@@ -10,6 +10,7 @@ import {
   Row,
   Select,
   Tooltip,
+  Switch,
 } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -37,6 +38,7 @@ type FormType = {
   activity_type: ACTIVITY_TYPE_ENUM;
   registration_date: dayjs.Dayjs[];
   activity_date?: dayjs.Dayjs[];
+  is_registration_open: boolean;
 };
 
 const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
@@ -110,6 +112,15 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
                 }
               >
                 <Input placeholder="Nama Kegiatan" />
+              </Form.Item>
+              <Form.Item
+                name="is_registration_open"
+                label="Buka Pendaftaran"
+                valuePropName="checked"
+                initialValue={true}
+                tooltip="Jika dimatikan, tombol daftar akan hilang dari web publik"
+              >
+                <Switch />
               </Form.Item>
             </Col>
           </Row>
