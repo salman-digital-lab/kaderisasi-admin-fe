@@ -1,16 +1,48 @@
 import React from "react";
 import { CertificateElement } from "../types";
 
+export type ResizeHandle = "nw" | "ne" | "sw" | "se";
+
 interface DraggableElementProps {
   element: CertificateElement;
   isSelected: boolean;
   onSelect: () => void;
   onDragStart: (e: React.MouseEvent) => void;
+  onResizeStart?: (handle: ResizeHandle, e: React.MouseEvent) => void;
   onContentChange?: (content: string) => void;
 }
 
+const HANDLE_SIZE = 8;
+
+const handlePositions: Record<
+  ResizeHandle,
+  {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+    cursor: string;
+  }
+> = {
+  nw: { top: -HANDLE_SIZE / 2, left: -HANDLE_SIZE / 2, cursor: "nw-resize" },
+  ne: { top: -HANDLE_SIZE / 2, right: -HANDLE_SIZE / 2, cursor: "ne-resize" },
+  sw: { bottom: -HANDLE_SIZE / 2, left: -HANDLE_SIZE / 2, cursor: "sw-resize" },
+  se: {
+    bottom: -HANDLE_SIZE / 2,
+    right: -HANDLE_SIZE / 2,
+    cursor: "se-resize",
+  },
+};
+
 export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
-  ({ element, isSelected, onSelect, onDragStart, onContentChange }) => {
+  ({
+    element,
+    isSelected,
+    onSelect,
+    onDragStart,
+    onResizeStart,
+    onContentChange,
+  }) => {
     const [isEditing, setIsEditing] = React.useState(false);
 
     const handleDoubleClick = React.useCallback(() => {
@@ -185,50 +217,34 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         {renderContent()}
         {isSelected && (
           <>
-            <div
-              style={{
-                position: "absolute",
-                top: -4,
-                left: -4,
-                width: 8,
-                height: 8,
-                backgroundColor: "#1890ff",
-                borderRadius: "50%",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: -4,
-                right: -4,
-                width: 8,
-                height: 8,
-                backgroundColor: "#1890ff",
-                borderRadius: "50%",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: -4,
-                left: -4,
-                width: 8,
-                height: 8,
-                backgroundColor: "#1890ff",
-                borderRadius: "50%",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                bottom: -4,
-                right: -4,
-                width: 8,
-                height: 8,
-                backgroundColor: "#1890ff",
-                borderRadius: "50%",
-              }}
-            />
+            {(
+              Object.entries(handlePositions) as [
+                ResizeHandle,
+                (typeof handlePositions)[ResizeHandle],
+              ][]
+            ).map(([handle, pos]) => (
+              <div
+                key={handle}
+                style={{
+                  position: "absolute",
+                  top: pos.top,
+                  bottom: pos.bottom,
+                  left: pos.left,
+                  right: pos.right,
+                  width: HANDLE_SIZE,
+                  height: HANDLE_SIZE,
+                  backgroundColor: "#1890ff",
+                  borderRadius: "50%",
+                  cursor: pos.cursor,
+                  zIndex: 10,
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onResizeStart?.(handle, e);
+                }}
+              />
+            ))}
           </>
         )}
       </div>

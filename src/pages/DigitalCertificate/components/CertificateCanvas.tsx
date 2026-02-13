@@ -1,10 +1,8 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import {
-  DragOutlined,
-  SelectOutlined,
-} from "@ant-design/icons";
+import { DragOutlined, SelectOutlined } from "@ant-design/icons";
 import { CertificateElement, CertificateTemplate } from "../types";
-import { DraggableElement } from "./DraggableElement";
+import { DraggableElement, ResizeHandle } from "./DraggableElement";
+import { ELEMENT_MIN_WIDTH, ELEMENT_MIN_HEIGHT } from "../constants";
 
 interface CertificateCanvasProps {
   template: CertificateTemplate;
@@ -20,6 +18,17 @@ interface DragState {
   startY: number;
   elementStartX: number;
   elementStartY: number;
+}
+
+interface ResizeState {
+  elementId: string;
+  handle: ResizeHandle;
+  startX: number;
+  startY: number;
+  elementStartX: number;
+  elementStartY: number;
+  elementStartW: number;
+  elementStartH: number;
 }
 
 interface PanState {
@@ -46,9 +55,11 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<DragState | null>(null);
+    const resizeRef = useRef<ResizeState | null>(null);
     const panRef = useRef<PanState | null>(null);
     const rafRef = useRef<number | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [isResizing, setIsResizing] = useState(false);
     const [isPanning, setIsPanning] = useState(false);
     const [toolMode, setToolMode] = useState<ToolMode>("select");
 
@@ -183,6 +194,144 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       [handleElementMouseMove, handleElementMouseUp, toolMode],
     );
 
+    // --- Element resizing ---
+    const updateElementSize = useCallback(
+      (id: string, x: number, y: number, w: number, h: number) => {
+        const element = document.querySelector(
+          `[data-element-id="${id}"]`,
+        ) as HTMLElement;
+        if (element) {
+          element.style.left = `${x}px`;
+          element.style.top = `${y}px`;
+          element.style.width = `${w}px`;
+          // Update height or minHeight based on the current style
+          if (element.style.minHeight) {
+            element.style.minHeight = `${h}px`;
+          } else {
+            element.style.height = `${h}px`;
+          }
+        }
+      },
+      [],
+    );
+
+    const handleResizeMouseMove = useCallback(
+      (e: MouseEvent) => {
+        if (!resizeRef.current) return;
+
+        if (rafRef.current) {
+          cancelAnimationFrame(rafRef.current);
+        }
+
+        rafRef.current = requestAnimationFrame(() => {
+          if (!resizeRef.current) return;
+
+          const r = resizeRef.current;
+          const deltaX = (e.clientX - r.startX) / zoom;
+          const deltaY = (e.clientY - r.startY) / zoom;
+
+          let newX = r.elementStartX;
+          let newY = r.elementStartY;
+          let newW = r.elementStartW;
+          let newH = r.elementStartH;
+
+          switch (r.handle) {
+            case "se":
+              newW = Math.max(ELEMENT_MIN_WIDTH, r.elementStartW + deltaX);
+              newH = Math.max(ELEMENT_MIN_HEIGHT, r.elementStartH + deltaY);
+              break;
+            case "sw":
+              newW = Math.max(ELEMENT_MIN_WIDTH, r.elementStartW - deltaX);
+              newH = Math.max(ELEMENT_MIN_HEIGHT, r.elementStartH + deltaY);
+              newX = r.elementStartX + (r.elementStartW - newW);
+              break;
+            case "ne":
+              newW = Math.max(ELEMENT_MIN_WIDTH, r.elementStartW + deltaX);
+              newH = Math.max(ELEMENT_MIN_HEIGHT, r.elementStartH - deltaY);
+              newY = r.elementStartY + (r.elementStartH - newH);
+              break;
+            case "nw":
+              newW = Math.max(ELEMENT_MIN_WIDTH, r.elementStartW - deltaX);
+              newH = Math.max(ELEMENT_MIN_HEIGHT, r.elementStartH - deltaY);
+              newX = r.elementStartX + (r.elementStartW - newW);
+              newY = r.elementStartY + (r.elementStartH - newH);
+              break;
+          }
+
+          newX = Math.max(0, newX);
+          newY = Math.max(0, newY);
+
+          updateElementSize(r.elementId, newX, newY, newW, newH);
+          // Store position for commit on mouseup
+          elementPositionsRef.current.set(r.elementId, { x: newX, y: newY });
+        });
+      },
+      [zoom, updateElementSize],
+    );
+
+    const handleResizeMouseUp = useCallback(() => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+
+      if (resizeRef.current) {
+        const r = resizeRef.current;
+        // Read the final dimensions from the DOM element
+        const el = document.querySelector(
+          `[data-element-id="${r.elementId}"]`,
+        ) as HTMLElement;
+        if (el) {
+          const finalX = parseFloat(el.style.left) || 0;
+          const finalY = parseFloat(el.style.top) || 0;
+          const finalW = parseFloat(el.style.width) || r.elementStartW;
+          const finalH =
+            parseFloat(el.style.height || el.style.minHeight) ||
+            r.elementStartH;
+          onUpdateElement(r.elementId, {
+            x: finalX,
+            y: finalY,
+            width: finalW,
+            height: finalH,
+          });
+        }
+        resizeRef.current = null;
+      }
+
+      setIsResizing(false);
+
+      document.removeEventListener("mousemove", handleResizeMouseMove);
+      document.removeEventListener("mouseup", handleResizeMouseUp);
+    }, [handleResizeMouseMove, onUpdateElement]);
+
+    const handleResizeStart = useCallback(
+      (
+        element: CertificateElement,
+        handle: ResizeHandle,
+        e: React.MouseEvent,
+      ) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        resizeRef.current = {
+          elementId: element.id,
+          handle,
+          startX: e.clientX,
+          startY: e.clientY,
+          elementStartX: element.x,
+          elementStartY: element.y,
+          elementStartW: element.width,
+          elementStartH: element.height,
+        };
+
+        setIsResizing(true);
+
+        document.addEventListener("mousemove", handleResizeMouseMove);
+        document.addEventListener("mouseup", handleResizeMouseUp);
+      },
+      [handleResizeMouseMove, handleResizeMouseUp],
+    );
+
     // --- Panning ---
     const handlePanMove = useCallback((e: MouseEvent) => {
       if (!panRef.current) return;
@@ -272,12 +421,16 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
         }
         document.removeEventListener("mousemove", handleElementMouseMove);
         document.removeEventListener("mouseup", handleElementMouseUp);
+        document.removeEventListener("mousemove", handleResizeMouseMove);
+        document.removeEventListener("mouseup", handleResizeMouseUp);
         document.removeEventListener("mousemove", handlePanMove);
         document.removeEventListener("mouseup", handlePanUp);
       };
     }, [
       handleElementMouseMove,
       handleElementMouseUp,
+      handleResizeMouseMove,
+      handleResizeMouseUp,
       handlePanMove,
       handlePanUp,
     ]);
@@ -287,9 +440,11 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
         ? isPanning
           ? "grabbing"
           : "grab"
-        : isDragging
+        : isResizing
           ? "default"
-          : "default";
+          : isDragging
+            ? "default"
+            : "default";
 
     const toolBtnBase: React.CSSProperties = {
       width: 32,
@@ -513,6 +668,9 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
                   if (toolMode === "select") onSelectElement(element.id);
                 }}
                 onDragStart={(e) => handleDragStart(element, e)}
+                onResizeStart={(handle, e) =>
+                  handleResizeStart(element, handle, e)
+                }
                 onContentChange={
                   element.type === "static-text"
                     ? (content) => onUpdateElement(element.id, { content })
