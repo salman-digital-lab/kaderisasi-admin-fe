@@ -1,6 +1,6 @@
 export interface CertificateElement {
   id: string;
-  type: "static-text" | "variable-text" | "qr-code" | "signature";
+  type: "static-text" | "variable-text" | "image" | "qr-code" | "signature";
   x: number;
   y: number;
   width: number;

@@ -6,6 +6,7 @@ import {
   QrcodeOutlined,
   EditOutlined,
   PictureOutlined,
+  FileImageOutlined,
   DeleteOutlined,
   CopyOutlined,
   ExpandOutlined,
@@ -15,7 +16,8 @@ import { ElementType } from "../types";
 
 interface ElementToolbarProps {
   onAddElement: (type: ElementType) => void;
-  onBackgroundUpload: (url: string) => void;
+  onBackgroundUpload: (url: string, file?: File) => void;
+  onImageUpload: (url: string) => void;
   onDeleteSelected: () => void;
   onDuplicateSelected: () => void;
   onOpenCanvasSettings: () => void;
@@ -26,6 +28,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
   ({
     onAddElement,
     onBackgroundUpload,
+    onImageUpload,
     onDeleteSelected,
     onDuplicateSelected,
     onOpenCanvasSettings,
@@ -38,13 +41,29 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           const reader = new FileReader();
           reader.onload = (e) => {
             if (e.target?.result) {
-              onBackgroundUpload(e.target.result as string);
+              onBackgroundUpload(e.target.result as string, file);
             }
           };
           reader.readAsDataURL(file);
         }
       },
       [onBackgroundUpload],
+    );
+
+    const handleImageChange = React.useCallback(
+      (info: { file: UploadFile }) => {
+        const file = info.file.originFileObj || (info.file as unknown as File);
+        if (file && file instanceof File) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              onImageUpload(e.target.result as string);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      },
+      [onImageUpload],
     );
 
     const handleAddStaticText = React.useCallback(
@@ -123,6 +142,17 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
             </Button>
           </Tooltip>
         </Space.Compact>
+
+        <Upload
+          accept="image/*"
+          showUploadList={false}
+          beforeUpload={() => false}
+          onChange={handleImageChange}
+        >
+          <Tooltip title="Tambah Gambar (Logo, dll)">
+            <Button icon={<FileImageOutlined />}>Gambar</Button>
+          </Tooltip>
+        </Upload>
 
         {hasSelection && (
           <>

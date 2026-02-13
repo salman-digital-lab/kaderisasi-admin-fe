@@ -147,7 +147,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     const isTextElement =
       element.type === "static-text" || element.type === "variable-text";
     const isImageElement =
-      element.type === "qr-code" || element.type === "signature";
+      element.type === "image" || element.type === "qr-code" || element.type === "signature";
 
     return (
       <Card

@@ -93,6 +93,36 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
               {element.variable}
             </div>
           );
+        case "image":
+          return element.imageUrl ? (
+            <img
+              src={element.imageUrl}
+              alt="Image"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }}
+              draggable={false}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#f5f5f5",
+                border: "1px dashed #d9d9d9",
+                borderRadius: 4,
+                fontSize: 12,
+                color: "#999",
+              }}
+            >
+              Gambar
+            </div>
+          );
         case "qr-code":
         case "signature":
           return element.imageUrl ? (
@@ -137,7 +167,9 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           left: element.x,
           top: element.y,
           width: element.width,
-          minHeight: element.height,
+          ...(element.type === "static-text" || element.type === "variable-text"
+            ? { minHeight: element.height }
+            : { height: element.height }),
           cursor: isEditing ? "text" : "move",
           border: isSelected ? "2px solid #1890ff" : "1px dashed transparent",
           borderRadius: 4,
