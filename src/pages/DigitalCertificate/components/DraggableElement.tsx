@@ -1,6 +1,8 @@
 import React from "react";
 import { CertificateElement } from "../types";
 
+// ─── Types ──────────────────────────────────────────────────────────────────
+
 export type ResizeHandle = "nw" | "ne" | "sw" | "se";
 
 interface DraggableElementProps {
@@ -12,27 +14,127 @@ interface DraggableElementProps {
   onContentChange?: (content: string) => void;
 }
 
+// ─── Constants ──────────────────────────────────────────────────────────────
+
 const HANDLE_SIZE = 8;
 
-const handlePositions: Record<
-  ResizeHandle,
+const RESIZE_HANDLES: {
+  key: ResizeHandle;
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+  cursor: string;
+}[] = [
   {
-    top?: number;
-    bottom?: number;
-    left?: number;
-    right?: number;
-    cursor: string;
-  }
-> = {
-  nw: { top: -HANDLE_SIZE / 2, left: -HANDLE_SIZE / 2, cursor: "nw-resize" },
-  ne: { top: -HANDLE_SIZE / 2, right: -HANDLE_SIZE / 2, cursor: "ne-resize" },
-  sw: { bottom: -HANDLE_SIZE / 2, left: -HANDLE_SIZE / 2, cursor: "sw-resize" },
-  se: {
+    key: "nw",
+    top: -HANDLE_SIZE / 2,
+    left: -HANDLE_SIZE / 2,
+    cursor: "nw-resize",
+  },
+  {
+    key: "ne",
+    top: -HANDLE_SIZE / 2,
+    right: -HANDLE_SIZE / 2,
+    cursor: "ne-resize",
+  },
+  {
+    key: "sw",
+    bottom: -HANDLE_SIZE / 2,
+    left: -HANDLE_SIZE / 2,
+    cursor: "sw-resize",
+  },
+  {
+    key: "se",
     bottom: -HANDLE_SIZE / 2,
     right: -HANDLE_SIZE / 2,
     cursor: "se-resize",
   },
+];
+
+const fullSizeImageStyle: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
 };
+
+const placeholderStyle: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "#f5f5f5",
+  border: "1px dashed #d9d9d9",
+  borderRadius: 4,
+  fontSize: 12,
+  color: "#999",
+};
+
+// ─── Helper: placeholder labels ─────────────────────────────────────────────
+
+const PLACEHOLDER_LABELS: Record<string, string> = {
+  image: "Gambar",
+  "qr-code": "QR Code",
+  signature: "Tanda Tangan",
+};
+
+// ─── Sub-components for element content ─────────────────────────────────────
+
+/** Static text element with inline editing support. */
+const StaticTextContent: React.FC<{
+  content: string;
+  style: React.CSSProperties;
+  isEditing: boolean;
+  onBlur: (e: React.FocusEvent<HTMLDivElement>) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+}> = ({ content, style, isEditing, onBlur, onKeyDown }) => (
+  <div
+    contentEditable={isEditing}
+    suppressContentEditableWarning
+    onBlur={onBlur}
+    onKeyDown={onKeyDown}
+    style={style}
+  >
+    {content}
+  </div>
+);
+
+/** Variable text element with highlighted background. */
+const VariableTextContent: React.FC<{
+  variable: string;
+  style: React.CSSProperties;
+}> = ({ variable, style }) => (
+  <div
+    style={{
+      ...style,
+      backgroundColor: "rgba(24, 144, 255, 0.1)",
+      padding: "2px 8px",
+      borderRadius: 4,
+    }}
+  >
+    {variable}
+  </div>
+);
+
+/** Image-based element (image, qr-code, signature) with placeholder fallback. */
+const ImageContent: React.FC<{
+  imageUrl?: string;
+  alt: string;
+  placeholderLabel: string;
+}> = ({ imageUrl, alt, placeholderLabel }) =>
+  imageUrl ? (
+    <img
+      src={imageUrl}
+      alt={alt}
+      style={fullSizeImageStyle}
+      draggable={false}
+    />
+  ) : (
+    <div style={placeholderStyle}>{placeholderLabel}</div>
+  );
+
+// ─── Main Component ─────────────────────────────────────────────────────────
 
 export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
   ({
@@ -44,6 +146,8 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     onContentChange,
   }) => {
     const [isEditing, setIsEditing] = React.useState(false);
+
+    // ── Event handlers ──────────────────────────────────────────────────
 
     const handleDoubleClick = React.useCallback(() => {
       if (element.type === "static-text" && onContentChange) {
@@ -78,12 +182,12 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
 
     const handleMouseDown = React.useCallback(
       (e: React.MouseEvent) => {
-        if (!isEditing) {
-          onDragStart(e);
-        }
+        if (!isEditing) onDragStart(e);
       },
       [isEditing, onDragStart],
     );
+
+    // ── Memoized styles ─────────────────────────────────────────────────
 
     const textStyle: React.CSSProperties = React.useMemo(
       () => ({
@@ -98,98 +202,48 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
       [element.fontSize, element.fontFamily, element.color, element.textAlign],
     );
 
+    const isTextType =
+      element.type === "static-text" || element.type === "variable-text";
+
+    // ── Content renderer ────────────────────────────────────────────────
+
     const renderContent = () => {
       switch (element.type) {
         case "static-text":
           return (
-            <div
-              contentEditable={isEditing}
-              suppressContentEditableWarning
+            <StaticTextContent
+              content={element.content || ""}
+              style={textStyle}
+              isEditing={isEditing}
               onBlur={handleBlur}
               onKeyDown={handleKeyDown}
-              style={textStyle}
-            >
-              {element.content}
-            </div>
+            />
           );
         case "variable-text":
           return (
-            <div
-              style={{
-                ...textStyle,
-                backgroundColor: "rgba(24, 144, 255, 0.1)",
-                padding: "2px 8px",
-                borderRadius: 4,
-              }}
-            >
-              {element.variable}
-            </div>
+            <VariableTextContent
+              variable={element.variable || ""}
+              style={textStyle}
+            />
           );
         case "image":
-          return element.imageUrl ? (
-            <img
-              src={element.imageUrl}
-              alt="Image"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-              }}
-              draggable={false}
-            />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#f5f5f5",
-                border: "1px dashed #d9d9d9",
-                borderRadius: 4,
-                fontSize: 12,
-                color: "#999",
-              }}
-            >
-              Gambar
-            </div>
-          );
         case "qr-code":
         case "signature":
-          return element.imageUrl ? (
-            <img
-              src={element.imageUrl}
+          return (
+            <ImageContent
+              imageUrl={element.imageUrl}
               alt={element.type}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-              }}
-              draggable={false}
+              placeholderLabel={
+                PLACEHOLDER_LABELS[element.type] || element.type
+              }
             />
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#f5f5f5",
-                border: "1px dashed #d9d9d9",
-                borderRadius: 4,
-                fontSize: 12,
-                color: "#999",
-              }}
-            >
-              {element.type === "qr-code" ? "QR Code" : "Tanda Tangan"}
-            </div>
           );
         default:
           return null;
       }
     };
+
+    // ── Render ───────────────────────────────────────────────────────────
 
     return (
       <div
@@ -199,7 +253,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           left: element.x,
           top: element.y,
           width: element.width,
-          ...(element.type === "static-text" || element.type === "variable-text"
+          ...(isTextType
             ? { minHeight: element.height }
             : { height: element.height }),
           cursor: isEditing ? "text" : "move",
@@ -215,38 +269,28 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         onDoubleClick={handleDoubleClick}
       >
         {renderContent()}
-        {isSelected && (
-          <>
-            {(
-              Object.entries(handlePositions) as [
-                ResizeHandle,
-                (typeof handlePositions)[ResizeHandle],
-              ][]
-            ).map(([handle, pos]) => (
-              <div
-                key={handle}
-                style={{
-                  position: "absolute",
-                  top: pos.top,
-                  bottom: pos.bottom,
-                  left: pos.left,
-                  right: pos.right,
-                  width: HANDLE_SIZE,
-                  height: HANDLE_SIZE,
-                  backgroundColor: "#1890ff",
-                  borderRadius: "50%",
-                  cursor: pos.cursor,
-                  zIndex: 10,
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onResizeStart?.(handle, e);
-                }}
-              />
-            ))}
-          </>
-        )}
+
+        {isSelected &&
+          RESIZE_HANDLES.map(({ key, cursor, ...pos }) => (
+            <div
+              key={key}
+              style={{
+                position: "absolute",
+                ...pos,
+                width: HANDLE_SIZE,
+                height: HANDLE_SIZE,
+                backgroundColor: "#1890ff",
+                borderRadius: "50%",
+                cursor,
+                zIndex: 10,
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onResizeStart?.(key, e);
+              }}
+            />
+          ))}
       </div>
     );
   },

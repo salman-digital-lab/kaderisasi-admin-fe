@@ -11,8 +11,10 @@ import {
   CopyOutlined,
   ExpandOutlined,
 } from "@ant-design/icons";
-import type { UploadFile } from "antd";
 import { ElementType } from "../types";
+import { readUploadFileAsDataUrl } from "../utils/readUploadFile";
+
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 interface ElementToolbarProps {
   onAddElement: (type: ElementType) => void;
@@ -23,6 +25,20 @@ interface ElementToolbarProps {
   onOpenCanvasSettings: () => void;
   hasSelection: boolean;
 }
+
+// ─── Styles ─────────────────────────────────────────────────────────────────
+
+const toolbarStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "8px 12px",
+  backgroundColor: "#fafafa",
+  borderBottom: "1px solid #f0f0f0",
+  flexWrap: "wrap",
+};
+
+// ─── Component ──────────────────────────────────────────────────────────────
 
 export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
   ({
@@ -35,66 +51,24 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
     hasSelection,
   }) => {
     const handleBackgroundChange = React.useCallback(
-      (info: { file: UploadFile }) => {
-        const file = info.file.originFileObj || (info.file as unknown as File);
-        if (file && file instanceof File) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              onBackgroundUpload(e.target.result as string, file);
-            }
-          };
-          reader.readAsDataURL(file);
-        }
+      (info: { file: import("antd").UploadFile }) => {
+        readUploadFileAsDataUrl(info, (dataUrl, file) =>
+          onBackgroundUpload(dataUrl, file),
+        );
       },
       [onBackgroundUpload],
     );
 
     const handleImageChange = React.useCallback(
-      (info: { file: UploadFile }) => {
-        const file = info.file.originFileObj || (info.file as unknown as File);
-        if (file && file instanceof File) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              onImageUpload(e.target.result as string);
-            }
-          };
-          reader.readAsDataURL(file);
-        }
+      (info: { file: import("antd").UploadFile }) => {
+        readUploadFileAsDataUrl(info, (dataUrl) => onImageUpload(dataUrl));
       },
       [onImageUpload],
     );
 
-    const handleAddStaticText = React.useCallback(
-      () => onAddElement("static-text"),
-      [onAddElement],
-    );
-    const handleAddVariableText = React.useCallback(
-      () => onAddElement("variable-text"),
-      [onAddElement],
-    );
-    const handleAddQrCode = React.useCallback(
-      () => onAddElement("qr-code"),
-      [onAddElement],
-    );
-    const handleAddSignature = React.useCallback(
-      () => onAddElement("signature"),
-      [onAddElement],
-    );
-
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "8px 12px",
-          backgroundColor: "#fafafa",
-          borderBottom: "1px solid #f0f0f0",
-          flexWrap: "wrap",
-        }}
-      >
+      <div style={toolbarStyle}>
+        {/* Canvas settings */}
         <Upload
           accept="image/*"
           showUploadList={false}
@@ -114,30 +88,41 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         <Divider type="vertical" style={{ height: 24 }} />
 
+        {/* Text elements */}
         <Space.Compact>
           <Tooltip title="Tambah Teks Statis">
-            <Button icon={<FontSizeOutlined />} onClick={handleAddStaticText}>
+            <Button
+              icon={<FontSizeOutlined />}
+              onClick={() => onAddElement("static-text")}
+            >
               Teks Statis
             </Button>
           </Tooltip>
           <Tooltip title="Tambah Teks Variabel">
             <Button
               icon={<FieldStringOutlined />}
-              onClick={handleAddVariableText}
+              onClick={() => onAddElement("variable-text")}
             >
               Teks Variabel
             </Button>
           </Tooltip>
         </Space.Compact>
 
+        {/* Media elements */}
         <Space.Compact>
           <Tooltip title="Tambah QR Code">
-            <Button icon={<QrcodeOutlined />} onClick={handleAddQrCode}>
+            <Button
+              icon={<QrcodeOutlined />}
+              onClick={() => onAddElement("qr-code")}
+            >
               QR Code
             </Button>
           </Tooltip>
           <Tooltip title="Tambah Tanda Tangan">
-            <Button icon={<EditOutlined />} onClick={handleAddSignature}>
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => onAddElement("signature")}
+            >
               Tanda Tangan
             </Button>
           </Tooltip>
@@ -154,6 +139,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           </Tooltip>
         </Upload>
 
+        {/* Selection actions */}
         {hasSelection && (
           <>
             <Divider type="vertical" style={{ height: 24 }} />

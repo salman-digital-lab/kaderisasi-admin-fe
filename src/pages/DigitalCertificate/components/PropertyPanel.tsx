@@ -12,18 +12,22 @@ import {
   Divider,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import type { UploadFile } from "antd";
 import { CertificateElement } from "../types";
 import { VARIABLE_OPTIONS, DEFAULT_FONT_FAMILIES } from "../constants";
+import { readUploadFileAsDataUrl } from "../utils/readUploadFile";
 
 const { Text } = Typography;
+
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 interface PropertyPanelProps {
   element: CertificateElement | null;
   onUpdate: (updates: Partial<CertificateElement>) => void;
 }
 
-// Debounced input component for better performance
+// ─── Reusable sub-components ────────────────────────────────────────────────
+
+/** A number input that only commits on blur or Enter for performance. */
 const DebouncedInput: React.FC<{
   value: number;
   onChange: (value: number) => void;
@@ -36,16 +40,12 @@ const DebouncedInput: React.FC<{
   }, [value]);
 
   const handleBlur = useCallback(() => {
-    if (localValue !== value) {
-      onChange(localValue);
-    }
+    if (localValue !== value) onChange(localValue);
   }, [localValue, value, onChange]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        onChange(localValue);
-      }
+      if (e.key === "Enter") onChange(localValue);
     },
     [localValue, onChange],
   );
@@ -67,69 +67,43 @@ const DebouncedInput: React.FC<{
 
 DebouncedInput.displayName = "DebouncedInput";
 
+/** Label + content wrapper for each property section. */
+const PropertySection: React.FC<{
+  label: string;
+  children: React.ReactNode;
+}> = ({ label, children }) => (
+  <div>
+    <Text type="secondary" style={{ fontSize: 12 }}>
+      {label}
+    </Text>
+    <div style={{ marginTop: 4 }}>{children}</div>
+  </div>
+);
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
 export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
   ({ element, onUpdate }) => {
+    // ── Callbacks ───────────────────────────────────────────────────────
+
     const handleImageUpload = useCallback(
-      (info: { file: UploadFile }) => {
-        const file = info.file.originFileObj || (info.file as unknown as File);
-        if (file && file instanceof File) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              onUpdate({ imageUrl: e.target.result as string });
-            }
-          };
-          reader.readAsDataURL(file);
-        }
+      (info: { file: import("antd").UploadFile }) => {
+        readUploadFileAsDataUrl(info, (dataUrl) =>
+          onUpdate({ imageUrl: dataUrl }),
+        );
       },
       [onUpdate],
     );
 
-    const handleXChange = useCallback(
-      (value: number) => onUpdate({ x: value }),
+    const updateField = useCallback(
+      <K extends keyof CertificateElement>(
+        key: K,
+        value: CertificateElement[K],
+      ) => onUpdate({ [key]: value }),
       [onUpdate],
     );
 
-    const handleYChange = useCallback(
-      (value: number) => onUpdate({ y: value }),
-      [onUpdate],
-    );
-
-    const handleWidthChange = useCallback(
-      (value: number) => onUpdate({ width: value }),
-      [onUpdate],
-    );
-
-    const handleHeightChange = useCallback(
-      (value: number) => onUpdate({ height: value }),
-      [onUpdate],
-    );
-
-    const handleVariableChange = useCallback(
-      (value: string) => onUpdate({ variable: value }),
-      [onUpdate],
-    );
-
-    const handleFontSizeChange = useCallback(
-      (value: number) => onUpdate({ fontSize: value }),
-      [onUpdate],
-    );
-
-    const handleFontFamilyChange = useCallback(
-      (value: string) => onUpdate({ fontFamily: value }),
-      [onUpdate],
-    );
-
-    const handleColorChange = useCallback(
-      (color: { toHexString: () => string }) =>
-        onUpdate({ color: color.toHexString() }),
-      [onUpdate],
-    );
-
-    const handleTextAlignChange = useCallback(
-      (value: "left" | "center" | "right") => onUpdate({ textAlign: value }),
-      [onUpdate],
-    );
+    // ── Empty state ─────────────────────────────────────────────────────
 
     if (!element) {
       return (
@@ -147,7 +121,11 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     const isTextElement =
       element.type === "static-text" || element.type === "variable-text";
     const isImageElement =
-      element.type === "image" || element.type === "qr-code" || element.type === "signature";
+      element.type === "image" ||
+      element.type === "qr-code" ||
+      element.type === "signature";
+
+    // ── Render ───────────────────────────────────────────────────────────
 
     return (
       <Card
@@ -158,62 +136,53 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
       >
         <Space direction="vertical" style={{ width: "100%" }} size="small">
           {/* Position */}
-          <div>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Posisi
-            </Text>
-            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+          <PropertySection label="Posisi">
+            <div style={{ display: "flex", gap: 8 }}>
               <DebouncedInput
                 label="X"
                 value={Math.round(element.x)}
-                onChange={handleXChange}
+                onChange={(v) => updateField("x", v)}
               />
               <DebouncedInput
                 label="Y"
                 value={Math.round(element.y)}
-                onChange={handleYChange}
+                onChange={(v) => updateField("y", v)}
               />
             </div>
-          </div>
+          </PropertySection>
 
           {/* Size */}
-          <div>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Ukuran
-            </Text>
-            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+          <PropertySection label="Ukuran">
+            <div style={{ display: "flex", gap: 8 }}>
               <DebouncedInput
                 label="Lebar"
                 value={Math.round(element.width)}
-                onChange={handleWidthChange}
+                onChange={(v) => updateField("width", v)}
               />
               <DebouncedInput
                 label="Tinggi"
                 value={Math.round(element.height)}
-                onChange={handleHeightChange}
+                onChange={(v) => updateField("height", v)}
               />
             </div>
-          </div>
+          </PropertySection>
 
           {/* Variable Selection */}
           {element.type === "variable-text" && (
             <>
               <Divider style={{ margin: "8px 0" }} />
-              <div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Variabel
-                </Text>
+              <PropertySection label="Variabel">
                 <Select
                   size="small"
-                  style={{ width: "100%", marginTop: 4 }}
+                  style={{ width: "100%" }}
                   value={element.variable}
-                  onChange={handleVariableChange}
+                  onChange={(v) => updateField("variable", v)}
                   options={VARIABLE_OPTIONS.map((opt) => ({
                     label: opt.label,
                     value: opt.value,
                   }))}
                 />
-              </div>
+              </PropertySection>
             </>
           )}
 
@@ -221,63 +190,52 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           {isTextElement && (
             <>
               <Divider style={{ margin: "8px 0" }} />
-              <div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Ukuran Font
-                </Text>
+
+              <PropertySection label="Ukuran Font">
                 <Slider
                   min={8}
                   max={72}
                   value={element.fontSize || 16}
-                  onChange={handleFontSizeChange}
+                  onChange={(v) => updateField("fontSize", v)}
                 />
-              </div>
+              </PropertySection>
 
-              <div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Font
-                </Text>
+              <PropertySection label="Font">
                 <Select
                   size="small"
-                  style={{ width: "100%", marginTop: 4 }}
+                  style={{ width: "100%" }}
                   value={element.fontFamily || "sans-serif"}
-                  onChange={handleFontFamilyChange}
+                  onChange={(v) => updateField("fontFamily", v)}
                   options={DEFAULT_FONT_FAMILIES.map((font) => ({
                     label: font.label,
                     value: font.value,
                   }))}
                 />
-              </div>
+              </PropertySection>
 
-              <div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Warna
-                </Text>
-                <div style={{ marginTop: 4 }}>
-                  <ColorPicker
-                    value={element.color || "#000000"}
-                    onChange={handleColorChange}
-                    showText
-                  />
-                </div>
-              </div>
+              <PropertySection label="Warna">
+                <ColorPicker
+                  value={element.color || "#000000"}
+                  onChange={(c) => updateField("color", c.toHexString())}
+                  showText
+                />
+              </PropertySection>
 
-              <div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Alignment
-                </Text>
+              <PropertySection label="Alignment">
                 <Select
                   size="small"
-                  style={{ width: "100%", marginTop: 4 }}
+                  style={{ width: "100%" }}
                   value={element.textAlign || "center"}
-                  onChange={handleTextAlignChange}
+                  onChange={(v: "left" | "center" | "right") =>
+                    updateField("textAlign", v)
+                  }
                   options={[
                     { label: "Kiri", value: "left" },
                     { label: "Tengah", value: "center" },
                     { label: "Kanan", value: "right" },
                   ]}
                 />
-              </div>
+              </PropertySection>
             </>
           )}
 
@@ -285,11 +243,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           {isImageElement && (
             <>
               <Divider style={{ margin: "8px 0" }} />
-              <div>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Upload Gambar
-                </Text>
-                <div style={{ marginTop: 8 }}>
+              <PropertySection label="Upload Gambar">
+                <div style={{ marginTop: 4 }}>
                   <Upload
                     accept="image/*"
                     showUploadList={false}
@@ -316,7 +271,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                     />
                   </div>
                 )}
-              </div>
+              </PropertySection>
             </>
           )}
         </Space>
