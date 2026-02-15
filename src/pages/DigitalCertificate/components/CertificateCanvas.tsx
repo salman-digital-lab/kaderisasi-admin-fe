@@ -389,7 +389,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             userSelect: "none",
           }}
         >
-          V: select · H: pan
+          V: select · H: pan · Del: delete
         </div>
 
         {/* Transformed canvas container */}

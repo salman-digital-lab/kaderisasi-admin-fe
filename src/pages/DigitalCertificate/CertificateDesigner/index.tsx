@@ -119,12 +119,32 @@ const CertificateDesigner: React.FC = () => {
     message.success("Teks variabel berhasil ditambahkan");
   };
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = useCallback(() => {
     if (selectedElementId) {
       deleteElement(selectedElementId);
       message.success("Elemen berhasil dihapus");
     }
-  };
+  }, [selectedElementId, deleteElement]);
+
+  // ── Keyboard shortcut: Delete / Backspace to remove selected element ──
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement).isContentEditable
+      ) {
+        return;
+      }
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        handleDeleteSelected();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleDeleteSelected]);
 
   const handleDuplicateSelected = () => {
     if (selectedElementId) {
