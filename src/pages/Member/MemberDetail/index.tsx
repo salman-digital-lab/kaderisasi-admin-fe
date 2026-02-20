@@ -18,6 +18,7 @@ import {
 } from "antd";
 import { EditOutlined, SaveOutlined } from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
+import dayjs from "dayjs";
 import { useRequest, useToggle } from "ahooks";
 
 import {
@@ -28,25 +29,24 @@ import {
 import { getUniversities } from "../../../api/services/university";
 import { GENDER_OPTION, USER_LEVEL_OPTIONS } from "../../../constants/options";
 import { getProvinces } from "../../../api/services/province";
-import { GENDER } from "../../../types/constants/profile";
 import EditAuthDataModal from "./components/EditAuthDataModal";
 import { useState } from "react";
 
 type FormType = {
   name?: string;
-  gender?: GENDER;
-  personal_id: string;
-  tiktok: string;
-  linkedin: string;
+  personal_id?: string;
   whatsapp?: string;
-  line?: string;
   instagram?: string;
-  province_id?: number;
+  linkedin?: string;
+  tiktok?: string;
+  line?: string;
+  gender?: string;
   city_id?: number;
+  province_id?: number;
   university_id?: number;
   major?: string;
   intake_year?: number;
-  birth_date?: string;
+  birth_date?: dayjs.Dayjs | string;
   level?: number;
   badges?: string[];
 };
@@ -74,7 +74,7 @@ const MemberDetailPage = () => {
         level: data?.profile[0].level,
         gender: data?.profile[0].gender,
         badges: data?.profile[0].badges,
-        birth_date: data?.profile[0].birth_date,
+        birth_date: data?.profile[0].birth_date ? dayjs(data.profile[0].birth_date) : undefined,
       });
     },
   });
@@ -179,23 +179,23 @@ const MemberDetailPage = () => {
             form={form}
             disabled={!isEdit}
             onFinish={async (value) => {
-              await runAsync(id || "", {
-                data: {
-                  gender: value.gender,
-                  whatsapp: value.whatsapp,
-                  line: value.line,
-                  instagram: value.instagram,
-                  province_id: value.province_id,
-                  city_id: value.city_id,
-                  university_id: value.university_id,
-                  major: value.major,
-                  level: value.level,
-                  intake_year: value.intake_year,
-                  badges: JSON.stringify(value.badges || []),
-                  name: value.name,
-                  birth_date: value.birth_date,
-                },
-              });
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const data: any = {
+                gender: value.gender,
+                whatsapp: value.whatsapp,
+                line: value.line,
+                instagram: value.instagram,
+                province_id: value.province_id,
+                city_id: value.city_id,
+                university_id: value.university_id,
+                major: value.major,
+                level: value.level,
+                intake_year: value.intake_year,
+                badges: JSON.stringify(value.badges || []),
+                name: value.name,
+                birth_date: value.birth_date ? value.birth_date.toString() : undefined,
+              };
+              await runAsync(id || "", { data });
               toggleEdit();
             }}
           >

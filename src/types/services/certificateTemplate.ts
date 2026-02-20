@@ -83,3 +83,54 @@ export interface UploadBackgroundResp {
   message: string;
   data: { backgroundImage: string };
 }
+
+export interface GenerateCertificatesReq {
+  activity_id: number;
+  template_id: number;
+  status?: string;
+}
+
+export interface CertificateParticipant {
+  registration_id: number;
+  user_id: number;
+  name: string;
+  email: string;
+  activity_name: string;
+  activity_date: string;
+}
+
+export interface GenerateCertificatesResp {
+  message: string;
+  data: {
+    activity: {
+      id: number;
+      name: string;
+      activity_start: string;
+    };
+    template: CertificateTemplate;
+    participants: CertificateParticipant[];
+    total: number;
+  };
+}
+
+export interface GenerateSingleCertificateReq {
+  registration_id: number;
+}
+
+export interface GenerateSingleCertificateResp {
+  message: string;
+  data: {
+    activity: {
+      id: number;
+      name: string;
+      activity_start: string;
+    };
+    template: {
+      id: number;
+      name: string;
+      background_image: string | null;
+      template_data: CertificateTemplateData;
+    };
+    participant: CertificateParticipant;
+  };
+}

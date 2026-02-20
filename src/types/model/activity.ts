@@ -48,6 +48,7 @@ export type Activity = {
       is_visible: boolean;
       visible_at?: string;
     };
+    certificate_template_id?: number;
   };
   is_published: number;
   is_registration_open: boolean;

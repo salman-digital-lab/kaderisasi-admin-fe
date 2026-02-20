@@ -54,6 +54,7 @@ const DigitalCertificate = lazy(() => import("../pages/DigitalCertificate"));
 const CertificateDesigner = lazy(
   () => import("../pages/DigitalCertificate/CertificateDesigner"),
 );
+const CertificatePreview = lazy(() => import("../pages/CertificatePreview"));
 
 // Loading Component
 const Loading = () => (
@@ -113,6 +114,14 @@ const RoleUser = ({
 
 const routes = createBrowserRouter(
   [
+    {
+      path: "/certificate-preview",
+      element: (
+        <SuspenseWrapper>
+          <CertificatePreview />
+        </SuspenseWrapper>
+      ),
+    },
     {
       path: "/login",
       element: (

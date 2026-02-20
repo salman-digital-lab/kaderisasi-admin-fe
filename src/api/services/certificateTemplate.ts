@@ -9,6 +9,10 @@ import {
   UpdateCertificateTemplateResp,
   DeleteCertificateTemplateResp,
   UploadBackgroundResp,
+  GenerateCertificatesReq,
+  GenerateCertificatesResp,
+  GenerateSingleCertificateReq,
+  GenerateSingleCertificateResp,
 } from "../../types/services/certificateTemplate";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -90,6 +94,32 @@ export const uploadCertificateBackground = async (id: number, file: File) => {
     const res = await axios.post<UploadBackgroundResp>(
       `/certificate-templates/${id}/background`,
       formData,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const generateCertificates = async (data: GenerateCertificatesReq) => {
+  try {
+    const res = await axios.post<GenerateCertificatesResp>(
+      "/certificates/generate",
+      data,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const generateSingleCertificate = async (data: GenerateSingleCertificateReq) => {
+  try {
+    const res = await axios.post<GenerateSingleCertificateResp>(
+      "/certificates/generate-single",
+      data,
     );
     return res.data.data;
   } catch (error) {

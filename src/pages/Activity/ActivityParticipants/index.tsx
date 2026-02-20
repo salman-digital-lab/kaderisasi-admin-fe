@@ -16,6 +16,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
+  SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { useRequest, useToggle } from "ahooks";
@@ -25,6 +26,7 @@ import {
   getActivity,
   getExportRegistrants,
 } from "../../../api/services/activity";
+import { generateSingleCertificate } from "../../../api/services/certificateTemplate";
 
 import {
   ColumnConfig,
@@ -59,6 +61,7 @@ const ActivityParticipants = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [isExporting, setIsExporting] = useState(false);
+  const [generatingCertificate, setGeneratingCertificate] = useState<number | null>(null);
 
   // Pagination & sorting state
   const [pagination, setPagination] = useState({
@@ -158,6 +161,27 @@ const ActivityParticipants = () => {
     setSelectedRowKeys([]);
   }, [fetchParticipants]);
 
+  // Handle view certificate
+  const handleViewCertificate = useCallback(async (registrationId: number) => {
+    setGeneratingCertificate(registrationId);
+    try {
+      const data = await generateSingleCertificate({
+        registration_id: registrationId,
+      });
+      
+      // Store the certificate data in sessionStorage and open new window
+      sessionStorage.setItem('certificatePreview', JSON.stringify(data));
+      window.open('/certificate-preview', '_blank');
+      
+      message.success("Sertifikat berhasil dihasilkan");
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.error || "Gagal menghasilkan sertifikat";
+      message.error(errorMsg);
+    } finally {
+      setGeneratingCertificate(null);
+    }
+  }, []);
+
   // Handle export
   const handleExport = useCallback(async () => {
     setIsExporting(true);
@@ -185,10 +209,38 @@ const ActivityParticipants = () => {
   }, [id, activity?.name]);
 
   // Generate table columns
-  const tableColumns = useMemo(
-    () => generateTableColumns(columns, sortBy, sortOrder, handleSort),
-    [columns, sortBy, sortOrder, handleSort],
-  );
+  const tableColumns = useMemo(() => {
+    const cols = generateTableColumns(columns, sortBy, sortOrder, handleSort) || [];
+    
+    // Check if activity has certificate template
+    const hasCertificateTemplate = !!activity?.additional_config?.certificate_template_id;
+    
+    // Add certificate column for LULUS KEGIATAN participants
+    cols.push({
+      title: "Sertifikat",
+      dataIndex: "id",
+      key: "certificate",
+      width: 100,
+      fixed: "right" as const,
+      render: (_: unknown, record: any) => {
+        if (record.status !== "LULUS KEGIATAN" || !hasCertificateTemplate) {
+          return null;
+        }
+        return (
+          <Tooltip title="Lihat Sertifikat">
+            <Button
+              type="text"
+              icon={<SafetyCertificateOutlined />}
+              loading={generatingCertificate === record.id}
+              onClick={() => handleViewCertificate(record.id)}
+            />
+          </Tooltip>
+        );
+      },
+    });
+    
+    return cols;
+  }, [columns, sortBy, sortOrder, handleSort, activity, generatingCertificate, handleViewCertificate]);
 
   // Custom selection status from activity
   const customSelectionStatus = useMemo(
