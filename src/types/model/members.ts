@@ -37,6 +37,7 @@ export type Member = {
 export type PublicUser = {
   id: number;
   email: string;
+  member_id: string | null;
   profile?: {
     id: number;
     name: string;
