@@ -256,6 +256,22 @@ const CertificatePreview: React.FC = () => {
   const { template, participant } = data;
   const { template_data, background_image } = template;
 
+  if (!template_data || !template_data.elements) {
+    return (
+      <div style={{ padding: 24, textAlign: "center" }}>
+        <Card>
+          <p>Template sertifikat tidak tersedia</p>
+          <Button
+            icon={<LeftOutlined />}
+            onClick={() => window.close()}
+          >
+            Tutup
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   // Get full URL for background image
   const backgroundImageUrl = background_image 
     ? `${import.meta.env.VITE_API_URL || "http://localhost:3334"}/v2/${background_image}`

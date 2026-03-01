@@ -95,6 +95,7 @@ export interface CertificateParticipant {
   user_id: number;
   name: string;
   email: string;
+  university: string;
   activity_name: string;
   activity_date: string;
 }
