@@ -10,6 +10,17 @@ const { Text } = Typography;
 
 export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
   {
+    title: "ID Anggota",
+    dataIndex: "publicUser",
+    key: "member_id",
+    width: 140,
+    render: (publicUser: Member["publicUser"]) => (
+      <Text code style={{ fontSize: 13 }}>
+        {publicUser?.member_id ?? "-"}
+      </Text>
+    ),
+  },
+  {
     title: "Nama Anggota",
     dataIndex: "name",
     key: "name",

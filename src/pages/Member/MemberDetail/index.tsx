@@ -141,6 +141,15 @@ const MemberDetailPage = () => {
             items={[
               {
                 key: "1",
+                label: "ID Anggota",
+                children: (
+                  <span style={{ fontFamily: "monospace" }}>
+                    {data?.profile[0]?.publicUser?.member_id ?? "-"}
+                  </span>
+                ),
+              },
+              {
+                key: "2",
                 label: "Alamat Email",
                 children: data?.profile[0]?.publicUser?.email,
               },
