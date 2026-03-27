@@ -163,6 +163,20 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     render: (status) => <StatusBadge status={status as string} />,
   },
   {
+    key: "gender",
+    title: "Jenis Kelamin",
+    dataIndex: "gender",
+    visible: true,
+    width: 130,
+    sortable: false,
+    filterable: false,
+    render: (val) => {
+      if (val === "M") return "Laki-Laki";
+      if (val === "F") return "Perempuan";
+      return val ? String(val) : "-";
+    },
+  },
+  {
     key: "whatsapp",
     title: "Whatsapp",
     dataIndex: "whatsapp",

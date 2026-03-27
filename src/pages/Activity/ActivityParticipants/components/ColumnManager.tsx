@@ -32,7 +32,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import {
   ColumnConfig,
-  getDefaultColumns,
   saveColumnPreferences,
 } from "../constants/columns";
 
@@ -89,6 +88,7 @@ const SortableItem = ({ column, onToggleVisible }: SortableItemProps) => {
 
 interface ColumnManagerProps {
   columns: ColumnConfig[];
+  defaultColumns: ColumnConfig[];
   onColumnsChange: (columns: ColumnConfig[]) => void;
   activityId: string;
   size?: "large" | "middle" | "small";
@@ -96,6 +96,7 @@ interface ColumnManagerProps {
 
 const ColumnManager = ({
   columns,
+  defaultColumns,
   onColumnsChange,
   activityId,
   size = "middle",
@@ -127,7 +128,7 @@ const ColumnManager = ({
   };
 
   const handleReset = () => {
-    setLocalColumns(getDefaultColumns());
+    setLocalColumns(defaultColumns.map((col) => ({ ...col })));
   };
 
   const handleToggleVisible = (key: string) => {

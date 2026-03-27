@@ -27,7 +27,7 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
   {
     key: "gender",
     label: "Jenis Kelamin",
-    required: false,
+    required: true,
     type: "select",
     placeholder: "Pilih jenis kelamin",
   },

@@ -49,6 +49,7 @@ export type Activity = {
       visible_at?: string;
     };
     certificate_template_id?: number;
+    allow_guest_registration?: boolean;
   };
   is_published: number;
   is_registration_open: boolean;
@@ -58,16 +59,18 @@ export type Activity = {
 
 export type Registrant = {
   id: number;
-  user_id: number;
+  user_id: number | null;
   activity_id: number;
   status: string;
   questionnaire_answer: Record<string, string>;
+  guest_data?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
   name: string;
   email: string;
   level: number;
   personal_id?: string;
+  gender?: string;
   whatsapp?: string;
   province_id?: number;
   university_id?: number;

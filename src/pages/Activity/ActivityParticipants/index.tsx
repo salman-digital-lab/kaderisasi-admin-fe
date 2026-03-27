@@ -29,12 +29,13 @@ import {
 import { generateSingleCertificate } from "../../../api/services/certificateTemplate";
 
 import {
+  ALL_COLUMNS,
   ColumnConfig,
   generateTableColumns,
-  getDefaultColumns,
   loadColumnPreferences,
   saveColumnPreferences,
 } from "./constants/columns";
+import { getCustomFormByFeature } from "../../../api/services/customForm";
 
 import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
@@ -73,14 +74,6 @@ const ActivityParticipants = () => {
   const [filters, setFilters] = useState<FilterValues>({});
   const [searchInput, setSearchInput] = useState("");
 
-  // Load column preferences from localStorage
-  useEffect(() => {
-    if (id) {
-      const saved = loadColumnPreferences(id);
-      setColumns(saved || getDefaultColumns());
-    }
-  }, [id]);
-
   // Fetch activity details
   const { data: activity, loading: activityLoading } = useRequest(
     () => getActivity(Number(id)),
@@ -88,6 +81,46 @@ const ActivityParticipants = () => {
       cacheKey: `activity-${id}`,
     },
   );
+
+  // Fetch custom form to determine which profile columns to show
+  const { data: customForm, loading: customFormLoading } = useRequest(
+    () => getCustomFormByFeature("activity_registration", id!),
+    {
+      ready: !!id,
+      cacheKey: `custom-form-activity-${id}`,
+    },
+  );
+
+  // Derive columns allowed by the custom form's profile section (Pertanyaan Dasar)
+  const formAllowedColumns = useMemo((): ColumnConfig[] => {
+    const ALWAYS_VISIBLE = new Set(["name", "status"]);
+
+    if (customForm) {
+      const profileSection = customForm.form_schema.fields[0];
+      const profileKeys = new Set(profileSection?.fields.map((f) => f.key) ?? []);
+      return ALL_COLUMNS.filter(
+        (col) => ALWAYS_VISIBLE.has(col.key) || profileKeys.has(col.key),
+      );
+    }
+
+    // No custom form configured — show all columns
+    return ALL_COLUMNS;
+  }, [customForm]);
+
+  // Load column preferences from localStorage, constrained to form-allowed columns
+  useEffect(() => {
+    if (!id || customFormLoading) return;
+
+    const savedVisibility = new Map(
+      (loadColumnPreferences(id) ?? []).map((c) => [c.key, c.visible]),
+    );
+    setColumns(
+      formAllowedColumns.map((col) => ({
+        ...col,
+        visible: savedVisibility.get(col.key) ?? col.visible,
+      })),
+    );
+  }, [id, customFormLoading, formAllowedColumns]);
 
   // Fetch participants
   const {
@@ -216,28 +249,30 @@ const ActivityParticipants = () => {
     const hasCertificateTemplate = !!activity?.additional_config?.certificate_template_id;
     
     // Add certificate column for LULUS KEGIATAN participants
-    cols.push({
-      title: "Sertifikat",
-      dataIndex: "id",
-      key: "certificate",
-      width: 100,
-      fixed: "right" as const,
-      render: (_: unknown, record: any) => {
-        if (record.status !== "LULUS KEGIATAN" || !hasCertificateTemplate) {
-          return null;
-        }
-        return (
-          <Tooltip title="Lihat Sertifikat">
-            <Button
-              type="text"
-              icon={<SafetyCertificateOutlined />}
-              loading={generatingCertificate === record.id}
-              onClick={() => handleViewCertificate(record.id)}
-            />
-          </Tooltip>
-        );
-      },
-    });
+    if (hasCertificateTemplate) {
+      cols.push({
+        title: "Sertifikat",
+        dataIndex: "id",
+        key: "certificate",
+        width: 100,
+        fixed: "right" as const,
+        render: (_: unknown, record: any) => {
+          if (record.status !== "LULUS KEGIATAN") {
+            return null;
+          }
+          return (
+            <Tooltip title="Lihat Sertifikat">
+              <Button
+                type="text"
+                icon={<SafetyCertificateOutlined />}
+                loading={generatingCertificate === record.id}
+                onClick={() => handleViewCertificate(record.id)}
+              />
+            </Tooltip>
+          );
+        },
+      });
+    }
     
     return cols;
   }, [columns, sortBy, sortOrder, handleSort, activity, generatingCertificate, handleViewCertificate]);
@@ -267,7 +302,7 @@ const ActivityParticipants = () => {
     preserveSelectedRowKeys: true,
   };
 
-  if (activityLoading) {
+  if (activityLoading || customFormLoading) {
     return (
       <div style={{ padding: 24 }}>
         <Skeleton active />
@@ -358,6 +393,7 @@ const ActivityParticipants = () => {
 
             <ColumnManager
               columns={columns}
+              defaultColumns={formAllowedColumns}
               onColumnsChange={handleColumnsChange}
               activityId={id || ""}
             />

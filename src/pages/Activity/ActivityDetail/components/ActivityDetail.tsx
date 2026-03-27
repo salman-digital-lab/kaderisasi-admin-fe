@@ -16,6 +16,7 @@ import {
   Tag,
   Space,
   Alert,
+  Switch,
 } from "antd";
 import { SaveOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
@@ -52,6 +53,7 @@ type FormType = {
   activity_date?: (dayjs.Dayjs | undefined)[];
   is_published: boolean;
   custom_selection_status?: string[];
+  allow_guest_registration?: boolean;
 };
 
 const ActivityDetail = () => {
@@ -110,6 +112,8 @@ const ActivityDetail = () => {
           badge: data?.badge,
           custom_selection_status:
             data?.additional_config?.custom_selection_status,
+          allow_guest_registration:
+            data?.additional_config?.allow_guest_registration ?? false,
         });
         setDescription(data?.description || "");
       },
@@ -152,6 +156,8 @@ const ActivityDetail = () => {
                   value.custom_selection_status?.map((val) =>
                     val.toUpperCase(),
                   ) || [],
+                allow_guest_registration:
+                  value.allow_guest_registration ?? false,
               },
               description: description,
             });
@@ -318,6 +324,11 @@ const ActivityDetail = () => {
                   }}
                   options={ACTIVITY_TYPE_OPTIONS}
                   placeholder="Pilih Tipe Kegiatan"
+                  onChange={(value) => {
+                    if (value !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY) {
+                      form.setFieldValue("allow_guest_registration", false);
+                    }
+                  }}
                 />
               </Form.Item>
             </Col>
@@ -413,6 +424,26 @@ const ActivityDetail = () => {
                                 value: val,
                               }),
                             ) || []
+                          }
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="allow_guest_registration"
+                        label="Izinkan Pendaftaran Tanpa Akun (Tamu)"
+                        tooltip={
+                          activityType !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY
+                            ? "Fitur ini hanya tersedia untuk tipe kegiatan 'Umum - Hanya Pendaftaran'."
+                            : "Jika diaktifkan, pengguna yang belum login dapat mendaftar kegiatan ini sebagai tamu. Data tamu tidak terhubung ke akun pengguna manapun."
+                        }
+                        valuePropName="checked"
+                      >
+                        <Switch
+                          checkedChildren="Aktif"
+                          unCheckedChildren="Nonaktif"
+                          disabled={
+                            activityType !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY
                           }
                         />
                       </Form.Item>
