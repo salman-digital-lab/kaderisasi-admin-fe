@@ -69,7 +69,7 @@ const MemberTable = ({
   }
 
   const columnsWithStatus = [
-    ...TABLE_SCHEMA,
+    ...(TABLE_SCHEMA ?? []),
     {
       title: "Status Akun",
       dataIndex: "publicUser",

@@ -64,7 +64,7 @@ export default function CreateMemberModal({
               label="Password (opsional)"
               name="password"
               rules={[
-                ({ getFieldValue }) => ({
+                (_) => ({
                   validator(_, value) {
                     if (!value || value.length >= 8) return Promise.resolve();
                     return Promise.reject("Password minimal 8 karakter");

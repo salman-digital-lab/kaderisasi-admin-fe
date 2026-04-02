@@ -147,7 +147,7 @@ const MemberDetailPage = () => {
             fallback="https://placehold.co/160x160?text=No+Photo"
             style={{ objectFit: "cover", borderRadius: 8 }}
           />
-          <Flex direction="column" gap={12} flex={1}>
+          <Flex vertical gap={12} style={{ flex: 1 }}>
             <Descriptions
               column={2}
               items={[
