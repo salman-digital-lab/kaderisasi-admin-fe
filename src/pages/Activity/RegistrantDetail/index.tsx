@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import type { ReactNode } from "react";
+import type { EducationEntry } from "../../../types/model/members";
 
 import { getActivity, getRegistrant } from "../../../api/services/activity";
 import { getProfileByUserId } from "../../../api/services/member";
@@ -17,6 +18,7 @@ import { renderUserLevel } from "../../../constants/render";
 import { getCustomFormByFeature } from "../../../api/services/customForm";
 import { ProvinceRender } from "../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../components/render/UniversityRender";
+import { formatCurrentEducation } from "../../../utils/education";
 
 const { Title } = Typography;
 
@@ -47,6 +49,9 @@ function renderProfileField(
   }
   if (fieldKey === "level" && !isGuest) {
     return renderUserLevel(rawValue as number);
+  }
+  if (fieldKey === "current_education") {
+    return formatCurrentEducation(rawValue as EducationEntry | undefined);
   }
   return formatValue(rawValue);
 }
@@ -114,6 +119,7 @@ const RegistrantDetail = () => {
       intake_year: profile?.intake_year,
       level: profile?.level,
       birth_date: profile?.birth_date,
+      current_education: profile?.education_history?.slice(-1)[0],
     };
     userInfoDescription = profileSection.fields.map((field, idx) => ({
       key: String(idx),

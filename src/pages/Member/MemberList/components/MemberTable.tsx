@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Empty, Alert, Button } from "antd";
+import { Table, Empty, Alert, Button, Tag } from "antd";
 import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 import { Pagination } from "../../../../types/services/base";
@@ -21,6 +21,8 @@ interface DataTypeProps {
       per_page: number;
       search: string;
       badge: string;
+      member_id: string;
+      education_institution: string;
     }>
   >;
 }
@@ -32,7 +34,6 @@ const MemberTable = ({
   onRetry,
   setParameter,
 }: DataTypeProps) => {
-  // Custom empty state
   const customEmpty = () => (
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -44,7 +45,6 @@ const MemberTable = ({
     />
   );
 
-  // Error state
   if (error && !loading) {
     return (
       <Alert
@@ -68,10 +68,28 @@ const MemberTable = ({
     );
   }
 
+  const columnsWithStatus = [
+    ...TABLE_SCHEMA,
+    {
+      title: "Status Akun",
+      dataIndex: "publicUser",
+      key: "account_status",
+      width: 120,
+      render: (publicUser: Member["publicUser"]) => {
+        const status = publicUser?.account_status ?? "no_account";
+        return status === "active" ? (
+          <Tag color="green">Aktif</Tag>
+        ) : (
+          <Tag color="default">Tanpa Akun</Tag>
+        );
+      },
+    },
+  ];
+
   return (
     <Table
       rowKey="id"
-      columns={TABLE_SCHEMA}
+      columns={columnsWithStatus}
       dataSource={data?.data}
       pagination={{
         current: data?.meta.current_page,
@@ -85,9 +103,7 @@ const MemberTable = ({
         showLessItems: window.innerWidth < 768,
       }}
       loading={loading}
-      locale={{
-        emptyText: customEmpty(),
-      }}
+      locale={{ emptyText: customEmpty() }}
       onChange={(pagination) =>
         setParameter((prev) => ({
           ...prev,
@@ -95,7 +111,7 @@ const MemberTable = ({
           per_page: pagination.pageSize || 10,
         }))
       }
-      scroll={{ x: 800 }}
+      scroll={{ x: 900 }}
       size="small"
       className={styles["member-table"]}
       bordered

@@ -1,5 +1,5 @@
 import { Activity, Registrant } from "../model/activity";
-import { Member } from "../model/members";
+import { Member, PublicUser } from "../model/members";
 import { Pagination } from "./base";
 
 export type getProfilesResp = {
@@ -16,6 +16,8 @@ export type getProfilesReq = {
   search?: string;
   badge?: string;
   email?: string;
+  member_id?: string;
+  education_institution?: string;
 };
 
 export type getProfileResp = {
@@ -46,6 +48,49 @@ export type putProfileAuthReq = {
 export type putProfileAuthResp = {
   message: string;
   data: { email?: string; password?: string };
+};
+
+export type createMemberReq = {
+  name: string;
+  email?: string;
+  password?: string;
+  member_id?: string;
+  gender?: string;
+  personal_id?: string;
+  whatsapp?: string;
+  instagram?: string;
+  tiktok?: string;
+  linkedin?: string;
+  line?: string;
+  birth_date?: string;
+  province_id?: number;
+  city_id?: number;
+  place_of_birth?: string;
+  country?: string;
+};
+
+export type createMemberResp = {
+  message: string;
+  data: { user: PublicUser; profile: Member };
+};
+
+export type generateAccountReq = {
+  email: string;
+  password: string;
+};
+
+export type generateAccountResp = {
+  message: string;
+  data: { email: string };
+};
+
+export type putRegionalAssignmentReq = {
+  alumni_regional_assignment: string[];
+};
+
+export type putRegionalAssignmentResp = {
+  message: string;
+  data: { alumni_regional_assignment: string[] };
 };
 
 export type getActivityByUserIdResp = {

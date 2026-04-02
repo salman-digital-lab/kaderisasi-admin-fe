@@ -1,6 +1,10 @@
 import { notification } from "antd";
 
 import {
+  createMemberReq,
+  createMemberResp,
+  generateAccountReq,
+  generateAccountResp,
   getActivityByUserIdResp,
   getProfileResp,
   getProfilesReq,
@@ -9,6 +13,7 @@ import {
   putProfileAuthResp,
   putProfileReq,
   putProfileResp,
+  putRegionalAssignmentResp,
 } from "../../types/services/member";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -72,6 +77,54 @@ export const putProfileAuth = async (id: string, props: putProfileAuthReq) => {
     const res = await axios.put<putProfileAuthResp>(
       `/profiles/auth/${id}`,
       bodyData,
+    );
+    notification.success({
+      message: "Berhasil",
+      description: renderNotification(res.data.message),
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const createMember = async (props: createMemberReq) => {
+  try {
+    const res = await axios.post<createMemberResp>("/members", props);
+    notification.success({
+      message: "Berhasil",
+      description: renderNotification(res.data.message),
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const generateAccount = async (id: string, props: generateAccountReq) => {
+  try {
+    const res = await axios.post<generateAccountResp>(
+      `/members/${id}/generate-account`,
+      props,
+    );
+    notification.success({
+      message: "Berhasil",
+      description: renderNotification(res.data.message),
+    });
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const putRegionalAssignment = async (
+  id: string,
+  alumni_regional_assignment: string[],
+) => {
+  try {
+    const res = await axios.put<putRegionalAssignmentResp>(
+      `/profiles/${id}/regional-assignment`,
+      { alumni_regional_assignment },
     );
     notification.success({
       message: "Berhasil",

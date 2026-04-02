@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { TableProps, Tag, Tooltip, Typography, Button, Space } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 
-import { UniversityRender } from "../../../../components/render/UniversityRender";
 import { renderUserLevel } from "../../../../constants/render";
 import { Member } from "../../../../types/model/members";
+import { formatCurrentEducation } from "../../../../utils/education";
 
 const { Text } = Typography;
 
@@ -86,10 +86,27 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
     ),
   },
   {
-    title: "Perguruan Tinggi",
-    dataIndex: "university_id",
-    width: 180,
-    render: (value) => <UniversityRender universityId={value} />,
+    title: "Pendidikan Sekarang",
+    dataIndex: "education_history",
+    width: 220,
+    render: (value: Member["education_history"]) => {
+      const last = value?.slice(-1)[0];
+      return (
+        <Tooltip title={formatCurrentEducation(last)} placement="topLeft">
+          <span
+            style={{
+              display: "block",
+              maxWidth: 200,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {formatCurrentEducation(last)}
+          </span>
+        </Tooltip>
+      );
+    },
   },
   {
     title: "Jenjang",

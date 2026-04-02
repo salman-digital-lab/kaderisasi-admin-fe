@@ -1,5 +1,6 @@
 import { ACTIVITY_CATEGORY_ENUM } from "../constants/activity";
 import { USER_LEVEL_ENUM } from "../constants/profile";
+import type { EducationEntry } from "./members";
 
 export type Questionnaire =
   | {
@@ -78,4 +79,5 @@ export type Registrant = {
   line?: string;
   major?: string;
   intake_year?: number;
+  education_history?: EducationEntry[];
 };

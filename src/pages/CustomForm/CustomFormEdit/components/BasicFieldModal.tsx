@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Alert,
   Modal,
   Space,
   Tabs,
@@ -31,9 +32,19 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
   onCancel,
   onAddProfileField,
 }) => {
-  // Filter out already added fields
+  const EDUCATION_PAIR = ["education_history", "current_education"];
+  const selectedEducationField = EDUCATION_PAIR.find((key) =>
+    selectedBasicFields.includes(key)
+  );
+  const blockedEducationField = selectedEducationField
+    ? EDUCATION_PAIR.find((key) => key !== selectedEducationField)
+    : null;
+
+  // Filter out already added fields AND the mutually exclusive education partner
   const availableTemplates = profileDataTemplates.filter(
-    (template) => !selectedBasicFields.includes(template.field.key)
+    (template) =>
+      !selectedBasicFields.includes(template.field.key) &&
+      template.field.key !== blockedEducationField
   );
 
   const handleAddField = (template: any) => {
@@ -55,7 +66,7 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
       width={900}
       destroyOnHidden
     >
-      {availableTemplates.length === 0 ? (
+      {availableTemplates.length === 0 && !blockedEducationField ? (
         <div style={{ textAlign: "center", padding: "40px 20px" }}>
           <UserOutlined
             style={{
@@ -72,9 +83,11 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
             const categoryTemplates = availableTemplates.filter(
               (template) => template.category === category.key
             );
+            const isEducationCategory = category.key === "education";
+            const showEducationAlert = isEducationCategory && !!blockedEducationField;
 
-            // Only show tabs that have available templates
-            if (categoryTemplates.length === 0) {
+            // Hide tab if no templates and no alert to show
+            if (categoryTemplates.length === 0 && !showEducationAlert) {
               return null;
             }
 
@@ -88,6 +101,18 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                   </Space>
                 }
               >
+                {showEducationAlert && (
+                  <Alert
+                    type="info"
+                    showIcon
+                    style={{ marginBottom: 12 }}
+                    message={
+                      blockedEducationField === "current_education"
+                        ? 'Formulir sudah menggunakan "Riwayat Pendidikan". Tidak dapat menambahkan "Pendidikan Sekarang" secara bersamaan — hanya salah satu yang boleh dipilih.'
+                        : 'Formulir sudah menggunakan "Pendidikan Sekarang". Tidak dapat menambahkan "Riwayat Pendidikan" secara bersamaan — hanya salah satu yang boleh dipilih.'
+                    }
+                  />
+                )}
                 <Row gutter={[12, 12]}>
                   {categoryTemplates.map((template) => (
                     <Col span={8} key={template.name}>
