@@ -11,6 +11,18 @@ import {
 // Constants for default fields that cannot be modified
 const IMMUTABLE_FIELDS = ["name", "gender"] as const;
 
+// City fields that require their parent province field to be present first
+const CITY_REQUIRES_PROVINCE: Record<string, string> = {
+  city_id: "province_id",
+  origin_city_id: "origin_province_id",
+};
+
+// Province fields whose removal should cascade to their city field
+const PROVINCE_CASCADES_TO_CITY: Record<string, string> = {
+  province_id: "city_id",
+  origin_province_id: "origin_city_id",
+};
+
 // Helper function to check if a field is immutable
 const isImmutableField = (fieldKey: string): boolean => {
   return IMMUTABLE_FIELDS.includes(fieldKey as any);
@@ -212,6 +224,16 @@ export const useFieldManagement = (
       return;
     }
 
+    const requiredProvince = CITY_REQUIRES_PROVINCE[template.field.key];
+    if (requiredProvince && !selectedBasicFields.includes(requiredProvince)) {
+      const provinceLabel =
+        requiredProvince === "province_id" ? "Provinsi Domisili" : "Provinsi Asal";
+      notification.warning({
+        message: `Tambahkan "${provinceLabel}" terlebih dahulu sebelum menambahkan field ini.`,
+      });
+      return;
+    }
+
     setSelectedBasicFields([...selectedBasicFields, template.field.key]);
   };
 
@@ -221,7 +243,15 @@ export const useFieldManagement = (
       return;
     }
 
-    setSelectedBasicFields(selectedBasicFields.filter((key) => key !== fieldKey));
+    const dependentCity = PROVINCE_CASCADES_TO_CITY[fieldKey];
+    const keysToRemove = new Set([fieldKey, ...(dependentCity ? [dependentCity] : [])]);
+    setSelectedBasicFields(selectedBasicFields.filter((key) => !keysToRemove.has(key)));
+
+    if (dependentCity && selectedBasicFields.includes(dependentCity)) {
+      notification.info({
+        message: `Field kota terkait juga dihapus secara otomatis.`,
+      });
+    }
   };
 
   const handleMoveProfileField = (fieldKey: string, direction: "up" | "down") => {

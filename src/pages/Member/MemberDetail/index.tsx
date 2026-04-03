@@ -26,7 +26,7 @@ import {
 import { Link, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useRequest, useToggle } from "ahooks";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   getActivityByUserId,
@@ -34,7 +34,7 @@ import {
   putProfile,
 } from "../../../api/services/member";
 import { GENDER_OPTION, USER_LEVEL_OPTIONS } from "../../../constants/options";
-import { getProvinces } from "../../../api/services/province";
+import { getProvinces, getDataProvinceId } from "../../../api/services/province";
 import EditAuthDataModal from "./components/EditAuthDataModal";
 import GenerateAccountModal from "./components/GenerateAccountModal";
 import { EducationEntry, WorkEntry, Member } from "../../../types/model/members";
@@ -91,6 +91,7 @@ const MemberDetailPage = () => {
       tiktok: profile?.tiktok,
       line: profile?.line,
       province_id: profile?.province_id,
+      city_id: profile?.city_id,
       level: profile?.level,
       gender: profile?.gender,
       badges: profile?.badges,
@@ -118,6 +119,25 @@ const MemberDetailPage = () => {
   const { loading: editLoading, runAsync } = useRequest(putProfile, { manual: true });
 
   const { data: provinces } = useRequest(() => getProvinces({}));
+
+  const [currentProvinceId, setCurrentProvinceId] = useState<string | undefined>();
+  const [originProvinceId, setOriginProvinceId] = useState<string | undefined>();
+
+  const { data: currentCities, run: loadCurrentCities } = useRequest(
+    (id: string) => getDataProvinceId(id),
+    { manual: true },
+  );
+  const { data: originCities, run: loadOriginCities } = useRequest(
+    (id: string) => getDataProvinceId(id),
+    { manual: true },
+  );
+
+  useEffect(() => {
+    const pid = data?.profile[0]?.province_id?.toString();
+    const opid = data?.profile[0]?.origin_province_id?.toString();
+    if (pid) { setCurrentProvinceId(pid); loadCurrentCities(pid); }
+    if (opid) { setOriginProvinceId(opid); loadOriginCities(opid); }
+  }, [data, loadCurrentCities, loadOriginCities]);
 
   const profile = data?.profile[0];
   const publicUser = profile?.publicUser;
@@ -295,11 +315,33 @@ const MemberDetailPage = () => {
                 <Select
                   showSearch
                   style={{ width: "100%" }}
-                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                  }
                   options={provinces?.data.map((p) => ({ label: p.name, value: p.id }))}
+                  onChange={(val) => {
+                    setCurrentProvinceId(val?.toString());
+                    form.setFieldValue("city_id", undefined);
+                    if (val) loadCurrentCities(val.toString());
+                  }}
                 />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item name="city_id" label="Kota / Kabupaten">
+                <Select
+                  showSearch
+                  style={{ width: "100%" }}
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                  }
+                  disabled={!isEdit || !currentProvinceId}
+                  options={(currentCities?.data ?? []).map((c) => ({ label: c.name, value: c.id }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="country" label="Negara">
                 <Input />
@@ -314,8 +356,28 @@ const MemberDetailPage = () => {
                 <Select
                   showSearch
                   style={{ width: "100%" }}
-                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                  }
                   options={provinces?.data.map((p) => ({ label: p.name, value: p.id }))}
+                  onChange={(val) => {
+                    setOriginProvinceId(val?.toString());
+                    form.setFieldValue("origin_city_id", undefined);
+                    if (val) loadOriginCities(val.toString());
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="origin_city_id" label="Kota / Kabupaten Asal">
+                <Select
+                  showSearch
+                  style={{ width: "100%" }}
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                  }
+                  disabled={!isEdit || !originProvinceId}
+                  options={(originCities?.data ?? []).map((c) => ({ label: c.name, value: c.id }))}
                 />
               </Form.Item>
             </Col>

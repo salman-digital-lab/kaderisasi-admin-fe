@@ -138,17 +138,58 @@ export const PROFILE_DATA_TEMPLATES = [
 
   // Location Information
   {
-    name: "Provinsi",
+    name: "Provinsi Domisili",
     field: {
       key: "province_id",
-      label: "Provinsi",
+      label: "Provinsi Domisili",
       required: false,
       type: "select",
-      placeholder: "Pilih provinsi",
+      placeholder: "Pilih provinsi domisili",
     },
     category: "location",
     icon: EnvironmentOutlined,
-    description: "Pemilihan provinsi",
+    description: "Provinsi tempat tinggal sekarang",
+  },
+  {
+    name: "Kota Domisili",
+    field: {
+      key: "city_id",
+      label: "Kota Domisili",
+      required: false,
+      type: "select",
+      placeholder: "Pilih kota domisili",
+      helpText: "Pilih provinsi domisili terlebih dahulu.",
+    },
+    category: "location",
+    icon: EnvironmentOutlined,
+    description: "Kota tempat tinggal sekarang",
+  },
+  {
+    name: "Provinsi Asal",
+    field: {
+      key: "origin_province_id",
+      label: "Provinsi Asal",
+      required: false,
+      type: "select",
+      placeholder: "Pilih provinsi asal",
+    },
+    category: "location",
+    icon: EnvironmentOutlined,
+    description: "Provinsi asal daerah",
+  },
+  {
+    name: "Kota Asal",
+    field: {
+      key: "origin_city_id",
+      label: "Kota Asal",
+      required: false,
+      type: "select",
+      placeholder: "Pilih kota asal",
+      helpText: "Pilih provinsi asal terlebih dahulu.",
+    },
+    category: "location",
+    icon: EnvironmentOutlined,
+    description: "Kota asal daerah",
   },
 
   // Education Information

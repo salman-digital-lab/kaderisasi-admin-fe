@@ -9,6 +9,7 @@ import {
   Avatar,
   Card,
   Typography,
+  Tooltip,
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 
@@ -39,6 +40,15 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
   const blockedEducationField = selectedEducationField
     ? EDUCATION_PAIR.find((key) => key !== selectedEducationField)
     : null;
+
+  const CITY_REQUIRES_PROVINCE: Record<string, string> = {
+    city_id: "province_id",
+    origin_city_id: "origin_province_id",
+  };
+  const CITY_BLOCKED_LABEL: Record<string, string> = {
+    city_id: "Provinsi Domisili",
+    origin_city_id: "Provinsi Asal",
+  };
 
   // Filter out already added fields AND the mutually exclusive education partner
   const availableTemplates = profileDataTemplates.filter(
@@ -114,45 +124,64 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                   />
                 )}
                 <Row gutter={[12, 12]}>
-                  {categoryTemplates.map((template) => (
-                    <Col span={8} key={template.name}>
-                      <Card
-                        size="small"
-                        hoverable
-                        style={{
-                          cursor: "pointer",
-                          borderColor: "#1890ff",
-                        }}
-                        onClick={() => handleAddField(template)}
-                      >
-                        <Space
-                          direction="vertical"
-                          style={{
-                            width: "100%",
-                            textAlign: "center",
-                          }}
+                  {categoryTemplates.map((template) => {
+                    const requiredProvince = CITY_REQUIRES_PROVINCE[template.field.key];
+                    const isProvinceBlocked =
+                      !!requiredProvince &&
+                      !selectedBasicFields.includes(requiredProvince);
+                    const blockedLabel = CITY_BLOCKED_LABEL[template.field.key];
+
+                    return (
+                      <Col span={8} key={template.name}>
+                        <Tooltip
+                          title={
+                            isProvinceBlocked
+                              ? `Tambahkan "${blockedLabel}" terlebih dahulu`
+                              : undefined
+                          }
                         >
-                          <Avatar
+                          <Card
+                            size="small"
+                            hoverable={!isProvinceBlocked}
                             style={{
-                              backgroundColor: category.color,
+                              cursor: isProvinceBlocked ? "not-allowed" : "pointer",
+                              borderColor: isProvinceBlocked ? "#d9d9d9" : "#1890ff",
+                              opacity: isProvinceBlocked ? 0.5 : 1,
                             }}
+                            onClick={() => !isProvinceBlocked && handleAddField(template)}
                           >
-                            <template.icon />
-                          </Avatar>
-                          <div>
-                            <Text strong>{template.name}</Text>
-                            <br />
-                            <Text
-                              type="secondary"
-                              style={{ fontSize: "12px" }}
+                            <Space
+                              direction="vertical"
+                              style={{
+                                width: "100%",
+                                textAlign: "center",
+                              }}
                             >
-                              {template.description}
-                            </Text>
-                          </div>
-                        </Space>
-                      </Card>
-                    </Col>
-                  ))}
+                              <Avatar
+                                style={{
+                                  backgroundColor: isProvinceBlocked
+                                    ? "#d9d9d9"
+                                    : category.color,
+                                }}
+                              >
+                                <template.icon />
+                              </Avatar>
+                              <div>
+                                <Text strong>{template.name}</Text>
+                                <br />
+                                <Text
+                                  type="secondary"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                  {template.description}
+                                </Text>
+                              </div>
+                            </Space>
+                          </Card>
+                        </Tooltip>
+                      </Col>
+                    );
+                  })}
                 </Row>
               </TabPane>
             );
