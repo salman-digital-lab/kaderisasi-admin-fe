@@ -1,5 +1,5 @@
 import { useRequest } from "ahooks";
-import { Col, Form, Input, Modal, Row, Select } from "antd";
+import { Form, Input, Modal, Select } from "antd";
 import { createMember } from "../../../api/services/member";
 import { GENDER_OPTION } from "../../../constants/options";
 
@@ -49,79 +49,16 @@ export default function CreateMemberModal({
           <Input placeholder="Nama Lengkap" />
         </Form.Item>
 
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Email (opsional)"
-              name="email"
-              rules={[{ type: "email", message: "Format email tidak valid" }]}
-            >
-              <Input placeholder="Email" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Password (opsional)"
-              name="password"
-              rules={[
-                (_) => ({
-                  validator(_, value) {
-                    if (!value || value.length >= 8) return Promise.resolve();
-                    return Promise.reject("Password minimal 8 karakter");
-                  },
-                }),
-              ]}
-            >
-              <Input.Password placeholder="Password" />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item label="ID Anggota (opsional)" name="member_id">
-          <Input placeholder="Diisi otomatis jika kosong" />
-        </Form.Item>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Jenis Kelamin" name="gender">
-              <Select
-                style={{ width: "100%" }}
-                options={GENDER_OPTION}
-                placeholder="Pilih jenis kelamin"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Nomor WhatsApp" name="whatsapp">
-              <Input placeholder="Cth: 6281234567890" />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Instagram" name="instagram">
-              <Input placeholder="Instagram" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Nomor Identitas" name="personal_id">
-              <Input placeholder="NIK / NIM" />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Tanggal Lahir" name="birth_date">
-              <Input placeholder="YYYY-MM-DD" />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item label="Negara Domisili" name="country">
-          <Input placeholder="Negara domisili saat ini" />
+        <Form.Item
+          label="Jenis Kelamin"
+          name="gender"
+          rules={[{ required: true, message: "Jenis kelamin wajib dipilih" }]}
+        >
+          <Select
+            style={{ width: "100%" }}
+            options={GENDER_OPTION}
+            placeholder="Pilih jenis kelamin"
+          />
         </Form.Item>
       </Form>
     </Modal>
