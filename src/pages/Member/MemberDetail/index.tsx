@@ -54,7 +54,6 @@ type FormType = {
   birth_date?: dayjs.Dayjs | string;
   level?: number;
   badges?: string[];
-  place_of_birth?: string;
   origin_province_id?: number;
   origin_city_id?: number;
   country?: string;
@@ -96,7 +95,6 @@ const MemberDetailPage = () => {
       gender: profile?.gender,
       badges: profile?.badges,
       birth_date: profile?.birth_date ? dayjs(profile.birth_date) : undefined,
-      place_of_birth: profile?.place_of_birth,
       origin_province_id: profile?.origin_province_id,
       origin_city_id: profile?.origin_city_id,
       country: profile?.country,
@@ -238,7 +236,6 @@ const MemberDetailPage = () => {
               badges: JSON.stringify(value.badges || []),
               name: value.name,
               birth_date: value.birth_date ? value.birth_date.toString() : undefined,
-              place_of_birth: value.place_of_birth,
               origin_province_id: value.origin_province_id,
               origin_city_id: value.origin_city_id,
               country: value.country,
@@ -282,15 +279,19 @@ const MemberDetailPage = () => {
               <Form.Item name="birth_date" label="Tanggal Lahir">
                 <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
               </Form.Item>
-              <Form.Item name="place_of_birth" label="Tempat Lahir">
-                <Input />
-              </Form.Item>
+
             </Col>
             <Col span={12}>
               <Form.Item name="personal_id" label="Nomor Identitas">
                 <Input />
               </Form.Item>
-              <Form.Item name="province_id" label="Provinsi Domisili">
+            </Col>
+          </Row>
+
+          <Divider>Domisili Saat Ini</Divider>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="province_id" label="Provinsi">
                 <Select
                   showSearch
                   style={{ width: "100%" }}
@@ -298,9 +299,17 @@ const MemberDetailPage = () => {
                   options={provinces?.data.map((p) => ({ label: p.name, value: p.id }))}
                 />
               </Form.Item>
-              <Form.Item name="country" label="Negara Domisili">
+            </Col>
+            <Col span={12}>
+              <Form.Item name="country" label="Negara">
                 <Input />
               </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider>Asal Daerah</Divider>
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item name="origin_province_id" label="Provinsi Asal">
                 <Select
                   showSearch

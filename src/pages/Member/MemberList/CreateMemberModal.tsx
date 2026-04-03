@@ -114,11 +114,6 @@ export default function CreateMemberModal({
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Tempat Lahir" name="place_of_birth">
-              <Input placeholder="Tempat lahir" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
             <Form.Item label="Tanggal Lahir" name="birth_date">
               <Input placeholder="YYYY-MM-DD" />
             </Form.Item>

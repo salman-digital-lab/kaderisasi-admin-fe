@@ -65,7 +65,6 @@ export type createMemberReq = {
   birth_date?: string;
   province_id?: number;
   city_id?: number;
-  place_of_birth?: string;
   country?: string;
 };
 

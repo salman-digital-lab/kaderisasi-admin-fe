@@ -51,7 +51,6 @@ export type Member = {
   intake_year: number | undefined;
   birth_date: string | undefined;
 
-  place_of_birth: string | undefined;
   origin_province_id: number | undefined;
   origin_city_id: number | undefined;
   country: string | undefined;
