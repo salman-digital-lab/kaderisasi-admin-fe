@@ -41,6 +41,13 @@ import GenerateAccountModal from "./components/GenerateAccountModal";
 import { EducationEntry, WorkEntry, Member } from "../../../types/model/members";
 import UniversityNameSelect from "../../../components/common/UniversityNameSelect";
 
+type LegacyWorkEntry = {
+  job?: string;
+  organization?: string;
+  role?: string;
+  description?: string;
+};
+
 type FormType = {
   name?: string;
   personal_id?: string;
@@ -73,6 +80,26 @@ const DEGREE_OPTIONS = [
   { label: "S3 (Doktor)", value: "doctoral" },
 ];
 
+const normalizeYearValue = (value?: number | string | null): number | undefined => {
+  if (typeof value === "number" && !Number.isNaN(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsedValue = Number(value);
+    return Number.isNaN(parsedValue) ? undefined : parsedValue;
+  }
+
+  return undefined;
+};
+
+const normalizeWorkHistory = (
+  entries?: Array<Partial<WorkEntry & LegacyWorkEntry>>,
+): WorkEntry[] =>
+  (entries ?? []).map((entry) => ({
+    job_title: entry.job_title ?? entry.job ?? "",
+    company: entry.company ?? entry.organization ?? "",
+    start_year: normalizeYearValue(entry.start_year),
+    end_year: normalizeYearValue(entry.end_year),
+  }));
+
 const MemberDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm<FormType>();
@@ -101,7 +128,9 @@ const MemberDetailPage = () => {
       origin_city_id: profile?.origin_city_id,
       country: profile?.country,
       education_history: profile?.education_history ?? [],
-      work_history: profile?.work_history ?? [],
+      work_history: normalizeWorkHistory(
+        profile?.work_history as Array<Partial<WorkEntry & LegacyWorkEntry>> | undefined,
+      ),
     });
     setRegionalInput(profile?.extra_data?.alumni_regional_assignment ?? []);
   };
@@ -244,6 +273,15 @@ const MemberDetailPage = () => {
           form={form}
           disabled={!isEdit}
           onFinish={async (value) => {
+            const normalizedWorkHistoryEntries = normalizeWorkHistory(
+              value.work_history as Array<Partial<WorkEntry & LegacyWorkEntry>> | undefined,
+            ).filter((entry) =>
+              entry.job_title.trim() !== "" ||
+              entry.company.trim() !== "" ||
+              entry.start_year !== undefined ||
+              entry.end_year !== undefined,
+            );
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const payload: any = {
               gender: value.gender,
@@ -262,7 +300,7 @@ const MemberDetailPage = () => {
               origin_city_id: value.origin_city_id,
               country: value.country,
               education_history: value.education_history ?? [],
-              work_history: value.work_history ?? [],
+              work_history: normalizedWorkHistoryEntries,
               extra_data: { alumni_regional_assignment: regionalInput },
             };
             await runAsync(id || "", { data: payload });
@@ -454,23 +492,33 @@ const MemberDetailPage = () => {
                 {fields.map(({ key, name }) => (
                   <Row key={key} gutter={16} align="top">
                     <Col span={6}>
-                      <Form.Item name={[name, "job"]} label="Jabatan">
-                        <Input placeholder="Jabatan" />
+                      <Form.Item name={[name, "job_title"]} label="Posisi / Jabatan">
+                        <Input placeholder="Contoh: Software Engineer" />
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                      <Form.Item name={[name, "organization"]} label="Organisasi / Institusi">
-                        <Input placeholder="Nama organisasi" />
+                      <Form.Item name={[name, "company"]} label="Perusahaan / Organisasi">
+                        <Input placeholder="Nama perusahaan atau organisasi" />
                       </Form.Item>
                     </Col>
                     <Col span={5}>
-                      <Form.Item name={[name, "role"]} label="Peran">
-                        <Input placeholder="Peran" />
+                      <Form.Item name={[name, "start_year"]} label="Tahun Mulai">
+                        <InputNumber
+                          style={{ width: "100%" }}
+                          placeholder="2022"
+                          min={1900}
+                          max={new Date().getFullYear() + 10}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={5}>
-                      <Form.Item name={[name, "description"]} label="Deskripsi">
-                        <Input placeholder="Opsional" />
+                      <Form.Item name={[name, "end_year"]} label="Tahun Selesai">
+                        <InputNumber
+                          style={{ width: "100%" }}
+                          placeholder="Kosongkan jika masih aktif"
+                          min={1900}
+                          max={new Date().getFullYear() + 10}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={2}>
@@ -490,7 +538,7 @@ const MemberDetailPage = () => {
                   <Button
                     type="dashed"
                     onClick={() =>
-                      add({ job: "", organization: "", role: "", description: "" })
+                      add({ job_title: "", company: "", start_year: undefined, end_year: undefined })
                     }
                     icon={<PlusOutlined />}
                     disabled={!isEdit}

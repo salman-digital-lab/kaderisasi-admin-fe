@@ -10,10 +10,10 @@ export type EducationEntry = {
 };
 
 export type WorkEntry = {
-  job: string;
-  organization: string;
-  role: string;
-  description?: string;
+  job_title: string;
+  company: string;
+  start_year?: number;
+  end_year?: number;
 };
 
 export type ExtraData = {
