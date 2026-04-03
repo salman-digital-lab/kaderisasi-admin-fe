@@ -101,6 +101,13 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
     helpText: "Pilih provinsi domisili terlebih dahulu.",
   },
   {
+    key: "country",
+    label: "Negara Domisili",
+    required: false,
+    type: "select",
+    placeholder: "Pilih negara domisili",
+  },
+  {
     key: "origin_province_id",
     label: "Provinsi Asal",
     required: false,

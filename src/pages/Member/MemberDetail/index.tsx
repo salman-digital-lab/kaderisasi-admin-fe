@@ -35,6 +35,7 @@ import {
 } from "../../../api/services/member";
 import { GENDER_OPTION, USER_LEVEL_OPTIONS } from "../../../constants/options";
 import { getProvinces, getDataProvinceId } from "../../../api/services/province";
+import { getCountries } from "../../../api/services/country";
 import EditAuthDataModal from "./components/EditAuthDataModal";
 import GenerateAccountModal from "./components/GenerateAccountModal";
 import { EducationEntry, WorkEntry, Member } from "../../../types/model/members";
@@ -119,6 +120,7 @@ const MemberDetailPage = () => {
   const { loading: editLoading, runAsync } = useRequest(putProfile, { manual: true });
 
   const { data: provinces } = useRequest(() => getProvinces({}));
+  const { data: countries } = useRequest(() => getCountries());
 
   const [currentProvinceId, setCurrentProvinceId] = useState<string | undefined>();
   const [originProvinceId, setOriginProvinceId] = useState<string | undefined>();
@@ -344,7 +346,14 @@ const MemberDetailPage = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="country" label="Negara">
-                <Input />
+                <Select
+                  showSearch
+                  style={{ width: "100%" }}
+                  filterOption={(input, option) =>
+                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={(countries?.data ?? []).map((c) => ({ label: c.name, value: c.name }))}
+                />
               </Form.Item>
             </Col>
           </Row>

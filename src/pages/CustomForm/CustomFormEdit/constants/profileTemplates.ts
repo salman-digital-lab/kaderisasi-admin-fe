@@ -165,6 +165,19 @@ export const PROFILE_DATA_TEMPLATES = [
     description: "Kota tempat tinggal sekarang",
   },
   {
+    name: "Negara Domisili",
+    field: {
+      key: "country",
+      label: "Negara Domisili",
+      required: false,
+      type: "select",
+      placeholder: "Pilih negara domisili",
+    },
+    category: "location",
+    icon: EnvironmentOutlined,
+    description: "Negara tempat tinggal sekarang",
+  },
+  {
     name: "Provinsi Asal",
     field: {
       key: "origin_province_id",
