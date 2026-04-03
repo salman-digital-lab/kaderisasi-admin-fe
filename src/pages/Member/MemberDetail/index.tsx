@@ -41,13 +41,6 @@ import GenerateAccountModal from "./components/GenerateAccountModal";
 import { EducationEntry, WorkEntry, Member } from "../../../types/model/members";
 import UniversityNameSelect from "../../../components/common/UniversityNameSelect";
 
-type LegacyWorkEntry = {
-  job?: string;
-  organization?: string;
-  role?: string;
-  description?: string;
-};
-
 type FormType = {
   name?: string;
   personal_id?: string;
@@ -90,12 +83,10 @@ const normalizeYearValue = (value?: number | string | null): number | undefined 
   return undefined;
 };
 
-const normalizeWorkHistory = (
-  entries?: Array<Partial<WorkEntry & LegacyWorkEntry>>,
-): WorkEntry[] =>
+const normalizeWorkHistory = (entries?: WorkEntry[]): WorkEntry[] =>
   (entries ?? []).map((entry) => ({
-    job_title: entry.job_title ?? entry.job ?? "",
-    company: entry.company ?? entry.organization ?? "",
+    job_title: entry.job_title ?? "",
+    company: entry.company ?? "",
     start_year: normalizeYearValue(entry.start_year),
     end_year: normalizeYearValue(entry.end_year),
   }));
@@ -128,9 +119,7 @@ const MemberDetailPage = () => {
       origin_city_id: profile?.origin_city_id,
       country: profile?.country,
       education_history: profile?.education_history ?? [],
-      work_history: normalizeWorkHistory(
-        profile?.work_history as Array<Partial<WorkEntry & LegacyWorkEntry>> | undefined,
-      ),
+      work_history: normalizeWorkHistory(profile?.work_history),
     });
     setRegionalInput(profile?.extra_data?.alumni_regional_assignment ?? []);
   };
@@ -273,9 +262,7 @@ const MemberDetailPage = () => {
           form={form}
           disabled={!isEdit}
           onFinish={async (value) => {
-            const normalizedWorkHistoryEntries = normalizeWorkHistory(
-              value.work_history as Array<Partial<WorkEntry & LegacyWorkEntry>> | undefined,
-            ).filter((entry) =>
+            const normalizedWorkHistoryEntries = normalizeWorkHistory(value.work_history).filter((entry) =>
               entry.job_title.trim() !== "" ||
               entry.company.trim() !== "" ||
               entry.start_year !== undefined ||
