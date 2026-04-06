@@ -9,6 +9,6 @@ const DEGREE_LABEL: Record<string, string> = {
 export function formatCurrentEducation(entry: EducationEntry | undefined): string {
   if (!entry?.institution) return "-";
   const degree = DEGREE_LABEL[entry.degree] ?? entry.degree;
-  const parts = [entry.institution, entry.major].filter(Boolean).join(", ");
+  const parts = [entry.institution, entry.faculty, entry.major].filter(Boolean).join(", ");
   return `${degree} - ${parts}${entry.intake_year ? ` (${entry.intake_year})` : ""}`;
 }

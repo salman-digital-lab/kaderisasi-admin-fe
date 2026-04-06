@@ -5,6 +5,7 @@ import { University } from "./university";
 export type EducationEntry = {
   degree: "bachelor" | "master" | "doctoral";
   institution: string;
+  faculty: string;
   major: string;
   intake_year: number;
 };

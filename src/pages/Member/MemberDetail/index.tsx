@@ -439,11 +439,16 @@ const MemberDetailPage = () => {
                       </Form.Item>
                     </Col>
                     <Col span={6}>
+                      <Form.Item name={[name, "faculty"]} label="Fakultas">
+                        <Input placeholder="Fakultas" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
                       <Form.Item name={[name, "major"]} label="Jurusan">
                         <Input placeholder="Jurusan" />
                       </Form.Item>
                     </Col>
-                    <Col span={4}>
+                    <Col span={2}>
                       <Form.Item name={[name, "intake_year"]} label="Tahun Masuk">
                         <InputNumber style={{ width: "100%" }} />
                       </Form.Item>
@@ -465,7 +470,13 @@ const MemberDetailPage = () => {
                   <Button
                     type="dashed"
                     onClick={() =>
-                      add({ degree: "bachelor", institution: "", major: "", intake_year: undefined })
+                      add({
+                        degree: "bachelor",
+                        institution: "",
+                        faculty: "",
+                        major: "",
+                        intake_year: undefined,
+                      })
                     }
                     icon={<PlusOutlined />}
                     disabled={!isEdit}
