@@ -9,6 +9,7 @@ export type PostLoginResp = {
       email?: string;
       display_name?: string;
       role?: string;
+      is_active?: boolean;
       [key: string]: any;
     };
   };

@@ -22,19 +22,21 @@ interface AdminUserTableProps {
       name: string;
     }>
   >;
+  refresh: () => void;
 }
 
 const AdminUserTable = ({
   data,
   loading,
   setAdminUserParam,
+  refresh,
 }: AdminUserTableProps) => {
   const [editedRow, setEditedRow] = useState<AdminUser | undefined>();
   const [passwordRow, setPasswordRow] = useState<AdminUser | undefined>();
 
   return (
     <>
-      <EditAdminUser data={editedRow} setData={setEditedRow} />
+      <EditAdminUser data={editedRow} setData={setEditedRow} refresh={refresh} />
       <EditPasswordAdminUser data={passwordRow} setData={setPasswordRow} />
       <Table
         rowKey="id"

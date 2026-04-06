@@ -36,6 +36,7 @@ export default function AdminUserList() {
           data={data}
           loading={loading}
           setAdminUserParam={setAdminUserParam}
+          refresh={refresh}
         />
       </div>
     </div>

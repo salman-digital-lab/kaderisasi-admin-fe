@@ -35,7 +35,10 @@ export type PostAdminUserResp = {
 
 export type PutAdminUserReq = {
   id: string;
-  data: Partial<AdminUser>;
+  data: {
+    role?: number;
+    isActive?: boolean;
+  };
 };
 
 export type PutAdminUserResp = {

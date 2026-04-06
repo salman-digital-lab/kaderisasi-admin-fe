@@ -75,6 +75,8 @@ export function renderNotification(code: string) {
       return "Password salah";
     case "EMAIL_ALREADY_REGISTERED":
       return "Email sudah terdaftar";
+    case "USER_INACTIVE":
+      return "Akun admin tidak aktif";
 
     // General Messages
     case "GENERAL_ERROR":

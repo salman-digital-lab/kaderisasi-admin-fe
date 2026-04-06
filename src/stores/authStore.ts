@@ -7,6 +7,7 @@ export interface User {
   email?: string;
   display_name?: string;
   role?: keyof typeof ADMIN_ROLE_PERMISSION | string;
+  is_active?: boolean;
   [key: string]: any;
 }
 
