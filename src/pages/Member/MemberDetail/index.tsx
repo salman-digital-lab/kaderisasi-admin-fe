@@ -99,6 +99,7 @@ const MemberDetailPage = () => {
   const [isEditAuthOpen, setIsEditAuthOpen] = useState(false);
   const [isGenerateAccountOpen, setIsGenerateAccountOpen] = useState(false);
   const [regionalInput, setRegionalInput] = useState<string[]>([]);
+  const [salmanActivityHistoryInput, setSalmanActivityHistoryInput] = useState<string[]>([]);
 
   const resetFormToProfile = (profile: Member | undefined) => {
     form.setFieldsValue({
@@ -122,6 +123,7 @@ const MemberDetailPage = () => {
       work_history: normalizeWorkHistory(profile?.work_history),
     });
     setRegionalInput(profile?.extra_data?.alumni_regional_assignment ?? []);
+    setSalmanActivityHistoryInput(profile?.extra_data?.salman_activity_history ?? []);
   };
 
   const { data, loading, refresh } = useRequest(() => getProfile(id || ""), {
@@ -288,7 +290,10 @@ const MemberDetailPage = () => {
               country: value.country,
               education_history: value.education_history ?? [],
               work_history: normalizedWorkHistoryEntries,
-              extra_data: { alumni_regional_assignment: regionalInput },
+              extra_data: {
+                alumni_regional_assignment: regionalInput,
+                salman_activity_history: salmanActivityHistoryInput,
+              },
             };
             await runAsync(id || "", { data: payload });
             exitEdit();
@@ -560,6 +565,27 @@ const MemberDetailPage = () => {
             </Col>
           </Row>
         </Form>
+
+        <Divider>Riwayat Aktivitas di Salman</Divider>
+        {isEdit ? (
+          <Select
+            mode="tags"
+            style={{ width: "100%" }}
+            placeholder="Tambah riwayat aktivitas di Salman"
+            value={salmanActivityHistoryInput}
+            onChange={(val) => setSalmanActivityHistoryInput(val)}
+          />
+        ) : (
+          <Space size={4} wrap>
+            {(profile?.extra_data?.salman_activity_history ?? []).length === 0 ? (
+              <span style={{ color: "#999" }}>Belum ada riwayat aktivitas</span>
+            ) : (
+              profile?.extra_data?.salman_activity_history?.map((item, i) => (
+                <Tag key={i}>{item}</Tag>
+              ))
+            )}
+          </Space>
+        )}
 
         {/* Regional assignment */}
         <Divider>Penugasan Regional Alumni</Divider>
