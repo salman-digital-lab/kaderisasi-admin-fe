@@ -15,6 +15,7 @@ import {
 import { useParams } from "react-router-dom";
 import { DownOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import dayjs from "dayjs";
 
 import {
   getRuangCurhat,
@@ -88,6 +89,13 @@ export function RuangCurhatDetail() {
     },
     {
       key: "8",
+      label: "Tanggal Lahir",
+      children: profileData?.profile[0].birth_date
+        ? dayjs(profileData.profile[0].birth_date).locale("id").format("DD MMMM YYYY")
+        : "-",
+    },
+    {
+      key: "9",
       label: "Jenjang Kaderisasi",
       children: renderUserLevel(profileData?.profile[0].level),
     },
