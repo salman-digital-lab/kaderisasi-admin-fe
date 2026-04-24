@@ -68,9 +68,9 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
     title: "Lencana",
     dataIndex: "badges",
     width: 150,
-    render: (values: string[]) => (
+    render: (values: Member["badges"]) => (
       <Space size={4} wrap>
-        {values?.map((value, index) => (
+        {(values ?? []).map((value, index) => (
           <Tag
             key={index}
             style={{

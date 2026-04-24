@@ -31,7 +31,7 @@ export type putProfileReq = {
   data: Partial<
     Omit<Member, "id" | "user_id" | "created_at" | "updated_at" | "badges">
   > & {
-    badges: string;
+    badges: string[];
   };
 };
 

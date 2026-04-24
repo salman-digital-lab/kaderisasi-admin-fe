@@ -85,7 +85,7 @@ export type PublicUser = {
     intake_year?: string;
     birth_date?: string;
     level?: number;
-    badges?: string;
+    badges?: string[];
     created_at: string;
     updated_at: string;
   };

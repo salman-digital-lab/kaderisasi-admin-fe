@@ -282,7 +282,7 @@ const MemberDetailPage = () => {
               province_id: value.province_id,
               city_id: value.city_id,
               level: value.level,
-              badges: JSON.stringify(value.badges || []),
+              badges: value.badges ?? [],
               name: value.name,
               birth_date: value.birth_date ? value.birth_date.toString() : undefined,
               origin_province_id: value.origin_province_id,
@@ -306,9 +306,10 @@ const MemberDetailPage = () => {
                 <Select
                   mode="tags"
                   style={{ width: "100%" }}
-                  options={
-                    profile?.badges?.map((badge) => ({ label: badge, value: badge })) || []
-                  }
+                  options={(profile?.badges ?? []).map((badge) => ({
+                    label: badge,
+                    value: badge,
+                  }))}
                 />
               </Form.Item>
             </Col>
