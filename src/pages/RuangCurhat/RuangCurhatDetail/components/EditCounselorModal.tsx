@@ -63,10 +63,12 @@ export default function EditCounselorModal({
         optionFilterProp="label"
         loading={loading}
         value={newData || counselorId}
-        options={rolesData?.data.map((item) => ({
-          label: item.email,
-          value: item.id,
-        }))}
+        options={rolesData?.data
+          .filter((item) => item.is_active)
+          .map((item) => ({
+            label: item.email,
+            value: item.id,
+          }))}
       />
     </Modal>
   );
