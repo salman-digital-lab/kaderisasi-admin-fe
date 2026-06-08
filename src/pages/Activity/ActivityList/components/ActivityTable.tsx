@@ -94,7 +94,7 @@ const ActivityTable = ({
           per_page: pagination.pageSize || 10,
         }))
       }
-      scroll={{ x: 800 }}
+      scroll={{ x: 900 }}
       size="small"
       className={styles["activity-table"]}
       bordered

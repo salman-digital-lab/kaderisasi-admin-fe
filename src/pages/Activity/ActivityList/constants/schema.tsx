@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { TableProps, Tag, Tooltip, Typography, Button, Space } from "antd";
+import { Tag, Tooltip, Typography, Button, Space } from "antd";
+import type { TableProps } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
 import {
@@ -9,6 +10,9 @@ import {
 import { Activity } from "../../../../types/model/activity";
 
 const { Text } = Typography;
+
+const toBoolean = (value: boolean | number | undefined): boolean =>
+  Boolean(value);
 
 export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
   {
@@ -68,7 +72,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     dataIndex: "is_published",
     width: 140,
     render: (value) => {
-      const isPublished = value;
+      const isPublished = toBoolean(value);
       return (
         <Tooltip
           title={
@@ -87,6 +91,35 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
             }}
           >
             {isPublished ? "Dipublikasi" : "Draft"}
+          </Tag>
+        </Tooltip>
+      );
+    },
+  },
+  {
+    title: "Status Pendaftaran",
+    dataIndex: "is_registration_open",
+    width: 160,
+    render: (value) => {
+      const isRegistrationOpen = toBoolean(value);
+      return (
+        <Tooltip
+          title={
+            isRegistrationOpen
+              ? "Pendaftaran kegiatan sedang dibuka"
+              : "Pendaftaran kegiatan sedang ditutup"
+          }
+        >
+          <Tag
+            color={isRegistrationOpen ? "success" : "default"}
+            style={{
+              borderRadius: "6px",
+              fontWeight: 500,
+              border: "none",
+              cursor: "help",
+            }}
+          >
+            {isRegistrationOpen ? "Dibuka" : "Ditutup"}
           </Tag>
         </Tooltip>
       );
