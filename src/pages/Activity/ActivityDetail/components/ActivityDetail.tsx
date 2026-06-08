@@ -52,6 +52,7 @@ type FormType = {
   registration_date: (dayjs.Dayjs | undefined)[];
   activity_date?: (dayjs.Dayjs | undefined)[];
   is_published: boolean;
+  is_registration_open: boolean;
   custom_selection_status?: string[];
   allow_guest_registration?: boolean;
 };
@@ -62,6 +63,7 @@ const ActivityDetail = () => {
   const [form] = Form.useForm<FormType>();
   const activityType = Form.useWatch("activity_type", form);
   const isPublished = Form.useWatch("is_published", form);
+  const isRegistrationOpen = Form.useWatch("is_registration_open", form);
 
   const [isChanged, setIsChanged] = useState(false);
 
@@ -88,6 +90,24 @@ const ActivityDetail = () => {
     },
   );
 
+  const { loading: registrationLoading, runAsync: runRegistrationToggle } =
+    useRequest(
+      (newStatus: boolean) =>
+        putActivity(Number(id), { is_registration_open: newStatus }),
+      {
+        manual: true,
+        onSuccess: (_, [newStatus]) => {
+          form.setFieldValue("is_registration_open", newStatus);
+          notification.success({
+            message: "Berhasil",
+            description: newStatus
+              ? "Pendaftaran kegiatan berhasil dibuka."
+              : "Pendaftaran kegiatan berhasil ditutup.",
+          });
+        },
+      },
+    );
+
   const { data: activityData, loading } = useRequest(
     () => getActivity(Number(id)),
     {
@@ -109,6 +129,7 @@ const ActivityDetail = () => {
             data?.activity_end ? dayjs(data?.activity_end) : undefined,
           ],
           is_published: Boolean(data?.is_published),
+          is_registration_open: Boolean(data?.is_registration_open),
           badge: data?.badge,
           custom_selection_status:
             data?.additional_config?.custom_selection_status,
@@ -131,6 +152,7 @@ const ActivityDetail = () => {
             await runAsync(Number(id), {
               ...value,
               is_published: value.is_published ? 1 : 0,
+              is_registration_open: value.is_registration_open,
               registration_start: value.registration_date[0]
                 ? value.registration_date[0].format("YYYY-MM-DD")
                 : undefined,
@@ -176,18 +198,35 @@ const ActivityDetail = () => {
               <Tag color={isPublished ? "green" : "default"}>
                 {isPublished ? "Tayang" : "Draf"}
               </Tag>
+              <Tag color={isRegistrationOpen ? "green" : "default"}>
+                {isRegistrationOpen
+                  ? "Pendaftaran Dibuka"
+                  : "Pendaftaran Ditutup"}
+              </Tag>
             </Space>
 
             <Space>
               {getUserRole() === ADMIN_ROLE_ENUM.SUPER_ADMIN && (
-                <Button
-                  type={isPublished ? "default" : "primary"}
-                  danger={isPublished}
-                  loading={publishLoading}
-                  onClick={() => runPublishToggle(!isPublished)}
-                >
-                  {isPublished ? "Kembalikan ke Draf" : "Tampilkan di Web"}
-                </Button>
+                <Space size={8}>
+                  <Button
+                    type={isRegistrationOpen ? "default" : "primary"}
+                    danger={isRegistrationOpen}
+                    loading={registrationLoading}
+                    onClick={() => runRegistrationToggle(!isRegistrationOpen)}
+                  >
+                    {isRegistrationOpen
+                      ? "Tutup Pendaftaran"
+                      : "Buka Pendaftaran"}
+                  </Button>
+                  <Button
+                    type={isPublished ? "default" : "primary"}
+                    danger={isPublished}
+                    loading={publishLoading}
+                    onClick={() => runPublishToggle(!isPublished)}
+                  >
+                    {isPublished ? "Kembalikan ke Draf" : "Tampilkan di Web"}
+                  </Button>
+                </Space>
               )}
               <Button
                 form="detail-activity"
@@ -202,6 +241,13 @@ const ActivityDetail = () => {
             </Space>
 
             <Form.Item name="is_published" valuePropName="checked" hidden>
+              <input type="hidden" />
+            </Form.Item>
+            <Form.Item
+              name="is_registration_open"
+              valuePropName="checked"
+              hidden
+            >
               <input type="hidden" />
             </Form.Item>
           </Row>
