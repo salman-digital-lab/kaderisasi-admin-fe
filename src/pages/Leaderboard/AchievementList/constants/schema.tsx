@@ -1,4 +1,4 @@
-import { TableProps } from "antd/es/table/InternalTable";
+import type { TableProps } from "antd";
 import dayjs from "dayjs";
 import { Button, Tag } from "antd";
 import { Link } from "react-router-dom";
@@ -8,9 +8,28 @@ import {
   renderAchievementStatusColor,
   renderAchievementType,
 } from "../../../../constants/render";
-import { Achievement } from "../../../../types/model/achievements";
+import type { Achievement } from "../../../../types/model/achievements";
+import type {
+  AchievementSortBy,
+  SortOrder,
+} from "../../../../types/services/achievement";
 
-export const TABLE_SCHEMA: TableProps<Achievement>["columns"] = [
+const getSortOrder = (
+  columnKey: AchievementSortBy,
+  sortBy?: AchievementSortBy,
+  sortOrder?: SortOrder,
+) => {
+  if (columnKey !== sortBy) {
+    return null;
+  }
+
+  return sortOrder === "asc" ? "ascend" : "descend";
+};
+
+export const TABLE_SCHEMA = (
+  sortBy?: AchievementSortBy,
+  sortOrder?: SortOrder,
+): TableProps<Achievement>["columns"] => [
   {
     title: "Nama Prestasi",
     dataIndex: "name",
@@ -33,6 +52,19 @@ export const TABLE_SCHEMA: TableProps<Achievement>["columns"] = [
   {
     title: "Tanggal Dibuat",
     dataIndex: "created_at",
+    key: "created_at",
+    sorter: true,
+    sortDirections: ["ascend", "descend"],
+    sortOrder: getSortOrder("created_at", sortBy, sortOrder),
+    render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
+  },
+  {
+    title: "Tanggal Prestasi",
+    dataIndex: "achievement_date",
+    key: "achievement_date",
+    sorter: true,
+    sortDirections: ["ascend", "descend"],
+    sortOrder: getSortOrder("achievement_date", sortBy, sortOrder),
     render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
   },
   {

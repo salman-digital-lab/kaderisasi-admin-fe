@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { Button, Card, Space, Select, Input, Tooltip } from "antd";
-import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
+import { Button, Card, Space, Select, Input, Tooltip, message } from "antd";
+import {
+  DownloadOutlined,
+  SearchOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import {
   ACHIEVEMENT_STATUS_ENUM,
   ACHIEVEMENT_TYPE_ENUM,
@@ -9,6 +13,7 @@ import {
   ACHIEVEMENT_STATUS_OPTIONS,
   ACHIEVEMENT_TYPE_OPTIONS,
 } from "../../../../constants/options";
+import type { AchievementListParameters } from "../index";
 
 const cardStyle = {
   borderRadius: 0,
@@ -17,20 +22,19 @@ const cardStyle = {
 
 type FilterProps = {
   setParameter: React.Dispatch<
-    React.SetStateAction<{
-      page: number;
-      per_page: number;
-      status?: ACHIEVEMENT_STATUS_ENUM;
-      email?: string;
-      name?: string;
-      type?: ACHIEVEMENT_TYPE_ENUM;
-    }>
+    React.SetStateAction<AchievementListParameters>
   >;
   refresh?: () => void;
   loading?: boolean;
+  exportAchievements: () => Promise<Blob | undefined>;
 };
 
-const AchievementFilter = ({ setParameter, refresh, loading }: FilterProps) => {
+const AchievementFilter = ({
+  setParameter,
+  refresh,
+  loading,
+  exportAchievements,
+}: FilterProps) => {
   const [nameInput, setNameInput] = useState("");
   const [statusValue, setStatusValue] = useState<
     ACHIEVEMENT_STATUS_ENUM | undefined
@@ -38,6 +42,7 @@ const AchievementFilter = ({ setParameter, refresh, loading }: FilterProps) => {
   const [typeValue, setTypeValue] = useState<
     ACHIEVEMENT_TYPE_ENUM | undefined
   >();
+  const [exportLoading, setExportLoading] = useState(false);
 
   const handleSearch = () => {
     setParameter((prev) => ({
@@ -47,6 +52,33 @@ const AchievementFilter = ({ setParameter, refresh, loading }: FilterProps) => {
       name: nameInput || undefined,
       type: typeValue,
     }));
+  };
+
+  const handleExport = async () => {
+    setExportLoading(true);
+    try {
+      const data = await exportAchievements();
+
+      if (!data) {
+        message.error("Download gagal");
+        return;
+      }
+
+      const blob = new Blob([data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `achievement-data-${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      message.success("Download berhasil");
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   return (
@@ -99,6 +131,13 @@ const AchievementFilter = ({ setParameter, refresh, loading }: FilterProps) => {
 
         {/* Right: Actions */}
         <Space size={8} wrap>
+          <Button
+            icon={<DownloadOutlined />}
+            onClick={handleExport}
+            loading={exportLoading}
+          >
+            Download All
+          </Button>
           {refresh && (
             <Tooltip placement="left" title="Refresh Data">
               <Button

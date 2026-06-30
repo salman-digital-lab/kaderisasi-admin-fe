@@ -27,6 +27,17 @@ export const getAchievements = async (props: GetAchievementsReq) => {
   }
 };
 
+export const exportAchievements = async () => {
+  try {
+    const res = await axios.get<Blob>("/achievements/export", {
+      responseType: "blob",
+    });
+    return res.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const getAchievement = async (props: GetAchievementReq) => {
   try {
     const res = await axios.get<GetAchievementResp>(

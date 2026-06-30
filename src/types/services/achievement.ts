@@ -2,6 +2,9 @@ import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../constants/ach
 import { Achievement } from "../model/achievements";
 import { Pagination } from "./base";
 
+export type AchievementSortBy = "achievement_date" | "created_at";
+export type SortOrder = "asc" | "desc";
+
 export type GetAchievementsReq = {
   per_page: string;
   page: string;
@@ -9,6 +12,8 @@ export type GetAchievementsReq = {
   email?: string;
   name?: string;
   type?: ACHIEVEMENT_TYPE_ENUM;
+  sort_by?: AchievementSortBy;
+  sort_order?: SortOrder;
 };
 
 export type GetAchievementsResp = {
