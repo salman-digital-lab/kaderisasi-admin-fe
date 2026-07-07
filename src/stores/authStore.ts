@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { ADMIN_ROLE_PERMISSION } from '../constants/permissions';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { ADMIN_ROLE_PERMISSION } from "../constants/permissions";
 
 export interface User {
   id?: string;
@@ -18,13 +18,13 @@ export interface AuthState {
   permissions: string[];
   isAuthenticated: boolean;
   isInitialized: boolean;
-  
+
   // Actions
   setAuth: (token: string, user: User) => void;
   clearAuth: () => void;
   updateUser: (user: Partial<User>) => void;
   initialize: () => void;
-  
+
   // Computed getters
   hasPermission: (permission: string) => boolean;
   getUserRole: () => keyof typeof ADMIN_ROLE_PERMISSION | string | undefined;
@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (token: string, user: User) => {
         const role = user?.role as keyof typeof ADMIN_ROLE_PERMISSION;
         const permissions = ADMIN_ROLE_PERMISSION[role] || [];
-        
+
         set({
           token,
           user,
@@ -68,11 +68,11 @@ export const useAuthStore = create<AuthState>()(
       updateUser: (userData: Partial<User>) => {
         const currentUser = get().user;
         if (!currentUser) return;
-        
+
         const updatedUser = { ...currentUser, ...userData };
         const role = updatedUser?.role as keyof typeof ADMIN_ROLE_PERMISSION;
         const permissions = ADMIN_ROLE_PERMISSION[role] || [];
-        
+
         set({
           user: updatedUser,
           permissions,
@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
       initialize: () => {
         const state = get();
         if (state.isInitialized) return;
-        
+
         // Mark as initialized - the persist middleware has already loaded data
         set({ isInitialized: true });
       },
@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'auth-storage', // localStorage key
+      name: "auth-storage", // localStorage key
       storage: createJSONStorage(() => localStorage),
       // Only persist essential data
       partialize: (state) => ({
@@ -123,24 +123,27 @@ export const useAuthStore = create<AuthState>()(
           state.isInitialized = true;
         }
       },
-    }
-  )
+    },
+  ),
 );
 
 // Simple, stable selectors
-export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
-export const useIsInitialized = () => useAuthStore((state) => state.isInitialized);
+export const useIsAuthenticated = () =>
+  useAuthStore((state) => state.isAuthenticated);
+export const useIsInitialized = () =>
+  useAuthStore((state) => state.isInitialized);
 export const useUser = () => useAuthStore((state) => state.user);
 export const useToken = () => useAuthStore((state) => state.token);
 export const usePermissions = () => useAuthStore((state) => state.permissions);
 
 // Compound selectors for convenience
-export const useAuth = () => useAuthStore((state) => ({
-  token: state.token,
-  user: state.user,
-  isAuthenticated: state.isAuthenticated,
-  isInitialized: state.isInitialized,
-}));
+export const useAuth = () =>
+  useAuthStore((state) => ({
+    token: state.token,
+    user: state.user,
+    isAuthenticated: state.isAuthenticated,
+    isInitialized: state.isInitialized,
+  }));
 
 // Action hooks
 export const useSetAuth = () => useAuthStore((state) => state.setAuth);
@@ -158,8 +161,10 @@ export const useHasPermission = () => {
 
 // Backward compatibility helpers
 export const isAuthenticated = () => useAuthStore.getState().isAuthenticated;
-export const hasPermission = (permission: string) => useAuthStore.getState().hasPermission(permission);
-export const getUserPermissions = () => useAuthStore.getState().getPermissions();
+export const hasPermission = (permission: string) =>
+  useAuthStore.getState().hasPermission(permission);
+export const getUserPermissions = () =>
+  useAuthStore.getState().getPermissions();
 export const getUserRole = () => useAuthStore.getState().getUserRole();
 export const getUser = () => useAuthStore.getState().user;
 export const clearUserCache = () => useAuthStore.getState().clearAuth();

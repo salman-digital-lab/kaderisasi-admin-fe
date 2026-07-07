@@ -1,34 +1,34 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { 
-  Card, 
-  Upload, 
-  Button, 
-  Space, 
-  List, 
-  Image, 
-  Typography, 
-  Popconfirm, 
-  Select, 
-  Row, 
+import {
+  Card,
+  Upload,
+  Button,
+  Space,
+  List,
+  Image,
+  Typography,
+  Popconfirm,
+  Select,
+  Row,
   Col,
-  Input 
+  Input,
 } from "antd";
-import { 
-  UploadOutlined, 
-  DeleteOutlined, 
+import {
+  UploadOutlined,
+  DeleteOutlined,
   EyeOutlined,
   VideoCameraOutlined,
-  FileImageOutlined 
+  FileImageOutlined,
 } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import type { UploadFile } from "antd";
 
-import { 
-  getClub, 
+import {
+  getClub,
   uploadClubImageMedia,
-  addClubYoutubeMedia, 
-  deleteClubMedia 
+  addClubYoutubeMedia,
+  deleteClubMedia,
 } from "../../../../api/services/club";
 import { Club, MediaItem } from "../../../../types/model/club";
 
@@ -51,7 +51,7 @@ const MediaList = () => {
           setClubData(data);
         }
       },
-    }
+    },
   );
 
   const { loading: uploadLoading, run: uploadImage } = useRequest(
@@ -62,22 +62,23 @@ const MediaList = () => {
         setFileList([]);
         refresh();
       },
-    }
+    },
   );
 
   const { loading: youtubeLoading, run: addYoutube } = useRequest(
-    (url: string) => addClubYoutubeMedia(Number(id), {
-      media_url: url,
-      media_type: "video",
-      video_source: "youtube"
-    }),
+    (url: string) =>
+      addClubYoutubeMedia(Number(id), {
+        media_url: url,
+        media_type: "video",
+        video_source: "youtube",
+      }),
     {
       manual: true,
       onSuccess: () => {
         setYoutubeUrl("");
         refresh();
       },
-    }
+    },
   );
 
   const { loading: deleteLoading, run: deleteMedia } = useRequest(
@@ -87,7 +88,7 @@ const MediaList = () => {
       onSuccess: () => {
         refresh();
       },
-    }
+    },
   );
 
   const handleImageUpload = () => {
@@ -103,36 +104,39 @@ const MediaList = () => {
   };
 
   const beforeUpload = (file: File) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type.startsWith("image/");
     const isLt5M = file.size / 1024 / 1024 < 5;
 
     if (!isImage) {
-      alert('Hanya file gambar yang diperbolehkan!');
+      alert("Hanya file gambar yang diperbolehkan!");
       return false;
     }
 
     if (!isLt5M) {
-      alert('File harus lebih kecil dari 5MB!');
+      alert("File harus lebih kecil dari 5MB!");
       return false;
     }
 
-    setFileList([{
-      uid: '-1',
-      name: file.name,
-      status: 'done',
-      originFileObj: file,
-    } as UploadFile]);
-    
+    setFileList([
+      {
+        uid: "-1",
+        name: file.name,
+        status: "done",
+        originFileObj: file,
+      } as UploadFile,
+    ]);
+
     return false; // Prevent automatic upload
   };
 
   const renderMediaItem = (item: MediaItem, index: number) => {
     const isImage = item.media_type === "image";
-    const isYoutubeVideo = item.media_type === "video" && item.video_source === "youtube";
-    
+    const isYoutubeVideo =
+      item.media_type === "video" && item.video_source === "youtube";
+
     let mediaUrl = item.media_url;
     let displayUrl = item.media_url;
-    
+
     if (isImage) {
       mediaUrl = `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${item.media_url}`;
       displayUrl = item.media_url;
@@ -146,39 +150,37 @@ const MediaList = () => {
       <List.Item
         actions={[
           <Button
+            key="view"
             icon={<EyeOutlined />}
             onClick={() => {
               if (isImage) {
                 // Show image preview
-                const img = document.createElement('img');
+                const img = document.createElement("img");
                 img.src = mediaUrl;
-                const win = window.open('', '_blank');
+                const win = window.open("", "_blank");
                 if (win) {
                   win.document.write(img.outerHTML);
                 }
               } else if (isYoutubeVideo) {
                 // Open YouTube video in new tab
-                window.open(item.media_url, '_blank');
+                window.open(item.media_url, "_blank");
               }
             }}
           >
             Lihat
           </Button>,
           <Popconfirm
+            key="delete"
             title="Hapus Media"
             description="Apakah Anda yakin ingin menghapus media ini?"
             onConfirm={() => deleteMedia(index)}
             okText="Ya"
             cancelText="Tidak"
           >
-            <Button
-              icon={<DeleteOutlined />}
-              danger
-              loading={deleteLoading}
-            >
+            <Button icon={<DeleteOutlined />} danger loading={deleteLoading}>
               Hapus
             </Button>
-          </Popconfirm>
+          </Popconfirm>,
         ]}
       >
         <List.Item.Meta
@@ -196,9 +198,7 @@ const MediaList = () => {
           }
           title={displayUrl}
           description={
-            isYoutubeVideo 
-              ? "YouTube Video" 
-              : `Tipe: ${item.media_type}`
+            isYoutubeVideo ? "YouTube Video" : `Tipe: ${item.media_type}`
           }
         />
       </List.Item>
@@ -211,7 +211,7 @@ const MediaList = () => {
 
   return (
     <Card title="Media Club">
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Card title="Tambah Media Baru" size="small">
           <Row gutter={16}>
             <Col span={8}>
@@ -223,7 +223,7 @@ const MediaList = () => {
                   setFileList([]);
                   setYoutubeUrl("");
                 }}
-                style={{ width: '100%', marginTop: 8 }}
+                style={{ width: "100%", marginTop: 8 }}
               >
                 <Option value="image">
                   <FileImageOutlined /> Gambar
@@ -262,40 +262,42 @@ const MediaList = () => {
               )}
             </Col>
           </Row>
-          
+
           <div style={{ marginTop: 16 }}>
             <Text type="secondary">
-              {mediaType === "image" 
+              {mediaType === "image"
                 ? "Format gambar: JPG, PNG, JPEG, WEBP. Maksimal 5MB."
-                : "Masukkan link YouTube dalam format: https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/VIDEO_ID"
-              }
+                : "Masukkan link YouTube dalam format: https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/VIDEO_ID"}
             </Text>
           </div>
 
-          {(fileList.length > 0 || (mediaType === "video" && youtubeUrl.trim())) && (
+          {(fileList.length > 0 ||
+            (mediaType === "video" && youtubeUrl.trim())) && (
             <div style={{ marginTop: 16 }}>
               <Space>
                 {mediaType === "image" ? (
-                  <Button 
-                    type="primary" 
+                  <Button
+                    type="primary"
                     onClick={handleImageUpload}
                     loading={uploadLoading}
                   >
                     Upload Gambar
                   </Button>
                 ) : (
-                  <Button 
-                    type="primary" 
+                  <Button
+                    type="primary"
                     onClick={handleYoutubeAdd}
                     loading={youtubeLoading}
                   >
                     Tambah Video YouTube
                   </Button>
                 )}
-                <Button onClick={() => {
-                  setFileList([]);
-                  setYoutubeUrl("");
-                }}>
+                <Button
+                  onClick={() => {
+                    setFileList([]);
+                    setYoutubeUrl("");
+                  }}
+                >
                   Batal
                 </Button>
               </Space>
@@ -303,7 +305,10 @@ const MediaList = () => {
           )}
         </Card>
 
-        <Card title={`Daftar Media (${clubData?.media?.items?.length || 0})`} size="small">
+        <Card
+          title={`Daftar Media (${clubData?.media?.items?.length || 0})`}
+          size="small"
+        >
           {clubData?.media?.items && clubData.media.items.length > 0 ? (
             <List
               dataSource={clubData.media.items}
@@ -316,7 +321,9 @@ const MediaList = () => {
               }}
             />
           ) : (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+            <div
+              style={{ textAlign: "center", padding: "40px 0", color: "#999" }}
+            >
               Belum ada media yang diupload
             </div>
           )}

@@ -40,7 +40,10 @@ export default function EditPasswordAdminUser({
         setData(undefined);
       }}
     >
-      <Input.Password placeholder="Password" onChange={(e) => handleChange(e.target.value)} />
+      <Input.Password
+        placeholder="Password"
+        onChange={(e) => handleChange(e.target.value)}
+      />
     </Modal>
   );
 }

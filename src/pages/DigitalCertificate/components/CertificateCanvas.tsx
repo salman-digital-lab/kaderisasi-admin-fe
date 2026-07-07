@@ -263,7 +263,6 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
           y: (clientHeight - template.canvasHeight) / 2,
         });
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ── Keyboard shortcuts ────────────────────────────────────────────────

@@ -80,7 +80,9 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
         <Form.Item
           label="Nama Unit Kegiatan"
           name="name"
-          rules={[{ required: true, message: "Nama unit kegiatan wajib diisi!" }]}
+          rules={[
+            { required: true, message: "Nama unit kegiatan wajib diisi!" },
+          ]}
         >
           <Input placeholder="Masukkan nama unit kegiatan" />
         </Form.Item>

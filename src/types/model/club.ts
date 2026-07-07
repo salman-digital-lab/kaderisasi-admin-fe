@@ -1,7 +1,7 @@
 export interface MediaItem {
   media_url: string;
-  media_type: 'image' | 'video';
-  video_source?: 'youtube'; // Only present when media_type is 'video'
+  media_type: "image" | "video";
+  video_source?: "youtube"; // Only present when media_type is 'video'
 }
 
 export interface MediaStructure {

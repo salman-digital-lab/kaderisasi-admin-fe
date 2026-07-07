@@ -18,7 +18,9 @@ export const handleError = (error: unknown) => {
         "message" in axiosError.response.data &&
         typeof axiosError.response.data.message === "string"
       ) {
-        const translatedMessage = renderNotification(axiosError.response.data.message);
+        const translatedMessage = renderNotification(
+          axiosError.response.data.message,
+        );
         notification.error({
           message: "Gagal",
           description: (

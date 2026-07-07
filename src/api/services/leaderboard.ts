@@ -8,7 +8,9 @@ import {
 import axios from "../axios";
 import { handleError } from "../errorHandling";
 
-export const getMonthlyLeaderboard = async (props: GetMonthlyLeaderboardReq) => {
+export const getMonthlyLeaderboard = async (
+  props: GetMonthlyLeaderboardReq,
+) => {
   try {
     const propsData = removeEmptyValueFromObj(props);
     const urlSearch = new URLSearchParams(propsData).toString();
@@ -21,7 +23,9 @@ export const getMonthlyLeaderboard = async (props: GetMonthlyLeaderboardReq) => 
   }
 };
 
-export const getLifetimeLeaderboard = async (props: GetLifetimeLeaderboardReq) => {
+export const getLifetimeLeaderboard = async (
+  props: GetLifetimeLeaderboardReq,
+) => {
   try {
     const propsData = removeEmptyValueFromObj(props);
     const urlSearch = new URLSearchParams(propsData).toString();

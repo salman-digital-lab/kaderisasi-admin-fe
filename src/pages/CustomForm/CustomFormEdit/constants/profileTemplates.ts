@@ -217,7 +217,8 @@ export const PROFILE_DATA_TEMPLATES = [
     },
     category: "education",
     icon: DatabaseOutlined,
-    description: "Daftar lengkap riwayat pendidikan (jenjang, kampus, jurusan, tahun masuk)",
+    description:
+      "Daftar lengkap riwayat pendidikan (jenjang, kampus, jurusan, tahun masuk)",
   },
   {
     name: "Pendidikan Sekarang",
@@ -230,6 +231,7 @@ export const PROFILE_DATA_TEMPLATES = [
     },
     category: "education",
     icon: DatabaseOutlined,
-    description: "Input pendidikan sekarang (jenjang, kampus, jurusan, tahun masuk)",
+    description:
+      "Input pendidikan sekarang (jenjang, kampus, jurusan, tahun masuk)",
   },
 ] as const;

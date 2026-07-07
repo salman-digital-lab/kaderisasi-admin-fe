@@ -62,7 +62,9 @@ const ActivityParticipants = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [isExporting, setIsExporting] = useState(false);
-  const [generatingCertificate, setGeneratingCertificate] = useState<number | null>(null);
+  const [generatingCertificate, setGeneratingCertificate] = useState<
+    number | null
+  >(null);
 
   // Pagination & sorting state
   const [pagination, setPagination] = useState({
@@ -97,7 +99,9 @@ const ActivityParticipants = () => {
 
     if (customForm) {
       const profileSection = customForm.form_schema.fields[0];
-      const profileKeys = new Set(profileSection?.fields.map((f) => f.key) ?? []);
+      const profileKeys = new Set(
+        profileSection?.fields.map((f) => f.key) ?? [],
+      );
       return ALL_COLUMNS.filter(
         (col) => ALWAYS_VISIBLE.has(col.key) || profileKeys.has(col.key),
       );
@@ -201,14 +205,15 @@ const ActivityParticipants = () => {
       const data = await generateSingleCertificate({
         registration_id: registrationId,
       });
-      
+
       // Store the certificate data in sessionStorage and open new window
-      sessionStorage.setItem('certificatePreview', JSON.stringify(data));
-      window.open('/certificate-preview', '_blank');
-      
+      sessionStorage.setItem("certificatePreview", JSON.stringify(data));
+      window.open("/certificate-preview", "_blank");
+
       message.success("Sertifikat berhasil dihasilkan");
     } catch (error: any) {
-      const errorMsg = error?.response?.data?.error || "Gagal menghasilkan sertifikat";
+      const errorMsg =
+        error?.response?.data?.error || "Gagal menghasilkan sertifikat";
       message.error(errorMsg);
     } finally {
       setGeneratingCertificate(null);
@@ -234,7 +239,7 @@ const ActivityParticipants = () => {
         document.body.removeChild(a);
         message.success("Export berhasil");
       }
-    } catch (error) {
+    } catch {
       message.error("Export gagal");
     } finally {
       setIsExporting(false);
@@ -243,11 +248,13 @@ const ActivityParticipants = () => {
 
   // Generate table columns
   const tableColumns = useMemo(() => {
-    const cols = generateTableColumns(columns, sortBy, sortOrder, handleSort) || [];
-    
+    const cols =
+      generateTableColumns(columns, sortBy, sortOrder, handleSort) || [];
+
     // Check if activity has certificate template
-    const hasCertificateTemplate = !!activity?.additional_config?.certificate_template_id;
-    
+    const hasCertificateTemplate =
+      !!activity?.additional_config?.certificate_template_id;
+
     // Add certificate column for LULUS KEGIATAN participants
     if (hasCertificateTemplate) {
       cols.push({
@@ -273,9 +280,17 @@ const ActivityParticipants = () => {
         },
       });
     }
-    
+
     return cols;
-  }, [columns, sortBy, sortOrder, handleSort, activity, generatingCertificate, handleViewCertificate]);
+  }, [
+    columns,
+    sortBy,
+    sortOrder,
+    handleSort,
+    activity,
+    generatingCertificate,
+    handleViewCertificate,
+  ]);
 
   // Custom selection status from activity
   const customSelectionStatus = useMemo(

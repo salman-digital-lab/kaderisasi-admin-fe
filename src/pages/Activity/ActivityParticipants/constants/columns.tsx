@@ -250,7 +250,11 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     filterable: false,
     render: (val, record) => {
       const history = val as EducationEntry[] | undefined;
-      const last = history?.slice(-1)[0] ?? (record.guest_data?.["current_education"] as EducationEntry | undefined);
+      const last =
+        history?.slice(-1)[0] ??
+        (record.guest_data?.["current_education"] as
+          | EducationEntry
+          | undefined);
       return <TextCell text={formatCurrentEducation(last)} maxWidth={200} />;
     },
   },

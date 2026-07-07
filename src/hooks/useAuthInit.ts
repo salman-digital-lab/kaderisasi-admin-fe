@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { useIsInitialized, useAuthStore } from '../stores/authStore';
-import { message } from 'antd';
+import { useEffect, useRef } from "react";
+import { useIsInitialized, useAuthStore } from "../stores/authStore";
+import { message } from "antd";
 
 /**
  * Hook to initialize authentication state from localStorage
@@ -31,10 +31,10 @@ export const useSessionManager = () => {
   useEffect(() => {
     // Check for session expired message in URL
     const urlParams = new URLSearchParams(window.location.search);
-    const sessionMessage = urlParams.get('message');
+    const sessionMessage = urlParams.get("message");
 
-    if (sessionMessage === 'session_expired') {
-      message.warning('Sesi Anda telah berakhir. Silakan login kembali.');
+    if (sessionMessage === "session_expired") {
+      message.warning("Sesi Anda telah berakhir. Silakan login kembali.");
       // Clean up the URL
       const newUrl = window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);

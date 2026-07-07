@@ -18,21 +18,32 @@ import axios from "../axios";
 import { handleError } from "../errorHandling";
 import { renderNotification } from "../../constants/render";
 
-export const getClubRegistrations = async (clubId: number, props: getClubRegistrationsReq) => {
+export const getClubRegistrations = async (
+  clubId: number,
+  props: getClubRegistrationsReq,
+) => {
   try {
     const searchParams = removeEmptyValueFromObj(props);
     const urlSearch = new URLSearchParams(searchParams).toString();
-    const res = await axios.get<getClubRegistrationsResp>(`/clubs/${clubId}/registrations?${urlSearch}`);
+    const res = await axios.get<getClubRegistrationsResp>(
+      `/clubs/${clubId}/registrations?${urlSearch}`,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-export const createClubRegistration = async (clubId: number, props: postClubRegistrationReq) => {
+export const createClubRegistration = async (
+  clubId: number,
+  props: postClubRegistrationReq,
+) => {
   try {
     const bodyData = removeEmptyValueFromObj(props);
-    const res = await axios.post<postClubRegistrationResp>(`/clubs/${clubId}/registrations`, bodyData);
+    const res = await axios.post<postClubRegistrationResp>(
+      `/clubs/${clubId}/registrations`,
+      bodyData,
+    );
     notification.success({
       message: "Berhasil",
       description: renderNotification(res.data.message),
@@ -45,17 +56,25 @@ export const createClubRegistration = async (clubId: number, props: postClubRegi
 
 export const getClubRegistration = async (registrationId: number) => {
   try {
-    const res = await axios.get<getClubRegistrationResp>(`/club-registrations/${registrationId}`);
+    const res = await axios.get<getClubRegistrationResp>(
+      `/club-registrations/${registrationId}`,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
   }
 };
 
-export const updateClubRegistration = async (registrationId: number, props: putClubRegistrationReq) => {
+export const updateClubRegistration = async (
+  registrationId: number,
+  props: putClubRegistrationReq,
+) => {
   try {
     const bodyData = removeEmptyValueFromObj(props);
-    const res = await axios.put<putClubRegistrationResp>(`/club-registrations/${registrationId}`, bodyData);
+    const res = await axios.put<putClubRegistrationResp>(
+      `/club-registrations/${registrationId}`,
+      bodyData,
+    );
     notification.success({
       message: "Berhasil",
       description: renderNotification(res.data.message),
@@ -66,10 +85,15 @@ export const updateClubRegistration = async (registrationId: number, props: putC
   }
 };
 
-export const bulkUpdateClubRegistrations = async (props: putClubRegistrationsBulkReq) => {
+export const bulkUpdateClubRegistrations = async (
+  props: putClubRegistrationsBulkReq,
+) => {
   try {
     const bodyData = removeEmptyValueFromObj(props);
-    const res = await axios.put<putClubRegistrationsBulkResp>(`/club-registrations/bulk-update`, bodyData);
+    const res = await axios.put<putClubRegistrationsBulkResp>(
+      `/club-registrations/bulk-update`,
+      bodyData,
+    );
     notification.success({
       message: "Berhasil",
       description: renderNotification(res.data.message),
@@ -82,7 +106,9 @@ export const bulkUpdateClubRegistrations = async (props: putClubRegistrationsBul
 
 export const deleteClubRegistration = async (registrationId: number) => {
   try {
-    const res = await axios.delete<deleteClubRegistrationResp>(`/club-registrations/${registrationId}`);
+    const res = await axios.delete<deleteClubRegistrationResp>(
+      `/club-registrations/${registrationId}`,
+    );
     notification.success({
       message: "Berhasil",
       description: renderNotification(res.data.message),
@@ -96,7 +122,7 @@ export const deleteClubRegistration = async (registrationId: number) => {
 export const exportClubRegistrations = async (clubId: number) => {
   try {
     const res = await axios.get(`/clubs/${clubId}/registrations/export`, {
-      responseType: 'blob',
+      responseType: "blob",
     });
     return res.data;
   } catch (error) {
@@ -104,12 +130,16 @@ export const exportClubRegistrations = async (clubId: number) => {
   }
 };
 
-
-
-export const updateClubRegistrationInfo = async (clubId: number, props: putClubRegistrationInfoReq) => {
+export const updateClubRegistrationInfo = async (
+  clubId: number,
+  props: putClubRegistrationInfoReq,
+) => {
   try {
     const bodyData = removeEmptyValueFromObj(props);
-    const res = await axios.put<putClubRegistrationInfoResp>(`/clubs/${clubId}/registration-info`, bodyData);
+    const res = await axios.put<putClubRegistrationInfoResp>(
+      `/clubs/${clubId}/registration-info`,
+      bodyData,
+    );
     notification.success({
       message: "Berhasil",
       description: renderNotification(res.data.message),

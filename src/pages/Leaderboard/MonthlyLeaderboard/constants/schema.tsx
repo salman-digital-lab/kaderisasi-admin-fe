@@ -2,13 +2,25 @@ import { TableProps, Tag } from "antd";
 import dayjs from "dayjs";
 import { MonthlyLeaderboardType } from "../../../../types/services/leaderboard";
 
-export const TABLE_SCHEMA: TableProps<MonthlyLeaderboardType & { rank: number }>["columns"] = [
+export const TABLE_SCHEMA: TableProps<
+  MonthlyLeaderboardType & { rank: number }
+>["columns"] = [
   {
     title: "Peringkat",
     dataIndex: "rank",
     width: 80,
     render: (value) => (
-      <Tag color={value <= 3 ? (value === 1 ? "gold" : value === 2 ? "silver" : "orange") : "default"}>
+      <Tag
+        color={
+          value <= 3
+            ? value === 1
+              ? "gold"
+              : value === 2
+                ? "silver"
+                : "orange"
+            : "default"
+        }
+      >
         #{value}
       </Tag>
     ),

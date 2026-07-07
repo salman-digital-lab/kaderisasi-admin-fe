@@ -14,7 +14,11 @@ type MembersListModalProps = {
   onSuccess: () => void;
 };
 
-const MembersListModal = ({ open, toggle, onSuccess }: MembersListModalProps) => {
+const MembersListModal = ({
+  open,
+  toggle,
+  onSuccess,
+}: MembersListModalProps) => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Key[]>([]);
   const { id: clubId } = useParams<{ id: string }>();
@@ -40,7 +44,9 @@ const MembersListModal = ({ open, toggle, onSuccess }: MembersListModalProps) =>
       return;
     }
 
-    const selectedMember = data?.data?.find(member => member.id === selected[0]);
+    const selectedMember = data?.data?.find(
+      (member) => member.id === selected[0],
+    );
     if (!selectedMember?.user_id) {
       notification.error({
         message: "Gagal",
@@ -53,7 +59,7 @@ const MembersListModal = ({ open, toggle, onSuccess }: MembersListModalProps) =>
       member_id: selectedMember.user_id,
       additional_data: {},
     });
-    
+
     toggle(false);
     setSelected([]);
     onSuccess();
@@ -70,7 +76,7 @@ const MembersListModal = ({ open, toggle, onSuccess }: MembersListModalProps) =>
         setSelected([]);
       }}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space direction="vertical" style={{ width: "100%" }}>
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}

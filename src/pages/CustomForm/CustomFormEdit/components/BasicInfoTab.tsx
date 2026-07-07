@@ -1,13 +1,19 @@
-import { Form, Input, Row, Col, Card, Space, Typography, Select, Collapse } from "antd";
+import {
+  Form,
+  Input,
+  Row,
+  Col,
+  Card,
+  Space,
+  Typography,
+  Select,
+  Collapse,
+} from "antd";
 import type { CustomForm } from "../../../../types/model/customForm";
 import type { Activity } from "../../../../types/model/activity";
-import type { Club } from "../../../../types/model/club";
 import type { FormInstance } from "antd";
 import { useEffect, useState } from "react";
-import {
-  getAvailableActivities,
-  getAvailableClubs,
-} from "../../../../api/services/customForm";
+import { getAvailableActivities } from "../../../../api/services/customForm";
 import { RichTextEditor } from "../../../../components";
 
 const { Text } = Typography;
@@ -33,21 +39,21 @@ export const BasicInfoTab = ({
   initialData,
   onSave,
 }: BasicInfoTabProps) => {
+  const initialFeatureType =
+    initialData.feature_type === "club_registration"
+      ? "independent_form"
+      : initialData.feature_type;
   const [featureType, setFeatureType] = useState<
     "activity_registration" | "club_registration" | "independent_form"
-  >(initialData.feature_type);
+  >(initialFeatureType);
   const [availableActivities, setAvailableActivities] = useState<Activity[]>(
     [],
   );
-  const [availableClubs, setAvailableClubs] = useState<Club[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
-  const [loadingClubs, setLoadingClubs] = useState(false);
 
   useEffect(() => {
     if (featureType === "activity_registration") {
       fetchAvailableActivities();
-    } else if (featureType === "club_registration") {
-      fetchAvailableClubs();
     }
   }, [featureType]);
 
@@ -63,21 +69,11 @@ export const BasicInfoTab = ({
     }
   };
 
-  const fetchAvailableClubs = async () => {
-    setLoadingClubs(true);
-    try {
-      const data = await getAvailableClubs(initialData.id);
-      setAvailableClubs(data || []);
-    } catch (error) {
-      console.error("Error fetching available clubs:", error);
-    } finally {
-      setLoadingClubs(false);
-    }
-  };
-
   const handleFeatureTypeChange = (
     value: "activity_registration" | "club_registration" | "independent_form",
   ) => {
+    if (value === "club_registration") return;
+
     setFeatureType(value);
     // Reset feature_id when changing type
     form.setFieldValue("featureId", null);
@@ -92,8 +88,11 @@ export const BasicInfoTab = ({
         formName: initialData.form_name,
         formDescription: initialData.form_description || "",
         postSubmissionInfo: initialData.post_submission_info || "",
-        featureType: initialData.feature_type,
-        featureId: initialData.feature_id,
+        featureType: initialFeatureType,
+        featureId:
+          initialData.feature_type === "club_registration"
+            ? null
+            : initialData.feature_id,
       }}
     >
       <Row gutter={24}>
@@ -140,7 +139,9 @@ export const BasicInfoTab = ({
             items={[
               {
                 key: "pengaturan-tambahan",
-                label: <Typography.Text strong>Pengaturan Tambahan</Typography.Text>,
+                label: (
+                  <Typography.Text strong>Pengaturan Tambahan</Typography.Text>
+                ),
                 children: (
                   <>
                     <Form.Item label="Tipe Form" name="featureType">
@@ -150,9 +151,6 @@ export const BasicInfoTab = ({
                       >
                         <Select.Option value="activity_registration">
                           Pendaftaran Aktivitas
-                        </Select.Option>
-                        <Select.Option value="club_registration">
-                          Pendaftaran Unit Kegiatan
                         </Select.Option>
                         <Select.Option value="independent_form">
                           Form Independen
@@ -164,7 +162,12 @@ export const BasicInfoTab = ({
                       <Form.Item
                         label="Pilih Aktivitas"
                         name="featureId"
-                        rules={[{ required: true, message: "Aktivitas harus dipilih!" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Aktivitas harus dipilih!",
+                          },
+                        ]}
                       >
                         <Select
                           placeholder="Pilih aktivitas"
@@ -173,31 +176,11 @@ export const BasicInfoTab = ({
                           optionFilterProp="children"
                         >
                           {availableActivities.map((activity) => (
-                            <Select.Option key={activity.id} value={activity.id}>
+                            <Select.Option
+                              key={activity.id}
+                              value={activity.id}
+                            >
                               {activity.name}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    )}
-
-                    {featureType === "club_registration" && (
-                      <Form.Item
-                        label="Pilih Unit Kegiatan"
-                        name="featureId"
-                        rules={[
-                          { required: true, message: "Unit kegiatan harus dipilih!" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Pilih unit kegiatan"
-                          loading={loadingClubs}
-                          showSearch
-                          optionFilterProp="children"
-                        >
-                          {availableClubs.map((club) => (
-                            <Select.Option key={club.id} value={club.id}>
-                              {club.name}
                             </Select.Option>
                           ))}
                         </Select>

@@ -3,7 +3,10 @@ import { Select } from "antd";
 import type { SelectProps } from "antd";
 import { getUniversities } from "../../../api/services/university";
 
-type UniversityNameSelectProps = Omit<SelectProps, "options" | "filterOption"> & {
+type UniversityNameSelectProps = Omit<
+  SelectProps,
+  "options" | "filterOption"
+> & {
   value?: string;
   onChange?: (value: string) => void;
 };
@@ -20,7 +23,9 @@ export default function UniversityNameSelect({
   const [options, setOptions] = useState<{ label: string; value: string }[]>(
     value ? [{ label: value, value }] : [],
   );
-  const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [searchTimeout, setSearchTimeout] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const fetchUniversities = async (search?: string) => {
     const data = await getUniversities({ per_page: "20", page: "1", search });
@@ -36,7 +41,6 @@ export default function UniversityNameSelect({
 
   useEffect(() => {
     fetchUniversities(value || "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (search: string) => {

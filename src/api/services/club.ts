@@ -64,8 +64,6 @@ export const putClub = async (id: number, data: putClubReq) => {
   }
 };
 
-
-
 export const uploadClubLogo = async (id: number, file: File) => {
   try {
     const formData = new FormData();
@@ -73,7 +71,7 @@ export const uploadClubLogo = async (id: number, file: File) => {
 
     const res = await axios.post<uploadLogoResp>(
       "/clubs/" + id + "/logo",
-      formData
+      formData,
     );
     notification.success({
       message: "Berhasil",
@@ -94,7 +92,7 @@ export const uploadClubImageMedia = async (id: number, file: File) => {
 
     const res = await axios.post<uploadImageMediaResp>(
       "/clubs/" + id + "/media/image",
-      formData
+      formData,
     );
     notification.success({
       message: "Berhasil",
@@ -109,12 +107,12 @@ export const uploadClubImageMedia = async (id: number, file: File) => {
 
 export const addClubYoutubeMedia = async (
   id: number,
-  data: addYoutubeMediaReq
+  data: addYoutubeMediaReq,
 ) => {
   try {
     const res = await axios.post<addYoutubeMediaResp>(
       "/clubs/" + id + "/media/youtube",
-      data
+      data,
     );
     notification.success({
       message: "Berhasil",
@@ -131,7 +129,7 @@ export const deleteClubMedia = async (id: number, data: deleteMediaReq) => {
   try {
     const res = await axios.put<deleteMediaResp>(
       "/clubs/" + id + "/delete-media",
-      data
+      data,
     );
     notification.success({
       message: "Berhasil",

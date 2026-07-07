@@ -190,7 +190,7 @@ export const usePdfPreview = () => {
             const imgRatio = imgEl.naturalWidth / imgEl.naturalHeight;
             const boxRatio = contentW / contentH;
 
-            let drawW: number, drawH: number, drawX: number, drawY: number;
+            let drawW: number, drawH: number;
             if (imgRatio > boxRatio) {
               drawW = contentW;
               drawH = contentW / imgRatio;
@@ -198,8 +198,8 @@ export const usePdfPreview = () => {
               drawH = contentH;
               drawW = contentH * imgRatio;
             }
-            drawX = element.x + padding + (contentW - drawW) / 2;
-            drawY = element.y + padding + (contentH - drawH) / 2;
+            const drawX = element.x + padding + (contentW - drawW) / 2;
+            const drawY = element.y + padding + (contentH - drawH) / 2;
 
             pdf.addImage(element.imageUrl, drawX, drawY, drawW, drawH);
           } catch {

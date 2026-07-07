@@ -36,7 +36,11 @@ const AdminUserTable = ({
 
   return (
     <>
-      <EditAdminUser data={editedRow} setData={setEditedRow} refresh={refresh} />
+      <EditAdminUser
+        data={editedRow}
+        setData={setEditedRow}
+        refresh={refresh}
+      />
       <EditPasswordAdminUser data={passwordRow} setData={setPasswordRow} />
       <Table
         rowKey="id"

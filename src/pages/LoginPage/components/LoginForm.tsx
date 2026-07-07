@@ -11,11 +11,7 @@ import {
   Divider,
   theme,
 } from "antd";
-import {
-  UserOutlined,
-  LockOutlined,
-  LoginOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../../api/auth";
@@ -50,11 +46,11 @@ const LoginForm = () => {
     setLoading(true);
     try {
       const resp = await loginUser(values);
-      
+
       // Update auth state after successful login
       const responseData = resp.data;
       setAuth(responseData.token.token, responseData.user as any);
-      
+
       notification.success({
         message: "Berhasil Login",
         description: renderNotification(resp.message),
@@ -117,7 +113,6 @@ const LoginForm = () => {
                     style={{
                       height: "80px",
                       width: "auto",
-
                     }}
                   />
                 </div>

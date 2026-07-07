@@ -47,6 +47,15 @@ const CustomFormList = () => {
     },
   );
 
+  const visibleData = data
+    ? {
+        ...data,
+        data: data.data.filter(
+          (customForm) => customForm.feature_type !== "club_registration",
+        ),
+      }
+    : undefined;
+
   return (
     <div style={{ padding: 12 }}>
       <CustomFormFilter
@@ -57,7 +66,7 @@ const CustomFormList = () => {
       />
       <div style={{ marginTop: 12 }}>
         <CustomFormTable
-          data={data}
+          data={visibleData}
           loading={loading}
           setParameter={setParameters}
           refresh={refresh}

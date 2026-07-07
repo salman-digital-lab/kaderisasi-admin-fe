@@ -29,17 +29,17 @@ instance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Only auto-logout if we're not already on the login page
-      if (window.location.pathname !== '/login') {
+      if (window.location.pathname !== "/login") {
         // Clear auth state
         const { clearAuth } = useAuthStore.getState();
         clearAuth();
 
         // Redirect to login with a message
-        window.location.href = '/login?message=session_expired';
+        window.location.href = "/login?message=session_expired";
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default instance;

@@ -19,7 +19,7 @@ interface CustomFormTableProps {
       page: number;
       per_page: number;
       search: string;
-      feature_type?: "activity_registration" | "club_registration";
+      feature_type?: "activity_registration";
       feature_id?: string;
       is_active?: boolean;
     }>
@@ -37,7 +37,7 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
     try {
       await deleteCustomForm(id);
       refresh();
-    } catch (error) {
+    } catch {
       message.error("Gagal menghapus form");
     }
   };

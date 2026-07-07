@@ -18,14 +18,14 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     dataIndex: "start_period",
     key: "start_period",
     width: 120,
-    render: (date) => date ? dayjs(date).format("MMM YYYY") : "-",
+    render: (date) => (date ? dayjs(date).format("MMM YYYY") : "-"),
   },
   {
     title: "Periode Berakhir",
     dataIndex: "end_period",
     key: "end_period",
     width: 120,
-    render: (date) => date ? dayjs(date).format("MMM YYYY") : "-",
+    render: (date) => (date ? dayjs(date).format("MMM YYYY") : "-"),
   },
   {
     title: "Pendaftaran",
@@ -43,7 +43,7 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     dataIndex: "registration_end_date",
     key: "registration_end_date",
     width: 150,
-    render: (date) => date ? dayjs(date).format("DD MMM YYYY") : "-",
+    render: (date) => (date ? dayjs(date).format("DD MMM YYYY") : "-"),
   },
   {
     title: "Status",

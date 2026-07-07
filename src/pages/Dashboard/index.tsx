@@ -4,7 +4,6 @@ import { useRequest } from "ahooks";
 import {
   UserOutlined,
   AppstoreOutlined,
-  TeamOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
 import { getDashboardStats } from "../../api/services/dashboard";
@@ -80,7 +79,7 @@ const DashboardPage = () => {
       }}
     >
       <Row gutter={[12, 12]}>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={24} sm={12} md={8}>
           <StatsCard
             title="Total Pengguna"
             value={data?.totalProfiles}
@@ -88,7 +87,7 @@ const DashboardPage = () => {
             icon={<UserOutlined />}
           />
         </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={24} sm={12} md={8}>
           <StatsCard
             title="Total Kegiatan"
             value={data?.totalActivities}
@@ -96,15 +95,7 @@ const DashboardPage = () => {
             icon={<AppstoreOutlined />}
           />
         </Col>
-        <Col xs={24} sm={12} md={6}>
-          <StatsCard
-            title="Total Unit Kegiatan"
-            value={data?.totalClubs}
-            loading={loading}
-            icon={<TeamOutlined />}
-          />
-        </Col>
-        <Col xs={24} sm={12} md={6}>
+        <Col xs={24} sm={12} md={8}>
           <StatsCard
             title="Total Request Curhat"
             value={data?.totalRuangCurhats}

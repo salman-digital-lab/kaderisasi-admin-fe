@@ -7,47 +7,56 @@ import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
 import { Registrant } from "../../../../types/model/activity";
 // Memoized components for better performance
-const NameLink = memo(({ text, recordId }: { text: string; recordId: number }) => (
-  <Link to={"/registrant/" + recordId}>
-    <Tooltip title={text} placement="topLeft">
-      <span style={{ 
-        display: 'block',
-        maxWidth: '180px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-      }}>
-        {text}
-      </span>
-    </Tooltip>
-  </Link>
-));
+const NameLink = memo(
+  ({ text, recordId }: { text: string; recordId: number }) => (
+    <Link to={"/registrant/" + recordId}>
+      <Tooltip title={text} placement="topLeft">
+        <span
+          style={{
+            display: "block",
+            maxWidth: "180px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {text}
+        </span>
+      </Tooltip>
+    </Link>
+  ),
+);
 
 const StatusBadge = memo(({ status }: { status: string }) => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'diterima': return '#52c41a';
-      case 'ditolak': return '#ff4d4f';
-      case 'menunggu': return '#faad14';
-      case 'lulus kegiatan': return '#722ed1';
-      default: return '#1890ff';
+      case "diterima":
+        return "#52c41a";
+      case "ditolak":
+        return "#ff4d4f";
+      case "menunggu":
+        return "#faad14";
+      case "lulus kegiatan":
+        return "#722ed1";
+      default:
+        return "#1890ff";
     }
   };
 
   return (
-    <span 
+    <span
       style={{
-        padding: '2px 8px',
-        borderRadius: '4px',
+        padding: "2px 8px",
+        borderRadius: "4px",
         backgroundColor: getStatusColor(status),
-        color: 'white',
-        fontSize: '12px',
+        color: "white",
+        fontSize: "12px",
         fontWeight: 500,
-        display: 'inline-block',
-        maxWidth: '100px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        display: "inline-block",
+        maxWidth: "100px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
       }}
       title={status}
     >
@@ -56,18 +65,16 @@ const StatusBadge = memo(({ status }: { status: string }) => {
   );
 });
 
-NameLink.displayName = 'NameLink';
-StatusBadge.displayName = 'StatusBadge';
+NameLink.displayName = "NameLink";
+StatusBadge.displayName = "StatusBadge";
 
 export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
   {
     title: "Nama Lengkap",
     dataIndex: "name",
-    render: (text, record) => (
-      <NameLink text={text} recordId={record.id} />
-    ),
+    render: (text, record) => <NameLink text={text} recordId={record.id} />,
     width: 200,
-    fixed: 'left',
+    fixed: "left",
     ellipsis: {
       showTitle: false,
     },
@@ -77,19 +84,21 @@ export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
     dataIndex: "email",
     render: (text) => (
       <Tooltip title={text} placement="topLeft">
-        <span style={{ 
-          display: 'block',
-          maxWidth: '180px',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
-        }}>
-          {text || '-'}
+        <span
+          style={{
+            display: "block",
+            maxWidth: "180px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {text || "-"}
         </span>
       </Tooltip>
     ),
     width: 200,
-    fixed: 'left',
+    fixed: "left",
     ellipsis: {
       showTitle: false,
     },
@@ -99,7 +108,7 @@ export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
     dataIndex: "status",
     render: (status) => <StatusBadge status={status} />,
     width: 150,
-    fixed: 'left',
+    fixed: "left",
   },
 ];
 
@@ -108,23 +117,26 @@ const MemoizedProvinceRender = memo(ProvinceRender);
 const MemoizedUniversityRender = memo(UniversityRender);
 
 // Optimized text cell renderer
-const TextCell = memo(({ text, maxWidth = 120 }: { text: string; maxWidth?: number }) => (
-  <Tooltip title={text} placement="topLeft">
-    <span style={{ 
-      display: 'block',
-      maxWidth: `${maxWidth}px`,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }}>
-      {text || '-'}
-    </span>
-  </Tooltip>
-));
+const TextCell = memo(
+  ({ text, maxWidth = 120 }: { text: string; maxWidth?: number }) => (
+    <Tooltip title={text} placement="topLeft">
+      <span
+        style={{
+          display: "block",
+          maxWidth: `${maxWidth}px`,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {text || "-"}
+      </span>
+    </Tooltip>
+  ),
+);
 
-TextCell.displayName = 'TextCell';
+TextCell.displayName = "TextCell";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SCHEMA_MAP: Record<string, ColumnType<any>> = {
   personal_id: {
     title: "Nomor Identitas",
@@ -138,7 +150,8 @@ const SCHEMA_MAP: Record<string, ColumnType<any>> = {
   intake_year: {
     title: "Angkatan",
     dataIndex: "intake_year",
-    render: (text) => text ? <TextCell text={String(text)} maxWidth={80} /> : '-',
+    render: (text) =>
+      text ? <TextCell text={String(text)} maxWidth={80} /> : "-",
     width: 100,
   },
   major: {
@@ -153,11 +166,18 @@ const SCHEMA_MAP: Record<string, ColumnType<any>> = {
   instagram: {
     title: "Instagram",
     dataIndex: "instagram",
-    render: (text) => text ? (
-      <a href={`https://instagram.com/${text.replace('@', '')}`} target="_blank" rel="noopener noreferrer">
-        <TextCell text={text} maxWidth={100} />
-      </a>
-    ) : '-',
+    render: (text) =>
+      text ? (
+        <a
+          href={`https://instagram.com/${text.replace("@", "")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <TextCell text={text} maxWidth={100} />
+        </a>
+      ) : (
+        "-"
+      ),
     width: 120,
   },
   line: {
@@ -169,11 +189,18 @@ const SCHEMA_MAP: Record<string, ColumnType<any>> = {
   whatsapp: {
     title: "Whatsapp",
     dataIndex: "whatsapp",
-    render: (text) => text ? (
-      <a href={`https://wa.me/${text.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
-        <TextCell text={text} maxWidth={120} />
-      </a>
-    ) : '-',
+    render: (text) =>
+      text ? (
+        <a
+          href={`https://wa.me/${text.replace(/[^0-9]/g, "")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <TextCell text={text} maxWidth={120} />
+        </a>
+      ) : (
+        "-"
+      ),
     width: 140,
   },
   province_id: {
@@ -196,8 +223,11 @@ let lastMandatoryData: string[] | null = null;
 
 export const generateTableSchema = (mandatoryProfileData: string[]) => {
   // Use cache if mandatory data hasn't changed
-  if (cachedSchema && lastMandatoryData && 
-      JSON.stringify(lastMandatoryData) === JSON.stringify(mandatoryProfileData)) {
+  if (
+    cachedSchema &&
+    lastMandatoryData &&
+    JSON.stringify(lastMandatoryData) === JSON.stringify(mandatoryProfileData)
+  ) {
     return cachedSchema;
   }
 
@@ -215,17 +245,19 @@ export const generateTableSchema = (mandatoryProfileData: string[]) => {
   const cleanList = mandatoryProfileData.filter((val) =>
     ALLOWED_DATA.includes(val),
   );
-  
-  const additionalProfileData = cleanList.map((val) => {
-    return SCHEMA_MAP[val];
-  }).filter(Boolean); // Remove any undefined columns
+
+  const additionalProfileData = cleanList
+    .map((val) => {
+      return SCHEMA_MAP[val];
+    })
+    .filter(Boolean); // Remove any undefined columns
 
   const schema = [...REGISTRANT_TABLE_SCHEMA, ...additionalProfileData];
-  
+
   // Cache the result
   cachedSchema = schema;
   lastMandatoryData = [...mandatoryProfileData];
-  
+
   return schema;
 };
 

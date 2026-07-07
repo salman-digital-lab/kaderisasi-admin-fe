@@ -49,7 +49,7 @@ const CustomFormFilter = ({
   // Local filter state
   const [searchInput, setSearchInput] = useState("");
   const [featureType, setFeatureType] = useState<
-    "activity_registration" | "club_registration" | undefined
+    "activity_registration" | undefined
   >();
   const [featureId, setFeatureId] = useState("");
   const [isActive, setIsActive] = useState<boolean | undefined>();
@@ -97,7 +97,7 @@ const CustomFormFilter = ({
       createForm.resetFields();
       // Refresh the form list
       window.location.reload();
-    } catch (error) {
+    } catch {
       // Error is already handled by the API service
     } finally {
       setIsCreating(false);
@@ -139,10 +139,6 @@ const CustomFormFilter = ({
                 {
                   label: "Pendaftaran Aktivitas",
                   value: "activity_registration",
-                },
-                {
-                  label: "Pendaftaran Unit Kegiatan",
-                  value: "club_registration",
                 },
               ]}
             />

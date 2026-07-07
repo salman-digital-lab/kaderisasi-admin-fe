@@ -26,7 +26,11 @@ const MainProvince = () => {
   });
 
   const openModal = (id?: number, name?: string) => {
-    id && name ? setEditItem({ id, name }) : setEditItem(undefined);
+    if (id && name) {
+      setEditItem({ id, name });
+    } else {
+      setEditItem(undefined);
+    }
     toggle();
   };
 

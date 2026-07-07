@@ -45,9 +45,11 @@ const MainUniversity = () => {
   );
 
   const openModal = (id?: number, name?: string, province_id?: number) => {
-    id && name
-      ? setEditItem({ id, name, province_id })
-      : setEditItem({ id: 0, name: "", province_id: undefined });
+    if (id && name) {
+      setEditItem({ id, name, province_id });
+    } else {
+      setEditItem({ id: 0, name: "", province_id: undefined });
+    }
     toggle();
   };
 

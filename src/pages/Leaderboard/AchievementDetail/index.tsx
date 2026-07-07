@@ -13,10 +13,7 @@ import {
   Input,
 } from "antd";
 import { useParams } from "react-router-dom";
-import {
-  DownloadOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined, DownOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -183,19 +180,19 @@ const AchievementDetail = () => {
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
         {data?.status === ACHIEVEMENT_STATUS_ENUM.PENDING && (
           <Dropdown
-              menu={{
-                items: UPDATE_STATUS_MENU?.map((item) => ({
-                  ...item,
-                  onClick: () => handleStatusUpdate(Number(item?.key || "0")),
-                })) as MenuProps["items"],
-              }}
-            >
-              <Button loading={approveLoading}>
-                <Space>
-                  Ubah Status
-                  <DownOutlined />
-                </Space>
-              </Button>
+            menu={{
+              items: UPDATE_STATUS_MENU?.map((item) => ({
+                ...item,
+                onClick: () => handleStatusUpdate(Number(item?.key || "0")),
+              })) as MenuProps["items"],
+            }}
+          >
+            <Button loading={approveLoading}>
+              <Space>
+                Ubah Status
+                <DownOutlined />
+              </Space>
+            </Button>
           </Dropdown>
         )}
 

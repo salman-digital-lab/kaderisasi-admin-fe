@@ -70,7 +70,7 @@ const ClubRegistrationsPage: React.FC = () => {
       if (response) {
         setClub(response);
       }
-    } catch (error) {
+    } catch {
       message.error("Gagal memuat data klub");
     }
   };
@@ -89,7 +89,7 @@ const ClubRegistrationsPage: React.FC = () => {
         setRegistrations(response.data);
         setTotalItems(response.meta.total);
       }
-    } catch (error) {
+    } catch {
       message.error("Gagal memuat keanggotaan");
     } finally {
       setLoading(false);
@@ -118,7 +118,7 @@ const ClubRegistrationsPage: React.FC = () => {
         try {
           await deleteClubRegistration(registration.id);
           fetchRegistrations();
-        } catch (error) {
+        } catch {
           // Error is already handled by the API function
         }
       },
@@ -150,7 +150,7 @@ const ClubRegistrationsPage: React.FC = () => {
       setIsModalVisible(false);
       form.resetFields();
       fetchRegistrations();
-    } catch (error) {
+    } catch {
       // Error is already handled by the API function
     }
   };
@@ -170,7 +170,7 @@ const ClubRegistrationsPage: React.FC = () => {
       });
       setSelectedRowKeys([]);
       fetchRegistrations();
-    } catch (error) {
+    } catch {
       // Error is already handled by the API function
     }
   };
@@ -186,7 +186,7 @@ const ClubRegistrationsPage: React.FC = () => {
       link.download = `${club?.name || "unit-kegiatan"}_registrations.xlsx`;
       link.click();
       window.URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch {
       // Error is already handled by the API function
     }
   };

@@ -40,11 +40,7 @@ const PLACEHOLDER_LABELS: Record<string, string> = {
 const VariableTextContent: React.FC<{
   variable: string;
   style: React.CSSProperties;
-}> = ({ variable, style }) => (
-  <div style={style}>
-    {variable}
-  </div>
-);
+}> = ({ variable, style }) => <div style={style}>{variable}</div>;
 
 const ImageContent: React.FC<{
   imageUrl?: string;
@@ -98,11 +94,11 @@ const CertificateElementComponent: React.FC<{
     switch (element.type) {
       case "static-text":
         return <div style={textStyle}>{element.content || ""}</div>;
-      case "variable-text":
+      case "variable-text": {
         let text = "";
         // Handle both {{variable}} and variable formats
         const varValue = element.variable?.replace(/{{|}}/g, "").trim() || "";
-        
+
         switch (varValue) {
           case "name":
             text = participantData.name;
@@ -129,6 +125,7 @@ const CertificateElementComponent: React.FC<{
             text = element.content || "";
         }
         return <VariableTextContent variable={text} style={textStyle} />;
+      }
       case "image":
       case "qr-code":
       case "signature":
@@ -144,7 +141,8 @@ const CertificateElementComponent: React.FC<{
     }
   };
 
-  const isTextType = element.type === "static-text" || element.type === "variable-text";
+  const isTextType =
+    element.type === "static-text" || element.type === "variable-text";
 
   return (
     <div
@@ -182,7 +180,7 @@ const CertificatePreview: React.FC = () => {
         } else {
           setError("Data sertifikat tidak ditemukan");
         }
-      } catch (e) {
+      } catch {
         setError("Gagal memuat data sertifikat");
       } finally {
         setLoading(false);
@@ -204,8 +202,10 @@ const CertificatePreview: React.FC = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          body: JSON.stringify({ registration_id: data.participant.registration_id }),
-        }
+          body: JSON.stringify({
+            registration_id: data.participant.registration_id,
+          }),
+        },
       );
 
       if (!response.ok) {
@@ -216,7 +216,7 @@ const CertificatePreview: React.FC = () => {
       // In a production app, you'd generate a PDF here
       await response.json();
       message.success("Sertifikat siap diunduh");
-    } catch (e) {
+    } catch {
       message.error("Gagal mengunduh sertifikat");
     }
   };
@@ -242,10 +242,7 @@ const CertificatePreview: React.FC = () => {
       <div style={{ padding: 24, textAlign: "center" }}>
         <Card>
           <p>{error || "Terjadi kesalahan"}</p>
-          <Button
-            icon={<LeftOutlined />}
-            onClick={() => window.close()}
-          >
+          <Button icon={<LeftOutlined />} onClick={() => window.close()}>
             Tutup
           </Button>
         </Card>
@@ -261,10 +258,7 @@ const CertificatePreview: React.FC = () => {
       <div style={{ padding: 24, textAlign: "center" }}>
         <Card>
           <p>Template sertifikat tidak tersedia</p>
-          <Button
-            icon={<LeftOutlined />}
-            onClick={() => window.close()}
-          >
+          <Button icon={<LeftOutlined />} onClick={() => window.close()}>
             Tutup
           </Button>
         </Card>
@@ -273,7 +267,7 @@ const CertificatePreview: React.FC = () => {
   }
 
   // Get full URL for background image
-  const backgroundImageUrl = background_image 
+  const backgroundImageUrl = background_image
     ? `${import.meta.env.VITE_API_URL || "http://localhost:3334"}/v2/${background_image}`
     : null;
 
@@ -321,7 +315,9 @@ const CertificatePreview: React.FC = () => {
           width: template_data.canvasWidth,
           height: template_data.canvasHeight,
           backgroundColor: "#ffffff",
-          backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : undefined,
+          backgroundImage: backgroundImageUrl
+            ? `url(${backgroundImageUrl})`
+            : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",

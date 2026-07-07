@@ -62,7 +62,9 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(
-    sectionKey.startsWith("custom_section_") ? `Bagian ${sectionNumber}` : sectionKey
+    sectionKey.startsWith("custom_section_")
+      ? `Bagian ${sectionNumber}`
+      : sectionKey,
   );
   // Find field type configuration by value
   const findFieldType = (fieldType: string) => {
@@ -73,7 +75,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
   const getCategoryColor = (fieldType: string): string | undefined => {
     const type = findFieldType(fieldType);
     if (!type) return undefined;
-    
+
     return fieldCategories.find((cat) => cat.key === type.category)?.color;
   };
 
@@ -87,7 +89,8 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
   const handleDeleteClick = () => {
     Modal.confirm({
       title: "Hapus Grup Pertanyaan",
-      content: "Apakah Anda yakin ingin menghapus grup pertanyaan ini? Semua pertanyaan di dalamnya akan terhapus.",
+      content:
+        "Apakah Anda yakin ingin menghapus grup pertanyaan ini? Semua pertanyaan di dalamnya akan terhapus.",
       okText: "Hapus",
       cancelText: "Batal",
       okButtonProps: { danger: true },
@@ -178,7 +181,10 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                   {/* Field Info */}
                   <div style={{ flex: 1 }}>
                     <Space>
-                      <Avatar size="small" style={{ backgroundColor: categoryColor }}>
+                      <Avatar
+                        size="small"
+                        style={{ backgroundColor: categoryColor }}
+                      >
                         {fieldType?.icon && (
                           <span>{React.createElement(fieldType.icon)}</span>
                         )}
@@ -191,7 +197,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                           {field.required && <Tag color="red">Wajib</Tag>}
                           {field.placeholder && (
                             <Text type="secondary" style={{ fontSize: "12px" }}>
-                              "{field.placeholder}"
+                              &quot;{field.placeholder}&quot;
                             </Text>
                           )}
                         </Space>

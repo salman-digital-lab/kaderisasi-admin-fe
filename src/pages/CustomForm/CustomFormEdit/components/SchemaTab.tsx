@@ -3,7 +3,10 @@ import { Space, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { ProfileFieldsSection } from "./ProfileFieldsSection";
 import { CustomFieldsSection } from "./CustomFieldsSection";
-import type { FormField, FormSection } from "../../../../types/model/customForm";
+import type {
+  FormField,
+  FormSection,
+} from "../../../../types/model/customForm";
 
 export interface SchemaTabProps {
   selectedBasicFields: string[];
@@ -25,7 +28,11 @@ export interface SchemaTabProps {
   onEditCustomField: (sectionKey: string, field: FormField) => void;
   onDeleteCustomField: (sectionKey: string, fieldKey: string) => void;
   onDuplicateField: (sectionKey: string, field: FormField) => void;
-  onMoveCustomField: (sectionKey: string, fieldKey: string, direction: "up" | "down") => void;
+  onMoveCustomField: (
+    sectionKey: string,
+    fieldKey: string,
+    direction: "up" | "down",
+  ) => void;
 }
 
 export const SchemaTab: React.FC<SchemaTabProps> = ({
@@ -75,13 +82,25 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
           isFirst={index === 0}
           isLast={index === customFieldSections.length - 1}
           onAddField={() => onAddCustomField(section.section_name)}
-          onEditField={(field) => onEditCustomField(section.section_name, field)}
-          onDeleteField={(fieldKey) => onDeleteCustomField(section.section_name, fieldKey)}
-          onDuplicateField={(field) => onDuplicateField(section.section_name, field)}
-          onMoveField={(fieldKey, direction) => onMoveCustomField(section.section_name, fieldKey, direction)}
+          onEditField={(field) =>
+            onEditCustomField(section.section_name, field)
+          }
+          onDeleteField={(fieldKey) =>
+            onDeleteCustomField(section.section_name, fieldKey)
+          }
+          onDuplicateField={(field) =>
+            onDuplicateField(section.section_name, field)
+          }
+          onMoveField={(fieldKey, direction) =>
+            onMoveCustomField(section.section_name, fieldKey, direction)
+          }
           onDeleteSection={() => onDeleteSection(section.section_name)}
-          onMoveSection={(direction) => onMoveSection(section.section_name, direction)}
-          onUpdateSectionName={(newName) => onUpdateSectionName(section.section_name, newName)}
+          onMoveSection={(direction) =>
+            onMoveSection(section.section_name, direction)
+          }
+          onUpdateSectionName={(newName) =>
+            onUpdateSectionName(section.section_name, newName)
+          }
         />
       ))}
 

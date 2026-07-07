@@ -33,7 +33,8 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
       if (response) {
         setClub(response);
         const info = response.registration_info?.registration_info || "";
-        const afterInfo = response.registration_info?.after_registration_info || "";
+        const afterInfo =
+          response.registration_info?.after_registration_info || "";
         setRegistrationInfo(info);
         setAfterRegistrationInfo(afterInfo);
         form.setFieldsValue({
@@ -41,7 +42,7 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
           after_registration_info: afterInfo,
         });
       }
-    } catch (error) {
+    } catch {
       message.error("Gagal memuat data klub");
     } finally {
       setLoading(false);
@@ -62,7 +63,7 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
       message.success("Informasi keanggotaan berhasil diperbarui");
       onUpdate?.();
       fetchClubData();
-    } catch (error) {
+    } catch {
       message.error("Gagal memperbarui informasi keanggotaan");
     } finally {
       setSaving(false);

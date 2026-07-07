@@ -79,8 +79,12 @@ const RegistrantList = () => {
   const [form] = Form.useForm();
   const [isChanged, setIsChanged] = useState(false);
   const [templates, setTemplates] = useState<any[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
-  const [originalTemplateId, setOriginalTemplateId] = useState<number | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
+    null,
+  );
+  const [originalTemplateId, setOriginalTemplateId] = useState<number | null>(
+    null,
+  );
   const [savingCertificate, setSavingCertificate] = useState(false);
   const statusIsVisible = Form.useWatch("status_is_visible", form);
   const statusVisibleAt = Form.useWatch("status_visible_at", form);
@@ -92,7 +96,10 @@ const RegistrantList = () => {
     refresh: refreshActivity,
   } = useRequest(() => getActivity(Number(id)), {
     onSuccess: (data) => {
-      console.log("Activity data loaded:", data?.additional_config?.certificate_template_id);
+      console.log(
+        "Activity data loaded:",
+        data?.additional_config?.certificate_template_id,
+      );
       form.setFieldsValue({
         status_is_visible:
           data?.additional_config?.status_visibility?.is_visible ?? true,
@@ -100,7 +107,8 @@ const RegistrantList = () => {
           ?.visible_at
           ? dayjs(data.additional_config.status_visibility.visible_at)
           : undefined,
-        certificate_template_id: data?.additional_config?.certificate_template_id,
+        certificate_template_id:
+          data?.additional_config?.certificate_template_id,
       });
       loadTemplates(data);
     },
@@ -108,7 +116,10 @@ const RegistrantList = () => {
 
   // Load certificate templates
   const loadTemplates = async (currentActivityData?: any) => {
-    console.log("loadTemplates called with:", currentActivityData?.additional_config?.certificate_template_id);
+    console.log(
+      "loadTemplates called with:",
+      currentActivityData?.additional_config?.certificate_template_id,
+    );
     try {
       const data = await getCertificateTemplates({
         page: "1",
@@ -119,7 +130,10 @@ const RegistrantList = () => {
         setTemplates(data.data);
         // Set the initial value from activity data after templates are loaded
         const activityConfig = currentActivityData?.additional_config;
-        console.log("Setting selectedTemplateId to:", activityConfig?.certificate_template_id);
+        console.log(
+          "Setting selectedTemplateId to:",
+          activityConfig?.certificate_template_id,
+        );
         const templateId = activityConfig?.certificate_template_id || null;
         setSelectedTemplateId(templateId);
         setOriginalTemplateId(templateId);
@@ -316,9 +330,15 @@ const RegistrantList = () => {
         style={{ borderRadius: 0, marginBottom: 24 }}
         styles={{ body: { padding: "24px" } }}
       >
-        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: 16 }}
+        >
           <Space align="center">
-            <SafetyCertificateOutlined style={{ fontSize: 20, color: "#1890ff" }} />
+            <SafetyCertificateOutlined
+              style={{ fontSize: 20, color: "#1890ff" }}
+            />
             <Typography.Title level={5} style={{ margin: 0 }}>
               Template Sertifikat
             </Typography.Title>
@@ -331,7 +351,7 @@ const RegistrantList = () => {
             onClick={async () => {
               console.log("Selected template id:", selectedTemplateId);
               if (!activityData) return;
-              
+
               setSavingCertificate(true);
               try {
                 const currentConfig = activityData.additional_config || {};
@@ -348,7 +368,7 @@ const RegistrantList = () => {
                 setOriginalTemplateId(selectedTemplateId);
                 setIsChanged(false);
                 refreshActivity();
-              } catch (error) {
+              } catch {
                 notification.error({
                   message: "Gagal",
                   description: "Gagal menyimpan template sertifikat",

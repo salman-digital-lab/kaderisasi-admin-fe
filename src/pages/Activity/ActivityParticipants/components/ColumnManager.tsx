@@ -30,10 +30,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  ColumnConfig,
-  saveColumnPreferences,
-} from "../constants/columns";
+import { ColumnConfig, saveColumnPreferences } from "../constants/columns";
 
 const { Text } = Typography;
 

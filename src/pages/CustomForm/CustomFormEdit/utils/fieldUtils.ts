@@ -30,7 +30,7 @@ export const createNewField = (key?: string): FormField => {
  * Check if a field already exists in the list
  */
 export const fieldExists = (fields: FormField[], key: string): boolean => {
-  return fields.some(field => field.key === key);
+  return fields.some((field) => field.key === key);
 };
 
 /**
@@ -39,9 +39,14 @@ export const fieldExists = (fields: FormField[], key: string): boolean => {
 export const moveArrayItem = <T>(
   array: T[],
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
 ): T[] => {
-  if (fromIndex < 0 || fromIndex >= array.length || toIndex < 0 || toIndex >= array.length) {
+  if (
+    fromIndex < 0 ||
+    fromIndex >= array.length ||
+    toIndex < 0 ||
+    toIndex >= array.length
+  ) {
     return array;
   }
 
@@ -56,13 +61,19 @@ export const moveArrayItem = <T>(
  * Find field type information by type value
  */
 export const findFieldType = (fieldTypes: any[], type: string) => {
-  return fieldTypes.find(fieldType => fieldType.value === type);
+  return fieldTypes.find((fieldType) => fieldType.value === type);
 };
 
 /**
  * Find field category information by type
  */
-export const findFieldCategory = (fieldCategories: any[], type: string, fieldTypes: any[]) => {
+export const findFieldCategory = (
+  fieldCategories: any[],
+  type: string,
+  fieldTypes: any[],
+) => {
   const fieldType = findFieldType(fieldTypes, type);
-  return fieldCategories.find(category => category.key === fieldType?.category);
+  return fieldCategories.find(
+    (category) => category.key === fieldType?.category,
+  );
 };

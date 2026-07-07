@@ -46,8 +46,6 @@ const MonthlyLeaderboard = lazy(
 const LifetimeLeaderboard = lazy(
   () => import("../pages/Leaderboard/LifetimeLeaderboard"),
 );
-const ClubList = lazy(() => import("../pages/Club/ClubList"));
-const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
 const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
 const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
 const DigitalCertificate = lazy(() => import("../pages/DigitalCertificate"));
@@ -71,7 +69,6 @@ const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   <Suspense fallback={<Loading />}>{children}</Suspense>
 );
 
-// eslint-disable-next-line react-refresh/only-export-components
 const AuthUser = ({ element }: { element: ReactNode }) => {
   const isAuthenticated = useIsAuthenticated();
   const isInitialized = useIsInitialized();
@@ -88,7 +85,6 @@ const AuthUser = ({ element }: { element: ReactNode }) => {
   return <>{element}</>;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 const RoleUser = ({
   element,
   permission,
@@ -368,29 +364,11 @@ const routes = createBrowserRouter(
         },
         {
           path: "/club",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <ClubList />
-                </SuspenseWrapper>
-              }
-              permission="pusatdata"
-            />
-          ),
+          element: <Navigate to="/dashboard" replace />,
         },
         {
           path: "/club/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <ClubDetail />
-                </SuspenseWrapper>
-              }
-              permission="pusatdata"
-            />
-          ),
+          element: <Navigate to="/dashboard" replace />,
         },
         {
           path: "/custom-form",

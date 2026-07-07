@@ -35,7 +35,7 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
 }) => {
   const EDUCATION_PAIR = ["education_history", "current_education"];
   const selectedEducationField = EDUCATION_PAIR.find((key) =>
-    selectedBasicFields.includes(key)
+    selectedBasicFields.includes(key),
   );
   const blockedEducationField = selectedEducationField
     ? EDUCATION_PAIR.find((key) => key !== selectedEducationField)
@@ -54,7 +54,7 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
   const availableTemplates = profileDataTemplates.filter(
     (template) =>
       !selectedBasicFields.includes(template.field.key) &&
-      template.field.key !== blockedEducationField
+      template.field.key !== blockedEducationField,
   );
 
   const handleAddField = (template: any) => {
@@ -91,10 +91,11 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
         <Tabs size="small" type="card">
           {profileDataCategories.map((category) => {
             const categoryTemplates = availableTemplates.filter(
-              (template) => template.category === category.key
+              (template) => template.category === category.key,
             );
             const isEducationCategory = category.key === "education";
-            const showEducationAlert = isEducationCategory && !!blockedEducationField;
+            const showEducationAlert =
+              isEducationCategory && !!blockedEducationField;
 
             // Hide tab if no templates and no alert to show
             if (categoryTemplates.length === 0 && !showEducationAlert) {
@@ -125,7 +126,8 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                 )}
                 <Row gutter={[12, 12]}>
                   {categoryTemplates.map((template) => {
-                    const requiredProvince = CITY_REQUIRES_PROVINCE[template.field.key];
+                    const requiredProvince =
+                      CITY_REQUIRES_PROVINCE[template.field.key];
                     const isProvinceBlocked =
                       !!requiredProvince &&
                       !selectedBasicFields.includes(requiredProvince);
@@ -144,11 +146,17 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                             size="small"
                             hoverable={!isProvinceBlocked}
                             style={{
-                              cursor: isProvinceBlocked ? "not-allowed" : "pointer",
-                              borderColor: isProvinceBlocked ? "#d9d9d9" : "#1890ff",
+                              cursor: isProvinceBlocked
+                                ? "not-allowed"
+                                : "pointer",
+                              borderColor: isProvinceBlocked
+                                ? "#d9d9d9"
+                                : "#1890ff",
                               opacity: isProvinceBlocked ? 0.5 : 1,
                             }}
-                            onClick={() => !isProvinceBlocked && handleAddField(template)}
+                            onClick={() =>
+                              !isProvinceBlocked && handleAddField(template)
+                            }
                           >
                             <Space
                               direction="vertical"
@@ -191,4 +199,3 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
     </Modal>
   );
 };
-

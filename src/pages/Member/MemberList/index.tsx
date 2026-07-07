@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Space, Button, Input, Tooltip, Card } from "antd";
 import { useRequest } from "ahooks";
-import { SearchOutlined, ReloadOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  ReloadOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 import { getProfiles } from "../../../api/services/member";
 
@@ -21,7 +25,8 @@ const MemberListPage = () => {
   const [searchInput, setSearchInput] = useState("");
   const [badgeInput, setBadgeInput] = useState("");
   const [memberIdInput, setMemberIdInput] = useState("");
-  const [educationInstitutionInput, setEducationInstitutionInput] = useState("");
+  const [educationInstitutionInput, setEducationInstitutionInput] =
+    useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const { data, loading, error, refresh } = useRequest(
@@ -102,7 +107,11 @@ const MemberListPage = () => {
               onChange={(e) => setEducationInstitutionInput(e.target.value)}
               onPressEnter={handleSearch}
             />
-            <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch} />
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={handleSearch}
+            />
           </Space>
 
           <Space size={8} wrap>
@@ -114,7 +123,11 @@ const MemberListPage = () => {
               Tambah Anggota
             </Button>
             <Tooltip placement="left" title="Refresh Data">
-              <Button icon={<ReloadOutlined />} onClick={refresh} loading={loading} />
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={refresh}
+                loading={loading}
+              />
             </Tooltip>
           </Space>
         </div>

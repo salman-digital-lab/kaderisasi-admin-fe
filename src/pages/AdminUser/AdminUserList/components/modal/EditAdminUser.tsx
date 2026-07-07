@@ -11,7 +11,11 @@ type EditAdminUserProps = {
   refresh: () => void;
 };
 
-export default function EditAdminUser({ data, setData, refresh }: EditAdminUserProps) {
+export default function EditAdminUser({
+  data,
+  setData,
+  refresh,
+}: EditAdminUserProps) {
   const { runAsync, loading } = useRequest(putAdminUser, { manual: true });
   const [form] = Form.useForm<{
     role?: number;
@@ -63,11 +67,7 @@ export default function EditAdminUser({ data, setData, refresh }: EditAdminUserP
         >
           <Select style={{ width: "100%" }} options={ADMIN_ROLE_OPTIONS} />
         </Form.Item>
-        <Form.Item
-          label="Status Akun"
-          name="isActive"
-          valuePropName="checked"
-        >
+        <Form.Item label="Status Akun" name="isActive" valuePropName="checked">
           <Switch checkedChildren="Aktif" unCheckedChildren="Nonaktif" />
         </Form.Item>
       </Form>

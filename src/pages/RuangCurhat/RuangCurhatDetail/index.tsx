@@ -91,7 +91,9 @@ export function RuangCurhatDetail() {
       key: "8",
       label: "Tanggal Lahir",
       children: profileData?.profile[0].birth_date
-        ? dayjs(profileData.profile[0].birth_date).locale("id").format("DD MMMM YYYY")
+        ? dayjs(profileData.profile[0].birth_date)
+            .locale("id")
+            .format("DD MMMM YYYY")
         : "-",
     },
     {

@@ -31,7 +31,7 @@ export type postClubRegistrationResp = {
 };
 
 export type putClubRegistrationReq = {
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: "PENDING" | "APPROVED" | "REJECTED";
   additional_data?: Record<string, any>;
 };
 
@@ -43,7 +43,7 @@ export type putClubRegistrationResp = {
 export type putClubRegistrationsBulkReq = {
   registrations: Array<{
     id: number;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    status: "PENDING" | "APPROVED" | "REJECTED";
     additional_data?: Record<string, any>;
   }>;
 };
@@ -56,8 +56,6 @@ export type putClubRegistrationsBulkResp = {
 export type deleteClubRegistrationResp = {
   message: string;
 };
-
-
 
 export type putClubRegistrationInfoReq = {
   registration_info: string;

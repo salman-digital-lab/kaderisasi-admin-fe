@@ -70,7 +70,7 @@ const AppLayout = () => {
         clearAuth();
         message.success("Logout successful");
         navigate("/login");
-      } catch (error) {
+      } catch {
         message.error("An error occured");
       }
     }

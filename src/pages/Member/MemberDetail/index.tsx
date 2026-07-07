@@ -34,11 +34,18 @@ import {
   putProfile,
 } from "../../../api/services/member";
 import { GENDER_OPTION, USER_LEVEL_OPTIONS } from "../../../constants/options";
-import { getProvinces, getDataProvinceId } from "../../../api/services/province";
+import {
+  getProvinces,
+  getDataProvinceId,
+} from "../../../api/services/province";
 import { getCountries } from "../../../api/services/country";
 import EditAuthDataModal from "./components/EditAuthDataModal";
 import GenerateAccountModal from "./components/GenerateAccountModal";
-import { EducationEntry, WorkEntry, Member } from "../../../types/model/members";
+import {
+  EducationEntry,
+  WorkEntry,
+  Member,
+} from "../../../types/model/members";
 import UniversityNameSelect from "../../../components/common/UniversityNameSelect";
 
 type FormType = {
@@ -73,7 +80,9 @@ const DEGREE_OPTIONS = [
   { label: "S3 (Doktor)", value: "doctoral" },
 ];
 
-const normalizeYearValue = (value?: number | string | null): number | undefined => {
+const normalizeYearValue = (
+  value?: number | string | null,
+): number | undefined => {
   if (typeof value === "number" && !Number.isNaN(value)) return value;
   if (typeof value === "string" && value.trim() !== "") {
     const parsedValue = Number(value);
@@ -99,7 +108,9 @@ const MemberDetailPage = () => {
   const [isEditAuthOpen, setIsEditAuthOpen] = useState(false);
   const [isGenerateAccountOpen, setIsGenerateAccountOpen] = useState(false);
   const [regionalInput, setRegionalInput] = useState<string[]>([]);
-  const [salmanActivityHistoryInput, setSalmanActivityHistoryInput] = useState<string[]>([]);
+  const [salmanActivityHistoryInput, setSalmanActivityHistoryInput] = useState<
+    string[]
+  >([]);
 
   const resetFormToProfile = (profile: Member | undefined) => {
     form.setFieldsValue({
@@ -123,7 +134,9 @@ const MemberDetailPage = () => {
       work_history: normalizeWorkHistory(profile?.work_history),
     });
     setRegionalInput(profile?.extra_data?.alumni_regional_assignment ?? []);
-    setSalmanActivityHistoryInput(profile?.extra_data?.salman_activity_history ?? []);
+    setSalmanActivityHistoryInput(
+      profile?.extra_data?.salman_activity_history ?? [],
+    );
   };
 
   const { data, loading, refresh } = useRequest(() => getProfile(id || ""), {
@@ -137,13 +150,19 @@ const MemberDetailPage = () => {
     { ready: !!data?.profile?.[0]?.user_id },
   );
 
-  const { loading: editLoading, runAsync } = useRequest(putProfile, { manual: true });
+  const { loading: editLoading, runAsync } = useRequest(putProfile, {
+    manual: true,
+  });
 
   const { data: provinces } = useRequest(() => getProvinces({}));
   const { data: countries } = useRequest(() => getCountries());
 
-  const [currentProvinceId, setCurrentProvinceId] = useState<string | undefined>();
-  const [originProvinceId, setOriginProvinceId] = useState<string | undefined>();
+  const [currentProvinceId, setCurrentProvinceId] = useState<
+    string | undefined
+  >();
+  const [originProvinceId, setOriginProvinceId] = useState<
+    string | undefined
+  >();
 
   const { data: currentCities, run: loadCurrentCities } = useRequest(
     (id: string) => getDataProvinceId(id),
@@ -157,15 +176,23 @@ const MemberDetailPage = () => {
   useEffect(() => {
     const pid = data?.profile[0]?.province_id?.toString();
     const opid = data?.profile[0]?.origin_province_id?.toString();
-    if (pid) { setCurrentProvinceId(pid); loadCurrentCities(pid); }
-    if (opid) { setOriginProvinceId(opid); loadOriginCities(opid); }
+    if (pid) {
+      setCurrentProvinceId(pid);
+      loadCurrentCities(pid);
+    }
+    if (opid) {
+      setOriginProvinceId(opid);
+      loadOriginCities(opid);
+    }
   }, [data, loadCurrentCities, loadOriginCities]);
 
   const profile = data?.profile[0];
   const publicUser = profile?.publicUser;
   const accountStatus = publicUser?.account_status ?? "no_account";
-  const statusMeta =
-    ACCOUNT_STATUS_LABEL[accountStatus] ?? { label: accountStatus, color: "default" };
+  const statusMeta = ACCOUNT_STATUS_LABEL[accountStatus] ?? {
+    label: accountStatus,
+    color: "default",
+  };
 
   if (loading) {
     return (
@@ -203,7 +230,9 @@ const MemberDetailPage = () => {
                 {
                   key: "status",
                   label: "Status Akun",
-                  children: <Tag color={statusMeta.color}>{statusMeta.label}</Tag>,
+                  children: (
+                    <Tag color={statusMeta.color}>{statusMeta.label}</Tag>
+                  ),
                 },
                 {
                   key: "email",
@@ -216,7 +245,10 @@ const MemberDetailPage = () => {
             />
             <Space>
               {accountStatus === "no_account" ? (
-                <Button type="primary" onClick={() => setIsGenerateAccountOpen(true)}>
+                <Button
+                  type="primary"
+                  onClick={() => setIsGenerateAccountOpen(true)}
+                >
                   Buat Akun
                 </Button>
               ) : (
@@ -252,7 +284,12 @@ const MemberDetailPage = () => {
               </Button>
             </>
           ) : (
-            <Button type="primary" icon={<EditOutlined />} htmlType="button" onClick={() => enterEdit()}>
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              htmlType="button"
+              onClick={() => enterEdit()}
+            >
               Ubah
             </Button>
           )}
@@ -264,14 +301,16 @@ const MemberDetailPage = () => {
           form={form}
           disabled={!isEdit}
           onFinish={async (value) => {
-            const normalizedWorkHistoryEntries = normalizeWorkHistory(value.work_history).filter((entry) =>
-              entry.job_title.trim() !== "" ||
-              entry.company.trim() !== "" ||
-              entry.start_year !== undefined ||
-              entry.end_year !== undefined,
+            const normalizedWorkHistoryEntries = normalizeWorkHistory(
+              value.work_history,
+            ).filter(
+              (entry) =>
+                entry.job_title.trim() !== "" ||
+                entry.company.trim() !== "" ||
+                entry.start_year !== undefined ||
+                entry.end_year !== undefined,
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const payload: any = {
               gender: value.gender,
               whatsapp: value.whatsapp,
@@ -284,7 +323,9 @@ const MemberDetailPage = () => {
               level: value.level,
               badges: value.badges ?? [],
               name: value.name,
-              birth_date: value.birth_date ? value.birth_date.toString() : undefined,
+              birth_date: value.birth_date
+                ? value.birth_date.toString()
+                : undefined,
               origin_province_id: value.origin_province_id,
               origin_city_id: value.origin_city_id,
               country: value.country,
@@ -315,7 +356,10 @@ const MemberDetailPage = () => {
             </Col>
             <Col span={12}>
               <Form.Item name="level" label="Jenjang">
-                <Select style={{ width: "100%" }} options={USER_LEVEL_OPTIONS} />
+                <Select
+                  style={{ width: "100%" }}
+                  options={USER_LEVEL_OPTIONS}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -332,7 +376,6 @@ const MemberDetailPage = () => {
               <Form.Item name="birth_date" label="Tanggal Lahir">
                 <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
               </Form.Item>
-
             </Col>
             <Col span={12}>
               <Form.Item name="personal_id" label="Nomor Identitas">
@@ -349,9 +392,14 @@ const MemberDetailPage = () => {
                   showSearch
                   style={{ width: "100%" }}
                   filterOption={(input, option) =>
-                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
-                  options={provinces?.data.map((p) => ({ label: p.name, value: p.id }))}
+                  options={provinces?.data.map((p) => ({
+                    label: p.name,
+                    value: p.id,
+                  }))}
                   onChange={(val) => {
                     setCurrentProvinceId(val?.toString());
                     form.setFieldValue("city_id", undefined);
@@ -366,10 +414,15 @@ const MemberDetailPage = () => {
                   showSearch
                   style={{ width: "100%" }}
                   filterOption={(input, option) =>
-                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                   disabled={!isEdit || !currentProvinceId}
-                  options={(currentCities?.data ?? []).map((c) => ({ label: c.name, value: c.id }))}
+                  options={(currentCities?.data ?? []).map((c) => ({
+                    label: c.name,
+                    value: c.id,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -381,9 +434,14 @@ const MemberDetailPage = () => {
                   showSearch
                   style={{ width: "100%" }}
                   filterOption={(input, option) =>
-                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
-                  options={(countries?.data ?? []).map((c) => ({ label: c.name, value: c.name }))}
+                  options={(countries?.data ?? []).map((c) => ({
+                    label: c.name,
+                    value: c.name,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -397,9 +455,14 @@ const MemberDetailPage = () => {
                   showSearch
                   style={{ width: "100%" }}
                   filterOption={(input, option) =>
-                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
-                  options={provinces?.data.map((p) => ({ label: p.name, value: p.id }))}
+                  options={provinces?.data.map((p) => ({
+                    label: p.name,
+                    value: p.id,
+                  }))}
                   onChange={(val) => {
                     setOriginProvinceId(val?.toString());
                     form.setFieldValue("origin_city_id", undefined);
@@ -414,10 +477,15 @@ const MemberDetailPage = () => {
                   showSearch
                   style={{ width: "100%" }}
                   filterOption={(input, option) =>
-                    String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    String(option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                   disabled={!isEdit || !originProvinceId}
-                  options={(originCities?.data ?? []).map((c) => ({ label: c.name, value: c.id }))}
+                  options={(originCities?.data ?? []).map((c) => ({
+                    label: c.name,
+                    value: c.id,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -431,7 +499,10 @@ const MemberDetailPage = () => {
                   <Row key={key} gutter={16} align="top">
                     <Col span={5}>
                       <Form.Item name={[name, "degree"]} label="Jenjang">
-                        <Select options={DEGREE_OPTIONS} style={{ width: "100%" }} />
+                        <Select
+                          options={DEGREE_OPTIONS}
+                          style={{ width: "100%" }}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={7}>
@@ -450,7 +521,10 @@ const MemberDetailPage = () => {
                       </Form.Item>
                     </Col>
                     <Col span={2}>
-                      <Form.Item name={[name, "intake_year"]} label="Tahun Masuk">
+                      <Form.Item
+                        name={[name, "intake_year"]}
+                        label="Tahun Masuk"
+                      >
                         <InputNumber style={{ width: "100%" }} />
                       </Form.Item>
                     </Col>
@@ -496,17 +570,26 @@ const MemberDetailPage = () => {
                 {fields.map(({ key, name }) => (
                   <Row key={key} gutter={16} align="top">
                     <Col span={6}>
-                      <Form.Item name={[name, "job_title"]} label="Posisi / Jabatan">
+                      <Form.Item
+                        name={[name, "job_title"]}
+                        label="Posisi / Jabatan"
+                      >
                         <Input placeholder="Contoh: Software Engineer" />
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                      <Form.Item name={[name, "company"]} label="Perusahaan / Organisasi">
+                      <Form.Item
+                        name={[name, "company"]}
+                        label="Perusahaan / Organisasi"
+                      >
                         <Input placeholder="Nama perusahaan atau organisasi" />
                       </Form.Item>
                     </Col>
                     <Col span={5}>
-                      <Form.Item name={[name, "start_year"]} label="Tahun Mulai">
+                      <Form.Item
+                        name={[name, "start_year"]}
+                        label="Tahun Mulai"
+                      >
                         <InputNumber
                           style={{ width: "100%" }}
                           placeholder="2022"
@@ -516,7 +599,10 @@ const MemberDetailPage = () => {
                       </Form.Item>
                     </Col>
                     <Col span={5}>
-                      <Form.Item name={[name, "end_year"]} label="Tahun Selesai">
+                      <Form.Item
+                        name={[name, "end_year"]}
+                        label="Tahun Selesai"
+                      >
                         <InputNumber
                           style={{ width: "100%" }}
                           placeholder="Kosongkan jika masih aktif"
@@ -542,7 +628,12 @@ const MemberDetailPage = () => {
                   <Button
                     type="dashed"
                     onClick={() =>
-                      add({ job_title: "", company: "", start_year: undefined, end_year: undefined })
+                      add({
+                        job_title: "",
+                        company: "",
+                        start_year: undefined,
+                        end_year: undefined,
+                      })
                     }
                     icon={<PlusOutlined />}
                     disabled={!isEdit}
@@ -589,7 +680,8 @@ const MemberDetailPage = () => {
           />
         ) : (
           <Space size={4} wrap>
-            {(profile?.extra_data?.salman_activity_history ?? []).length === 0 ? (
+            {(profile?.extra_data?.salman_activity_history ?? []).length ===
+            0 ? (
               <span style={{ color: "#999" }}>Belum ada riwayat aktivitas</span>
             ) : (
               profile?.extra_data?.salman_activity_history?.map((item, i) => (
@@ -611,7 +703,8 @@ const MemberDetailPage = () => {
           />
         ) : (
           <Space size={4} wrap>
-            {(profile?.extra_data?.alumni_regional_assignment ?? []).length === 0 ? (
+            {(profile?.extra_data?.alumni_regional_assignment ?? []).length ===
+            0 ? (
               <span style={{ color: "#999" }}>Belum ada penugasan</span>
             ) : (
               profile?.extra_data?.alumni_regional_assignment?.map((r, i) => (

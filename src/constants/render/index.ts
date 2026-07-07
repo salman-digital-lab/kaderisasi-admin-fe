@@ -1,9 +1,15 @@
-import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../../types/constants/achievement";
+import {
+  ACHIEVEMENT_STATUS_ENUM,
+  ACHIEVEMENT_TYPE_ENUM,
+} from "../../types/constants/achievement";
 import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,
 } from "../../types/constants/activity";
-import { ADMIN_ROLE_ENUM, USER_LEVEL_ENUM } from "../../types/constants/profile";
+import {
+  ADMIN_ROLE_ENUM,
+  USER_LEVEL_ENUM,
+} from "../../types/constants/profile";
 import {
   PROBLEM_OWNER_ENUM,
   PROBLEM_STATUS_ENUM,
@@ -20,7 +26,7 @@ export function renderUserLevel(level: USER_LEVEL_ENUM | undefined) {
     case USER_LEVEL_ENUM.KADER_LANJUT:
       return "Kader Lanjut";
     default:
-      "-";
+      return "-";
   }
 }
 
@@ -218,7 +224,7 @@ export function renderProblemOwner(code: PROBLEM_OWNER_ENUM | undefined) {
     case PROBLEM_OWNER_ENUM.TEMAN:
       return "Teman";
     default:
-      "-";
+      return "-";
   }
 }
 
@@ -236,7 +242,7 @@ export function renderProblemStatus(code: PROBLEM_STATUS_ENUM | undefined) {
       return "Batal";
 
     default:
-      "-";
+      return "-";
   }
 }
 
@@ -256,7 +262,7 @@ export function renderProblemStatusColor(
       return "red";
 
     default:
-      "-";
+      return "-";
   }
 }
 
@@ -307,9 +313,7 @@ export function renderAchievementStatusColor(
   }
 }
 
-export function renderAchievementType(
-  code: ACHIEVEMENT_TYPE_ENUM | undefined,
-) {
+export function renderAchievementType(code: ACHIEVEMENT_TYPE_ENUM | undefined) {
   switch (code) {
     case ACHIEVEMENT_TYPE_ENUM.KOMPETENSI:
       return "Kompetensi";

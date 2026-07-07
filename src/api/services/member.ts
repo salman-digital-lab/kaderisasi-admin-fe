@@ -50,7 +50,9 @@ export const getProfileByUserId = async (userId: string) => {
 
 export const getActivityByUserId = async (userId: string) => {
   try {
-    const res = await axios.get<getActivityByUserIdResp>(`/activity-registrations/user/${userId}`);
+    const res = await axios.get<getActivityByUserIdResp>(
+      `/activity-registrations/user/${userId}`,
+    );
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -101,7 +103,10 @@ export const createMember = async (props: createMemberReq) => {
   }
 };
 
-export const generateAccount = async (id: string, props: generateAccountReq) => {
+export const generateAccount = async (
+  id: string,
+  props: generateAccountReq,
+) => {
   try {
     const res = await axios.post<generateAccountResp>(
       `/members/${id}/generate-account`,

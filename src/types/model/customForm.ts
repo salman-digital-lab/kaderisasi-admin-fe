@@ -3,7 +3,10 @@ export interface CustomForm {
   form_name: string;
   form_description?: string;
   post_submission_info?: string;
-  feature_type: 'activity_registration' | 'club_registration' | 'independent_form';
+  feature_type:
+    | "activity_registration"
+    | "club_registration"
+    | "independent_form";
   feature_id: number | null;
   form_schema: FormSchema;
   is_active: boolean;

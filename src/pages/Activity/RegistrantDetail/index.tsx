@@ -126,23 +126,43 @@ const RegistrantDetail = () => {
       label: field.label,
       children: renderProfileField(
         field.key,
-        isGuest ? registrantData?.guest_data?.[field.key] : profileValueMap[field.key],
+        isGuest
+          ? registrantData?.guest_data?.[field.key]
+          : profileValueMap[field.key],
         isGuest ?? false,
       ),
     }));
   } else if (isGuest) {
     const guestData = registrantData?.guest_data ?? {};
     userInfoDescription = [
-      { key: "name", label: "Nama", children: (guestData["name"] as string) || "-" },
-      { key: "email", label: "Email", children: (guestData["email"] as string) || "-" },
+      {
+        key: "name",
+        label: "Nama",
+        children: (guestData["name"] as string) || "-",
+      },
+      {
+        key: "email",
+        label: "Email",
+        children: (guestData["email"] as string) || "-",
+      },
       ...(guestData["whatsapp"]
-        ? [{ key: "whatsapp", label: "WhatsApp", children: guestData["whatsapp"] as string }]
+        ? [
+            {
+              key: "whatsapp",
+              label: "WhatsApp",
+              children: guestData["whatsapp"] as string,
+            },
+          ]
         : []),
     ];
   } else {
     userInfoDescription = [
       { key: "1", label: "Nama Lengkap", children: profile?.name || "-" },
-      { key: "2", label: "Jenis Kelamin", children: GENDER_MAP[profile?.gender ?? ""] ?? "-" },
+      {
+        key: "2",
+        label: "Jenis Kelamin",
+        children: GENDER_MAP[profile?.gender ?? ""] ?? "-",
+      },
       { key: "3", label: "No KTP", children: profile?.personal_id },
       { key: "4", label: "No Whatsapp", children: profile?.whatsapp },
       { key: "5", label: "ID Line", children: profile?.line },
@@ -153,7 +173,11 @@ const RegistrantDetail = () => {
       { key: "10", label: "Universitas", children: profile?.university?.name },
       { key: "11", label: "Jurusan", children: profile?.major },
       { key: "12", label: "Angkatan", children: profile?.intake_year },
-      { key: "13", label: "Jenjang", children: renderUserLevel(profile?.level) },
+      {
+        key: "13",
+        label: "Jenjang",
+        children: renderUserLevel(profile?.level),
+      },
     ];
   }
 
@@ -168,16 +192,22 @@ const RegistrantDetail = () => {
         ? allFields.map((field) => ({
             key: field.key,
             label: field.label,
-            children: formatValue(registrantData?.questionnaire_answer[field.key]),
+            children: formatValue(
+              registrantData?.questionnaire_answer[field.key],
+            ),
           }))
         : undefined;
   } else {
     questionnaireAnswerDescription =
-      activityData?.additional_config?.additional_questionnaire?.map((question) => ({
-        key: question.name,
-        label: question.label,
-        children: formatValue(registrantData?.questionnaire_answer[question.name!]),
-      }));
+      activityData?.additional_config?.additional_questionnaire?.map(
+        (question) => ({
+          key: question.name,
+          label: question.label,
+          children: formatValue(
+            registrantData?.questionnaire_answer[question.name!],
+          ),
+        }),
+      );
   }
 
   return (

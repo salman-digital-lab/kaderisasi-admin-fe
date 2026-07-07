@@ -1,4 +1,7 @@
-import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../../types/constants/achievement";
+import {
+  ACHIEVEMENT_STATUS_ENUM,
+  ACHIEVEMENT_TYPE_ENUM,
+} from "../../types/constants/achievement";
 import {
   ACTIVITY_TYPE_ENUM,
   ACTIVITY_CATEGORY_ENUM,

@@ -94,8 +94,8 @@ const UniversityForm = ({
                 name="name"
                 label="Nama Universitas"
                 rules={[
-                  { required: true, message: 'Nama Universitas wajib diisi' },
-                  { min: 2, message: 'Nama Universitas minimal 2 karakter' }
+                  { required: true, message: "Nama Universitas wajib diisi" },
+                  { min: 2, message: "Nama Universitas minimal 2 karakter" },
                 ]}
               >
                 <Input placeholder="Nama Univeristas" />
@@ -105,9 +105,7 @@ const UniversityForm = ({
               <Form.Item
                 name="provinceId"
                 label="Provinsi"
-                rules={[
-                  { required: true, message: 'Provinsi wajib dipilih' }
-                ]}
+                rules={[{ required: true, message: "Provinsi wajib dipilih" }]}
               >
                 <Select
                   placeholder="Pilih Provinsi"

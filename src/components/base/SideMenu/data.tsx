@@ -6,7 +6,6 @@ import {
   WechatOutlined,
   SettingOutlined,
   TrophyOutlined,
-  TeamOutlined,
   FormOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
@@ -22,7 +21,7 @@ export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 export const menuItems: (permissions: string[]) => MenuItem[] = (
   permissions,
 ) => {
-  let menuItems: MenuItem[] = [
+  const menuItems: MenuItem[] = [
     {
       key: "/dashboard",
       icon: <HomeOutlined />,
@@ -73,14 +72,6 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (
           label: <Link to="/lifetime-leaderboard">Peringkat Seumur Hidup</Link>,
         },
       ],
-    });
-  }
-
-  if (permissions.includes("klub")) {
-    menuItems.push({
-      key: "/club",
-      icon: <TeamOutlined />,
-      label: <Link to="/club">Unit Kegiatan</Link>,
     });
   }
 

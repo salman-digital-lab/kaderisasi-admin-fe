@@ -1,3 +1,3 @@
-export { default as ClubList } from './Club/ClubList';
-export { default as ClubDetail } from './Club/ClubDetail';
-export { default as CustomFormList } from './CustomForm/CustomFormList';
+export { default as ClubList } from "./Club/ClubList";
+export { default as ClubDetail } from "./Club/ClubDetail";
+export { default as CustomFormList } from "./CustomForm/CustomFormList";

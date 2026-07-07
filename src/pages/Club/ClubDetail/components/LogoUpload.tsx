@@ -24,7 +24,7 @@ const LogoUpload = () => {
           setClubData(data);
         }
       },
-    }
+    },
   );
 
   const { loading: uploadLoading, run: upload } = useRequest(
@@ -35,7 +35,7 @@ const LogoUpload = () => {
         setFileList([]);
         refresh();
       },
-    }
+    },
   );
 
   const handleUpload = () => {
@@ -45,25 +45,27 @@ const LogoUpload = () => {
   };
 
   const beforeUpload = (file: File) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type.startsWith("image/");
     const isLt2M = file.size / 1024 / 1024 < 2;
 
     if (!isImage) {
-      alert('Hanya file gambar yang diperbolehkan!');
+      alert("Hanya file gambar yang diperbolehkan!");
       return false;
     }
     if (!isLt2M) {
-      alert('File harus lebih kecil dari 2MB!');
+      alert("File harus lebih kecil dari 2MB!");
       return false;
     }
 
-    setFileList([{
-      uid: '-1',
-      name: file.name,
-      status: 'done',
-      originFileObj: file,
-    } as UploadFile]);
-    
+    setFileList([
+      {
+        uid: "-1",
+        name: file.name,
+        status: "done",
+        originFileObj: file,
+      } as UploadFile,
+    ]);
+
     return false; // Prevent automatic upload
   };
 
@@ -73,7 +75,7 @@ const LogoUpload = () => {
 
   return (
     <Card title="Logo Club">
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {clubData?.logo && (
           <div>
             <Text strong>Logo Saat Ini:</Text>
@@ -108,16 +110,14 @@ const LogoUpload = () => {
 
         {fileList.length > 0 && (
           <Space>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={handleUpload}
               loading={uploadLoading}
             >
               Upload Logo
             </Button>
-            <Button onClick={() => setFileList([])}>
-              Batal
-            </Button>
+            <Button onClick={() => setFileList([])}>Batal</Button>
           </Space>
         )}
       </Space>

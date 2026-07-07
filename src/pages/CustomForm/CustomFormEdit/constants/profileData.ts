@@ -128,7 +128,8 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
     required: false,
     type: "education_history",
     placeholder: "",
-    helpText: "Daftar riwayat pendidikan (jenjang, institusi, jurusan, tahun masuk).",
+    helpText:
+      "Daftar riwayat pendidikan (jenjang, institusi, jurusan, tahun masuk).",
   },
   {
     key: "current_education",

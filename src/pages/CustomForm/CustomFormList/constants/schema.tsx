@@ -29,7 +29,7 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
     render: (featureType) => {
       const typeMap: Record<string, string> = {
         activity_registration: "Pendaftaran Aktivitas",
-        club_registration: "Pendaftaran Unit Kegiatan",
+        club_registration: "-",
       };
       return typeMap[featureType] || featureType;
     },
@@ -54,7 +54,10 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
     width: 120,
     render: (formSchema) => {
       if (!formSchema?.fields) return 0;
-      return formSchema.fields.reduce((total: number, section: any) => total + section.fields.length, 0);
+      return formSchema.fields.reduce(
+        (total: number, section: any) => total + section.fields.length,
+        0,
+      );
     },
   },
 
@@ -74,7 +77,6 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
             Edit
           </Button>
         </Link>
-
       </Space>
     ),
   },

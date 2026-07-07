@@ -484,7 +484,8 @@ const ActivityDetail = () => {
                           checkedChildren="Aktif"
                           unCheckedChildren="Nonaktif"
                           disabled={
-                            activityType !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY
+                            activityType !==
+                            ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY
                           }
                         />
                       </Form.Item>

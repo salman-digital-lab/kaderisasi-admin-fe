@@ -51,7 +51,10 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
   };
 
   // Get the effective required status for a field
-  const getEffectiveRequired = (fieldKey: string, defaultRequired: boolean): boolean => {
+  const getEffectiveRequired = (
+    fieldKey: string,
+    defaultRequired: boolean,
+  ): boolean => {
     if (isImmutableField(fieldKey)) {
       return defaultRequired;
     }
@@ -122,7 +125,10 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                   {/* Field Info */}
                   <div style={{ flex: 1 }}>
                     <Space>
-                      <Avatar size="small" style={{ backgroundColor: categoryColor }}>
+                      <Avatar
+                        size="small"
+                        style={{ backgroundColor: categoryColor }}
+                      >
                         <template.icon />
                       </Avatar>
                       <div>
@@ -139,7 +145,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                                 size="small"
                                 checked={getEffectiveRequired(
                                   fieldKey,
-                                  template.field.required
+                                  template.field.required,
                                 )}
                                 onChange={(checked) =>
                                   onToggleRequiredField?.(fieldKey, checked)

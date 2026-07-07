@@ -21,9 +21,7 @@ const cardStyle = {
 };
 
 type FilterProps = {
-  setParameter: React.Dispatch<
-    React.SetStateAction<AchievementListParameters>
-  >;
+  setParameter: React.Dispatch<React.SetStateAction<AchievementListParameters>>;
   refresh?: () => void;
   loading?: boolean;
   exportAchievements: () => Promise<Blob | undefined>;

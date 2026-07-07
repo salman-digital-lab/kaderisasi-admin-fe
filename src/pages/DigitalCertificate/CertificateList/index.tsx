@@ -153,9 +153,7 @@ const CertificateList: React.FC = () => {
             <Button
               size="small"
               icon={<EditOutlined />}
-              onClick={() =>
-                navigate(`/digital-certificate/${record.id}/edit`)
-              }
+              onClick={() => navigate(`/digital-certificate/${record.id}/edit`)}
             />
           </Tooltip>
           <Tooltip title="Duplikat">

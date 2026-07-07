@@ -115,7 +115,9 @@ export const generateCertificates = async (data: GenerateCertificatesReq) => {
   }
 };
 
-export const generateSingleCertificate = async (data: GenerateSingleCertificateReq) => {
+export const generateSingleCertificate = async (
+  data: GenerateSingleCertificateReq,
+) => {
   try {
     const res = await axios.post<GenerateSingleCertificateResp>(
       "/certificates/generate-single",

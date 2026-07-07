@@ -1,4 +1,7 @@
-import { ACHIEVEMENT_STATUS_ENUM, ACHIEVEMENT_TYPE_ENUM } from "../constants/achievement";
+import {
+  ACHIEVEMENT_STATUS_ENUM,
+  ACHIEVEMENT_TYPE_ENUM,
+} from "../constants/achievement";
 import { Achievement } from "../model/achievements";
 import { Pagination } from "./base";
 

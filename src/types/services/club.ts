@@ -34,8 +34,6 @@ export type putClubResp = {
   data: Club;
 };
 
-
-
 export type uploadLogoResp = {
   message: string;
   data: {
@@ -49,7 +47,7 @@ export type uploadImageMediaResp = {
     media: {
       items: {
         media_url: string;
-        media_type: 'image';
+        media_type: "image";
       }[];
     };
   };
@@ -61,8 +59,8 @@ export type addYoutubeMediaResp = {
     media: {
       items: {
         media_url: string;
-        media_type: 'video';
-        video_source: 'youtube';
+        media_type: "video";
+        video_source: "youtube";
       }[];
     };
   };
@@ -78,8 +76,8 @@ export type deleteMediaResp = {
     media: {
       items: {
         media_url: string;
-        media_type: 'image' | 'video';
-        video_source?: 'youtube';
+        media_type: "image" | "video";
+        video_source?: "youtube";
       }[];
     };
   };
@@ -87,6 +85,6 @@ export type deleteMediaResp = {
 
 export type addYoutubeMediaReq = {
   media_url: string;
-  media_type: 'video';
-  video_source: 'youtube';
+  media_type: "video";
+  video_source: "youtube";
 };

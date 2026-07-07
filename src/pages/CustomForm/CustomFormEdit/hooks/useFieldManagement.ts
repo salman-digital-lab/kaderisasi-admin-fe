@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { notification } from "antd";
-import type { FormField, FormSection } from "../../../../types/model/customForm";
+import type {
+  FormField,
+  FormSection,
+} from "../../../../types/model/customForm";
 import {
   createNewField,
   moveArrayItem,
   fieldExists,
-  generateFieldKey
+  generateFieldKey,
 } from "../utils";
 
 // Constants for default fields that cannot be modified
@@ -34,15 +37,17 @@ export const useFieldManagement = (
   selectedBasicFields: string[],
   setSelectedBasicFields: (fields: string[]) => void,
   _profileTemplates: readonly any[],
-  onRequiredFieldChange?: (fieldKey: string, required: boolean) => void
+  onRequiredFieldChange?: (fieldKey: string, required: boolean) => void,
 ) => {
   const [editingField, setEditingField] = useState<FormField | null>(null);
-  const [editingSectionKey, setEditingSectionKey] = useState<string | null>(null);
+  const [editingSectionKey, setEditingSectionKey] = useState<string | null>(
+    null,
+  );
   const [fieldModalVisible, setFieldModalVisible] = useState(false);
   const [basicFieldModalVisible, setBasicFieldModalVisible] = useState(false);
 
   // ===== Modal Management =====
-  
+
   const handleOpenBasicFieldModal = () => {
     setBasicFieldModalVisible(true);
   };
@@ -52,7 +57,7 @@ export const useFieldManagement = (
   const handleAddSection = () => {
     // Count existing custom sections (excluding profile_data)
     const customSectionCount = customFieldSections.filter(
-      section => section.section_name !== 'profile_data'
+      (section) => section.section_name !== "profile_data",
     ).length;
 
     // Generate sequential section name
@@ -68,7 +73,9 @@ export const useFieldManagement = (
 
   const handleDeleteSection = (sectionKey: string) => {
     setCustomFieldSections(
-      customFieldSections.filter((section) => section.section_name !== sectionKey)
+      customFieldSections.filter(
+        (section) => section.section_name !== sectionKey,
+      ),
     );
   };
 
@@ -77,26 +84,30 @@ export const useFieldManagement = (
       customFieldSections.map((section) =>
         section.section_name === sectionKey
           ? { ...section, section_name: newName }
-          : section
-      )
+          : section,
+      ),
     );
   };
 
   const handleMoveSection = (sectionKey: string, direction: "up" | "down") => {
     const currentIndex = customFieldSections.findIndex(
-      (section) => section.section_name === sectionKey
+      (section) => section.section_name === sectionKey,
     );
     if (currentIndex === -1) return;
 
     const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
     if (newIndex < 0 || newIndex >= customFieldSections.length) return;
 
-    const newSections = moveArrayItem(customFieldSections, currentIndex, newIndex);
+    const newSections = moveArrayItem(
+      customFieldSections,
+      currentIndex,
+      newIndex,
+    );
     setCustomFieldSections(newSections);
   };
 
   // ===== Custom Field Operations =====
-  
+
   const handleAddCustomField = (sectionKey: string) => {
     const newField = createNewField();
     setEditingField(newField);
@@ -126,7 +137,7 @@ export const useFieldManagement = (
     };
 
     const section = customFieldSections.find(
-      (s) => s.section_name === editingSectionKey
+      (s) => s.section_name === editingSectionKey,
     );
     if (!section) return;
 
@@ -140,35 +151,39 @@ export const useFieldManagement = (
             ? {
                 ...s,
                 fields: s.fields.map((field) =>
-                  field.key === editingField.key ? fieldData : field
+                  field.key === editingField.key ? fieldData : field,
                 ),
               }
-            : s
-        )
+            : s,
+        ),
       );
     } else {
       setCustomFieldSections(
         customFieldSections.map((s) =>
           s.section_name === editingSectionKey
             ? { ...s, fields: [...s.fields, fieldData] }
-            : s
-        )
+            : s,
+        ),
       );
     }
-    
+
     setFieldModalVisible(false);
     setEditingField(null);
     setEditingSectionKey(null);
   };
 
   const handleDeleteCustomField = (sectionKey: string, fieldKey: string) => {
-    const section = customFieldSections.find((s) => s.section_name === sectionKey);
+    const section = customFieldSections.find(
+      (s) => s.section_name === sectionKey,
+    );
     if (!section) {
       notification.error({ message: "Section tidak ditemukan!" });
       return;
     }
 
-    const fieldToDelete = section.fields.find((field) => field.key === fieldKey);
+    const fieldToDelete = section.fields.find(
+      (field) => field.key === fieldKey,
+    );
     if (!fieldToDelete) {
       notification.error({ message: "Field tidak ditemukan!" });
       return;
@@ -178,8 +193,8 @@ export const useFieldManagement = (
       customFieldSections.map((s) =>
         s.section_name === sectionKey
           ? { ...s, fields: s.fields.filter((field) => field.key !== fieldKey) }
-          : s
-      )
+          : s,
+      ),
     );
   };
 
@@ -193,16 +208,24 @@ export const useFieldManagement = (
       customFieldSections.map((s) =>
         s.section_name === sectionKey
           ? { ...s, fields: [...s.fields, duplicatedField] }
-          : s
-      )
+          : s,
+      ),
     );
   };
 
-  const handleMoveField = (sectionKey: string, fieldKey: string, direction: "up" | "down") => {
-    const section = customFieldSections.find((s) => s.section_name === sectionKey);
+  const handleMoveField = (
+    sectionKey: string,
+    fieldKey: string,
+    direction: "up" | "down",
+  ) => {
+    const section = customFieldSections.find(
+      (s) => s.section_name === sectionKey,
+    );
     if (!section) return;
 
-    const currentIndex = section.fields.findIndex((field) => field.key === fieldKey);
+    const currentIndex = section.fields.findIndex(
+      (field) => field.key === fieldKey,
+    );
     if (currentIndex === -1) return;
 
     const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
@@ -211,8 +234,8 @@ export const useFieldManagement = (
     const newFields = moveArrayItem(section.fields, currentIndex, newIndex);
     setCustomFieldSections(
       customFieldSections.map((s) =>
-        s.section_name === sectionKey ? { ...s, fields: newFields } : s
-      )
+        s.section_name === sectionKey ? { ...s, fields: newFields } : s,
+      ),
     );
   };
 
@@ -227,7 +250,9 @@ export const useFieldManagement = (
     const requiredProvince = CITY_REQUIRES_PROVINCE[template.field.key];
     if (requiredProvince && !selectedBasicFields.includes(requiredProvince)) {
       const provinceLabel =
-        requiredProvince === "province_id" ? "Provinsi Domisili" : "Provinsi Asal";
+        requiredProvince === "province_id"
+          ? "Provinsi Domisili"
+          : "Provinsi Asal";
       notification.warning({
         message: `Tambahkan "${provinceLabel}" terlebih dahulu sebelum menambahkan field ini.`,
       });
@@ -244,8 +269,13 @@ export const useFieldManagement = (
     }
 
     const dependentCity = PROVINCE_CASCADES_TO_CITY[fieldKey];
-    const keysToRemove = new Set([fieldKey, ...(dependentCity ? [dependentCity] : [])]);
-    setSelectedBasicFields(selectedBasicFields.filter((key) => !keysToRemove.has(key)));
+    const keysToRemove = new Set([
+      fieldKey,
+      ...(dependentCity ? [dependentCity] : []),
+    ]);
+    setSelectedBasicFields(
+      selectedBasicFields.filter((key) => !keysToRemove.has(key)),
+    );
 
     if (dependentCity && selectedBasicFields.includes(dependentCity)) {
       notification.info({
@@ -254,8 +284,13 @@ export const useFieldManagement = (
     }
   };
 
-  const handleMoveProfileField = (fieldKey: string, direction: "up" | "down") => {
-    const currentIndex = selectedBasicFields.findIndex((key) => key === fieldKey);
+  const handleMoveProfileField = (
+    fieldKey: string,
+    direction: "up" | "down",
+  ) => {
+    const currentIndex = selectedBasicFields.findIndex(
+      (key) => key === fieldKey,
+    );
     if (currentIndex === -1) return;
 
     const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
@@ -271,7 +306,9 @@ export const useFieldManagement = (
 
   const handleToggleRequiredField = (fieldKey: string, required: boolean) => {
     if (isImmutableField(fieldKey)) {
-      notification.warning({ message: "Status wajib untuk pertanyaan ini tidak dapat diubah!" });
+      notification.warning({
+        message: "Status wajib untuk pertanyaan ini tidak dapat diubah!",
+      });
       return;
     }
 
