@@ -3,6 +3,7 @@ import { Pagination } from "./base";
 export interface CertificateTemplateElement {
   id: string;
   type: "static-text" | "variable-text" | "image" | "qr-code" | "signature";
+  name?: string;
   x: number;
   y: number;
   width: number;
@@ -13,7 +14,19 @@ export interface CertificateTemplateElement {
   fontFamily?: string;
   color?: string;
   textAlign?: "left" | "center" | "right";
+  verticalAlign?: "top" | "middle" | "bottom";
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline";
+  lineHeight?: number;
+  letterSpacing?: number;
   imageUrl?: string;
+  opacity?: number;
+  rotation?: number;
+  borderRadius?: number;
+  objectFit?: "contain" | "cover" | "fill";
+  visible?: boolean;
+  locked?: boolean;
 }
 
 export interface CertificateTemplateData {

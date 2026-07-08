@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, Spin, Button, message } from "antd";
 import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
-import { CertificateElement } from "../DigitalCertificate/types";
+import type { CertificateElement } from "../DigitalCertificate/types";
+import { saveCertificatePdf } from "../DigitalCertificate/utils/certificatePdf";
 
 interface CertificateData {
   activity: {
@@ -54,11 +53,25 @@ const VariableTextContent: React.FC<{
   style: React.CSSProperties;
 }> = ({ variable, style }) => <div style={style}>{variable}</div>;
 
+const getJustifyContent = (align?: CertificateElement["textAlign"]): string => {
+  if (align === "left") return "flex-start";
+  if (align === "right") return "flex-end";
+  return "center";
+};
+
+const getAlignItems = (align?: CertificateElement["verticalAlign"]): string => {
+  if (align === "top") return "flex-start";
+  if (align === "bottom") return "flex-end";
+  return "center";
+};
+
 const ImageContent: React.FC<{
   imageUrl?: string;
   alt: string;
   placeholderLabel: string;
-}> = ({ imageUrl, alt, placeholderLabel }) =>
+  objectFit: CertificateElement["objectFit"];
+  borderRadius: number;
+}> = ({ imageUrl, alt, placeholderLabel, objectFit, borderRadius }) =>
   imageUrl ? (
     <img
       src={imageUrl}
@@ -66,7 +79,8 @@ const ImageContent: React.FC<{
       style={{
         width: "100%",
         height: "100%",
-        objectFit: "contain",
+        objectFit,
+        borderRadius,
       }}
       draggable={false}
     />
@@ -80,7 +94,7 @@ const ImageContent: React.FC<{
         justifyContent: "center",
         backgroundColor: "#f5f5f5",
         border: "1px dashed #d9d9d9",
-        borderRadius: 4,
+        borderRadius,
         fontSize: 12,
         color: "#999",
       }}
@@ -89,18 +103,62 @@ const ImageContent: React.FC<{
     </div>
   );
 
+const resolveCertificateText = (
+  element: CertificateElement,
+  participantData: CertificateData["participant"],
+  certificateData?: CertificateData["certificate"],
+): string => {
+  if (element.type === "static-text") return element.content || "";
+
+  const varValue = element.variable?.replace(/{{|}}/g, "").trim() || "";
+
+  switch (varValue) {
+    case "name":
+      return participantData.name;
+    case "email":
+      return participantData.email;
+    case "university":
+      return participantData.university;
+    case "activity_name":
+      return participantData.activity_name;
+    case "activity_date":
+    case "date":
+      return participantData.activity_date;
+    case "registration_id":
+      return String(participantData.registration_id);
+    case "user_id":
+      return String(participantData.user_id);
+    case "certificate_id":
+    case "certificate_code":
+      return certificateData?.certificate_code || "";
+    default:
+      return element.content || "";
+  }
+};
+
 const CertificateElementComponent: React.FC<{
   element: CertificateElement;
   participantData: CertificateData["participant"];
   certificateData?: CertificateData["certificate"];
 }> = ({ element, participantData, certificateData }) => {
   const textStyle: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: getAlignItems(element.verticalAlign),
+    justifyContent: getJustifyContent(element.textAlign),
     fontSize: element.fontSize || 16,
     fontFamily: element.fontFamily || "sans-serif",
+    fontWeight: element.fontWeight || "normal",
+    fontStyle: element.fontStyle || "normal",
+    textDecoration: element.textDecoration || "none",
+    lineHeight: element.lineHeight || 1.2,
+    letterSpacing: element.letterSpacing || 0,
     color: element.color || "#000000",
     textAlign: element.textAlign || "center",
     margin: 0,
     wordBreak: "break-word",
+    whiteSpace: "pre-wrap",
   };
 
   const renderContent = () => {
@@ -108,40 +166,11 @@ const CertificateElementComponent: React.FC<{
       case "static-text":
         return <div style={textStyle}>{element.content || ""}</div>;
       case "variable-text": {
-        let text = "";
-        // Handle both {{variable}} and variable formats
-        const varValue = element.variable?.replace(/{{|}}/g, "").trim() || "";
-
-        switch (varValue) {
-          case "name":
-            text = participantData.name;
-            break;
-          case "email":
-            text = participantData.email;
-            break;
-          case "university":
-            text = participantData.university;
-            break;
-          case "activity_name":
-            text = participantData.activity_name;
-            break;
-          case "activity_date":
-          case "date":
-            text = participantData.activity_date;
-            break;
-          case "registration_id":
-            text = String(participantData.registration_id);
-            break;
-          case "user_id":
-            text = String(participantData.user_id);
-            break;
-          case "certificate_id":
-          case "certificate_code":
-            text = certificateData?.certificate_code || "";
-            break;
-          default:
-            text = element.content || "";
-        }
+        const text = resolveCertificateText(
+          element,
+          participantData,
+          certificateData,
+        );
         return <VariableTextContent variable={text} style={textStyle} />;
       }
       case "image":
@@ -151,6 +180,8 @@ const CertificateElementComponent: React.FC<{
           <ImageContent
             imageUrl={element.imageUrl}
             alt={element.type}
+            objectFit={element.objectFit || "contain"}
+            borderRadius={element.borderRadius || 0}
             placeholderLabel={PLACEHOLDER_LABELS[element.type] || element.type}
           />
         );
@@ -161,6 +192,8 @@ const CertificateElementComponent: React.FC<{
 
   const isTextType =
     element.type === "static-text" || element.type === "variable-text";
+
+  if (element.visible === false) return null;
 
   return (
     <div
@@ -173,10 +206,15 @@ const CertificateElementComponent: React.FC<{
           ? { minHeight: element.height }
           : { height: element.height }),
         cursor: "default",
-        borderRadius: 4,
+        borderRadius: element.borderRadius || 4,
         padding: 4,
         boxSizing: "border-box",
+        opacity: (element.opacity ?? 100) / 100,
+        transform: `rotate(${element.rotation || 0}deg)`,
+        transformOrigin: "center center",
+        overflow: "hidden",
       }}
+      data-certificate-text-element={isTextType ? "true" : undefined}
     >
       {renderContent()}
     </div>
@@ -215,37 +253,14 @@ const CertificatePreview: React.FC = () => {
 
     setDownloading(true);
     try {
-      const renderedCanvas = await html2canvas(certificateRef.current, {
-        scale: 4,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-      });
-
       const { template_data } = data.template;
-      const pdf = new jsPDF({
-        orientation:
-          template_data.canvasWidth > template_data.canvasHeight
-            ? "landscape"
-            : "portrait",
-        unit: "px",
-        format: [template_data.canvasWidth, template_data.canvasHeight],
-        hotfixes: ["px_scaling"],
+      await saveCertificatePdf({
+        template: template_data,
+        sourceElement: certificateRef.current,
+        filename: `sertifikat-${data.participant.name.replace(/\s+/g, "-")}.pdf`,
+        resolveText: (element) =>
+          resolveCertificateText(element, data.participant, data.certificate),
       });
-
-      pdf.addImage(
-        renderedCanvas.toDataURL("image/png", 1.0),
-        "PNG",
-        0,
-        0,
-        template_data.canvasWidth,
-        template_data.canvasHeight,
-        undefined,
-        "FAST",
-      );
-
-      pdf.save(`sertifikat-${data.participant.name.replace(/\s+/g, "-")}.pdf`);
     } catch {
       message.error("Gagal mengunduh sertifikat");
     } finally {

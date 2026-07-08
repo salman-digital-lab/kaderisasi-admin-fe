@@ -7,9 +7,11 @@ import {
   ColorPicker,
   Upload,
   Button,
+  InputNumber,
   Typography,
   Space,
   Divider,
+  Segmented,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { CertificateElement } from "../types";
@@ -110,7 +112,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
         <Card
           size="small"
           title="Properti"
-          style={{ width: 280, height: "100%" }}
+          style={{ width: 300, height: "100%", borderRadius: 0 }}
           styles={{ body: { padding: 12 } }}
         >
           <Text type="secondary">Pilih elemen untuk mengedit properti</Text>
@@ -131,10 +133,19 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
       <Card
         size="small"
         title="Properti"
-        style={{ width: 280, height: "100%" }}
-        styles={{ body: { padding: 12 } }}
+        style={{ width: 300, height: "100%", borderRadius: 0 }}
+        styles={{ body: { padding: 12, overflow: "auto", height: "100%" } }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="small">
+          <PropertySection label="Nama Layer">
+            <Input
+              size="small"
+              value={element.name}
+              placeholder="Nama layer"
+              onChange={(e) => updateField("name", e.target.value)}
+            />
+          </PropertySection>
+
           {/* Position */}
           <PropertySection label="Posisi">
             <div style={{ display: "flex", gap: 8 }}>
@@ -191,13 +202,73 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             <>
               <Divider style={{ margin: "8px 0" }} />
 
+              {element.type === "static-text" && (
+                <PropertySection label="Konten">
+                  <Input.TextArea
+                    size="small"
+                    rows={3}
+                    value={element.content}
+                    onChange={(e) => updateField("content", e.target.value)}
+                  />
+                </PropertySection>
+              )}
+
               <PropertySection label="Ukuran Font">
                 <Slider
                   min={8}
-                  max={72}
+                  max={120}
                   value={element.fontSize || 16}
                   onChange={(v) => updateField("fontSize", v)}
                 />
+              </PropertySection>
+
+              <PropertySection label="Format">
+                <Space.Compact>
+                  <Button
+                    size="small"
+                    type={element.fontWeight === "bold" ? "primary" : "default"}
+                    onClick={() =>
+                      updateField(
+                        "fontWeight",
+                        element.fontWeight === "bold" ? "normal" : "bold",
+                      )
+                    }
+                  >
+                    B
+                  </Button>
+                  <Button
+                    size="small"
+                    type={
+                      element.fontStyle === "italic" ? "primary" : "default"
+                    }
+                    onClick={() =>
+                      updateField(
+                        "fontStyle",
+                        element.fontStyle === "italic" ? "normal" : "italic",
+                      )
+                    }
+                  >
+                    I
+                  </Button>
+                  <Button
+                    size="small"
+                    type={
+                      element.textDecoration === "underline"
+                        ? "primary"
+                        : "default"
+                    }
+                    onClick={() =>
+                      updateField(
+                        "textDecoration",
+                        element.textDecoration === "underline"
+                          ? "none"
+                          : "underline",
+                      )
+                    }
+                  >
+                    U
+                  </Button>
+                </Space.Compact>
               </PropertySection>
 
               <PropertySection label="Font">
@@ -222,12 +293,11 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               </PropertySection>
 
               <PropertySection label="Alignment">
-                <Select
-                  size="small"
-                  style={{ width: "100%" }}
+                <Segmented
+                  block
                   value={element.textAlign || "center"}
-                  onChange={(v: "left" | "center" | "right") =>
-                    updateField("textAlign", v)
+                  onChange={(v) =>
+                    updateField("textAlign", v as "left" | "center" | "right")
                   }
                   options={[
                     { label: "Kiri", value: "left" },
@@ -236,6 +306,48 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   ]}
                 />
               </PropertySection>
+
+              <PropertySection label="Vertical Alignment">
+                <Segmented
+                  block
+                  value={element.verticalAlign || "middle"}
+                  onChange={(v) =>
+                    updateField(
+                      "verticalAlign",
+                      v as "top" | "middle" | "bottom",
+                    )
+                  }
+                  options={[
+                    { label: "Atas", value: "top" },
+                    { label: "Tengah", value: "middle" },
+                    { label: "Bawah", value: "bottom" },
+                  ]}
+                />
+              </PropertySection>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <PropertySection label="Line Height">
+                  <InputNumber
+                    size="small"
+                    min={0.8}
+                    max={3}
+                    step={0.1}
+                    value={element.lineHeight || 1.2}
+                    onChange={(v) => updateField("lineHeight", v || 1.2)}
+                    style={{ width: "100%" }}
+                  />
+                </PropertySection>
+                <PropertySection label="Letter Spacing">
+                  <InputNumber
+                    size="small"
+                    min={-5}
+                    max={20}
+                    value={element.letterSpacing || 0}
+                    onChange={(v) => updateField("letterSpacing", v || 0)}
+                    style={{ width: "100%" }}
+                  />
+                </PropertySection>
+              </div>
             </>
           )}
 
@@ -243,6 +355,21 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           {isImageElement && (
             <>
               <Divider style={{ margin: "8px 0" }} />
+              <PropertySection label="Object Fit">
+                <Segmented
+                  block
+                  value={element.objectFit || "contain"}
+                  onChange={(v) =>
+                    updateField("objectFit", v as "contain" | "cover" | "fill")
+                  }
+                  options={[
+                    { label: "Contain", value: "contain" },
+                    { label: "Cover", value: "cover" },
+                    { label: "Fill", value: "fill" },
+                  ]}
+                />
+              </PropertySection>
+
               <PropertySection label="Upload Gambar">
                 <div style={{ marginTop: 4 }}>
                   <Upload
@@ -274,6 +401,35 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               </PropertySection>
             </>
           )}
+
+          <Divider style={{ margin: "8px 0" }} />
+
+          <PropertySection label="Opacity">
+            <Slider
+              min={0}
+              max={100}
+              value={element.opacity ?? 100}
+              onChange={(v) => updateField("opacity", v)}
+            />
+          </PropertySection>
+
+          <PropertySection label="Rotasi">
+            <Slider
+              min={-180}
+              max={180}
+              value={element.rotation || 0}
+              onChange={(v) => updateField("rotation", v)}
+            />
+          </PropertySection>
+
+          <PropertySection label="Border Radius">
+            <Slider
+              min={0}
+              max={80}
+              value={element.borderRadius || 0}
+              onChange={(v) => updateField("borderRadius", v)}
+            />
+          </PropertySection>
         </Space>
       </Card>
     );

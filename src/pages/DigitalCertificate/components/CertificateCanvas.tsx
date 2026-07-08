@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { DragOutlined, SelectOutlined } from "@ant-design/icons";
+import { Switch } from "antd";
 import { CertificateElement, CertificateTemplate } from "../types";
 import { DraggableElement } from "./DraggableElement";
 import { useElementDrag, useElementResize, useCanvasPan } from "./hooks";
@@ -12,6 +13,10 @@ interface CertificateCanvasProps {
   onSelectElement: (id: string | null) => void;
   onMoveElement: (id: string, x: number, y: number) => void;
   onUpdateElement: (id: string, updates: Partial<CertificateElement>) => void;
+  snapToGrid: boolean;
+  showGuides: boolean;
+  onSnapToGridChange: (value: boolean) => void;
+  onShowGuidesChange: (value: boolean) => void;
 }
 
 type ToolMode = "select" | "pan";
@@ -21,6 +26,7 @@ type ToolMode = "select" | "pan";
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.1;
+const GRID_SIZE = 10;
 
 // ─── Styles ─────────────────────────────────────────────────────────────────
 
@@ -191,6 +197,49 @@ const ZoomControls: React.FC<ZoomControlsProps> = React.memo(
 
 ZoomControls.displayName = "ZoomControls";
 
+interface CanvasAssistControlsProps {
+  snapToGrid: boolean;
+  showGuides: boolean;
+  onSnapToGridChange: (value: boolean) => void;
+  onShowGuidesChange: (value: boolean) => void;
+}
+
+const CanvasAssistControls: React.FC<CanvasAssistControlsProps> = React.memo(
+  ({ snapToGrid, showGuides, onSnapToGridChange, onShowGuidesChange }) => (
+    <div
+      style={{
+        ...floatingPanelStyle,
+        top: 12,
+        right: 12,
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+        padding: "8px 10px",
+        fontSize: 12,
+      }}
+    >
+      <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Switch
+          size="small"
+          checked={snapToGrid}
+          onChange={onSnapToGridChange}
+        />
+        Grid
+      </label>
+      <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Switch
+          size="small"
+          checked={showGuides}
+          onChange={onShowGuidesChange}
+        />
+        Guides
+      </label>
+    </div>
+  ),
+);
+
+CanvasAssistControls.displayName = "CanvasAssistControls";
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
@@ -200,6 +249,10 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     onSelectElement,
     onMoveElement,
     onUpdateElement,
+    snapToGrid,
+    showGuides,
+    onSnapToGridChange,
+    onShowGuidesChange,
   }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -208,6 +261,10 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     // Viewport state
     const [zoom, setZoom] = useState(1);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [activeGuides, setActiveGuides] = useState({
+      vertical: false,
+      horizontal: false,
+    });
 
     // Track element positions during interactions without triggering re-renders
     const elementPositionsRef = useRef<Map<string, { x: number; y: number }>>(
@@ -223,6 +280,11 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     } = useElementDrag({
       zoom,
       toolMode,
+      canvasWidth: template.canvasWidth,
+      canvasHeight: template.canvasHeight,
+      snapToGrid,
+      gridSize: GRID_SIZE,
+      onGuidesChange: setActiveGuides,
       onMoveElement,
       elementPositionsRef,
     });
@@ -255,15 +317,30 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
 
     // ── Center canvas on mount ────────────────────────────────────────────
 
+    const handleResetView = useCallback(() => {
+      if (!containerRef.current) return;
+
+      const { clientWidth, clientHeight } = containerRef.current;
+      const scaleX = (clientWidth - 48) / template.canvasWidth;
+      const scaleY = (clientHeight - 48) / template.canvasHeight;
+      const fitZoom = Math.min(scaleX, scaleY, 1);
+
+      setZoom(fitZoom);
+      setOffset({
+        x: (clientWidth - template.canvasWidth * fitZoom) / 2,
+        y: (clientHeight - template.canvasHeight * fitZoom) / 2,
+      });
+    }, [template.canvasHeight, template.canvasWidth]);
+
     useEffect(() => {
-      if (containerRef.current) {
-        const { clientWidth, clientHeight } = containerRef.current;
-        setOffset({
-          x: (clientWidth - template.canvasWidth) / 2,
-          y: (clientHeight - template.canvasHeight) / 2,
-        });
-      }
-    }, []);
+      handleResetView();
+    }, [handleResetView]);
+
+    useEffect(() => {
+      const resizeObserver = new ResizeObserver(() => handleResetView());
+      if (containerRef.current) resizeObserver.observe(containerRef.current);
+      return () => resizeObserver.disconnect();
+    }, [handleResetView]);
 
     // ── Keyboard shortcuts ────────────────────────────────────────────────
 
@@ -326,20 +403,18 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       [zoom],
     );
 
-    const handleResetView = useCallback(() => {
-      if (!containerRef.current) return;
-
-      const { clientWidth, clientHeight } = containerRef.current;
-      const scaleX = (clientWidth - 48) / template.canvasWidth;
-      const scaleY = (clientHeight - 48) / template.canvasHeight;
-      const fitZoom = Math.min(scaleX, scaleY, 1);
-
-      setZoom(fitZoom);
-      setOffset({
-        x: (clientWidth - template.canvasWidth * fitZoom) / 2,
-        y: (clientHeight - template.canvasHeight * fitZoom) / 2,
-      });
-    }, [template.canvasWidth, template.canvasHeight]);
+    const handleWheel = useCallback(
+      (e: React.WheelEvent<HTMLDivElement>) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        const nextZoom =
+          e.deltaY < 0
+            ? Math.min(MAX_ZOOM, zoom + ZOOM_STEP)
+            : Math.max(MIN_ZOOM, zoom - ZOOM_STEP);
+        setZoom(nextZoom);
+      },
+      [zoom],
+    );
 
     // ── Cursor ────────────────────────────────────────────────────────────
 
@@ -366,8 +441,16 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
           cursor,
         }}
         onMouseDown={handleContainerMouseDown}
+        onWheel={handleWheel}
       >
         <CanvasToolbar toolMode={toolMode} onSetMode={setToolMode} />
+
+        <CanvasAssistControls
+          snapToGrid={snapToGrid}
+          showGuides={showGuides}
+          onSnapToGridChange={onSnapToGridChange}
+          onShowGuidesChange={onShowGuidesChange}
+        />
 
         <ZoomControls
           zoom={zoom}
@@ -417,25 +500,60 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             }}
             onClick={handleCanvasClick}
           >
-            {!template.backgroundUrl && <div style={gridPatternStyle} />}
+            {!template.backgroundUrl && snapToGrid && (
+              <div style={gridPatternStyle} />
+            )}
 
-            {template.elements.map((element) => (
-              <DraggableElement
-                key={element.id}
-                element={element}
-                isSelected={element.id === selectedElementId}
-                onSelect={() => {
-                  if (toolMode === "select") onSelectElement(element.id);
-                }}
-                onDragStart={(e) => startDrag(element, e)}
-                onResizeStart={(handle, e) => startResize(element, handle, e)}
-                onContentChange={
-                  element.type === "static-text"
-                    ? (content) => onUpdateElement(element.id, { content })
-                    : undefined
-                }
-              />
-            ))}
+            {showGuides && (
+              <>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    left: "50%",
+                    borderLeft: activeGuides.vertical
+                      ? "1px solid #ff4d4f"
+                      : "1px dashed rgba(24, 144, 255, 0.35)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: "50%",
+                    borderTop: activeGuides.horizontal
+                      ? "1px solid #ff4d4f"
+                      : "1px dashed rgba(24, 144, 255, 0.35)",
+                    pointerEvents: "none",
+                  }}
+                />
+              </>
+            )}
+
+            {template.elements
+              .filter((element) => element.visible !== false)
+              .map((element) => (
+                <DraggableElement
+                  key={element.id}
+                  element={element}
+                  isSelected={element.id === selectedElementId}
+                  onSelect={() => {
+                    if (toolMode === "select") onSelectElement(element.id);
+                  }}
+                  onDragStart={(e) => startDrag(element, e)}
+                  onResizeStart={(handle, e) => {
+                    if (!element.locked) startResize(element, handle, e);
+                  }}
+                  onContentChange={
+                    element.type === "static-text"
+                      ? (content) => onUpdateElement(element.id, { content })
+                      : undefined
+                  }
+                />
+              ))}
           </div>
         </div>
       </div>

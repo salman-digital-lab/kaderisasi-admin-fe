@@ -12,6 +12,11 @@ interface DragState {
 interface UseElementDragOptions {
   zoom: number;
   toolMode: string;
+  canvasWidth: number;
+  canvasHeight: number;
+  snapToGrid: boolean;
+  gridSize: number;
+  onGuidesChange: (guides: { vertical: boolean; horizontal: boolean }) => void;
   onMoveElement: (id: string, x: number, y: number) => void;
   elementPositionsRef: React.MutableRefObject<
     Map<string, { x: number; y: number }>
@@ -25,6 +30,11 @@ interface UseElementDragOptions {
 export function useElementDrag({
   zoom,
   toolMode,
+  canvasWidth,
+  canvasHeight,
+  snapToGrid,
+  gridSize,
+  onGuidesChange,
   onMoveElement,
   elementPositionsRef,
 }: UseElementDragOptions) {
@@ -57,13 +67,57 @@ export function useElementDrag({
 
         const deltaX = (e.clientX - dragRef.current.startX) / zoom;
         const deltaY = (e.clientY - dragRef.current.startY) / zoom;
-        const newX = Math.max(0, dragRef.current.elementStartX + deltaX);
-        const newY = Math.max(0, dragRef.current.elementStartY + deltaY);
+        const node = document.querySelector(
+          `[data-element-id="${dragRef.current.elementId}"]`,
+        ) as HTMLElement | null;
+        const elementWidth = node?.offsetWidth || 0;
+        const elementHeight = node?.offsetHeight || 0;
+        const maxX = Math.max(0, canvasWidth - elementWidth);
+        const maxY = Math.max(0, canvasHeight - elementHeight);
+
+        let newX = Math.min(
+          maxX,
+          Math.max(0, dragRef.current.elementStartX + deltaX),
+        );
+        let newY = Math.min(
+          maxY,
+          Math.max(0, dragRef.current.elementStartY + deltaY),
+        );
+
+        if (snapToGrid) {
+          newX = Math.round(newX / gridSize) * gridSize;
+          newY = Math.round(newY / gridSize) * gridSize;
+        }
+
+        const canvasCenterX = canvasWidth / 2;
+        const canvasCenterY = canvasHeight / 2;
+        const elementCenterX = newX + elementWidth / 2;
+        const elementCenterY = newY + elementHeight / 2;
+        const verticalGuide = Math.abs(elementCenterX - canvasCenterX) <= 6;
+        const horizontalGuide = Math.abs(elementCenterY - canvasCenterY) <= 6;
+
+        if (verticalGuide) newX = Math.round(canvasCenterX - elementWidth / 2);
+        if (horizontalGuide) {
+          newY = Math.round(canvasCenterY - elementHeight / 2);
+        }
+
+        onGuidesChange({
+          vertical: verticalGuide,
+          horizontal: horizontalGuide,
+        });
 
         updateDomPosition(dragRef.current.elementId, newX, newY);
       });
     },
-    [updateDomPosition, zoom],
+    [
+      canvasHeight,
+      canvasWidth,
+      gridSize,
+      onGuidesChange,
+      snapToGrid,
+      updateDomPosition,
+      zoom,
+    ],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -81,13 +135,14 @@ export function useElementDrag({
     }
 
     setIsDragging(false);
+    onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
-  }, [handleMouseMove, onMoveElement, elementPositionsRef]);
+  }, [handleMouseMove, onGuidesChange, onMoveElement, elementPositionsRef]);
 
   const startDrag = useCallback(
     (element: CertificateElement, e: React.MouseEvent) => {
-      if (toolMode === "pan") return;
+      if (toolMode === "pan" || element.locked) return;
       e.preventDefault();
       e.stopPropagation();
 
@@ -108,9 +163,10 @@ export function useElementDrag({
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
-  }, [handleMouseMove, handleMouseUp]);
+  }, [handleMouseMove, handleMouseUp, onGuidesChange]);
 
   return { isDragging, startDrag, cleanup };
 }

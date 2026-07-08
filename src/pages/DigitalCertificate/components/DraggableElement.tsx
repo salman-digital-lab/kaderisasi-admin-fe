@@ -55,7 +55,6 @@ const RESIZE_HANDLES: {
 const fullSizeImageStyle: React.CSSProperties = {
   width: "100%",
   height: "100%",
-  objectFit: "contain",
 };
 
 const placeholderStyle: React.CSSProperties = {
@@ -122,16 +121,18 @@ const ImageContent: React.FC<{
   imageUrl?: string;
   alt: string;
   placeholderLabel: string;
-}> = ({ imageUrl, alt, placeholderLabel }) =>
+  objectFit: CertificateElement["objectFit"];
+  borderRadius: number;
+}> = ({ imageUrl, alt, placeholderLabel, objectFit, borderRadius }) =>
   imageUrl ? (
     <img
       src={imageUrl}
       alt={alt}
-      style={fullSizeImageStyle}
+      style={{ ...fullSizeImageStyle, objectFit, borderRadius }}
       draggable={false}
     />
   ) : (
-    <div style={placeholderStyle}>{placeholderLabel}</div>
+    <div style={{ ...placeholderStyle, borderRadius }}>{placeholderLabel}</div>
   );
 
 // ─── Main Component ─────────────────────────────────────────────────────────
@@ -150,10 +151,14 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     // ── Event handlers ──────────────────────────────────────────────────
 
     const handleDoubleClick = React.useCallback(() => {
-      if (element.type === "static-text" && onContentChange) {
+      if (
+        element.type === "static-text" &&
+        !element.locked &&
+        onContentChange
+      ) {
         setIsEditing(true);
       }
-    }, [element.type, onContentChange]);
+    }, [element.locked, element.type, onContentChange]);
 
     const handleBlur = React.useCallback(
       (e: React.FocusEvent<HTMLDivElement>) => {
@@ -191,15 +196,47 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
 
     const textStyle: React.CSSProperties = React.useMemo(
       () => ({
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems:
+          element.verticalAlign === "top"
+            ? "flex-start"
+            : element.verticalAlign === "bottom"
+              ? "flex-end"
+              : "center",
+        justifyContent:
+          element.textAlign === "left"
+            ? "flex-start"
+            : element.textAlign === "right"
+              ? "flex-end"
+              : "center",
         fontSize: element.fontSize || 16,
         fontFamily: element.fontFamily || "sans-serif",
+        fontWeight: element.fontWeight || "normal",
+        fontStyle: element.fontStyle || "normal",
+        textDecoration: element.textDecoration || "none",
+        lineHeight: element.lineHeight || 1.2,
+        letterSpacing: element.letterSpacing || 0,
         color: element.color || "#000000",
         textAlign: element.textAlign || "center",
         margin: 0,
         outline: "none",
         wordBreak: "break-word",
+        whiteSpace: "pre-wrap",
       }),
-      [element.fontSize, element.fontFamily, element.color, element.textAlign],
+      [
+        element.color,
+        element.fontFamily,
+        element.fontSize,
+        element.fontStyle,
+        element.fontWeight,
+        element.letterSpacing,
+        element.lineHeight,
+        element.textAlign,
+        element.textDecoration,
+        element.verticalAlign,
+      ],
     );
 
     const isTextType =
@@ -233,6 +270,8 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
             <ImageContent
               imageUrl={element.imageUrl}
               alt={element.type}
+              objectFit={element.objectFit || "contain"}
+              borderRadius={element.borderRadius || 0}
               placeholderLabel={
                 PLACEHOLDER_LABELS[element.type] || element.type
               }
@@ -256,11 +295,14 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           ...(isTextType
             ? { minHeight: element.height }
             : { height: element.height }),
-          cursor: isEditing ? "text" : "move",
+          cursor: element.locked ? "default" : isEditing ? "text" : "move",
           border: isSelected ? "2px solid #1890ff" : "1px dashed transparent",
-          borderRadius: 4,
+          borderRadius: element.borderRadius || 4,
           padding: 4,
           boxSizing: "border-box",
+          opacity: (element.opacity ?? 100) / 100,
+          transform: `rotate(${element.rotation || 0}deg)`,
+          transformOrigin: "center center",
           userSelect: isEditing ? "text" : "none",
           willChange: "left, top",
         }}
@@ -271,6 +313,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         {renderContent()}
 
         {isSelected &&
+          !element.locked &&
           RESIZE_HANDLES.map(({ key, cursor, ...pos }) => (
             <div
               key={key}
