@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, Spin, Button, message } from "antd";
 import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { CertificateElement } from "../DigitalCertificate/types";
 
 interface CertificateData {
@@ -28,6 +30,16 @@ interface CertificateData {
     university: string;
     activity_name: string;
     activity_date: string;
+  };
+  certificate?: {
+    id: number;
+    certificate_code: string;
+    registration_id: number;
+    activity_id: number;
+    template_id: number;
+    issued_at: string;
+    revoked_at: string | null;
+    revoked_reason: string | null;
   };
 }
 
@@ -80,7 +92,8 @@ const ImageContent: React.FC<{
 const CertificateElementComponent: React.FC<{
   element: CertificateElement;
   participantData: CertificateData["participant"];
-}> = ({ element, participantData }) => {
+  certificateData?: CertificateData["certificate"];
+}> = ({ element, participantData, certificateData }) => {
   const textStyle: React.CSSProperties = {
     fontSize: element.fontSize || 16,
     fontFamily: element.fontFamily || "sans-serif",
@@ -113,6 +126,7 @@ const CertificateElementComponent: React.FC<{
             text = participantData.activity_name;
             break;
           case "activity_date":
+          case "date":
             text = participantData.activity_date;
             break;
           case "registration_id":
@@ -120,6 +134,10 @@ const CertificateElementComponent: React.FC<{
             break;
           case "user_id":
             text = String(participantData.user_id);
+            break;
+          case "certificate_id":
+          case "certificate_code":
+            text = certificateData?.certificate_code || "";
             break;
           default:
             text = element.content || "";
@@ -167,8 +185,10 @@ const CertificateElementComponent: React.FC<{
 
 const CertificatePreview: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [data, setData] = useState<CertificateData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadCertificate = () => {
@@ -191,33 +211,45 @@ const CertificatePreview: React.FC = () => {
   }, []);
 
   const handleDownload = async () => {
-    if (!data) return;
+    if (!data || !certificateRef.current) return;
 
+    setDownloading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3334"}/v2/certificates/generate-single`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            registration_id: data.participant.registration_id,
-          }),
-        },
+      const renderedCanvas = await html2canvas(certificateRef.current, {
+        scale: 4,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      const { template_data } = data.template;
+      const pdf = new jsPDF({
+        orientation:
+          template_data.canvasWidth > template_data.canvasHeight
+            ? "landscape"
+            : "portrait",
+        unit: "px",
+        format: [template_data.canvasWidth, template_data.canvasHeight],
+        hotfixes: ["px_scaling"],
+      });
+
+      pdf.addImage(
+        renderedCanvas.toDataURL("image/png", 1.0),
+        "PNG",
+        0,
+        0,
+        template_data.canvasWidth,
+        template_data.canvasHeight,
+        undefined,
+        "FAST",
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to generate certificate");
-      }
-
-      // For now, we'll just show a message since we're rendering HTML
-      // In a production app, you'd generate a PDF here
-      await response.json();
-      message.success("Sertifikat siap diunduh");
+      pdf.save(`sertifikat-${data.participant.name.replace(/\s+/g, "-")}.pdf`);
     } catch {
       message.error("Gagal mengunduh sertifikat");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -268,7 +300,7 @@ const CertificatePreview: React.FC = () => {
 
   // Get full URL for background image
   const backgroundImageUrl = background_image
-    ? `${import.meta.env.VITE_API_URL || "http://localhost:3334"}/v2/${background_image}`
+    ? `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL || ""}/${background_image}`
     : null;
 
   return (
@@ -303,6 +335,7 @@ const CertificatePreview: React.FC = () => {
           type="primary"
           icon={<DownloadOutlined />}
           onClick={handleDownload}
+          loading={downloading}
         >
           Unduh PDF
         </Button>
@@ -310,6 +343,7 @@ const CertificatePreview: React.FC = () => {
 
       {/* Certificate */}
       <div
+        ref={certificateRef}
         style={{
           position: "relative",
           width: template_data.canvasWidth,
@@ -329,6 +363,7 @@ const CertificatePreview: React.FC = () => {
             key={element.id}
             element={element}
             participantData={participant}
+            certificateData={data.certificate}
           />
         ))}
       </div>

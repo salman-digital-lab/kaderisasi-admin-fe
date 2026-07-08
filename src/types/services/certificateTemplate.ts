@@ -34,6 +34,13 @@ export interface CertificateTemplate {
   updated_at: string;
 }
 
+export interface CertificateTemplateSnapshot {
+  id: number;
+  name: string;
+  background_image: string | null;
+  template_data: CertificateTemplateData;
+}
+
 // Request types
 export interface GetCertificateTemplatesReq {
   page?: string;
@@ -92,12 +99,48 @@ export interface GenerateCertificatesReq {
 
 export interface CertificateParticipant {
   registration_id: number;
-  user_id: number;
+  user_id: number | null;
   name: string;
   email: string;
   university: string;
   activity_name: string;
   activity_date: string;
+}
+
+export interface IssuedCertificate {
+  id: number;
+  certificate_code: string;
+  registration_id: number;
+  activity_id: number;
+  template_id: number;
+  template_snapshot: CertificateTemplateSnapshot;
+  participant_snapshot: CertificateParticipant;
+  issued_by: number | null;
+  issued_at: string;
+  revoked_at: string | null;
+  revoked_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CertificatePayload {
+  activity: {
+    id: number;
+    name: string;
+    activity_start: string | null;
+  };
+  template: CertificateTemplateSnapshot;
+  participant: CertificateParticipant;
+  certificate?: {
+    id: number;
+    certificate_code: string;
+    registration_id: number;
+    activity_id: number;
+    template_id: number;
+    issued_at: string;
+    revoked_at: string | null;
+    revoked_reason: string | null;
+  };
 }
 
 export interface GenerateCertificatesResp {
@@ -120,18 +163,41 @@ export interface GenerateSingleCertificateReq {
 
 export interface GenerateSingleCertificateResp {
   message: string;
+  data: CertificatePayload;
+}
+
+export interface GetIssuedCertificatesResp {
+  message: string;
+  data: IssuedCertificate[];
+}
+
+export interface IssueCertificateResp {
+  message: string;
+  data: CertificatePayload;
+}
+
+export interface IssueBulkCertificatesReq {
+  registration_ids: number[];
+}
+
+export interface IssueBulkCertificatesResp {
+  message: string;
   data: {
-    activity: {
-      id: number;
-      name: string;
-      activity_start: string;
-    };
-    template: {
-      id: number;
-      name: string;
-      background_image: string | null;
-      template_data: CertificateTemplateData;
-    };
-    participant: CertificateParticipant;
+    issued: CertificatePayload[];
+    skipped: Array<{
+      registration_id: number;
+      reason: string;
+    }>;
+    total_issued: number;
+    total_skipped: number;
   };
+}
+
+export interface RevokeCertificateReq {
+  reason?: string | null;
+}
+
+export interface RevokeCertificateResp {
+  message: string;
+  data: CertificatePayload;
 }

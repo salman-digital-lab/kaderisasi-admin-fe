@@ -2,8 +2,10 @@ export const VARIABLE_OPTIONS = [
   { label: "Nama Peserta", value: "{{name}}" },
   { label: "Email", value: "{{email}}" },
   { label: "Nama Kegiatan", value: "{{activity_name}}" },
-  { label: "Tanggal", value: "{{date}}" },
+  { label: "Tanggal", value: "{{activity_date}}" },
+  { label: "Tanggal (Legacy)", value: "{{date}}" },
   { label: "ID Sertifikat", value: "{{certificate_id}}" },
+  { label: "Kode Sertifikat", value: "{{certificate_code}}" },
   { label: "Nama Universitas", value: "{{university}}" },
   { label: "Jenis Kelamin", value: "{{gender}}" },
 ] as const;

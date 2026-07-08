@@ -13,6 +13,12 @@ import {
   GenerateCertificatesResp,
   GenerateSingleCertificateReq,
   GenerateSingleCertificateResp,
+  GetIssuedCertificatesResp,
+  IssueBulkCertificatesReq,
+  IssueBulkCertificatesResp,
+  IssueCertificateResp,
+  RevokeCertificateReq,
+  RevokeCertificateResp,
 } from "../../types/services/certificateTemplate";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -121,6 +127,63 @@ export const generateSingleCertificate = async (
   try {
     const res = await axios.post<GenerateSingleCertificateResp>(
       "/certificates/generate-single",
+      data,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const getIssuedCertificates = async (activityId?: number) => {
+  try {
+    const query = activityId ? `?activity_id=${activityId}` : "";
+    const res = await axios.get<GetIssuedCertificatesResp>(
+      `/certificates${query}`,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const issueSingleCertificate = async (
+  data: GenerateSingleCertificateReq,
+) => {
+  try {
+    const res = await axios.post<IssueCertificateResp>(
+      "/certificates/issue-single",
+      data,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const issueBulkCertificates = async (data: IssueBulkCertificatesReq) => {
+  try {
+    const res = await axios.post<IssueBulkCertificatesResp>(
+      "/certificates/issue-bulk",
+      data,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const revokeCertificate = async (
+  id: number,
+  data: RevokeCertificateReq,
+) => {
+  try {
+    const res = await axios.post<RevokeCertificateResp>(
+      `/certificates/${id}/revoke`,
       data,
     );
     return res.data.data;

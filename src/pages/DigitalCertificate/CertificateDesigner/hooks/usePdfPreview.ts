@@ -9,8 +9,10 @@ const SAMPLE_DATA: Record<string, string> = {
   "{{name}}": "Ahmad Fauzan",
   "{{email}}": "ahmad.fauzan@email.com",
   "{{activity_name}}": "Pelatihan Dasar Kaderisasi",
+  "{{activity_date}}": "13 Februari 2026",
   "{{date}}": "13 Februari 2026",
   "{{certificate_id}}": "CERT-2026-001",
+  "{{certificate_code}}": "CERT-2026-001",
   "{{university}}": "Institut Teknologi Bandung",
   "{{gender}}": "Laki-laki",
 };
