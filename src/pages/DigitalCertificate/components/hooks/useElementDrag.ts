@@ -7,6 +7,8 @@ interface DragState {
   startY: number;
   elementStartX: number;
   elementStartY: number;
+  elementWidth: number;
+  elementHeight: number;
 }
 
 interface UseElementDragOptions {
@@ -21,6 +23,7 @@ interface UseElementDragOptions {
   elementPositionsRef: React.MutableRefObject<
     Map<string, { x: number; y: number }>
   >;
+  elementNodesRef: React.MutableRefObject<Map<string, HTMLDivElement>>;
 }
 
 /**
@@ -37,6 +40,7 @@ export function useElementDrag({
   onGuidesChange,
   onMoveElement,
   elementPositionsRef,
+  elementNodesRef,
 }: UseElementDragOptions) {
   const dragRef = useRef<DragState | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -44,16 +48,14 @@ export function useElementDrag({
 
   const updateDomPosition = useCallback(
     (id: string, x: number, y: number) => {
-      const el = document.querySelector(
-        `[data-element-id="${id}"]`,
-      ) as HTMLElement | null;
+      const el = elementNodesRef.current.get(id);
       if (el) {
         el.style.left = `${x}px`;
         el.style.top = `${y}px`;
       }
       elementPositionsRef.current.set(id, { x, y });
     },
-    [elementPositionsRef],
+    [elementNodesRef, elementPositionsRef],
   );
 
   const handleMouseMove = useCallback(
@@ -67,11 +69,7 @@ export function useElementDrag({
 
         const deltaX = (e.clientX - dragRef.current.startX) / zoom;
         const deltaY = (e.clientY - dragRef.current.startY) / zoom;
-        const node = document.querySelector(
-          `[data-element-id="${dragRef.current.elementId}"]`,
-        ) as HTMLElement | null;
-        const elementWidth = node?.offsetWidth || 0;
-        const elementHeight = node?.offsetHeight || 0;
+        const { elementWidth, elementHeight } = dragRef.current;
         const maxX = Math.max(0, canvasWidth - elementWidth);
         const maxY = Math.max(0, canvasHeight - elementHeight);
 
@@ -152,6 +150,8 @@ export function useElementDrag({
         startY: e.clientY,
         elementStartX: element.x,
         elementStartY: element.y,
+        elementWidth: element.width,
+        elementHeight: element.height,
       };
 
       setIsDragging(true);

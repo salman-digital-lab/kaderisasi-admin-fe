@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Upload, Space, Tooltip, Divider } from "antd";
+import { Button, Upload, Space, Tooltip, Divider, message } from "antd";
 import {
   FontSizeOutlined,
   FieldStringOutlined,
@@ -21,6 +21,8 @@ import {
   VerticalAlignTopOutlined,
   VerticalAlignMiddleOutlined,
   VerticalAlignBottomOutlined,
+  OrderedListOutlined,
+  ControlOutlined,
 } from "@ant-design/icons";
 import { ElementType } from "../types";
 import { readUploadFileAsDataUrl } from "../utils/readUploadFile";
@@ -47,6 +49,9 @@ interface ElementToolbarProps {
   hasClipboard: boolean;
   canUndo: boolean;
   canRedo: boolean;
+  showPanelControls: boolean;
+  onOpenLayers: () => void;
+  onOpenProperties: () => void;
 }
 
 // ─── Styles ─────────────────────────────────────────────────────────────────
@@ -58,7 +63,10 @@ const toolbarStyle: React.CSSProperties = {
   padding: "8px 12px",
   backgroundColor: "#fafafa",
   borderBottom: "1px solid #f0f0f0",
-  flexWrap: "wrap",
+  flexWrap: "nowrap",
+  flex: "none",
+  overflowX: "auto",
+  scrollbarGutter: "stable",
 };
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -82,11 +90,16 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
     hasClipboard,
     canUndo,
     canRedo,
+    showPanelControls,
+    onOpenLayers,
+    onOpenProperties,
   }) => {
     const handleBackgroundChange = React.useCallback(
       (info: { file: import("antd").UploadFile }) => {
-        readUploadFileAsDataUrl(info, (dataUrl, file) =>
-          onBackgroundUpload(dataUrl, file),
+        readUploadFileAsDataUrl(
+          info,
+          (dataUrl, file) => onBackgroundUpload(dataUrl, file),
+          message.error,
         );
       },
       [onBackgroundUpload],
@@ -94,19 +107,43 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
     const handleImageChange = React.useCallback(
       (info: { file: import("antd").UploadFile }) => {
-        readUploadFileAsDataUrl(info, (dataUrl) => onImageUpload(dataUrl));
+        readUploadFileAsDataUrl(
+          info,
+          (dataUrl) => onImageUpload(dataUrl),
+          message.error,
+        );
       },
       [onImageUpload],
     );
 
     return (
-      <div style={toolbarStyle}>
+      <div
+        role="toolbar"
+        aria-label="Alat desain sertifikat"
+        style={toolbarStyle}
+      >
+        {showPanelControls && (
+          <Space.Compact>
+            <Button icon={<OrderedListOutlined />} onClick={onOpenLayers}>
+              Layer
+            </Button>
+            <Button
+              icon={<ControlOutlined />}
+              onClick={onOpenProperties}
+              disabled={!hasSelection}
+            >
+              Properti
+            </Button>
+          </Space.Compact>
+        )}
+
         <Space.Compact>
           <Tooltip title="Undo">
             <Button
               icon={<UndoOutlined />}
               onClick={onUndo}
               disabled={!canUndo}
+              aria-label="Urungkan perubahan"
             />
           </Tooltip>
           <Tooltip title="Redo">
@@ -114,6 +151,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
               icon={<RedoOutlined />}
               onClick={onRedo}
               disabled={!canRedo}
+              aria-label="Ulangi perubahan"
             />
           </Tooltip>
         </Space.Compact>
@@ -197,23 +235,33 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
             <Divider type="vertical" style={{ height: 24 }} />
             <Space.Compact>
               <Tooltip title="Copy">
-                <Button icon={<CopyOutlined />} onClick={onCopySelected} />
+                <Button
+                  icon={<CopyOutlined />}
+                  onClick={onCopySelected}
+                  aria-label="Salin elemen terpilih"
+                />
               </Tooltip>
               <Tooltip title="Paste">
                 <Button
                   icon={<SnippetsOutlined />}
                   onClick={onPaste}
                   disabled={!hasClipboard}
+                  aria-label="Tempel elemen"
                 />
               </Tooltip>
               <Tooltip title="Duplikat">
-                <Button icon={<CopyOutlined />} onClick={onDuplicateSelected} />
+                <Button
+                  icon={<CopyOutlined />}
+                  onClick={onDuplicateSelected}
+                  aria-label="Duplikat elemen terpilih"
+                />
               </Tooltip>
               <Tooltip title="Hapus">
                 <Button
                   danger
                   icon={<DeleteOutlined />}
                   onClick={onDeleteSelected}
+                  aria-label="Hapus elemen terpilih"
                 />
               </Tooltip>
             </Space.Compact>
@@ -223,12 +271,14 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
                 <Button
                   icon={<ArrowUpOutlined />}
                   onClick={onMoveSelectedForward}
+                  aria-label="Naikkan elemen satu layer"
                 />
               </Tooltip>
               <Tooltip title="Turunkan Layer">
                 <Button
                   icon={<ArrowDownOutlined />}
                   onClick={onMoveSelectedBackward}
+                  aria-label="Turunkan elemen satu layer"
                 />
               </Tooltip>
             </Space.Compact>
@@ -238,36 +288,42 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
                 <Button
                   icon={<AlignLeftOutlined />}
                   onClick={() => onAlignSelected("left")}
+                  aria-label="Ratakan elemen ke kiri kanvas"
                 />
               </Tooltip>
               <Tooltip title="Rata Tengah">
                 <Button
                   icon={<AlignCenterOutlined />}
                   onClick={() => onAlignSelected("center")}
+                  aria-label="Ratakan elemen ke tengah horizontal"
                 />
               </Tooltip>
               <Tooltip title="Rata Kanan">
                 <Button
                   icon={<AlignRightOutlined />}
                   onClick={() => onAlignSelected("right")}
+                  aria-label="Ratakan elemen ke kanan kanvas"
                 />
               </Tooltip>
               <Tooltip title="Rata Atas">
                 <Button
                   icon={<VerticalAlignTopOutlined />}
                   onClick={() => onAlignSelected("top")}
+                  aria-label="Ratakan elemen ke atas kanvas"
                 />
               </Tooltip>
               <Tooltip title="Rata Tengah Vertikal">
                 <Button
                   icon={<VerticalAlignMiddleOutlined />}
                   onClick={() => onAlignSelected("middle")}
+                  aria-label="Ratakan elemen ke tengah vertikal"
                 />
               </Tooltip>
               <Tooltip title="Rata Bawah">
                 <Button
                   icon={<VerticalAlignBottomOutlined />}
                   onClick={() => onAlignSelected("bottom")}
+                  aria-label="Ratakan elemen ke bawah kanvas"
                 />
               </Tooltip>
             </Space.Compact>
@@ -280,6 +336,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
               icon={<SnippetsOutlined />}
               onClick={onPaste}
               disabled={!hasClipboard}
+              aria-label="Tempel elemen"
             />
           </Tooltip>
         )}

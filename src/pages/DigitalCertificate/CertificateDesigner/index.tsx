@@ -1,10 +1,22 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Card, message, Button, Input, Space, Spin, Modal, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Input,
+  message,
+  Modal,
+  Space,
+  Spin,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
 import {
   SafetyCertificateOutlined,
   SaveOutlined,
   ArrowLeftOutlined,
   FilePdfOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -16,13 +28,17 @@ import {
   CanvasSettingsModal,
 } from "../components";
 import { useCertificateDesigner } from "../hooks";
-import { ElementType } from "../types";
+import type { CertificateElement, ElementType } from "../types";
 import {
   getCertificateTemplate,
   updateCertificateTemplate,
   uploadCertificateBackground,
 } from "../../../api/services/certificateTemplate";
 import { usePdfPreview } from "./hooks/usePdfPreview";
+import styles from "./CertificateDesigner.module.css";
+import { useMediaQuery } from "../../../hooks/useMediaQuery";
+
+const { Text } = Typography;
 
 const CertificateDesigner: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +54,7 @@ const CertificateDesigner: React.FC = () => {
     setCanvasSize,
     addElement,
     updateElement,
+    finishHistoryGroup,
     deleteElement,
     moveElement,
     moveElementBy,
@@ -66,6 +83,10 @@ const CertificateDesigner: React.FC = () => {
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [showGuides, setShowGuides] = useState(true);
   const [savedSnapshot, setSavedSnapshot] = useState("");
+  const [layerPanelOpen, setLayerPanelOpen] = useState(false);
+  const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
+
+  const isCompactLayout = useMediaQuery("(max-width: 1199px)");
 
   const { generatePdf, generating } = usePdfPreview();
 
@@ -98,29 +119,27 @@ const CertificateDesigner: React.FC = () => {
       setLoading(true);
       try {
         const data = await getCertificateTemplate(templateId);
-        if (data) {
-          setTemplateName(data.name);
-          setTemplateDescription(data.description || "");
-          if (data.template_data) {
-            const nextTemplate = {
-              backgroundUrl:
-                getImageUrl(data.background_image) ||
-                data.template_data.backgroundUrl ||
-                null,
-              elements: data.template_data.elements || [],
-              canvasWidth: data.template_data.canvasWidth || 800,
-              canvasHeight: data.template_data.canvasHeight || 566,
-            };
-            setTemplate(nextTemplate);
-            setSavedSnapshot(
-              JSON.stringify({
-                name: data.name.trim(),
-                description: data.description || null,
-                template: nextTemplate,
-              }),
-            );
-          }
-        }
+        if (!data) throw new Error("Template tidak ditemukan");
+
+        setTemplateName(data.name);
+        setTemplateDescription(data.description || "");
+        const nextTemplate = {
+          backgroundUrl:
+            getImageUrl(data.background_image) ||
+            data.template_data?.backgroundUrl ||
+            null,
+          elements: data.template_data?.elements || [],
+          canvasWidth: data.template_data?.canvasWidth || 800,
+          canvasHeight: data.template_data?.canvasHeight || 566,
+        };
+        setTemplate(nextTemplate);
+        setSavedSnapshot(
+          JSON.stringify({
+            name: data.name.trim(),
+            description: data.description || null,
+            template: nextTemplate,
+          }),
+        );
       } catch {
         message.error("Gagal memuat template");
         navigate("/digital-certificate");
@@ -129,12 +148,18 @@ const CertificateDesigner: React.FC = () => {
       }
     };
 
-    if (templateId) {
-      loadTemplate();
+    if (!Number.isInteger(templateId) || templateId <= 0) {
+      message.error("Template tidak valid");
+      navigate("/digital-certificate");
+      return;
     }
+
+    loadTemplate();
   }, [getImageUrl, templateId, navigate, setTemplate]);
 
   const handleSave = useCallback(async () => {
+    if (!isDirty || saving) return;
+
     if (!templateName.trim()) {
       message.warning("Nama template tidak boleh kosong");
       return;
@@ -156,6 +181,8 @@ const CertificateDesigner: React.FC = () => {
     }
   }, [
     getDesignerStateSnapshot,
+    isDirty,
+    saving,
     templateId,
     templateName,
     templateDescription,
@@ -178,20 +205,26 @@ const CertificateDesigner: React.FC = () => {
     });
   }, [isDirty, navigate]);
 
-  const handleAddElement = (type: ElementType) => {
-    if (type === "variable-text") {
-      setVariableModalVisible(true);
-    } else {
-      addElement(type);
-      message.success(`${getElementTypeName(type)} berhasil ditambahkan`);
-    }
-  };
+  const handleAddElement = useCallback(
+    (type: ElementType) => {
+      if (type === "variable-text") {
+        setVariableModalVisible(true);
+      } else {
+        addElement(type);
+        message.success(`${getElementTypeName(type)} berhasil ditambahkan`);
+      }
+    },
+    [addElement],
+  );
 
-  const handleVariableSelect = (variable: string) => {
-    addElement("variable-text", { variable });
-    setVariableModalVisible(false);
-    message.success("Teks variabel berhasil ditambahkan");
-  };
+  const handleVariableSelect = useCallback(
+    (variable: string) => {
+      addElement("variable-text", { variable });
+      setVariableModalVisible(false);
+      message.success("Teks variabel berhasil ditambahkan");
+    },
+    [addElement],
+  );
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedElementId) {
@@ -300,46 +333,56 @@ const CertificateDesigner: React.FC = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
-  const handleDuplicateSelected = () => {
+  const handleDuplicateSelected = useCallback(() => {
     if (selectedElementId) {
       duplicateElement(selectedElementId);
       message.success("Elemen berhasil diduplikat");
     }
-  };
+  }, [duplicateElement, selectedElementId]);
 
-  const handleCopySelected = () => {
+  const handleCopySelected = useCallback(() => {
     if (selectedElementId && copyElement(selectedElementId)) {
       message.success("Elemen disalin");
     }
-  };
+  }, [copyElement, selectedElementId]);
 
-  const handlePaste = () => {
+  const handlePaste = useCallback(() => {
     if (pasteElement()) {
       message.success("Elemen ditempel");
     }
-  };
+  }, [pasteElement]);
 
-  const handleImageUpload = (url: string) => {
-    addElement("image", { imageUrl: url });
-    message.success("Gambar berhasil ditambahkan");
-  };
+  const handleImageUpload = useCallback(
+    (url: string) => {
+      addElement("image", { imageUrl: url });
+      message.success("Gambar berhasil ditambahkan");
+    },
+    [addElement],
+  );
 
-  const handleBackgroundUpload = async (url: string, file?: File) => {
-    if (file && templateId) {
-      try {
-        const result = await uploadCertificateBackground(templateId, file);
-        if (result) {
-          setBackgroundUrl(getImageUrl(result.backgroundImage) || url);
-          message.success("Background berhasil diupload");
+  const handleBackgroundUpload = useCallback(
+    async (url: string, file?: File) => {
+      if (file && templateId) {
+        try {
+          const result = await uploadCertificateBackground(templateId, file);
+          if (result) {
+            setBackgroundUrl(getImageUrl(result.backgroundImage) || url);
+            message.success("Background berhasil diupload");
+            return;
+          }
+        } catch {
+          setBackgroundUrl(url);
+          message.warning(
+            "Upload ke penyimpanan gagal. Background disimpan sementara di template.",
+          );
           return;
         }
-      } catch {
-        // Fall back to base64 if upload fails
       }
-    }
-    setBackgroundUrl(url);
-    message.success("Background berhasil diupload");
-  };
+      setBackgroundUrl(url);
+      message.success("Background berhasil diupload");
+    },
+    [getImageUrl, setBackgroundUrl, templateId],
+  );
 
   const validationWarnings = useMemo(() => {
     const warnings: string[] = [];
@@ -376,9 +419,124 @@ const CertificateDesigner: React.FC = () => {
     return warnings;
   }, [template]);
 
-  const handlePreviewPdf = () => {
+  const handlePreviewPdf = useCallback(() => {
     generatePdf(template);
-  };
+  }, [generatePdf, template]);
+
+  const handleMoveSelectedForward = useCallback(() => {
+    if (selectedElementId) {
+      updateElementOrder(selectedElementId, "forward");
+    }
+  }, [selectedElementId, updateElementOrder]);
+
+  const handleMoveSelectedBackward = useCallback(() => {
+    if (selectedElementId) {
+      updateElementOrder(selectedElementId, "backward");
+    }
+  }, [selectedElementId, updateElementOrder]);
+
+  const handleAlignSelected = useCallback(
+    (alignment: "left" | "center" | "right" | "top" | "middle" | "bottom") => {
+      if (selectedElementId) alignElement(selectedElementId, alignment);
+    },
+    [alignElement, selectedElementId],
+  );
+
+  const handleMoveLayerForward = useCallback(
+    (elementId: string) => updateElementOrder(elementId, "forward"),
+    [updateElementOrder],
+  );
+
+  const handleMoveLayerBackward = useCallback(
+    (elementId: string) => updateElementOrder(elementId, "backward"),
+    [updateElementOrder],
+  );
+
+  const handleLayerSelect = useCallback(
+    (elementId: string) => {
+      selectElement(elementId);
+      if (isCompactLayout) {
+        setLayerPanelOpen(false);
+      }
+    },
+    [isCompactLayout, selectElement],
+  );
+
+  const handleUpdateSelected = useCallback(
+    (updates: Partial<CertificateElement>, historyGroup?: string) => {
+      if (!selectedElementId) return;
+      updateElement(selectedElementId, updates, {
+        historyGroup: historyGroup
+          ? `${selectedElementId}:${historyGroup}`
+          : undefined,
+      });
+    },
+    [selectedElementId, updateElement],
+  );
+
+  const handleUpdateSelectedComplete = useCallback(
+    (historyGroup: string) => {
+      if (selectedElementId) {
+        finishHistoryGroup(`${selectedElementId}:${historyGroup}`);
+      }
+    },
+    [finishHistoryGroup, selectedElementId],
+  );
+
+  const handleCanvasSettingsSave = useCallback(
+    (width: number, height: number) => {
+      setCanvasSize(width, height);
+      setCanvasSettingsVisible(false);
+      message.success("Ukuran kanvas berhasil diubah");
+    },
+    [setCanvasSize],
+  );
+
+  const handleOpenCanvasSettings = useCallback(
+    () => setCanvasSettingsVisible(true),
+    [],
+  );
+  const handleCloseCanvasSettings = useCallback(
+    () => setCanvasSettingsVisible(false),
+    [],
+  );
+  const handleOpenLayerPanel = useCallback(() => setLayerPanelOpen(true), []);
+  const handleCloseLayerPanel = useCallback(() => setLayerPanelOpen(false), []);
+  const handleOpenPropertyPanel = useCallback(
+    () => setPropertyPanelOpen(true),
+    [],
+  );
+  const handleClosePropertyPanel = useCallback(
+    () => setPropertyPanelOpen(false),
+    [],
+  );
+  const handleCloseVariableModal = useCallback(
+    () => setVariableModalVisible(false),
+    [],
+  );
+
+  const layerPanel = (
+    <LayerPanel
+      elements={template.elements}
+      selectedElementId={selectedElementId}
+      onSelect={handleLayerSelect}
+      onRename={renameElement}
+      onToggleVisibility={toggleElementVisibility}
+      onToggleLock={toggleElementLock}
+      onMoveForward={handleMoveLayerForward}
+      onMoveBackward={handleMoveLayerBackward}
+      onDuplicate={duplicateElement}
+      onDelete={deleteElement}
+    />
+  );
+
+  const propertyPanel = (
+    <PropertyPanel
+      element={selectedElement}
+      onUpdate={handleUpdateSelected}
+      onUpdateComplete={handleUpdateSelectedComplete}
+    />
+  );
 
   if (loading) {
     return (
@@ -396,37 +554,31 @@ const CertificateDesigner: React.FC = () => {
   }
 
   return (
-    <div
-      style={{
-        padding: 12,
-        height: "calc(100vh - 64px)",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <main className={styles.page}>
       {/* Header */}
       <Card
         variant="outlined"
-        style={{ borderRadius: 0, marginBottom: 12 }}
+        className={styles.headerCard}
+        style={{ borderRadius: 0 }}
         styles={{ body: { padding: "12px 16px" } }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Button icon={<ArrowLeftOutlined />} onClick={handleBack} />
+        <div className={styles.headerContent}>
+          <div className={styles.headerIdentity}>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={handleBack}
+              aria-label="Kembali ke daftar template"
+            />
             <SafetyCertificateOutlined
+              aria-hidden="true"
               style={{ fontSize: 24, color: "#1890ff" }}
             />
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div className={styles.titleFields}>
               <Input
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
                 placeholder="Nama template"
+                aria-label="Nama template"
                 variant="borderless"
                 style={{ fontSize: 16, fontWeight: 600, padding: 0 }}
               />
@@ -434,16 +586,43 @@ const CertificateDesigner: React.FC = () => {
                 value={templateDescription}
                 onChange={(e) => setTemplateDescription(e.target.value)}
                 placeholder="Deskripsi template (opsional)"
+                aria-label="Deskripsi template"
                 variant="borderless"
                 style={{ fontSize: 12, color: "#8c8c8c", padding: 0 }}
               />
             </div>
-            {isDirty && <Tag color="gold">Belum disimpan</Tag>}
-            {validationWarnings.length > 0 && (
-              <Tag color="orange">{validationWarnings.length} warning</Tag>
-            )}
+            <div className={styles.statusGroup} aria-live="polite">
+              <Tag color={isDirty ? "gold" : "green"}>
+                {saving
+                  ? "Menyimpan…"
+                  : isDirty
+                    ? "Belum disimpan"
+                    : "Tersimpan"}
+              </Tag>
+              {validationWarnings.length > 0 && (
+                <Tooltip
+                  title={
+                    <ul className={styles.validationList}>
+                      {validationWarnings.map((warning) => (
+                        <li key={warning}>{warning}</li>
+                      ))}
+                    </ul>
+                  }
+                  placement="bottom"
+                >
+                  <Button
+                    size="small"
+                    type="text"
+                    icon={<WarningOutlined />}
+                    aria-label={`${validationWarnings.length} hal perlu diperiksa`}
+                  >
+                    {validationWarnings.length} perhatian
+                  </Button>
+                </Tooltip>
+              )}
+            </div>
           </div>
-          <Space>
+          <Space className={styles.headerActions} wrap>
             <Button
               icon={<FilePdfOutlined />}
               onClick={handlePreviewPdf}
@@ -456,7 +635,7 @@ const CertificateDesigner: React.FC = () => {
               icon={<SaveOutlined />}
               onClick={handleSave}
               loading={saving}
-              disabled={!isDirty}
+              disabled={!isDirty || !templateName.trim()}
             >
               Simpan Template
             </Button>
@@ -467,13 +646,8 @@ const CertificateDesigner: React.FC = () => {
       {/* Main Content */}
       <Card
         variant="outlined"
-        style={{
-          flex: 1,
-          borderRadius: 0,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
+        className={styles.editorCard}
+        style={{ borderRadius: 0 }}
         styles={{
           body: {
             padding: 0,
@@ -494,42 +668,24 @@ const CertificateDesigner: React.FC = () => {
           onPaste={handlePaste}
           onUndo={undo}
           onRedo={redo}
-          onMoveSelectedForward={() => {
-            if (selectedElementId)
-              updateElementOrder(selectedElementId, "forward");
-          }}
-          onMoveSelectedBackward={() => {
-            if (selectedElementId)
-              updateElementOrder(selectedElementId, "backward");
-          }}
-          onAlignSelected={(alignment) => {
-            if (selectedElementId) alignElement(selectedElementId, alignment);
-          }}
-          onOpenCanvasSettings={() => setCanvasSettingsVisible(true)}
+          onMoveSelectedForward={handleMoveSelectedForward}
+          onMoveSelectedBackward={handleMoveSelectedBackward}
+          onAlignSelected={handleAlignSelected}
+          onOpenCanvasSettings={handleOpenCanvasSettings}
           hasSelection={!!selectedElementId}
           hasClipboard={hasClipboard}
           canUndo={canUndo}
           canRedo={canRedo}
+          showPanelControls={isCompactLayout}
+          onOpenLayers={handleOpenLayerPanel}
+          onOpenProperties={handleOpenPropertyPanel}
         />
 
         {/* Canvas and Property Panel */}
-        <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          <LayerPanel
-            elements={template.elements}
-            selectedElementId={selectedElementId}
-            onSelect={selectElement}
-            onRename={renameElement}
-            onToggleVisibility={toggleElementVisibility}
-            onToggleLock={toggleElementLock}
-            onMoveForward={(elementId) =>
-              updateElementOrder(elementId, "forward")
-            }
-            onMoveBackward={(elementId) =>
-              updateElementOrder(elementId, "backward")
-            }
-            onDuplicate={duplicateElement}
-            onDelete={deleteElement}
-          />
+        <div className={styles.workspace}>
+          {!isCompactLayout && (
+            <aside className={styles.layerPanel}>{layerPanel}</aside>
+          )}
           <CertificateCanvas
             template={template}
             selectedElementId={selectedElementId}
@@ -541,21 +697,40 @@ const CertificateDesigner: React.FC = () => {
             onSnapToGridChange={setSnapToGrid}
             onShowGuidesChange={setShowGuides}
           />
-          <PropertyPanel
-            element={selectedElement}
-            onUpdate={(updates) => {
-              if (selectedElementId) {
-                updateElement(selectedElementId, updates);
-              }
-            }}
-          />
+          {!isCompactLayout && (
+            <aside className={styles.propertyPanel}>{propertyPanel}</aside>
+          )}
         </div>
       </Card>
+
+      <Modal
+        title="Layer"
+        open={isCompactLayout && layerPanelOpen}
+        onCancel={handleCloseLayerPanel}
+        footer={null}
+        width={360}
+        closable={{ "aria-label": "Tutup panel layer" }}
+        styles={{ body: { padding: 0, height: "65vh" } }}
+      >
+        {layerPanel}
+      </Modal>
+
+      <Modal
+        title="Properti elemen"
+        open={isCompactLayout && propertyPanelOpen}
+        onCancel={handleClosePropertyPanel}
+        footer={null}
+        width={400}
+        closable={{ "aria-label": "Tutup panel properti" }}
+        styles={{ body: { padding: 0, height: "65vh" } }}
+      >
+        {propertyPanel}
+      </Modal>
 
       {/* Variable Text Modal */}
       <VariableTextModal
         visible={variableModalVisible}
-        onCancel={() => setVariableModalVisible(false)}
+        onCancel={handleCloseVariableModal}
         onSelect={handleVariableSelect}
       />
 
@@ -564,14 +739,14 @@ const CertificateDesigner: React.FC = () => {
         visible={canvasSettingsVisible}
         width={template.canvasWidth}
         height={template.canvasHeight}
-        onCancel={() => setCanvasSettingsVisible(false)}
-        onSave={(width, height) => {
-          setCanvasSize(width, height);
-          setCanvasSettingsVisible(false);
-          message.success("Ukuran kanvas berhasil diubah");
-        }}
+        onCancel={handleCloseCanvasSettings}
+        onSave={handleCanvasSettingsSave}
       />
-    </div>
+      <Text className={styles.keyboardHelp} type="secondary">
+        Pintasan: Ctrl/⌘+S simpan · Ctrl/⌘+Z urungkan · panah geser elemen ·
+        Shift+panah geser 10 px
+      </Text>
+    </main>
   );
 };
 

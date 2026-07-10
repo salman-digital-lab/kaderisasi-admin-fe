@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { CertificateElement, CertificateTemplate } from "../types";
 import {
   DEFAULT_CANVAS_WIDTH,
@@ -11,8 +11,12 @@ const generateId = () =>
 
 const HISTORY_LIMIT = 50;
 
-const cloneTemplate = (template: CertificateTemplate): CertificateTemplate =>
-  structuredClone(template);
+const cloneTemplate = (template: CertificateTemplate): CertificateTemplate => ({
+  ...template,
+  // Element values are flat, so a manual clone keeps immutable image/base64 strings
+  // shared instead of repeatedly copying large template assets into undo history.
+  elements: template.elements.map((element) => ({ ...element })),
+});
 
 const getElementName = (
   type: CertificateElement["type"],
@@ -36,6 +40,10 @@ const getElementName = (
 
 type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
 
+interface ElementUpdateOptions {
+  historyGroup?: string;
+}
+
 export const useCertificateDesigner = () => {
   const [template, setTemplateState] = useState<CertificateTemplate>({
     backgroundUrl: null,
@@ -51,6 +59,7 @@ export const useCertificateDesigner = () => {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(
     null,
   );
+  const activeHistoryGroupRef = useRef<string | null>(null);
 
   const selectedElement =
     template.elements.find((el) => el.id === selectedElementId) || null;
@@ -65,14 +74,24 @@ export const useCertificateDesigner = () => {
   }, [selectedElementId, template.elements]);
 
   const applyTemplateUpdate = useCallback(
-    (updater: (current: CertificateTemplate) => CertificateTemplate) => {
+    (
+      updater: (current: CertificateTemplate) => CertificateTemplate,
+      historyGroup?: string,
+    ) => {
+      const shouldRecordHistory =
+        !historyGroup || activeHistoryGroupRef.current !== historyGroup;
+      activeHistoryGroupRef.current = historyGroup || null;
+
       setTemplateState((current) => {
         const next = updater(current);
         if (next === current) return current;
 
-        setPast((items) =>
-          [...items, cloneTemplate(current)].slice(-HISTORY_LIMIT),
-        );
+        if (shouldRecordHistory) {
+          setPast((items) =>
+            [...items, cloneTemplate(current)].slice(-HISTORY_LIMIT),
+          );
+        }
+
         setFuture([]);
         return next;
       });
@@ -86,22 +105,29 @@ export const useCertificateDesigner = () => {
     setFuture([]);
     setClipboardElement(null);
     setSelectedElementId(null);
+    activeHistoryGroupRef.current = null;
   }, []);
 
   const setBackgroundUrl = useCallback(
     (url: string | null) => {
-      applyTemplateUpdate((prev) => ({ ...prev, backgroundUrl: url }));
+      applyTemplateUpdate((prev) =>
+        prev.backgroundUrl === url ? prev : { ...prev, backgroundUrl: url },
+      );
     },
     [applyTemplateUpdate],
   );
 
   const setCanvasSize = useCallback(
     (width: number, height: number) => {
-      applyTemplateUpdate((prev) => ({
-        ...prev,
-        canvasWidth: width,
-        canvasHeight: height,
-      }));
+      applyTemplateUpdate((prev) =>
+        prev.canvasWidth === width && prev.canvasHeight === height
+          ? prev
+          : {
+              ...prev,
+              canvasWidth: width,
+              canvasHeight: height,
+            },
+      );
     },
     [applyTemplateUpdate],
   );
@@ -160,16 +186,35 @@ export const useCertificateDesigner = () => {
   );
 
   const updateElement = useCallback(
-    (id: string, updates: Partial<CertificateElement>) => {
-      applyTemplateUpdate((prev) => ({
-        ...prev,
-        elements: prev.elements.map((el) =>
-          el.id === id ? { ...el, ...updates } : el,
-        ),
-      }));
+    (
+      id: string,
+      updates: Partial<CertificateElement>,
+      options?: ElementUpdateOptions,
+    ) => {
+      applyTemplateUpdate((prev) => {
+        const elementIndex = prev.elements.findIndex((el) => el.id === id);
+        if (elementIndex < 0) return prev;
+
+        const currentElement = prev.elements[elementIndex];
+        const updateKeys = Object.keys(updates) as (keyof CertificateElement)[];
+        const hasChanges = updateKeys.some(
+          (key) => !Object.is(currentElement[key], updates[key]),
+        );
+        if (!hasChanges) return prev;
+
+        const elements = [...prev.elements];
+        elements[elementIndex] = { ...currentElement, ...updates };
+        return { ...prev, elements };
+      }, options?.historyGroup);
     },
     [applyTemplateUpdate],
   );
+
+  const finishHistoryGroup = useCallback((historyGroup?: string) => {
+    if (!historyGroup || activeHistoryGroupRef.current === historyGroup) {
+      activeHistoryGroupRef.current = null;
+    }
+  }, []);
 
   const deleteElement = useCallback(
     (id: string) => {
@@ -339,6 +384,7 @@ export const useCertificateDesigner = () => {
   );
 
   const undo = useCallback(() => {
+    activeHistoryGroupRef.current = null;
     setPast((items) => {
       if (items.length === 0) return items;
       const previous = items[items.length - 1];
@@ -355,6 +401,7 @@ export const useCertificateDesigner = () => {
   }, []);
 
   const redo = useCallback(() => {
+    activeHistoryGroupRef.current = null;
     setFuture((items) => {
       if (items.length === 0) return items;
       const next = items[0];
@@ -407,6 +454,7 @@ export const useCertificateDesigner = () => {
     setCanvasSize,
     addElement,
     updateElement,
+    finishHistoryGroup,
     deleteElement,
     moveElement,
     moveElementBy,

@@ -12,6 +12,7 @@ import {
   Space,
   Divider,
   Segmented,
+  message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { CertificateElement } from "../types";
@@ -24,7 +25,11 @@ const { Text } = Typography;
 
 interface PropertyPanelProps {
   element: CertificateElement | null;
-  onUpdate: (updates: Partial<CertificateElement>) => void;
+  onUpdate: (
+    updates: Partial<CertificateElement>,
+    historyGroup?: string,
+  ) => void;
+  onUpdateComplete: (historyGroup: string) => void;
 }
 
 // ─── Reusable sub-components ────────────────────────────────────────────────
@@ -62,6 +67,7 @@ const DebouncedInput: React.FC<{
         onChange={(e) => setLocalValue(Number(e.target.value))}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        aria-label={label}
       />
     </div>
   );
@@ -85,13 +91,15 @@ const PropertySection: React.FC<{
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
-  ({ element, onUpdate }) => {
+  ({ element, onUpdate, onUpdateComplete }) => {
     // ── Callbacks ───────────────────────────────────────────────────────
 
     const handleImageUpload = useCallback(
       (info: { file: import("antd").UploadFile }) => {
-        readUploadFileAsDataUrl(info, (dataUrl) =>
-          onUpdate({ imageUrl: dataUrl }),
+        readUploadFileAsDataUrl(
+          info,
+          (dataUrl) => onUpdate({ imageUrl: dataUrl }),
+          message.error,
         );
       },
       [onUpdate],
@@ -101,7 +109,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
       <K extends keyof CertificateElement>(
         key: K,
         value: CertificateElement[K],
-      ) => onUpdate({ [key]: value }),
+        groupHistory = false,
+      ) => onUpdate({ [key]: value }, groupHistory ? String(key) : undefined),
       [onUpdate],
     );
 
@@ -112,7 +121,13 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
         <Card
           size="small"
           title="Properti"
-          style={{ width: 300, height: "100%", borderRadius: 0 }}
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
           styles={{ body: { padding: 12 } }}
         >
           <Text type="secondary">Pilih elemen untuk mengedit properti</Text>
@@ -133,8 +148,16 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
       <Card
         size="small"
         title="Properti"
-        style={{ width: 300, height: "100%", borderRadius: 0 }}
-        styles={{ body: { padding: 12, overflow: "auto", height: "100%" } }}
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
+        styles={{
+          body: { padding: 12, overflow: "auto", flex: 1, minHeight: 0 },
+        }}
       >
         <Space direction="vertical" style={{ width: "100%" }} size="small">
           <PropertySection label="Nama Layer">
@@ -142,7 +165,10 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               size="small"
               value={element.name}
               placeholder="Nama layer"
-              onChange={(e) => updateField("name", e.target.value)}
+              aria-label="Nama layer"
+              onChange={(e) => updateField("name", e.target.value, true)}
+              onBlur={() => onUpdateComplete("name")}
+              onPressEnter={(event) => event.currentTarget.blur()}
             />
           </PropertySection>
 
@@ -187,6 +213,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   size="small"
                   style={{ width: "100%" }}
                   value={element.variable}
+                  aria-label="Variabel teks"
                   onChange={(v) => updateField("variable", v)}
                   options={VARIABLE_OPTIONS.map((opt) => ({
                     label: opt.label,
@@ -208,7 +235,11 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                     size="small"
                     rows={3}
                     value={element.content}
-                    onChange={(e) => updateField("content", e.target.value)}
+                    aria-label="Konten teks statis"
+                    onChange={(e) =>
+                      updateField("content", e.target.value, true)
+                    }
+                    onBlur={() => onUpdateComplete("content")}
                   />
                 </PropertySection>
               )}
@@ -218,7 +249,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   min={8}
                   max={120}
                   value={element.fontSize || 16}
-                  onChange={(v) => updateField("fontSize", v)}
+                  onChange={(v) => updateField("fontSize", v, true)}
+                  onChangeComplete={() => onUpdateComplete("fontSize")}
                 />
               </PropertySection>
 
@@ -227,6 +259,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   <Button
                     size="small"
                     type={element.fontWeight === "bold" ? "primary" : "default"}
+                    aria-label="Tebal"
+                    aria-pressed={element.fontWeight === "bold"}
                     onClick={() =>
                       updateField(
                         "fontWeight",
@@ -241,6 +275,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                     type={
                       element.fontStyle === "italic" ? "primary" : "default"
                     }
+                    aria-label="Miring"
+                    aria-pressed={element.fontStyle === "italic"}
                     onClick={() =>
                       updateField(
                         "fontStyle",
@@ -257,6 +293,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                         ? "primary"
                         : "default"
                     }
+                    aria-label="Garis bawah"
+                    aria-pressed={element.textDecoration === "underline"}
                     onClick={() =>
                       updateField(
                         "textDecoration",
@@ -276,6 +314,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   size="small"
                   style={{ width: "100%" }}
                   value={element.fontFamily || "sans-serif"}
+                  aria-label="Jenis font"
                   onChange={(v) => updateField("fontFamily", v)}
                   options={DEFAULT_FONT_FAMILIES.map((font) => ({
                     label: font.label,
@@ -287,7 +326,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               <PropertySection label="Warna">
                 <ColorPicker
                   value={element.color || "#000000"}
-                  onChange={(c) => updateField("color", c.toHexString())}
+                  onChange={(c) => updateField("color", c.toHexString(), true)}
+                  onChangeComplete={() => onUpdateComplete("color")}
                   showText
                 />
               </PropertySection>
@@ -296,6 +336,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                 <Segmented
                   block
                   value={element.textAlign || "center"}
+                  aria-label="Perataan horizontal"
                   onChange={(v) =>
                     updateField("textAlign", v as "left" | "center" | "right")
                   }
@@ -311,6 +352,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                 <Segmented
                   block
                   value={element.verticalAlign || "middle"}
+                  aria-label="Perataan vertikal"
                   onChange={(v) =>
                     updateField(
                       "verticalAlign",
@@ -333,6 +375,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                     max={3}
                     step={0.1}
                     value={element.lineHeight || 1.2}
+                    aria-label="Jarak antarbaris"
                     onChange={(v) => updateField("lineHeight", v || 1.2)}
                     style={{ width: "100%" }}
                   />
@@ -343,6 +386,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                     min={-5}
                     max={20}
                     value={element.letterSpacing || 0}
+                    aria-label="Jarak antarhuruf"
                     onChange={(v) => updateField("letterSpacing", v || 0)}
                     style={{ width: "100%" }}
                   />
@@ -359,6 +403,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                 <Segmented
                   block
                   value={element.objectFit || "contain"}
+                  aria-label="Penyesuaian gambar"
                   onChange={(v) =>
                     updateField("objectFit", v as "contain" | "cover" | "fill")
                   }
@@ -409,7 +454,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               min={0}
               max={100}
               value={element.opacity ?? 100}
-              onChange={(v) => updateField("opacity", v)}
+              onChange={(v) => updateField("opacity", v, true)}
+              onChangeComplete={() => onUpdateComplete("opacity")}
             />
           </PropertySection>
 
@@ -418,7 +464,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               min={-180}
               max={180}
               value={element.rotation || 0}
-              onChange={(v) => updateField("rotation", v)}
+              onChange={(v) => updateField("rotation", v, true)}
+              onChangeComplete={() => onUpdateComplete("rotation")}
             />
           </PropertySection>
 
@@ -427,7 +474,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               min={0}
               max={80}
               value={element.borderRadius || 0}
-              onChange={(v) => updateField("borderRadius", v)}
+              onChange={(v) => updateField("borderRadius", v, true)}
+              onChangeComplete={() => onUpdateComplete("borderRadius")}
             />
           </PropertySection>
         </Space>

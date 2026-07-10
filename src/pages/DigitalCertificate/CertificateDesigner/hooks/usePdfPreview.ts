@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { message } from "antd";
 import { CertificateElement, CertificateTemplate } from "../../types";
 import { VARIABLE_OPTIONS } from "../../constants";
-import { openCertificatePdf } from "../../utils/certificatePdf";
 
 const SAMPLE_DATA: Record<string, string> = {
   "{{name}}": "Ahmad Fauzan",
@@ -42,6 +41,8 @@ export const usePdfPreview = () => {
     setGenerating(true);
     let container: HTMLDivElement | null = null;
     try {
+      const pdfModulePromise = import("../../utils/certificatePdf");
+
       // Create an off-screen container to render the certificate
       container = document.createElement("div");
       container.style.position = "fixed";
@@ -117,7 +118,7 @@ export const usePdfPreview = () => {
 
       // Wait for images to load
       const images = canvas.querySelectorAll("img");
-      await Promise.all(
+      const imagesReady = Promise.all(
         Array.from(images).map(
           (img) =>
             new Promise<void>((resolve) => {
@@ -131,6 +132,12 @@ export const usePdfPreview = () => {
         ),
       );
 
+      // PDF dependencies are large and only needed on demand. Load them in
+      // parallel with image decoding after the user requests a preview.
+      const [, { openCertificatePdf }] = await Promise.all([
+        imagesReady,
+        pdfModulePromise,
+      ]);
       await openCertificatePdf({
         template,
         sourceElement: canvas,

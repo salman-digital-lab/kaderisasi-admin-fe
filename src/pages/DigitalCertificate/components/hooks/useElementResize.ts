@@ -12,14 +12,22 @@ interface ResizeState {
   elementStartY: number;
   elementStartW: number;
   elementStartH: number;
+  latestX: number;
+  latestY: number;
+  latestW: number;
+  latestH: number;
+  usesMinHeight: boolean;
 }
 
 interface UseElementResizeOptions {
   zoom: number;
+  canvasWidth: number;
+  canvasHeight: number;
   onUpdateElement: (id: string, updates: Partial<CertificateElement>) => void;
   elementPositionsRef: React.MutableRefObject<
     Map<string, { x: number; y: number }>
   >;
+  elementNodesRef: React.MutableRefObject<Map<string, HTMLDivElement>>;
 }
 
 /**
@@ -34,6 +42,8 @@ function computeResize(
   startY: number,
   startW: number,
   startH: number,
+  canvasWidth: number,
+  canvasHeight: number,
 ) {
   let x = startX;
   let y = startY;
@@ -63,7 +73,18 @@ function computeResize(
       break;
   }
 
-  return { x: Math.max(0, x), y: Math.max(0, y), w, h };
+  x = Math.min(Math.max(0, x), Math.max(0, canvasWidth - ELEMENT_MIN_WIDTH));
+  y = Math.min(Math.max(0, y), Math.max(0, canvasHeight - ELEMENT_MIN_HEIGHT));
+  w = Math.max(
+    ELEMENT_MIN_WIDTH,
+    Math.min(w, Math.max(ELEMENT_MIN_WIDTH, canvasWidth - x)),
+  );
+  h = Math.max(
+    ELEMENT_MIN_HEIGHT,
+    Math.min(h, Math.max(ELEMENT_MIN_HEIGHT, canvasHeight - y)),
+  );
+
+  return { x, y, w, h };
 }
 
 /**
@@ -72,30 +93,38 @@ function computeResize(
  */
 export function useElementResize({
   zoom,
+  canvasWidth,
+  canvasHeight,
   onUpdateElement,
   elementPositionsRef,
+  elementNodesRef,
 }: UseElementResizeOptions) {
   const resizeRef = useRef<ResizeState | null>(null);
   const rafRef = useRef<number | null>(null);
   const [isResizing, setIsResizing] = useState(false);
 
   const updateDomSize = useCallback(
-    (id: string, x: number, y: number, w: number, h: number) => {
-      const el = document.querySelector(
-        `[data-element-id="${id}"]`,
-      ) as HTMLElement | null;
+    (
+      id: string,
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      usesMinHeight: boolean,
+    ) => {
+      const el = elementNodesRef.current.get(id);
       if (el) {
         el.style.left = `${x}px`;
         el.style.top = `${y}px`;
         el.style.width = `${w}px`;
-        if (el.style.minHeight) {
+        if (usesMinHeight) {
           el.style.minHeight = `${h}px`;
         } else {
           el.style.height = `${h}px`;
         }
       }
     },
-    [],
+    [elementNodesRef],
   );
 
   const handleMouseMove = useCallback(
@@ -118,16 +147,30 @@ export function useElementResize({
           r.elementStartY,
           r.elementStartW,
           r.elementStartH,
+          canvasWidth,
+          canvasHeight,
         );
 
-        updateDomSize(r.elementId, result.x, result.y, result.w, result.h);
+        r.latestX = result.x;
+        r.latestY = result.y;
+        r.latestW = result.w;
+        r.latestH = result.h;
+
+        updateDomSize(
+          r.elementId,
+          result.x,
+          result.y,
+          result.w,
+          result.h,
+          r.usesMinHeight,
+        );
         elementPositionsRef.current.set(r.elementId, {
           x: result.x,
           y: result.y,
         });
       });
     },
-    [zoom, updateDomSize, elementPositionsRef],
+    [canvasHeight, canvasWidth, elementPositionsRef, updateDomSize, zoom],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -138,19 +181,12 @@ export function useElementResize({
 
     if (resizeRef.current) {
       const r = resizeRef.current;
-      const el = document.querySelector(
-        `[data-element-id="${r.elementId}"]`,
-      ) as HTMLElement | null;
-      if (el) {
-        onUpdateElement(r.elementId, {
-          x: parseFloat(el.style.left) || 0,
-          y: parseFloat(el.style.top) || 0,
-          width: parseFloat(el.style.width) || r.elementStartW,
-          height:
-            parseFloat(el.style.height || el.style.minHeight) ||
-            r.elementStartH,
-        });
-      }
+      onUpdateElement(r.elementId, {
+        x: r.latestX,
+        y: r.latestY,
+        width: r.latestW,
+        height: r.latestH,
+      });
       resizeRef.current = null;
     }
 
@@ -177,6 +213,12 @@ export function useElementResize({
         elementStartY: element.y,
         elementStartW: element.width,
         elementStartH: element.height,
+        latestX: element.x,
+        latestY: element.y,
+        latestW: element.width,
+        latestH: element.height,
+        usesMinHeight:
+          element.type === "static-text" || element.type === "variable-text",
       };
 
       setIsResizing(true);

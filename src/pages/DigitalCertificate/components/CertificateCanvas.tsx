@@ -1,6 +1,12 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import { DragOutlined, SelectOutlined } from "@ant-design/icons";
-import { Switch } from "antd";
+import { Button, Switch, Tooltip } from "antd";
 import { CertificateElement, CertificateTemplate } from "../types";
 import { DraggableElement } from "./DraggableElement";
 import { useElementDrag, useElementResize, useCanvasPan } from "./hooks";
@@ -29,19 +35,6 @@ const ZOOM_STEP = 0.1;
 const GRID_SIZE = 10;
 
 // ─── Styles ─────────────────────────────────────────────────────────────────
-
-const toolButtonBase: React.CSSProperties = {
-  width: 32,
-  height: 32,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: "none",
-  borderRadius: 4,
-  cursor: "pointer",
-  fontSize: 16,
-  transition: "background-color 0.15s",
-};
 
 const floatingPanelStyle: React.CSSProperties = {
   position: "absolute",
@@ -72,12 +65,6 @@ interface ToolbarProps {
 
 const CanvasToolbar: React.FC<ToolbarProps> = React.memo(
   ({ toolMode, onSetMode }) => {
-    const makeToolButtonStyle = (mode: ToolMode): React.CSSProperties => ({
-      ...toolButtonBase,
-      backgroundColor: toolMode === mode ? "#e6f4ff" : "transparent",
-      color: toolMode === mode ? "#1890ff" : "#595959",
-    });
-
     return (
       <div
         style={{
@@ -90,36 +77,24 @@ const CanvasToolbar: React.FC<ToolbarProps> = React.memo(
           padding: 4,
         }}
       >
-        <button
-          onClick={() => onSetMode("select")}
-          title="Select & Move (V)"
-          style={makeToolButtonStyle("select")}
-          onMouseEnter={(e) => {
-            if (toolMode !== "select")
-              e.currentTarget.style.backgroundColor = "#f5f5f5";
-          }}
-          onMouseLeave={(e) => {
-            if (toolMode !== "select")
-              e.currentTarget.style.backgroundColor = "transparent";
-          }}
-        >
-          <SelectOutlined />
-        </button>
-        <button
-          onClick={() => onSetMode("pan")}
-          title="Pan Canvas (H)"
-          style={makeToolButtonStyle("pan")}
-          onMouseEnter={(e) => {
-            if (toolMode !== "pan")
-              e.currentTarget.style.backgroundColor = "#f5f5f5";
-          }}
-          onMouseLeave={(e) => {
-            if (toolMode !== "pan")
-              e.currentTarget.style.backgroundColor = "transparent";
-          }}
-        >
-          <DragOutlined />
-        </button>
+        <Tooltip title="Pilih dan geser (V)" placement="right">
+          <Button
+            type={toolMode === "select" ? "primary" : "text"}
+            icon={<SelectOutlined />}
+            onClick={() => onSetMode("select")}
+            aria-label="Aktifkan alat pilih dan geser"
+            aria-pressed={toolMode === "select"}
+          />
+        </Tooltip>
+        <Tooltip title="Geser kanvas (H)" placement="right">
+          <Button
+            type={toolMode === "pan" ? "primary" : "text"}
+            icon={<DragOutlined />}
+            onClick={() => onSetMode("pan")}
+            aria-label="Aktifkan alat geser kanvas"
+            aria-pressed={toolMode === "pan"}
+          />
+        </Tooltip>
       </div>
     );
   },
@@ -136,16 +111,6 @@ interface ZoomControlsProps {
 
 const ZoomControls: React.FC<ZoomControlsProps> = React.memo(
   ({ zoom, onZoomIn, onZoomOut, onResetView }) => {
-    const zoomBtnStyle: React.CSSProperties = {
-      border: "none",
-      background: "none",
-      cursor: "pointer",
-      padding: "2px 6px",
-      fontSize: 14,
-      lineHeight: 1,
-      borderRadius: 3,
-    };
-
     return (
       <div
         style={{
@@ -159,37 +124,34 @@ const ZoomControls: React.FC<ZoomControlsProps> = React.memo(
           fontSize: 12,
         }}
       >
-        <button
+        <Button
+          type="text"
+          size="small"
           onClick={onZoomOut}
-          style={zoomBtnStyle}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#f0f0f0")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
+          disabled={zoom <= MIN_ZOOM}
+          aria-label="Perkecil tampilan"
         >
           −
-        </button>
-        <span
-          style={{ minWidth: 40, textAlign: "center", cursor: "pointer" }}
+        </Button>
+        <Button
+          type="text"
+          size="small"
+          style={{ minWidth: 52, paddingInline: 4 }}
           onClick={onResetView}
-          title="Fit to view"
+          title="Sesuaikan kanvas ke area kerja"
+          aria-label={`Sesuaikan kanvas ke area kerja, zoom saat ini ${Math.round(zoom * 100)} persen`}
         >
           {Math.round(zoom * 100)}%
-        </span>
-        <button
+        </Button>
+        <Button
+          type="text"
+          size="small"
           onClick={onZoomIn}
-          style={zoomBtnStyle}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#f0f0f0")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
+          disabled={zoom >= MAX_ZOOM}
+          aria-label="Perbesar tampilan"
         >
           +
-        </button>
+        </Button>
       </div>
     );
   },
@@ -223,6 +185,7 @@ const CanvasAssistControls: React.FC<CanvasAssistControlsProps> = React.memo(
           size="small"
           checked={snapToGrid}
           onChange={onSnapToGridChange}
+          aria-label="Aktifkan penempelan ke grid"
         />
         Grid
       </label>
@@ -231,6 +194,7 @@ const CanvasAssistControls: React.FC<CanvasAssistControlsProps> = React.memo(
           size="small"
           checked={showGuides}
           onChange={onShowGuidesChange}
+          aria-label="Tampilkan garis bantu tengah"
         />
         Guides
       </label>
@@ -256,6 +220,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
   }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
+    const elementNodesRef = useRef<Map<string, HTMLDivElement>>(new Map());
     const [toolMode, setToolMode] = useState<ToolMode>("select");
 
     // Viewport state
@@ -271,6 +236,18 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       new Map(),
     );
 
+    const handleGuidesChange = useCallback(
+      (guides: { vertical: boolean; horizontal: boolean }) => {
+        setActiveGuides((current) =>
+          current.vertical === guides.vertical &&
+          current.horizontal === guides.horizontal
+            ? current
+            : guides,
+        );
+      },
+      [],
+    );
+
     // ── Interaction hooks ─────────────────────────────────────────────────
 
     const {
@@ -284,9 +261,10 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       canvasHeight: template.canvasHeight,
       snapToGrid,
       gridSize: GRID_SIZE,
-      onGuidesChange: setActiveGuides,
+      onGuidesChange: handleGuidesChange,
       onMoveElement,
       elementPositionsRef,
+      elementNodesRef,
     });
 
     const {
@@ -295,8 +273,11 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       cleanup: cleanupResize,
     } = useElementResize({
       zoom,
+      canvasWidth: template.canvasWidth,
+      canvasHeight: template.canvasHeight,
       onUpdateElement,
       elementPositionsRef,
+      elementNodesRef,
     });
 
     const {
@@ -314,6 +295,17 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       });
       elementPositionsRef.current = positions;
     }, [template.elements]);
+
+    const registerElementNode = useCallback(
+      (id: string, node: HTMLDivElement | null) => {
+        if (node) {
+          elementNodesRef.current.set(id, node);
+        } else {
+          elementNodesRef.current.delete(id);
+        }
+      },
+      [],
+    );
 
     // ── Center canvas on mount ────────────────────────────────────────────
 
@@ -393,27 +385,39 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
 
     // ── Zoom controls ─────────────────────────────────────────────────────
 
-    const handleZoomIn = useCallback(
-      () => setZoom(Math.min(MAX_ZOOM, zoom + ZOOM_STEP)),
-      [zoom],
+    const handleZoomIn = useCallback(() => {
+      setZoom((current) => Math.min(MAX_ZOOM, current + ZOOM_STEP));
+    }, []);
+
+    const handleZoomOut = useCallback(() => {
+      setZoom((current) => Math.max(MIN_ZOOM, current - ZOOM_STEP));
+    }, []);
+
+    const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      setZoom((current) =>
+        e.deltaY < 0
+          ? Math.min(MAX_ZOOM, current + ZOOM_STEP)
+          : Math.max(MIN_ZOOM, current - ZOOM_STEP),
+      );
+    }, []);
+
+    const handleElementContentChange = useCallback(
+      (id: string, content: string) => onUpdateElement(id, { content }),
+      [onUpdateElement],
     );
 
-    const handleZoomOut = useCallback(
-      () => setZoom(Math.max(MIN_ZOOM, zoom - ZOOM_STEP)),
-      [zoom],
-    );
-
-    const handleWheel = useCallback(
-      (e: React.WheelEvent<HTMLDivElement>) => {
-        if (!e.ctrlKey && !e.metaKey) return;
-        e.preventDefault();
-        const nextZoom =
-          e.deltaY < 0
-            ? Math.min(MAX_ZOOM, zoom + ZOOM_STEP)
-            : Math.max(MIN_ZOOM, zoom - ZOOM_STEP);
-        setZoom(nextZoom);
+    const handleSelectElement = useCallback(
+      (id: string) => {
+        if (toolMode === "select") onSelectElement(id);
       },
-      [zoom],
+      [onSelectElement, toolMode],
+    );
+
+    const visibleElements = useMemo(
+      () => template.elements.filter((element) => element.visible !== false),
+      [template.elements],
     );
 
     // ── Cursor ────────────────────────────────────────────────────────────
@@ -432,6 +436,9 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     return (
       <div
         ref={containerRef}
+        role="region"
+        aria-label="Area desain sertifikat"
+        tabIndex={0}
         style={{
           flex: 1,
           minHeight: 0,
@@ -533,27 +540,22 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
               </>
             )}
 
-            {template.elements
-              .filter((element) => element.visible !== false)
-              .map((element) => (
-                <DraggableElement
-                  key={element.id}
-                  element={element}
-                  isSelected={element.id === selectedElementId}
-                  onSelect={() => {
-                    if (toolMode === "select") onSelectElement(element.id);
-                  }}
-                  onDragStart={(e) => startDrag(element, e)}
-                  onResizeStart={(handle, e) => {
-                    if (!element.locked) startResize(element, handle, e);
-                  }}
-                  onContentChange={
-                    element.type === "static-text"
-                      ? (content) => onUpdateElement(element.id, { content })
-                      : undefined
-                  }
-                />
-              ))}
+            {visibleElements.map((element) => (
+              <DraggableElement
+                key={element.id}
+                element={element}
+                isSelected={element.id === selectedElementId}
+                onSelect={handleSelectElement}
+                onDragStart={startDrag}
+                onResizeStart={startResize}
+                onContentChange={
+                  element.type === "static-text"
+                    ? handleElementContentChange
+                    : undefined
+                }
+                onNodeChange={registerElementNode}
+              />
+            ))}
           </div>
         </div>
       </div>

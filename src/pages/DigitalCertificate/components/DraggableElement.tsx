@@ -8,10 +8,15 @@ export type ResizeHandle = "nw" | "ne" | "sw" | "se";
 interface DraggableElementProps {
   element: CertificateElement;
   isSelected: boolean;
-  onSelect: () => void;
-  onDragStart: (e: React.MouseEvent) => void;
-  onResizeStart?: (handle: ResizeHandle, e: React.MouseEvent) => void;
-  onContentChange?: (content: string) => void;
+  onSelect: (id: string) => void;
+  onDragStart: (element: CertificateElement, e: React.MouseEvent) => void;
+  onResizeStart?: (
+    element: CertificateElement,
+    handle: ResizeHandle,
+    e: React.MouseEvent,
+  ) => void;
+  onContentChange?: (id: string, content: string) => void;
+  onNodeChange: (id: string, node: HTMLDivElement | null) => void;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -145,6 +150,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     onDragStart,
     onResizeStart,
     onContentChange,
+    onNodeChange,
   }) => {
     const [isEditing, setIsEditing] = React.useState(false);
 
@@ -163,11 +169,11 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     const handleBlur = React.useCallback(
       (e: React.FocusEvent<HTMLDivElement>) => {
         if (isEditing && onContentChange) {
-          onContentChange(e.currentTarget.textContent || "");
+          onContentChange(element.id, e.currentTarget.textContent || "");
           setIsEditing(false);
         }
       },
-      [isEditing, onContentChange],
+      [element.id, isEditing, onContentChange],
     );
 
     const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
@@ -180,16 +186,33 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     const handleClick = React.useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation();
-        onSelect();
+        onSelect(element.id);
       },
-      [onSelect],
+      [element.id, onSelect],
     );
 
     const handleMouseDown = React.useCallback(
       (e: React.MouseEvent) => {
-        if (!isEditing) onDragStart(e);
+        if (!isEditing) onDragStart(element, e);
       },
-      [isEditing, onDragStart],
+      [element, isEditing, onDragStart],
+    );
+
+    const handleElementKeyDown = React.useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (isEditing) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          onSelect(element.id);
+        }
+      },
+      [element.id, isEditing, onSelect],
+    );
+
+    const handleNodeChange = React.useCallback(
+      (node: HTMLDivElement | null) => onNodeChange(element.id, node),
+      [element.id, onNodeChange],
     );
 
     // ── Memoized styles ─────────────────────────────────────────────────
@@ -286,7 +309,12 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
 
     return (
       <div
+        ref={handleNodeChange}
         data-element-id={element.id}
+        role="button"
+        tabIndex={0}
+        aria-label={`${element.name || element.type}${element.locked ? ", terkunci" : ""}`}
+        aria-pressed={isSelected}
         style={{
           position: "absolute",
           left: element.x,
@@ -309,6 +337,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         onClick={handleClick}
         onMouseDown={handleMouseDown}
         onDoubleClick={handleDoubleClick}
+        onKeyDown={handleElementKeyDown}
       >
         {renderContent()}
 
@@ -330,8 +359,9 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
               onMouseDown={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onResizeStart?.(key, e);
+                onResizeStart?.(element, key, e);
               }}
+              role="presentation"
             />
           ))}
       </div>
