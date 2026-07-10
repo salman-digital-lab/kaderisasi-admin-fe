@@ -14,6 +14,15 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     width: 200,
   },
   {
+    title: "Tipe",
+    dataIndex: "club_type",
+    key: "club_type",
+    width: 100,
+    render: (clubType) => (
+      <Tag color={clubType === "AVISMAN" ? "purple" : "blue"}>{clubType}</Tag>
+    ),
+  },
+  {
     title: "Periode Mulai",
     dataIndex: "start_period",
     key: "start_period",

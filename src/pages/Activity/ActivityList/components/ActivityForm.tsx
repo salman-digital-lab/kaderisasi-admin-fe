@@ -22,6 +22,7 @@ import {
 } from "../../../../constants/options";
 import { useRequest } from "ahooks";
 import { postActivity } from "../../../../api/services/activity";
+import { getClubs } from "../../../../api/services/club";
 import { ACTIVITY_TYPE_ENUM } from "../../../../types/constants/activity";
 import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
 import { ACTIVITY_CATEGORY_ENUM } from "../../../../types/constants/activity";
@@ -36,6 +37,7 @@ type FormType = {
   minimum_level: USER_LEVEL_ENUM;
   activity_category: ACTIVITY_CATEGORY_ENUM;
   activity_type: ACTIVITY_TYPE_ENUM;
+  club_id?: number | null;
   registration_date: dayjs.Dayjs[];
   activity_date?: dayjs.Dayjs[];
   is_registration_open: boolean;
@@ -48,6 +50,18 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
   const { loading, runAsync } = useRequest(postActivity, {
     manual: true,
   });
+  const { data: clubsData } = useRequest(() =>
+    getClubs({
+      page: "1",
+      per_page: "100",
+    }),
+  );
+
+  const clubOptions =
+    clubsData?.data.map((club) => ({
+      label: `${club.name} (${club.club_type})`,
+      value: club.id,
+    })) || [];
 
   return (
     <>
@@ -69,6 +83,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
           onFinish={async (value) => {
             await runAsync({
               ...value,
+              club_id: value.club_id ?? null,
               registration_start:
                 value.registration_date[0].format("YYYY-MM-DD"),
               registration_end: value.registration_date[1].format("YYYY-MM-DD"),
@@ -171,6 +186,17 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
                 <Select
                   options={ACTIVITY_CATEGORY_OPTIONS}
                   placeholder="Pilih Kategori Kegiatan"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="club_id" label="Club Terkait">
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  options={clubOptions}
+                  placeholder="Pilih club"
                 />
               </Form.Item>
             </Col>

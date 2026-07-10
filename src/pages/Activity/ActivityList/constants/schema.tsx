@@ -68,6 +68,12 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     ),
   },
   {
+    title: "Club",
+    key: "club",
+    width: 160,
+    render: (_, record) => record.club?.name || "-",
+  },
+  {
     title: "Status Publikasi",
     dataIndex: "is_published",
     width: 140,

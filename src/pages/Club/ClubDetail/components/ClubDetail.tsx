@@ -1,22 +1,35 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Card, Form, Input, Button, DatePicker, Switch, Row, Col } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  DatePicker,
+  Switch,
+  Row,
+  Col,
+  Select,
+} from "antd";
 import { useRequest } from "ahooks";
 import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 
 import { getClub, putClub } from "../../../../api/services/club";
-import { Club } from "../../../../types/model/club";
+import type { Club, ClubType } from "../../../../types/model/club";
 import { RichTextEditor } from "../../../../components/common/RichTextEditor";
+import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
 
 type FieldType = {
   name: string;
+  club_type: ClubType;
   description?: string;
   short_description?: string;
-  start_period?: any;
-  end_period?: any;
+  start_period?: Dayjs;
+  end_period?: Dayjs;
   is_show?: boolean;
   is_registration_open?: boolean;
-  registration_end_date?: any;
+  registration_end_date?: Dayjs;
 };
 
 const ClubDetail = () => {
@@ -35,6 +48,7 @@ const ClubDetail = () => {
         setShortDescription(data.short_description || "");
         form.setFieldsValue({
           name: data.name,
+          club_type: data.club_type,
           start_period: data.start_period
             ? dayjs(data.start_period)
             : undefined,
@@ -97,6 +111,14 @@ const ClubDetail = () => {
       }
     >
       <Form form={form} layout="vertical">
+        <Form.Item
+          label="Tipe Club"
+          name="club_type"
+          rules={[{ required: true, message: "Tipe club wajib dipilih!" }]}
+        >
+          <Select options={CLUB_TYPE_OPTIONS} placeholder="Pilih tipe club" />
+        </Form.Item>
+
         <Form.Item
           label="Nama Unit Kegiatan"
           name="name"

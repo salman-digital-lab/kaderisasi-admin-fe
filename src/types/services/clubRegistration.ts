@@ -5,6 +5,7 @@ export type getClubRegistrationsReq = {
   page: string;
   limit: string;
   status?: string;
+  search?: string;
 };
 
 export type getClubRegistrationsResp = {

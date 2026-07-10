@@ -5,6 +5,7 @@ export type getClubsReq = {
   per_page: string;
   page: string;
   search?: string;
+  club_type?: string;
 };
 
 export type getClubsResp = {

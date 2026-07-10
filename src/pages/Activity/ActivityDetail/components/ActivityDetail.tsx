@@ -30,6 +30,7 @@ import {
 } from "../../../../constants/options";
 
 import { getActivity, putActivity } from "../../../../api/services/activity";
+import { getClubs } from "../../../../api/services/club";
 import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 import {
   ACTIVITY_CATEGORY_ENUM,
@@ -49,6 +50,7 @@ type FormType = {
   badge?: string;
   activity_category: ACTIVITY_CATEGORY_ENUM;
   activity_type: ACTIVITY_TYPE_ENUM;
+  club_id?: number | null;
   registration_date: (dayjs.Dayjs | undefined)[];
   activity_date?: (dayjs.Dayjs | undefined)[];
   is_published: boolean;
@@ -70,6 +72,18 @@ const ActivityDetail = () => {
   const { loading: editLoading, runAsync } = useRequest(putActivity, {
     manual: true,
   });
+  const { data: clubsData } = useRequest(() =>
+    getClubs({
+      page: "1",
+      per_page: "100",
+    }),
+  );
+
+  const clubOptions =
+    clubsData?.data.map((club) => ({
+      label: `${club.name} (${club.club_type})`,
+      value: club.id,
+    })) || [];
 
   const [description, setDescription] = useState("");
 
@@ -118,6 +132,7 @@ const ActivityDetail = () => {
           minimum_level: data?.minimum_level,
           activity_category: data?.activity_category,
           activity_type: data?.activity_type,
+          club_id: data?.club_id || undefined,
           registration_date: [
             data?.registration_start
               ? dayjs(data?.registration_start)
@@ -151,6 +166,7 @@ const ActivityDetail = () => {
           onFinish={async (value) => {
             await runAsync(Number(id), {
               ...value,
+              club_id: value.club_id ?? null,
               is_published: value.is_published ? 1 : 0,
               is_registration_open: value.is_registration_open,
               registration_start: value.registration_date[0]
@@ -370,6 +386,19 @@ const ActivityDetail = () => {
                       form.setFieldValue("allow_guest_registration", false);
                     }
                   }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Form.Item name="club_id" label="Club Terkait">
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  options={clubOptions}
+                  placeholder="Pilih club"
                 />
               </Form.Item>
             </Col>

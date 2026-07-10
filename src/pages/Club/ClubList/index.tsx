@@ -20,6 +20,7 @@ const ClubList = () => {
         per_page: String(parameters.per_page),
         page: String(parameters.page),
         search: parameters.name,
+        club_type: parameters.club_type,
       }),
     {
       refreshDeps: [parameters],

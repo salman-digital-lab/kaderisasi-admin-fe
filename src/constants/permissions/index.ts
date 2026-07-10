@@ -10,6 +10,7 @@ export const ADMIN_ROLE_PERMISSION = {
     "kegiatan.show",
     "leaderboard",
     "formkustom",
+    "club",
   ],
   [ADMIN_ROLE_ENUM.ADMIN]: [
     "ruangcurhat",
@@ -19,9 +20,16 @@ export const ADMIN_ROLE_PERMISSION = {
     "kegiatan.show",
     "leaderboard",
     "formkustom",
+    "club",
   ],
-  [ADMIN_ROLE_ENUM.ASMEN]: ["anggota", "kegiatan", "leaderboard", "formkustom"],
-  [ADMIN_ROLE_ENUM.KAPRO]: ["kegiatan", "formkustom"],
+  [ADMIN_ROLE_ENUM.ASMEN]: [
+    "anggota",
+    "kegiatan",
+    "leaderboard",
+    "formkustom",
+    "club",
+  ],
+  [ADMIN_ROLE_ENUM.KAPRO]: ["kegiatan", "formkustom", "club"],
   [ADMIN_ROLE_ENUM.KONSELOR]: ["ruangcurhat"],
   [ADMIN_ROLE_ENUM.LEADERBOARD]: ["leaderboard"],
 };

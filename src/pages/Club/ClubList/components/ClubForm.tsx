@@ -1,8 +1,11 @@
-import { Modal, Form, Input, Button, DatePicker, Row, Col } from "antd";
+import { Modal, Form, Input, Button, DatePicker, Row, Col, Select } from "antd";
 import { useRequest } from "ahooks";
 import dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 
 import { postClub } from "../../../../api/services/club";
+import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
+import type { ClubType } from "../../../../types/model/club";
 
 type ClubFormProps = {
   open: boolean;
@@ -12,11 +15,12 @@ type ClubFormProps = {
 
 type FieldType = {
   name: string;
+  club_type: ClubType;
   short_description?: string;
-  start_period?: any;
-  end_period?: any;
+  start_period?: Dayjs;
+  end_period?: Dayjs;
   is_registration_open?: boolean;
-  registration_end_date?: any;
+  registration_end_date?: Dayjs;
 };
 
 const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
@@ -77,6 +81,15 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
       ]}
     >
       <Form form={form} layout="vertical">
+        <Form.Item
+          label="Tipe Club"
+          name="club_type"
+          initialValue="UKM"
+          rules={[{ required: true, message: "Tipe club wajib dipilih!" }]}
+        >
+          <Select options={CLUB_TYPE_OPTIONS} placeholder="Pilih tipe club" />
+        </Form.Item>
+
         <Form.Item
           label="Nama Unit Kegiatan"
           name="name"

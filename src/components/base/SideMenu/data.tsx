@@ -8,6 +8,7 @@ import {
   TrophyOutlined,
   FormOutlined,
   SafetyCertificateOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
@@ -80,6 +81,14 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (
       key: "/custom-form",
       icon: <FormOutlined />,
       label: <Link to="/custom-form">Form Digital</Link>,
+    });
+  }
+
+  if (permissions.includes("club")) {
+    menuItems.push({
+      key: "/club",
+      icon: <TeamOutlined />,
+      label: <Link to="/club">Club</Link>,
     });
   }
 

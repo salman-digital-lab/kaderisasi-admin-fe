@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 
 import { getActivities } from "../../../api/services/activity";
+import { getClubs } from "../../../api/services/club";
 import {
   ACTIVITY_CATEGORY_OPTIONS,
   ACTIVITY_TYPE_OPTIONS,
@@ -36,6 +37,7 @@ const MainActivity = () => {
     name: "",
     activity_type: undefined,
     activity_category: undefined,
+    club_id: undefined,
   });
 
   // Local state for search input to avoid too many re-renders/requests
@@ -46,6 +48,20 @@ const MainActivity = () => {
   const [categoryInput, setCategoryInput] = useState<
     ACTIVITY_CATEGORY_ENUM | undefined
   >(undefined);
+  const [clubInput, setClubInput] = useState<string | undefined>(undefined);
+
+  const { data: clubsData } = useRequest(() =>
+    getClubs({
+      page: "1",
+      per_page: "100",
+    }),
+  );
+
+  const clubOptions =
+    clubsData?.data.map((club) => ({
+      label: `${club.name} (${club.club_type})`,
+      value: String(club.id),
+    })) || [];
 
   const { data, loading, error, refresh } = useRequest(
     () =>
@@ -55,6 +71,7 @@ const MainActivity = () => {
         search: parameters.name,
         activity_type: parameters.activity_type,
         category: parameters.activity_category,
+        club_id: parameters.club_id,
       }),
     {
       refreshDeps: [parameters],
@@ -72,6 +89,7 @@ const MainActivity = () => {
       name: searchInput,
       activity_type: typeInput,
       activity_category: categoryInput,
+      club_id: clubInput,
       page: 1,
     }));
   };
@@ -116,6 +134,17 @@ const MainActivity = () => {
               options={ACTIVITY_CATEGORY_OPTIONS}
               onChange={setCategoryInput}
               value={categoryInput}
+            />
+
+            <Select
+              placeholder="Semua Club"
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              style={{ width: 180 }}
+              options={clubOptions}
+              onChange={setClubInput}
+              value={clubInput}
             />
 
             <Button

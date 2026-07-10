@@ -48,6 +48,8 @@ const LifetimeLeaderboard = lazy(
 );
 const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
 const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
+const ClubList = lazy(() => import("../pages/Club/ClubList"));
+const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
 const DigitalCertificate = lazy(() => import("../pages/DigitalCertificate"));
 const CertificateDesigner = lazy(
   () => import("../pages/DigitalCertificate/CertificateDesigner"),
@@ -364,11 +366,29 @@ const routes = createBrowserRouter(
         },
         {
           path: "/club",
-          element: <Navigate to="/dashboard" replace />,
+          element: (
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <ClubList />
+                </SuspenseWrapper>
+              }
+              permission="club"
+            />
+          ),
         },
         {
           path: "/club/:id",
-          element: <Navigate to="/dashboard" replace />,
+          element: (
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <ClubDetail />
+                </SuspenseWrapper>
+              }
+              permission="club"
+            />
+          ),
         },
         {
           path: "/custom-form",

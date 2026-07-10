@@ -1,6 +1,7 @@
 import { ACTIVITY_CATEGORY_ENUM } from "../constants/activity";
 import { USER_LEVEL_ENUM } from "../constants/profile";
 import type { EducationEntry } from "./members";
+import type { Club } from "./club";
 
 export type Questionnaire =
   | {
@@ -39,6 +40,8 @@ export type Activity = {
   minimum_level: USER_LEVEL_ENUM;
   activity_type: number;
   activity_category: ACTIVITY_CATEGORY_ENUM;
+  club_id?: number | null;
+  club?: Club | null;
   images: string[];
   additional_config: {
     additional_questionnaire?: Questionnaire[];

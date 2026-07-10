@@ -13,9 +13,12 @@ export interface RegistrationInfo {
   after_registration_info: string;
 }
 
+export type ClubType = "UKM" | "AVISMAN";
+
 export interface Club {
   id: number;
   name: string;
+  club_type: ClubType;
   description?: string;
   short_description?: string;
   logo?: string;

@@ -126,6 +126,17 @@ export const CLUB_REGISTRATION_STATUS_OPTIONS = [
   },
 ];
 
+export const CLUB_TYPE_OPTIONS = [
+  {
+    value: "UKM",
+    label: "UKM",
+  },
+  {
+    value: "AVISMAN",
+    label: "AVISMAN",
+  },
+];
+
 export const GENDER_OPTION = [
   {
     label: "Laki-Laki",

@@ -8,6 +8,8 @@ import LogoUpload from "./components/LogoUpload";
 import ClubRegistrationInfo from "../ClubRegistrationInfo";
 import ClubRegistrationsPage from "../ClubRegistrations";
 import CustomFormAttachment from "./components/CustomFormAttachment";
+import ClubMembersPage from "../ClubMembers";
+import ClubActivitiesPage from "../ClubActivities";
 
 const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,13 +39,23 @@ const MainClubDetail = () => {
     },
     {
       key: "5",
-      label: "Keanggotaan",
+      label: "Pendaftaran",
       children: <ClubRegistrationsPage />,
     },
     {
       key: "6",
       label: "Form Tambahan",
       children: <CustomFormAttachment />,
+    },
+    {
+      key: "7",
+      label: "Anggota",
+      children: <ClubMembersPage />,
+    },
+    {
+      key: "8",
+      label: "Kegiatan",
+      children: <ClubActivitiesPage />,
     },
   ];
 

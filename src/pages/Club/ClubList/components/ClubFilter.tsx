@@ -1,4 +1,4 @@
-import { Input, Card, Button, Space, Tooltip } from "antd";
+import { Input, Card, Button, Space, Tooltip, Select } from "antd";
 import { useState } from "react";
 import { useToggle } from "ahooks";
 import {
@@ -9,6 +9,7 @@ import {
 
 import { FilterType } from "../constants/type";
 import ClubForm from "./ClubForm";
+import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
 
 const cardStyle = {
   borderRadius: 0,
@@ -24,11 +25,13 @@ type FilterProps = {
 const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
   const [state, { toggle }] = useToggle(false);
   const [searchInput, setSearchInput] = useState("");
+  const [clubType, setClubType] = useState<string | undefined>();
 
   const handleSearch = () => {
     setParameter((prev) => ({
       ...prev,
       name: searchInput,
+      club_type: clubType,
       page: 1,
     }));
   };
@@ -55,6 +58,21 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             onSearch={handleSearch}
             onPressEnter={handleSearch}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          />
+          <Select
+            allowClear
+            placeholder="Tipe club"
+            options={CLUB_TYPE_OPTIONS}
+            style={{ width: 160 }}
+            value={clubType}
+            onChange={(value) => {
+              setClubType(value);
+              setParameter((prev) => ({
+                ...prev,
+                club_type: value,
+                page: 1,
+              }));
+            }}
           />
         </Space>
 

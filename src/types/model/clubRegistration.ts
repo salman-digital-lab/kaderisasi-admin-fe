@@ -1,4 +1,5 @@
 import { Club } from "./club";
+import type { ClubMemberRole } from "./clubMemberRole";
 
 export interface Profile {
   id: number;
@@ -43,6 +44,7 @@ export interface ClubRegistration {
   // Relations
   club?: Club;
   member?: PublicUserWithProfile;
+  roles?: ClubMemberRole[];
 }
 
 export interface ClubRegistrationCreateRequest {

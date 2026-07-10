@@ -34,6 +34,22 @@ export const getClubRegistrations = async (
   }
 };
 
+export const getClubMembers = async (
+  clubId: number,
+  props: getClubRegistrationsReq,
+) => {
+  try {
+    const searchParams = removeEmptyValueFromObj(props);
+    const urlSearch = new URLSearchParams(searchParams).toString();
+    const res = await axios.get<getClubRegistrationsResp>(
+      `/clubs/${clubId}/members?${urlSearch}`,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const createClubRegistration = async (
   clubId: number,
   props: postClubRegistrationReq,
