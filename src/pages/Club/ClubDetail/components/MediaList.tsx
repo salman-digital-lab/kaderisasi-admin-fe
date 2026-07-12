@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Card,
   Upload,
   Button,
   Space,
@@ -13,6 +12,8 @@ import {
   Row,
   Col,
   Input,
+  Divider,
+  Skeleton,
 } from "antd";
 import {
   UploadOutlined,
@@ -30,9 +31,9 @@ import {
   addClubYoutubeMedia,
   deleteClubMedia,
 } from "../../../../api/services/club";
-import { Club, MediaItem } from "../../../../types/model/club";
+import type { Club, MediaItem } from "../../../../types/model/club";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 const { Option } = Select;
 
 const MediaList = () => {
@@ -205,14 +206,13 @@ const MediaList = () => {
     );
   };
 
-  if (fetchLoading) {
-    return <Card loading />;
-  }
-
   return (
-    <Card title="Media Club">
+    <Skeleton loading={fetchLoading}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Card title="Tambah Media Baru" size="small">
+        <section>
+          <Title level={4} style={{ marginTop: 0 }}>
+            Tambah Media Baru
+          </Title>
           <Row gutter={16}>
             <Col span={8}>
               <Text strong>Tipe Media:</Text>
@@ -303,12 +303,13 @@ const MediaList = () => {
               </Space>
             </div>
           )}
-        </Card>
+        </section>
 
-        <Card
-          title={`Daftar Media (${clubData?.media?.items?.length || 0})`}
-          size="small"
-        >
+        <Divider style={{ margin: "4px 0" }} />
+        <section>
+          <Title level={4} style={{ marginTop: 0 }}>
+            Daftar Media ({clubData?.media?.items?.length || 0})
+          </Title>
           {clubData?.media?.items && clubData.media.items.length > 0 ? (
             <List
               dataSource={clubData.media.items}
@@ -327,9 +328,9 @@ const MediaList = () => {
               Belum ada media yang diupload
             </div>
           )}
-        </Card>
+        </section>
       </Space>
-    </Card>
+    </Skeleton>
   );
 };
 

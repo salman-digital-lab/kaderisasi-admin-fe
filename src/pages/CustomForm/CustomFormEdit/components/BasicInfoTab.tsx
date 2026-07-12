@@ -39,10 +39,7 @@ export const BasicInfoTab = ({
   initialData,
   onSave,
 }: BasicInfoTabProps) => {
-  const initialFeatureType =
-    initialData.feature_type === "club_registration"
-      ? "independent_form"
-      : initialData.feature_type;
+  const initialFeatureType = initialData.feature_type;
   const [featureType, setFeatureType] = useState<
     "activity_registration" | "club_registration" | "independent_form"
   >(initialFeatureType);
@@ -89,10 +86,7 @@ export const BasicInfoTab = ({
         formDescription: initialData.form_description || "",
         postSubmissionInfo: initialData.post_submission_info || "",
         featureType: initialFeatureType,
-        featureId:
-          initialData.feature_type === "club_registration"
-            ? null
-            : initialData.feature_id,
+        featureId: initialData.feature_id,
       }}
     >
       <Row gutter={24}>
@@ -152,6 +146,11 @@ export const BasicInfoTab = ({
                         <Select.Option value="activity_registration">
                           Pendaftaran Aktivitas
                         </Select.Option>
+                        {initialData.feature_type === "club_registration" && (
+                          <Select.Option value="club_registration" disabled>
+                            Pendaftaran Club
+                          </Select.Option>
+                        )}
                         <Select.Option value="independent_form">
                           Form Independen
                         </Select.Option>

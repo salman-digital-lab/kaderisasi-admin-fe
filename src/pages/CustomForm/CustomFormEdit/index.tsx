@@ -1,6 +1,11 @@
 import React from "react";
 import { Form, Button, Space, Typography, Spin, Tabs } from "antd";
-import { SaveOutlined, FormOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  SaveOutlined,
+  FormOutlined,
+} from "@ant-design/icons";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   BasicInfoTab,
@@ -21,6 +26,8 @@ const { Text } = Typography;
 
 const CustomFormEdit: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { clubId } = useParams<{ clubId?: string }>();
 
   // Fetch and manage form data
   const {
@@ -154,20 +161,39 @@ const CustomFormEdit: React.FC = () => {
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       {/* Form Card */}
       {/* Form Container */}
-      <div style={{ background: "#fff", padding: "12px", borderRadius: "8px" }}>
+      <div style={{ background: "#fff", padding: "16px", borderRadius: "8px" }}>
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            flexWrap: "wrap",
+            gap: "12px",
             marginBottom: "16px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <FormOutlined style={{ color: "#1890ff", fontSize: "20px" }} />
-            <Text strong style={{ fontSize: "16px" }}>
-              Ubah Form Kustom - {initialData.form_name}
-            </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "12px",
+            }}
+          >
+            {clubId && (
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate(`/club/${clubId}?tab=4`)}
+              >
+                Kembali ke Info Pendaftaran
+              </Button>
+            )}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FormOutlined style={{ color: "#1890ff", fontSize: "20px" }} />
+              <Text strong style={{ fontSize: "16px" }}>
+                Ubah Form Kustom - {initialData.form_name}
+              </Text>
+            </div>
           </div>
           <Button
             type="primary"

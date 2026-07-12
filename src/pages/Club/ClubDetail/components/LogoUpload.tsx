@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Card, Upload, Button, Space, Image, Typography } from "antd";
+import { Upload, Button, Space, Image, Skeleton, Typography } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import type { UploadFile } from "antd";
 
 import { getClub, uploadClubLogo } from "../../../../api/services/club";
-import { Club } from "../../../../types/model/club";
+import type { Club } from "../../../../types/model/club";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const LogoUpload = () => {
   const { id } = useParams<{ id: string }>();
@@ -69,13 +69,12 @@ const LogoUpload = () => {
     return false; // Prevent automatic upload
   };
 
-  if (fetchLoading) {
-    return <Card loading />;
-  }
-
   return (
-    <Card title="Logo Club">
+    <Skeleton loading={fetchLoading}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Title level={4} style={{ margin: 0 }}>
+          Logo Unit Kegiatan
+        </Title>
         {clubData?.logo && (
           <div>
             <Text strong>Logo Saat Ini:</Text>
@@ -121,7 +120,7 @@ const LogoUpload = () => {
           </Space>
         )}
       </Space>
-    </Card>
+    </Skeleton>
   );
 };
 

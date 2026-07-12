@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Button,
-  Card,
   DatePicker,
   Form,
   Input,
@@ -13,6 +12,7 @@ import {
   Table,
   Tag,
   Tooltip,
+  Typography,
   message,
 } from "antd";
 import {
@@ -42,6 +42,7 @@ type RoleFormType = {
   sort_order?: number;
 };
 
+const { Title } = Typography;
 const pageSize = 20;
 
 const getMemberName = (registration: ClubRegistration): string =>
@@ -241,38 +242,37 @@ const ClubMembersPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <Card>
-        <Space wrap>
-          <Input.Search
-            allowClear
-            placeholder="Cari nama atau email anggota"
-            style={{ width: 320 }}
-            onSearch={(value) => {
-              setSearch(value);
-              setCurrentPage(1);
-            }}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
-        </Space>
-      </Card>
-
-      <Card>
-        <Table
-          rowKey="id"
-          dataSource={members}
-          columns={columns}
-          loading={loading}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: totalItems,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} dari ${total} anggota`,
-            onChange: (page) => setCurrentPage(page),
+      <Title level={4} style={{ margin: 0 }}>
+        Anggota Unit
+      </Title>
+      <Space wrap>
+        <Input.Search
+          allowClear
+          placeholder="Cari nama atau email anggota"
+          style={{ width: 320 }}
+          onSearch={(value) => {
+            setSearch(value);
+            setCurrentPage(1);
           }}
-          scroll={{ x: 1000 }}
+          prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
         />
-      </Card>
+      </Space>
+
+      <Table
+        rowKey="id"
+        dataSource={members}
+        columns={columns}
+        loading={loading}
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total: totalItems,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} dari ${total} anggota`,
+          onChange: (page) => setCurrentPage(page),
+        }}
+        scroll={{ x: 1000 }}
+      />
 
       <Modal
         title={selectedRole ? "Edit Peran Anggota" : "Tambah Peran Anggota"}

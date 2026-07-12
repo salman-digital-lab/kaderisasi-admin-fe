@@ -1,187 +1,303 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Select, Space, Modal, Alert, Form } from "antd";
 import {
-  LinkOutlined,
-  DisconnectOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
-import { useParams } from "react-router-dom";
+  Alert,
+  Button,
+  Card,
+  Divider,
+  Empty,
+  Modal,
+  Select,
+  Space,
+  Tag,
+  Typography,
+  message,
+} from "antd";
+import { EditOutlined, LinkOutlined, PlusOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 import {
-  getUnattachedForms,
   attachFormToClub,
-  detachFormFromClub,
+  createCustomForm,
+  getUnattachedForms,
 } from "../../../../api/services/customForm";
 import { getClub } from "../../../../api/services/club";
 import type { CustomForm } from "../../../../types/model/customForm";
+import type { Club } from "../../../../types/model/club";
 
-const { confirm } = Modal;
+const { Text, Title } = Typography;
 
-interface ClubWithForm {
-  id: number;
-  name: string;
-  attachedCustomForm?: CustomForm;
+interface CustomFormAttachmentProps {
+  club: Club;
 }
 
-const CustomFormAttachment = () => {
-  const { id } = useParams<{ id: string }>();
-  const [unattachedForms, setUnattachedForms] = useState<CustomForm[]>([]);
-  const [club, setClub] = useState<ClubWithForm | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [attaching, setAttaching] = useState(false);
-  const [detaching, setDetaching] = useState(false);
-  const [selectedFormId, setSelectedFormId] = useState<string>("");
+const getQuestionCount = (form: CustomForm): number =>
+  form.form_schema?.fields?.reduce(
+    (total, section) => total + (section.fields?.length ?? 0),
+    0,
+  ) ?? 0;
 
-  const fetchUnattachedForms = async () => {
-    setLoading(true);
+const CustomFormAttachment = ({
+  club: initialClub,
+}: CustomFormAttachmentProps) => {
+  const navigate = useNavigate();
+  const [club, setClub] = useState<Club>(initialClub);
+  const [unattachedForms, setUnattachedForms] = useState<CustomForm[]>([]);
+  const [selectedFormId, setSelectedFormId] = useState<number>();
+  const [existingFormModalOpen, setExistingFormModalOpen] = useState(false);
+  const [existingFormsLoading, setExistingFormsLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [attaching, setAttaching] = useState(false);
+  const clubId = initialClub.id;
+
+  const fetchClub = async (): Promise<void> => {
+    const result = await getClub(clubId);
+    if (result) setClub(result);
+  };
+
+  const fetchUnattachedForms = async (): Promise<void> => {
+    setExistingFormsLoading(true);
     try {
       const result = await getUnattachedForms({
         page: "1",
-        per_page: "1000", // Get all forms for select dropdown
-        search: undefined,
+        per_page: "1000",
       });
-      if (result) {
-        setUnattachedForms(result.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch unattached forms:", error);
+      setUnattachedForms(result?.data ?? []);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchClub = async () => {
-    if (!id) return;
-    try {
-      const result = await getClub(Number(id));
-      if (result) {
-        setClub(result);
-      }
-    } catch (error) {
-      console.error("Failed to fetch club:", error);
+      setExistingFormsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUnattachedForms();
-    fetchClub();
-  }, [id]);
+    setClub(initialClub);
+  }, [initialClub]);
 
-  const handleAttachForm = async () => {
-    if (!id || !selectedFormId) return;
+  const openExistingFormModal = (): void => {
+    setExistingFormModalOpen(true);
+    setSelectedFormId(undefined);
+    void fetchUnattachedForms();
+  };
+
+  const closeExistingFormModal = (): void => {
+    if (attaching) return;
+    setExistingFormModalOpen(false);
+    setSelectedFormId(undefined);
+  };
+
+  const handleCreateForm = async (): Promise<void> => {
+    setCreating(true);
+    try {
+      const newForm = await createCustomForm({
+        formName: club.name,
+        formDescription: `Form pendaftaran untuk ${club.name}`,
+        featureType: "club_registration",
+        featureId: clubId,
+        isActive: true,
+        formSchema: { fields: [] },
+      });
+
+      if (!newForm?.id) {
+        message.error("Form berhasil diproses tetapi tidak dapat dibuka");
+        return;
+      }
+
+      message.success("Form berhasil dibuat dan dilampirkan ke klub");
+      navigate(`/club/${clubId}/form/${newForm.id}/edit`);
+    } catch {
+      // The API service displays the server error and the empty state stays intact.
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleAttachForm = async (): Promise<void> => {
+    if (!selectedFormId) return;
 
     setAttaching(true);
     try {
-      await attachFormToClub(Number(selectedFormId), Number(id));
-      setSelectedFormId(""); // Reset selection
-      await fetchUnattachedForms();
+      await attachFormToClub(selectedFormId, clubId);
+      message.success("Form berhasil dilampirkan ke klub");
+      setExistingFormModalOpen(false);
+      setSelectedFormId(undefined);
       await fetchClub();
-    } catch (error) {
-      console.error("Failed to attach form:", error);
+    } catch {
+      // Keep the modal open so the user can retry or choose another form.
     } finally {
       setAttaching(false);
     }
   };
 
-  const handleDetachForm = async () => {
-    if (!club?.attachedCustomForm) return;
-
-    const attachedForm = club.attachedCustomForm;
-    confirm({
-      title: "Lepas Form",
-      icon: <ExclamationCircleOutlined />,
-      content: `Apakah Anda yakin ingin melepaskan form "${attachedForm.form_name}" dari klub ini?`,
-      okText: "Ya, Lepas",
-      cancelText: "Batal",
-      onOk: async () => {
-        setDetaching(true);
-        try {
-          await detachFormFromClub(attachedForm.id);
-          await fetchUnattachedForms();
-          await fetchClub();
-        } catch (error) {
-          console.error("Failed to detach form:", error);
-        } finally {
-          setDetaching(false);
-        }
-      },
-    });
-  };
+  const attachedForm = club?.attachedCustomForm;
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      {/* Current Attached Form */}
-      <Card title="Form yang Dilampirkan" size="small">
-        {club?.attachedCustomForm ? (
-          <Space direction="vertical" style={{ width: "100%" }}>
-            <div>
-              <strong>{club.attachedCustomForm.form_name}</strong>
-              {club.attachedCustomForm.form_description && (
-                <div style={{ color: "#666", marginTop: 4 }}>
-                  {club.attachedCustomForm.form_description}
-                </div>
-              )}
-            </div>
-            <Space>
+    <Card title="Form Pendaftaran" styles={{ body: { padding: 24 } }}>
+      {!attachedForm ? (
+        <div
+          style={{
+            padding: "32px 16px",
+            textAlign: "center",
+            background: "#fafafa",
+            border: "1px dashed #d9d9d9",
+            borderRadius: 8,
+          }}
+        >
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <Space direction="vertical" size={4}>
+                <Text strong>Belum ada form pendaftaran</Text>
+                <Text type="secondary">
+                  Buat form khusus untuk klub ini, lalu tambahkan pertanyaan
+                  yang dibutuhkan.
+                </Text>
+              </Space>
+            }
+          >
+            <Space wrap style={{ justifyContent: "center" }}>
               <Button
-                danger
-                icon={<DisconnectOutlined />}
-                loading={detaching}
-                onClick={handleDetachForm}
+                type="primary"
+                size="large"
+                icon={<PlusOutlined />}
+                loading={creating}
+                onClick={() => void handleCreateForm()}
               >
-                Lepas Form
+                Buat Form Pendaftaran
+              </Button>
+              <Button
+                size="large"
+                icon={<LinkOutlined />}
+                disabled={creating}
+                onClick={openExistingFormModal}
+              >
+                Pilih Form yang Sudah Ada
               </Button>
             </Space>
-          </Space>
-        ) : (
-          <Alert
-            message="Tidak ada form yang dilampirkan"
-            description="Pilih form dari daftar di bawah untuk dilampirkan ke klub ini."
-            type="info"
-            showIcon
-          />
-        )}
-      </Card>
-
-      {/* Available Forms */}
-      <Card title="Lampirkan Form Baru" size="small">
-        <Form layout="vertical">
-          <Form.Item label="Pilih Form">
-            <Select
-              placeholder="Pilih form yang ingin dilampirkan"
-              value={selectedFormId}
-              onChange={setSelectedFormId}
-              loading={loading}
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                (option?.children as unknown as string)
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              disabled={!!club?.attachedCustomForm}
-            >
-              {unattachedForms.map((form) => (
-                <Select.Option key={form.id} value={form.id.toString()}>
-                  {form.form_name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item>
+          </Empty>
+        </div>
+      ) : (
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <Space direction="vertical" size={4}>
+              <Space wrap>
+                <Title level={5} style={{ margin: 0 }}>
+                  {attachedForm.form_name}
+                </Title>
+                <Tag color={attachedForm.is_active ? "success" : "default"}>
+                  {attachedForm.is_active ? "Aktif" : "Tidak Aktif"}
+                </Tag>
+              </Space>
+              {attachedForm.form_description ? (
+                <Text type="secondary">{attachedForm.form_description}</Text>
+              ) : (
+                <Text type="secondary" italic>
+                  Tidak ada deskripsi
+                </Text>
+              )}
+            </Space>
             <Button
               type="primary"
-              icon={<LinkOutlined />}
-              loading={attaching}
-              onClick={handleAttachForm}
-              disabled={!selectedFormId || !!club?.attachedCustomForm}
+              icon={<EditOutlined />}
+              onClick={() =>
+                navigate(`/club/${clubId}/form/${attachedForm.id}/edit`)
+              }
             >
-              Lampirkan Form
+              Edit Form
             </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-    </Space>
+          </div>
+
+          {!attachedForm.is_active && (
+            <Alert
+              title="Form belum aktif"
+              description="Aktifkan form ini sebelum membuka pendaftaran klub."
+              type="warning"
+              showIcon
+            />
+          )}
+
+          {club?.is_registration_open && (
+            <Alert
+              title="Pendaftaran sedang dibuka"
+              description="Beberapa pengaturan form tidak dapat diubah selama pendaftaran klub dibuka."
+              type="info"
+              showIcon
+            />
+          )}
+
+          <Divider style={{ margin: 0 }} />
+          <Space size="large" wrap>
+            <div>
+              <Text type="secondary">Total Pertanyaan</Text>
+              <div>
+                <Text strong>{getQuestionCount(attachedForm)}</Text>
+              </div>
+            </div>
+            <div>
+              <Text type="secondary">Terakhir Diperbarui</Text>
+              <div>
+                <Text strong>
+                  {attachedForm.updated_at
+                    ? dayjs(attachedForm.updated_at).format("DD MMM YYYY HH:mm")
+                    : "-"}
+                </Text>
+              </div>
+            </div>
+          </Space>
+        </Space>
+      )}
+
+      <Modal
+        title="Pilih Form yang Sudah Ada"
+        open={existingFormModalOpen}
+        onCancel={closeExistingFormModal}
+        okText="Lampirkan Form"
+        cancelText="Batal"
+        confirmLoading={attaching}
+        okButtonProps={{ disabled: !selectedFormId }}
+        onOk={() => void handleAttachForm()}
+        destroyOnHidden
+      >
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <Text type="secondary">
+            Hanya form yang belum digunakan oleh kegiatan atau klub lain yang
+            ditampilkan.
+          </Text>
+          <Select
+            showSearch
+            allowClear
+            style={{ width: "100%" }}
+            placeholder="Cari nama form"
+            value={selectedFormId}
+            loading={existingFormsLoading}
+            onChange={setSelectedFormId}
+            options={unattachedForms.map((form) => ({
+              label: form.form_name,
+              value: form.id,
+            }))}
+            filterOption={(input, option) =>
+              String(option?.label ?? "")
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            notFoundContent={
+              existingFormsLoading ? null : (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="Tidak ada form yang tersedia"
+                />
+              )
+            }
+          />
+        </Space>
+      </Modal>
+    </Card>
   );
 };
 

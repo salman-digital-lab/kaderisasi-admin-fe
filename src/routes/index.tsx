@@ -391,6 +391,19 @@ const routes = createBrowserRouter(
           ),
         },
         {
+          path: "/club/:clubId/form/:formId/edit",
+          element: (
+            <RoleUser
+              element={
+                <SuspenseWrapper>
+                  <CustomFormEdit />
+                </SuspenseWrapper>
+              }
+              permission="club"
+            />
+          ),
+        },
+        {
           path: "/custom-form",
           element: (
             <RoleUser

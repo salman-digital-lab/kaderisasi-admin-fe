@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Button, Card, Input, Space, Table, Tag } from "antd";
+import { Button, Input, Space, Table, Tag, Typography } from "antd";
 import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useRequest } from "ahooks";
@@ -13,6 +13,7 @@ import {
 } from "../../../constants/render";
 import type { Activity } from "../../../types/model/activity";
 
+const { Title } = Typography;
 const pageSize = 10;
 
 const ClubActivitiesPage = () => {
@@ -83,41 +84,40 @@ const ClubActivitiesPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <Card>
-        <Space wrap>
-          <Input.Search
-            allowClear
-            placeholder="Cari kegiatan"
-            style={{ width: 280 }}
-            onSearch={(value) => {
-              setSearch(value);
-              setCurrentPage(1);
-            }}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
-          <Link to="/activity">
-            <Button type="primary">Tambah di Kegiatan</Button>
-          </Link>
-        </Space>
-      </Card>
-
-      <Card>
-        <Table
-          rowKey="id"
-          dataSource={data?.data || []}
-          columns={columns}
-          loading={loading}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: data?.meta.total || 0,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} dari ${total} kegiatan`,
-            onChange: (page) => setCurrentPage(page),
+      <Title level={4} style={{ margin: 0 }}>
+        Kegiatan Unit
+      </Title>
+      <Space wrap>
+        <Input.Search
+          allowClear
+          placeholder="Cari kegiatan"
+          style={{ width: 280 }}
+          onSearch={(value) => {
+            setSearch(value);
+            setCurrentPage(1);
           }}
-          scroll={{ x: 900 }}
+          prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
         />
-      </Card>
+        <Link to="/activity">
+          <Button type="primary">Tambah di Kegiatan</Button>
+        </Link>
+      </Space>
+
+      <Table
+        rowKey="id"
+        dataSource={data?.data || []}
+        columns={columns}
+        loading={loading}
+        pagination={{
+          current: currentPage,
+          pageSize,
+          total: data?.meta.total || 0,
+          showTotal: (total, range) =>
+            `${range[0]}-${range[1]} dari ${total} kegiatan`,
+          onChange: (page) => setCurrentPage(page),
+        }}
+        scroll={{ x: 900 }}
+      />
     </Space>
   );
 };

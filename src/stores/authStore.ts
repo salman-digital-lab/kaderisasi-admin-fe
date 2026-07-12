@@ -114,7 +114,7 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           // Recalculate permissions in case ADMIN_ROLE_PERMISSION changed
-          if (state.user?.role) {
+          if (state.user?.role !== undefined && state.user.role !== null) {
             const role = state.user.role as keyof typeof ADMIN_ROLE_PERMISSION;
             const newPermissions = ADMIN_ROLE_PERMISSION[role] || [];
             state.permissions = newPermissions;

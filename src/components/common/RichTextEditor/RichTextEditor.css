@@ -1,6 +1,6 @@
 .rich-text-editor {
   border: 1px solid #d9d9d9;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.3s;
 }
 
@@ -29,7 +29,7 @@
   padding: 8px;
   border-bottom: 1px solid #d9d9d9;
   background-color: #fafafa;
-  border-radius: 6px 6px 0 0;
+  border-radius: 0;
 }
 
 .rich-text-editor-content {
@@ -104,4 +104,3 @@
 .rich-text-editor .ProseMirror [style*="text-align: left"] {
   text-align: left;
 }
-

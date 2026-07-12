@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Card,
   Form,
   Input,
   Button,
@@ -10,15 +9,24 @@ import {
   Row,
   Col,
   Select,
+  Divider,
+  notification,
+  Skeleton,
+  Space,
+  Tag,
+  Typography,
 } from "antd";
+import { SaveOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 
 import { getClub, putClub } from "../../../../api/services/club";
-import type { Club, ClubType } from "../../../../types/model/club";
+import type { ClubType } from "../../../../types/model/club";
 import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
+
+const { Title } = Typography;
 
 type FieldType = {
   name: string;
@@ -35,15 +43,16 @@ type FieldType = {
 const ClubDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm<FieldType>();
-  const [, setClubData] = useState<Club | null>(null);
+  const isShown = Form.useWatch("is_show", form);
+  const isRegistrationOpen = Form.useWatch("is_registration_open", form);
   const [description, setDescription] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [isChanged, setIsChanged] = useState(false);
 
   const { loading: fetchLoading } = useRequest(() => getClub(Number(id)), {
     ready: !!id,
     onSuccess: (data) => {
       if (data) {
-        setClubData(data);
         setDescription(data.description || "");
         setShortDescription(data.short_description || "");
         form.setFieldsValue({
@@ -83,56 +92,90 @@ const ClubDetail = () => {
       manual: true,
       onSuccess: (data) => {
         if (data) {
-          setClubData(data);
           setDescription(data.description || "");
           setShortDescription(data.short_description || "");
+          setIsChanged(false);
+          notification.success({
+            message: "Berhasil",
+            description: "Data unit kegiatan berhasil diubah.",
+          });
         }
       },
     },
   );
 
-  const handleSubmit = () => {
-    form.validateFields().then((values) => {
-      updateClub(values);
-    });
-  };
-
-  if (fetchLoading) {
-    return <Card loading />;
-  }
-
   return (
-    <Card
-      title="Informasi Unit Kegiatan"
-      extra={
-        <Button type="primary" onClick={handleSubmit} loading={updateLoading}>
-          Simpan Perubahan
-        </Button>
-      }
-    >
-      <Form form={form} layout="vertical">
-        <Form.Item
-          label="Tipe Club"
-          name="club_type"
-          rules={[{ required: true, message: "Tipe club wajib dipilih!" }]}
+    <Skeleton loading={fetchLoading}>
+      <Form
+        form={form}
+        id="detail-club"
+        layout="vertical"
+        onFinish={updateClub}
+        onValuesChange={() => setIsChanged(true)}
+      >
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: 16 }}
         >
-          <Select options={CLUB_TYPE_OPTIONS} placeholder="Pilih tipe club" />
-        </Form.Item>
+          <Space align="center" size="middle" wrap>
+            <Title level={4} style={{ margin: 0 }}>
+              Detail Umum
+            </Title>
+            <Tag color={isShown ? "green" : "default"}>
+              {isShown ? "Tayang" : "Draf"}
+            </Tag>
+            <Tag color={isRegistrationOpen ? "green" : "default"}>
+              {isRegistrationOpen
+                ? "Pendaftaran Dibuka"
+                : "Pendaftaran Ditutup"}
+            </Tag>
+          </Space>
+          <Button
+            form="detail-club"
+            htmlType="submit"
+            type="primary"
+            icon={<SaveOutlined />}
+            loading={updateLoading}
+            disabled={!isChanged}
+          >
+            Simpan
+          </Button>
+        </Row>
 
-        <Form.Item
-          label="Nama Unit Kegiatan"
-          name="name"
-          rules={[
-            { required: true, message: "Nama unit kegiatan wajib diisi!" },
-          ]}
-        >
-          <Input placeholder="Masukkan nama unit kegiatan" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Tipe Club"
+              name="club_type"
+              rules={[{ required: true, message: "Tipe club wajib dipilih!" }]}
+            >
+              <Select
+                options={CLUB_TYPE_OPTIONS}
+                placeholder="Pilih tipe club"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Nama Unit Kegiatan"
+              name="name"
+              rules={[
+                { required: true, message: "Nama unit kegiatan wajib diisi!" },
+              ]}
+            >
+              <Input placeholder="Masukkan nama unit kegiatan" />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Form.Item label="Deskripsi Singkat">
           <Input.TextArea
             value={shortDescription}
-            onChange={(e) => setShortDescription(e.target.value)}
+            onChange={(event) => {
+              setShortDescription(event.target.value);
+              setIsChanged(true);
+            }}
             placeholder="Masukkan deskripsi singkat unit kegiatan (maks. 200 karakter)"
             maxLength={200}
             showCount
@@ -143,11 +186,20 @@ const ClubDetail = () => {
         <Form.Item label="Deskripsi">
           <RichTextEditor
             value={description}
-            onChange={setDescription}
+            onChange={(value) => {
+              setDescription(value);
+              setIsChanged(true);
+            }}
             minHeight="200px"
           />
         </Form.Item>
 
+        <Divider style={{ margin: "12px 0" }} />
+        <Row style={{ marginBottom: 16 }}>
+          <Title level={4} style={{ margin: 0 }}>
+            Detail Waktu
+          </Title>
+        </Row>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item label="Periode Mulai" name="start_period">
@@ -169,6 +221,12 @@ const ClubDetail = () => {
           </Col>
         </Row>
 
+        <Divider style={{ margin: "12px 0" }} />
+        <Row style={{ marginBottom: 16 }}>
+          <Title level={4} style={{ margin: 0 }}>
+            Status Unit Kegiatan
+          </Title>
+        </Row>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -192,15 +250,19 @@ const ClubDetail = () => {
           </Col>
         </Row>
 
-        <Form.Item
-          label="Tampilkan Unit Kegiatan"
-          name="is_show"
-          valuePropName="checked"
-        >
-          <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Tampilkan Unit Kegiatan"
+              name="is_show"
+              valuePropName="checked"
+            >
+              <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
-    </Card>
+    </Skeleton>
   );
 };
 

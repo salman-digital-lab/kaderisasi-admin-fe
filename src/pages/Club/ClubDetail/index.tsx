@@ -1,4 +1,4 @@
-import { Space, Tabs } from "antd";
+import { Tabs } from "antd";
 import { useParams, useSearchParams } from "react-router-dom";
 import type { TabsProps } from "antd";
 
@@ -7,14 +7,13 @@ import MediaList from "./components/MediaList";
 import LogoUpload from "./components/LogoUpload";
 import ClubRegistrationInfo from "../ClubRegistrationInfo";
 import ClubRegistrationsPage from "../ClubRegistrations";
-import CustomFormAttachment from "./components/CustomFormAttachment";
-import ClubMembersPage from "../ClubMembers";
 import ClubActivitiesPage from "../ClubActivities";
 
 const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "1";
+  const requestedTab = searchParams.get("tab") || "1";
+  const activeTab = requestedTab === "7" ? "5" : requestedTab;
 
   const items: TabsProps["items"] = [
     {
@@ -39,18 +38,8 @@ const MainClubDetail = () => {
     },
     {
       key: "5",
-      label: "Pendaftaran",
+      label: "Anggota & Pendaftaran",
       children: <ClubRegistrationsPage />,
-    },
-    {
-      key: "6",
-      label: "Form Tambahan",
-      children: <CustomFormAttachment />,
-    },
-    {
-      key: "7",
-      label: "Anggota",
-      children: <ClubMembersPage />,
     },
     {
       key: "8",
@@ -60,18 +49,18 @@ const MainClubDetail = () => {
   ];
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+    <div style={{ minWidth: 0, width: "100%", padding: 12 }}>
       <Tabs
         activeKey={activeTab}
-        onTabClick={(key) => {
+        onChange={(key) => {
           const newParams = new URLSearchParams(searchParams);
           newParams.set("tab", key);
           setSearchParams(newParams);
         }}
-        tabPosition="top"
+        tabPlacement="top"
         items={items}
       />
-    </Space>
+    </div>
   );
 };
 

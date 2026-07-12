@@ -128,6 +128,19 @@ const getDynamicBreadcrumbs = (
     ];
   }
 
+  // Custom form edit pages (from club registration info)
+  if (pathname.match(/^\/club\/\d+\/form\/\d+\/edit$/)) {
+    const clubId = pathname.split("/")[2];
+    return [
+      { path: "/club", title: "Daftar Unit Kegiatan" },
+      {
+        path: `/club/${clubId}?tab=4`,
+        title: "Info Pendaftaran",
+      },
+      { path: "", title: "Ubah Form Pendaftaran" },
+    ];
+  }
+
   // Custom form edit pages (standalone)
   if (pathname.match(/^\/custom-form\/\d+\/edit$/)) {
     return [

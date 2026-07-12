@@ -60,7 +60,6 @@ export type deleteClubRegistrationResp = {
 
 export type putClubRegistrationInfoReq = {
   registration_info: string;
-  after_registration_info: string;
 };
 
 export type putClubRegistrationInfoResp = {
@@ -68,7 +67,6 @@ export type putClubRegistrationInfoResp = {
   data: {
     registration_info: {
       registration_info: string;
-      after_registration_info: string;
     };
   };
 };

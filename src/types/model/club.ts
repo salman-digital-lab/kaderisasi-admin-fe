@@ -1,3 +1,5 @@
+import type { CustomForm } from "./customForm";
+
 export interface MediaItem {
   media_url: string;
   media_type: "image" | "video";
@@ -10,7 +12,6 @@ export interface MediaStructure {
 
 export interface RegistrationInfo {
   registration_info: string;
-  after_registration_info: string;
 }
 
 export type ClubType = "UKM" | "AVISMAN";
@@ -29,6 +30,7 @@ export interface Club {
   is_show?: boolean;
   is_registration_open?: boolean;
   registration_end_date?: string;
+  attachedCustomForm?: CustomForm;
   created_at: string;
   updated_at: string;
 }

@@ -123,6 +123,8 @@ export function renderNotification(code: string) {
       return "Indeks media tidak valid";
     case "REGISTRATION_INFO_UPDATED":
       return "Informasi pendaftaran berhasil diperbarui";
+    case "ACTIVE_CUSTOM_FORM_REQUIRED":
+      return "Aktifkan dan lampirkan form pendaftaran sebelum membuka pendaftaran klub";
 
     // Club Registration Messages
     case "CLUB_REGISTRATIONS_RETRIEVED":
@@ -211,6 +213,8 @@ export function renderNotification(code: string) {
       return "Formulir berhasil dilampirkan ke klub";
     case "FORM_DETACHED_FROM_CLUB_SUCCESS":
       return "Formulir berhasil dilepas dari klub";
+    case "CLOSE_REGISTRATION_BEFORE_FORM_CHANGE":
+      return "Tutup pendaftaran klub sebelum mengubah, menonaktifkan, melepas, atau menghapus formulir";
 
     default:
       return code;
