@@ -106,7 +106,7 @@ export function renderNotification(code: string) {
 
     // Club Messages
     case "CLUB_NOT_FOUND":
-      return "Unit Kegiatan tidak ditemukan";
+      return "Klub tidak ditemukan";
     case "UPLOAD_LOGO_SUCCESS":
       return "Logo berhasil diupload";
     case "UPLOAD_MEDIA_SUCCESS":
@@ -120,7 +120,7 @@ export function renderNotification(code: string) {
     case "MEDIA_NOT_FOUND":
       return "Media tidak ditemukan";
     case "MEDIA_ALREADY_EXISTS":
-      return "Media tersebut sudah ada di unit kegiatan ini";
+      return "Media tersebut sudah ada di klub ini";
     case "INVALID_MEDIA_INDEX":
       return "Indeks media tidak valid";
     case "REGISTRATION_INFO_UPDATED":

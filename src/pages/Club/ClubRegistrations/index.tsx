@@ -179,7 +179,7 @@ const ClubRegistrationsPage: React.FC = () => {
     modal.confirm({
       title: `${actionLabel} pendaftaran ${getMemberName(registration)}?`,
       content: isApproval
-        ? "Pendaftar akan menjadi anggota unit kegiatan."
+        ? "Pendaftar akan menjadi anggota klub."
         : "Pendaftaran akan ditandai sebagai ditolak.",
       okText: actionLabel,
       cancelText: "Batal",
@@ -334,7 +334,7 @@ const ClubRegistrationsPage: React.FC = () => {
     modal.confirm({
       title: `${actionLabel} ${selectedRowKeys.length} pendaftaran?`,
       content: isApproval
-        ? "Pendaftar yang dipilih akan menjadi anggota unit kegiatan."
+        ? "Pendaftar yang dipilih akan menjadi anggota klub."
         : "Pendaftaran yang dipilih akan ditandai sebagai ditolak.",
       okText: actionLabel,
       cancelText: "Batal",
@@ -366,7 +366,7 @@ const ClubRegistrationsPage: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${club?.name || "unit-kegiatan"}_registrations.xlsx`;
+      link.download = `${club?.name || "klub"}_registrations.xlsx`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch {

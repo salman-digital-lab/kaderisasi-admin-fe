@@ -73,7 +73,7 @@ const LogoUpload = () => {
     <Skeleton loading={fetchLoading}>
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Title level={4} style={{ margin: 0 }}>
-          Logo Unit Kegiatan
+          Logo Klub
         </Title>
         {clubData?.logo && (
           <div>
@@ -81,7 +81,7 @@ const LogoUpload = () => {
             <div style={{ marginTop: 8 }}>
               <Image
                 src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${clubData.logo}`}
-                alt="Club Logo"
+                alt="Logo klub"
                 style={{ maxWidth: 200, maxHeight: 200 }}
               />
             </div>

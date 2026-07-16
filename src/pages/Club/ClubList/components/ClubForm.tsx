@@ -62,7 +62,7 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
 
   return (
     <Modal
-      title="Tambah Unit Kegiatan"
+      title="Tambah Klub"
       open={open}
       onCancel={handleCancel}
       onOk={handleSubmit}
@@ -76,22 +76,20 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
     >
       <Form form={form} layout="vertical" onFinish={run}>
         <Form.Item
-          label="Tipe Club"
+          label="Tipe Klub"
           name="club_type"
           initialValue="UKM"
-          rules={[{ required: true, message: "Tipe club wajib dipilih!" }]}
+          rules={[{ required: true, message: "Tipe klub wajib dipilih!" }]}
         >
-          <Select options={CLUB_TYPE_OPTIONS} placeholder="Pilih tipe club" />
+          <Select options={CLUB_TYPE_OPTIONS} placeholder="Pilih tipe klub" />
         </Form.Item>
 
         <Form.Item
-          label="Nama Unit Kegiatan"
+          label="Nama Klub"
           name="name"
-          rules={[
-            { required: true, message: "Nama unit kegiatan wajib diisi!" },
-          ]}
+          rules={[{ required: true, message: "Nama klub wajib diisi!" }]}
         >
-          <Input placeholder="Masukkan nama unit kegiatan" />
+          <Input placeholder="Masukkan nama klub" />
         </Form.Item>
         <Form.Item
           label="Deskripsi Singkat"
@@ -102,7 +100,7 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
           ]}
         >
           <Input.TextArea
-            placeholder="Masukkan deskripsi singkat unit kegiatan (maks. 200 karakter)"
+            placeholder="Masukkan deskripsi singkat klub (maks. 200 karakter)"
             maxLength={200}
             showCount
             rows={3}

@@ -40,7 +40,7 @@ const ClubList = () => {
           <Alert
             type="error"
             showIcon
-            title="Daftar unit kegiatan gagal dimuat"
+            title="Daftar klub gagal dimuat"
             description="Periksa koneksi atau layanan API, lalu coba kembali."
             action={<Button onClick={refresh}>Coba Lagi</Button>}
           />

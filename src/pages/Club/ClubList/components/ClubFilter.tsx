@@ -46,17 +46,17 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         {/* Left: Filters */}
         <Space size={12} wrap>
           <Input.Search
-            placeholder="Cari nama club"
+            placeholder="Cari nama klub"
             allowClear
             style={{ width: 280 }}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onSearch={handleSearch}
-            aria-label="Cari unit kegiatan berdasarkan nama"
+            aria-label="Cari klub berdasarkan nama"
           />
           <Select
             allowClear
-            placeholder="Tipe club"
+            placeholder="Tipe klub"
             options={CLUB_TYPE_OPTIONS}
             style={{ width: 160 }}
             value={clubType}
@@ -74,14 +74,14 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         {/* Right: Actions */}
         <Space size={8} wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={toggle}>
-            Tambah Unit Kegiatan
+            Tambah Klub
           </Button>
           <Tooltip placement="left" title="Refresh Data">
             <Button
               icon={<ReloadOutlined />}
               onClick={refresh}
               loading={loading}
-              aria-label="Muat ulang daftar unit kegiatan"
+              aria-label="Muat ulang daftar klub"
             />
           </Tooltip>
         </Space>

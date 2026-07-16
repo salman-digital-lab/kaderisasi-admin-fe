@@ -43,7 +43,7 @@ describe("Club mutation payloads", () => {
 
   it("always creates a new club as a hidden draft", () => {
     const payload = createDraftClubPayload({
-      name: "Unit Kegiatan Baru",
+      name: "Klub Baru",
       club_type: "UKM",
       is_show: true,
     });

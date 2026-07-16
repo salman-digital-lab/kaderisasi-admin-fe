@@ -80,7 +80,7 @@ const MembersListModal = ({
     <>
       {messageContextHolder}
       <Modal
-        title="Tambahkan Pendaftar ke Unit Kegiatan"
+        title="Tambahkan Pendaftar ke Klub"
         open={open}
         onOk={onOk}
         confirmLoading={addLoading}

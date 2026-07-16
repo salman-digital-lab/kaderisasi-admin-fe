@@ -148,7 +148,7 @@ export const BasicInfoTab = ({
                         </Select.Option>
                         {initialData.feature_type === "club_registration" && (
                           <Select.Option value="club_registration" disabled>
-                            Pendaftaran Club
+                            Pendaftaran Klub
                           </Select.Option>
                         )}
                         <Select.Option value="independent_form">

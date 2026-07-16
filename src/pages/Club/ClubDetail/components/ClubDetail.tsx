@@ -136,25 +136,23 @@ const ClubDetail = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Tipe Club"
+              label="Tipe Klub"
               name="club_type"
-              rules={[{ required: true, message: "Tipe club wajib dipilih!" }]}
+              rules={[{ required: true, message: "Tipe klub wajib dipilih!" }]}
             >
               <Select
                 options={CLUB_TYPE_OPTIONS}
-                placeholder="Pilih tipe club"
+                placeholder="Pilih tipe klub"
               />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Nama Unit Kegiatan"
+              label="Nama Klub"
               name="name"
-              rules={[
-                { required: true, message: "Nama unit kegiatan wajib diisi!" },
-              ]}
+              rules={[{ required: true, message: "Nama klub wajib diisi!" }]}
             >
-              <Input placeholder="Masukkan nama unit kegiatan" />
+              <Input placeholder="Masukkan nama klub" />
             </Form.Item>
           </Col>
         </Row>
@@ -166,7 +164,7 @@ const ClubDetail = () => {
               setShortDescription(event.target.value);
               setIsChanged(true);
             }}
-            placeholder="Masukkan deskripsi singkat unit kegiatan (maks. 200 karakter)"
+            placeholder="Masukkan deskripsi singkat klub (maks. 200 karakter)"
             maxLength={200}
             showCount
             rows={3}
@@ -214,7 +212,7 @@ const ClubDetail = () => {
         <Divider style={{ margin: "12px 0" }} />
         <Row style={{ marginBottom: 16 }}>
           <Title level={4} style={{ margin: 0 }}>
-            Status Unit Kegiatan
+            Status Klub
           </Title>
         </Row>
         <Row gutter={16}>
@@ -243,7 +241,7 @@ const ClubDetail = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Tampilkan Unit Kegiatan"
+              label="Tampilkan Klub"
               name="is_show"
               valuePropName="checked"
             >

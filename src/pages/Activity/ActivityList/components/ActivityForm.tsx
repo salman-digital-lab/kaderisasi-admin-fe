@@ -190,13 +190,13 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="club_id" label="Club Terkait">
+              <Form.Item name="club_id" label="Klub Terkait">
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
                   options={clubOptions}
-                  placeholder="Pilih club"
+                  placeholder="Pilih klub"
                 />
               </Form.Item>
             </Col>

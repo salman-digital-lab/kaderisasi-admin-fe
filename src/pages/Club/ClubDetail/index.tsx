@@ -28,17 +28,17 @@ const MainClubDetail = () => {
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: "Detail Unit Kegiatan",
+      label: "Detail Klub",
       children: <ClubDetail />,
     },
     {
       key: "2",
-      label: "Logo Unit Kegiatan",
+      label: "Logo Klub",
       children: <LogoUpload />,
     },
     {
       key: "3",
-      label: "Media Unit Kegiatan",
+      label: "Media Klub",
       children: <MediaList />,
     },
     {
@@ -64,8 +64,8 @@ const MainClubDetail = () => {
         <Alert
           type="info"
           showIcon
-          title="Unit kegiatan dibuat sebagai draf"
-          description='Lengkapi detail, logo, media, dan form pendaftaran terlebih dahulu. Aktifkan "Tampilkan Unit Kegiatan" hanya setelah semuanya siap dipublikasikan.'
+          title="Klub dibuat sebagai draf"
+          description='Lengkapi detail, logo, media, dan form pendaftaran terlebih dahulu. Aktifkan "Tampilkan Klub" hanya setelah semuanya siap dipublikasikan.'
           closable={{ onClose: dismissSetupGuide }}
           style={{ marginBottom: 16 }}
         />

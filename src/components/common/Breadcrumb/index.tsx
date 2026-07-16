@@ -35,7 +35,7 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
       title: "Daftar Peringkat Seumur Hidup",
     },
   ],
-  "/club": [{ path: "/club", title: "Daftar Unit Kegiatan" }],
+  "/club": [{ path: "/club", title: "Daftar Klub" }],
   "/custom-form": [{ path: "/custom-form", title: "Daftar Form Kustom" }],
 };
 
@@ -123,8 +123,8 @@ const getDynamicBreadcrumbs = (
   // Club detail pages
   if (pathname.match(/^\/club\/\d+$/)) {
     return [
-      { path: "/club", title: "Daftar Unit Kegiatan" },
-      { path: "", title: "Detail Unit Kegiatan" },
+      { path: "/club", title: "Daftar Klub" },
+      { path: "", title: "Detail Klub" },
     ];
   }
 
@@ -132,7 +132,7 @@ const getDynamicBreadcrumbs = (
   if (pathname.match(/^\/club\/\d+\/form\/\d+\/edit$/)) {
     const clubId = pathname.split("/")[2];
     return [
-      { path: "/club", title: "Daftar Unit Kegiatan" },
+      { path: "/club", title: "Daftar Klub" },
       {
         path: `/club/${clubId}?tab=4`,
         title: "Info Pendaftaran",

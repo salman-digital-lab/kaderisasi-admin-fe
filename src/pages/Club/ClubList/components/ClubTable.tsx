@@ -36,7 +36,7 @@ const ClubTable = ({ data, loading, setParameter }: DataTypeProps) => {
         showQuickJumper: true,
         total: data?.meta.total,
         showTotal: (total, range) =>
-          `Menampilkan ${range[0]}-${range[1]} dari ${total} club`,
+          `Menampilkan ${range[0]}-${range[1]} dari ${total} klub`,
         pageSizeOptions: ["10", "20", "50", "100"],
       }}
       loading={loading}

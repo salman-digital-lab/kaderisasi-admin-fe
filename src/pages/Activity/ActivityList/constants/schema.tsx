@@ -68,7 +68,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     ),
   },
   {
-    title: "Club",
+    title: "Klub",
     key: "club",
     width: 160,
     render: (_, record) => record.club?.name || "-",

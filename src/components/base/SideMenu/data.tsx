@@ -90,7 +90,7 @@ export const menuItems: (
     menuItems.push({
       key: "/club",
       icon: <TeamOutlined />,
-      label: <Link to="/club">Club</Link>,
+      label: <Link to="/club">Klub</Link>,
     });
   }
 

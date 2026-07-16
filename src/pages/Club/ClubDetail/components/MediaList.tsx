@@ -207,7 +207,7 @@ const MediaList = () => {
         return isImage ? (
           <Image
             src={mediaUrl}
-            alt={`Pratinjau media ${clubData?.name || "unit kegiatan"}`}
+            alt={`Pratinjau media ${clubData?.name || "klub"}`}
             width={60}
             height={60}
             style={{ objectFit: "cover" }}
@@ -258,7 +258,7 @@ const MediaList = () => {
             </Button>
             <Popconfirm
               title="Hapus media?"
-              description="Media ini akan dihapus permanen dari unit kegiatan."
+              description="Media ini akan dihapus permanen dari klub."
               onConfirm={() => handleDeleteMedia(item.media_url)}
               okText="Hapus"
               cancelText="Batal"

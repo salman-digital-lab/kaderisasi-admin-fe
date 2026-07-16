@@ -392,13 +392,13 @@ const ActivityDetail = () => {
           </Row>
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item name="club_id" label="Club Terkait">
+              <Form.Item name="club_id" label="Klub Terkait">
                 <Select
                   allowClear
                   showSearch
                   optionFilterProp="label"
                   options={clubOptions}
-                  placeholder="Pilih club"
+                  placeholder="Pilih klub"
                 />
               </Form.Item>
             </Col>

@@ -137,7 +137,7 @@ const MainActivity = () => {
             />
 
             <Select
-              placeholder="Semua Club"
+              placeholder="Semua Klub"
               allowClear
               showSearch
               optionFilterProp="label"

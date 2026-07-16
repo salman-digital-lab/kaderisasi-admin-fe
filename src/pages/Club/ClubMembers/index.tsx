@@ -80,7 +80,7 @@ const ClubMembersPage = () => {
         setTotalItems(response.meta.total);
       }
     } catch {
-      message.error("Gagal memuat anggota club");
+      message.error("Gagal memuat anggota klub");
     } finally {
       setLoading(false);
     }
