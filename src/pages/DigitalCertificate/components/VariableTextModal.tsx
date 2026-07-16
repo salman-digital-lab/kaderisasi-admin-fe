@@ -6,7 +6,6 @@ const { Text } = Typography;
 
 const SAMPLE_VALUES: Record<string, string> = {
   "{{name}}": "Ahmad Fauzan",
-  "{{email}}": "ahmad.fauzan@email.com",
   "{{activity_name}}": "Pelatihan Dasar Kaderisasi",
   "{{activity_date}}": "13 Februari 2026",
   "{{date}}": "13 Februari 2026",
@@ -61,6 +60,7 @@ export const VariableTextModal: React.FC<VariableTextModalProps> = ({
       </div>
       <Select
         showSearch
+        aria-label="Variabel sertifikat"
         style={{ width: "100%" }}
         value={selectedVariable}
         onChange={setSelectedVariable}

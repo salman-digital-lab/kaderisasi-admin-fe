@@ -1,5 +1,11 @@
 import React from "react";
-import { CertificateElement } from "../types";
+import { QRCode } from "antd";
+import type { CertificateElement } from "../types";
+import {
+  CERTIFICATE_SAMPLE_CODE,
+  getCertificateAssetUrl,
+  getCertificateVerificationUrl,
+} from "../utils/certificate-content";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -286,12 +292,27 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
               style={textStyle}
             />
           );
+        case "qr-code": {
+          const verificationUrl = getCertificateVerificationUrl(
+            CERTIFICATE_SAMPLE_CODE,
+          );
+          return verificationUrl ? (
+            <QRCode
+              type="svg"
+              bordered={false}
+              value={verificationUrl}
+              size={Math.max(24, Math.min(element.width, element.height) - 8)}
+              style={{ width: "100%", height: "100%" }}
+            />
+          ) : (
+            <div style={placeholderStyle}>URL publik belum dikonfigurasi</div>
+          );
+        }
         case "image":
-        case "qr-code":
         case "signature":
           return (
             <ImageContent
-              imageUrl={element.imageUrl}
+              imageUrl={getCertificateAssetUrl(element.imageUrl) || undefined}
               alt={element.type}
               objectFit={element.objectFit || "contain"}
               borderRadius={element.borderRadius || 0}

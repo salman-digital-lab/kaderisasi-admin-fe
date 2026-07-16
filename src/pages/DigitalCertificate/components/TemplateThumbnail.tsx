@@ -1,19 +1,17 @@
 import React from "react";
+import { QRCode } from "antd";
 import type { CertificateTemplateData } from "../../../types/services/certificateTemplate";
+import {
+  CERTIFICATE_SAMPLE_CODE,
+  getCertificateAssetUrl,
+  getCertificateVerificationUrl,
+} from "../utils/certificate-content";
 
 interface TemplateThumbnailProps {
   templateData?: CertificateTemplateData;
   backgroundImage?: string | null;
   width?: number;
 }
-
-const getImageUrl = (path?: string | null): string | null => {
-  if (!path) return null;
-  if (path.startsWith("data:") || path.startsWith("http")) return path;
-
-  const imageBaseUrl = import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL || "";
-  return `${imageBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
-};
 
 export const TemplateThumbnail: React.FC<TemplateThumbnailProps> = React.memo(
   ({ templateData, backgroundImage, width = 120 }) => {
@@ -35,7 +33,11 @@ export const TemplateThumbnail: React.FC<TemplateThumbnailProps> = React.memo(
     const scale = width / canvasWidth;
     const thumbnailHeight = Math.round(canvasHeight * scale);
     const backgroundUrl =
-      getImageUrl(backgroundImage) || templateData.backgroundUrl;
+      getCertificateAssetUrl(backgroundImage) ||
+      getCertificateAssetUrl(templateData.backgroundUrl);
+    const verificationUrl = getCertificateVerificationUrl(
+      CERTIFICATE_SAMPLE_CODE,
+    );
 
     return (
       <div
@@ -90,11 +92,28 @@ export const TemplateThumbnail: React.FC<TemplateThumbnailProps> = React.memo(
                   overflow: "hidden",
                 }}
               >
-                {element.type === "static-text"
-                  ? element.content
-                  : element.type === "variable-text"
-                    ? element.variable
-                    : null}
+                {element.type === "static-text" ? (
+                  element.content
+                ) : element.type === "variable-text" ? (
+                  element.variable
+                ) : element.type === "qr-code" && verificationUrl ? (
+                  <QRCode
+                    type="svg"
+                    bordered={false}
+                    value={verificationUrl}
+                    size={Math.max(32, Math.min(element.width, element.height))}
+                  />
+                ) : element.imageUrl ? (
+                  <img
+                    src={getCertificateAssetUrl(element.imageUrl) || undefined}
+                    alt=""
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: element.objectFit || "contain",
+                    }}
+                  />
+                ) : null}
               </div>
             ))}
         </div>

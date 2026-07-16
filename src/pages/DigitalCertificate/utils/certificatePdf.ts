@@ -17,6 +17,10 @@ interface GenerateCertificatePdfOptions {
   resolveText: ResolveText;
 }
 
+interface OpenCertificatePdfOptions extends GenerateCertificatePdfOptions {
+  targetWindow?: Window | null;
+}
+
 interface PdfMetrics {
   width: number;
   height: number;
@@ -230,13 +234,22 @@ export const createCertificatePdf = async ({
   return pdf;
 };
 
-export const openCertificatePdf = async (
-  options: GenerateCertificatePdfOptions,
-): Promise<void> => {
+export const openCertificatePdf = async ({
+  targetWindow,
+  ...options
+}: OpenCertificatePdfOptions): Promise<void> => {
   const pdf = await createCertificatePdf(options);
   const pdfBlob = pdf.output("blob");
   const pdfUrl = URL.createObjectURL(pdfBlob);
-  window.open(pdfUrl, "_blank");
+  const previewWindow = targetWindow || window.open("", "_blank");
+  if (!previewWindow) {
+    URL.revokeObjectURL(pdfUrl);
+    throw new Error("PDF_PREVIEW_POPUP_BLOCKED");
+  }
+
+  previewWindow.opener = null;
+  previewWindow.location.href = pdfUrl;
+  window.setTimeout(() => URL.revokeObjectURL(pdfUrl), 60_000);
 };
 
 export const saveCertificatePdf = async (

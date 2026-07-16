@@ -1,5 +1,7 @@
 import { Pagination } from "./base";
 
+export type CertificateTemplateStatus = "draft" | "published" | "archived";
+
 export interface CertificateTemplateElement {
   id: string;
   type: "static-text" | "variable-text" | "image" | "qr-code" | "signature";
@@ -21,6 +23,7 @@ export interface CertificateTemplateElement {
   lineHeight?: number;
   letterSpacing?: number;
   imageUrl?: string;
+  assetKey?: string;
   opacity?: number;
   rotation?: number;
   borderRadius?: number;
@@ -43,6 +46,23 @@ export interface CertificateTemplate {
   background_image: string | null;
   template_data: CertificateTemplateData;
   is_active: boolean;
+  status?: CertificateTemplateStatus;
+  lifecycle_status?: CertificateTemplateStatus;
+  published_at?: string | null;
+  archived_at?: string | null;
+  activity_usage_count?: number;
+  issued_certificate_count?: number;
+  readiness?: {
+    ready: boolean;
+    errors: Array<
+      | string
+      | {
+          code?: string;
+          message: string;
+          severity?: "error" | "warning";
+        }
+    >;
+  };
   created_at: string;
   updated_at: string;
 }
@@ -60,6 +80,7 @@ export interface GetCertificateTemplatesReq {
   per_page?: string;
   search?: string;
   is_active?: string;
+  status?: CertificateTemplateStatus;
 }
 
 export interface CreateCertificateTemplateReq {
@@ -67,9 +88,12 @@ export interface CreateCertificateTemplateReq {
   description?: string | null;
   templateData?: CertificateTemplateData;
   isActive?: boolean;
+  status?: CertificateTemplateStatus;
 }
 
-export interface UpdateCertificateTemplateReq extends Partial<CreateCertificateTemplateReq> {}
+export interface UpdateCertificateTemplateReq extends Partial<CreateCertificateTemplateReq> {
+  backgroundImage?: string | null;
+}
 
 // Response types
 export interface GetCertificateTemplatesResp {
@@ -99,11 +123,6 @@ export interface DeleteCertificateTemplateResp {
   message: string;
 }
 
-export interface UploadBackgroundResp {
-  message: string;
-  data: { backgroundImage: string };
-}
-
 export interface GenerateCertificatesReq {
   activity_id: number;
   template_id: number;
@@ -116,6 +135,9 @@ export interface CertificateParticipant {
   name: string;
   email: string;
   university: string;
+  gender?: string;
+  guest_name?: string;
+  is_guest?: boolean;
   activity_name: string;
   activity_date: string;
 }
@@ -125,15 +147,18 @@ export interface IssuedCertificate {
   certificate_code: string;
   registration_id: number;
   activity_id: number;
-  template_id: number;
-  template_snapshot: CertificateTemplateSnapshot;
-  participant_snapshot: CertificateParticipant;
+  participant_name: string;
+  participant_email: string;
+  activity_name: string;
+  template_name: string;
   issued_by: number | null;
+  issued_by_name: string | null;
   issued_at: string;
   revoked_at: string | null;
   revoked_reason: string | null;
-  created_at: string;
-  updated_at: string;
+  revoked_by: number | null;
+  revoked_by_name: string | null;
+  state: "issued_active" | "issued_revoked";
 }
 
 export interface CertificatePayload {
@@ -181,7 +206,19 @@ export interface GenerateSingleCertificateResp {
 
 export interface GetIssuedCertificatesResp {
   message: string;
-  data: IssuedCertificate[];
+  data:
+    | IssuedCertificate[]
+    | {
+        meta: Pagination;
+        data: IssuedCertificate[];
+      };
+}
+
+export interface GetIssuedCertificatesReq {
+  activity_id?: number;
+  page?: number;
+  per_page?: number;
+  status?: "issued" | "revoked";
 }
 
 export interface IssueCertificateResp {
@@ -195,15 +232,28 @@ export interface IssueBulkCertificatesReq {
 
 export interface IssueBulkCertificatesResp {
   message: string;
-  data: {
-    issued: CertificatePayload[];
-    skipped: Array<{
-      registration_id: number;
-      reason: string;
-    }>;
-    total_issued: number;
-    total_skipped: number;
-  };
+  data: IssueBulkCertificatesResult;
+}
+
+export interface IssueBulkCertificateDetail {
+  registration_id: number;
+  reason?: string;
+  certificate_id?: number;
+  certificate_code?: string;
+}
+
+export interface IssueBulkCertificatesResult {
+  created: CertificatePayload[];
+  issued?: CertificatePayload[];
+  already_issued: CertificatePayload[];
+  skipped: IssueBulkCertificateDetail[];
+  failed: IssueBulkCertificateDetail[];
+  total_requested: number;
+  total_created: number;
+  total_issued?: number;
+  total_already_issued: number;
+  total_skipped: number;
+  total_failed: number;
 }
 
 export interface RevokeCertificateReq {

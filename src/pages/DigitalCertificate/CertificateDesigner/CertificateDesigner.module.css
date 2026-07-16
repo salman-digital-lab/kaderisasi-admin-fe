@@ -47,6 +47,11 @@
   flex: none;
 }
 
+.assetAlert {
+  flex: none;
+  margin-bottom: 12px;
+}
+
 .validationList {
   margin: 0;
   padding-inline-start: 20px;

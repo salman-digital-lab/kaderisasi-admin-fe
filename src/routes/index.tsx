@@ -6,7 +6,12 @@ import {
   useIsAuthenticated,
   useIsInitialized,
   useHasPermission,
+  useUser,
 } from "../stores/authStore";
+import {
+  canAccessCertificates,
+  canManageCertificateTemplates,
+} from "../utils/certificate-permissions";
 
 import AppLayout from "../components/base";
 
@@ -110,14 +115,43 @@ const RoleUser = ({
   return <>{element}</>;
 };
 
+const CertificateRoleUser = ({
+  element,
+  manageOnly = false,
+}: {
+  element: ReactNode;
+  manageOnly?: boolean;
+}) => {
+  const isAuthenticated = useIsAuthenticated();
+  const isInitialized = useIsInitialized();
+  const hasPermission = useHasPermission();
+  const user = useUser();
+
+  if (!isInitialized) return <Loading />;
+
+  const allowed = manageOnly
+    ? canManageCertificateTemplates(user?.role)
+    : canAccessCertificates(user?.role);
+
+  if (!isAuthenticated || !hasPermission("kegiatan") || !allowed) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{element}</>;
+};
+
 const routes = createBrowserRouter(
   [
     {
-      path: "/certificate-preview",
+      path: "/certificate-preview/:id",
       element: (
-        <SuspenseWrapper>
-          <CertificatePreview />
-        </SuspenseWrapper>
+        <CertificateRoleUser
+          element={
+            <SuspenseWrapper>
+              <CertificatePreview />
+            </SuspenseWrapper>
+          }
+        />
       ),
     },
     {
@@ -432,17 +466,26 @@ const routes = createBrowserRouter(
         {
           path: "/digital-certificate",
           element: (
-            <SuspenseWrapper>
-              <DigitalCertificate />
-            </SuspenseWrapper>
+            <CertificateRoleUser
+              element={
+                <SuspenseWrapper>
+                  <DigitalCertificate />
+                </SuspenseWrapper>
+              }
+            />
           ),
         },
         {
           path: "/digital-certificate/:id/edit",
           element: (
-            <SuspenseWrapper>
-              <CertificateDesigner />
-            </SuspenseWrapper>
+            <CertificateRoleUser
+              manageOnly
+              element={
+                <SuspenseWrapper>
+                  <CertificateDesigner />
+                </SuspenseWrapper>
+              }
+            />
           ),
         },
       ],

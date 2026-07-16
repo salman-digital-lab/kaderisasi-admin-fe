@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Card,
   Table,
@@ -13,6 +13,7 @@ import {
   Modal,
   Form,
   Select,
+  Alert,
 } from "antd";
 import {
   PlusOutlined,
@@ -22,6 +23,8 @@ import {
   CopyOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
+  CheckCircleOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import type { TableProps } from "antd/es/table/InternalTable";
@@ -30,15 +33,29 @@ import {
   getCertificateTemplates,
   createCertificateTemplate,
   deleteCertificateTemplate,
+  updateCertificateTemplateLifecycle,
 } from "../../../api/services/certificateTemplate";
-import {
+import type {
   CertificateTemplate,
   CertificateTemplateData,
+  CertificateTemplateStatus,
 } from "../../../types/services/certificateTemplate";
-import { Pagination } from "../../../types/services/base";
+import type { Pagination } from "../../../types/services/base";
 import { TemplateThumbnail } from "../components";
+import {
+  getCertificateReadiness,
+  getCertificateTemplateStatus,
+  isCertificateTemplateReady,
+} from "../utils/certificate-readiness";
+import { useUser } from "../../../stores/authStore";
+import { canManageCertificateTemplates } from "../../../utils/certificate-permissions";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
+
+const TOUCH_ACTION_STYLE: React.CSSProperties = {
+  minWidth: 44,
+  minHeight: 44,
+};
 
 interface CreateTemplateFormValues {
   name: string;
@@ -69,6 +86,15 @@ const STARTER_LAYOUTS = [
   { label: "Sertifikat Basic", value: "basic" },
   { label: "Penghargaan", value: "award" },
   { label: "Partisipasi", value: "participation" },
+];
+
+const STATUS_OPTIONS: Array<{
+  label: string;
+  value: CertificateTemplateStatus;
+}> = [
+  { label: "Draf", value: "draft" },
+  { label: "Dipublikasikan", value: "published" },
+  { label: "Diarsipkan", value: "archived" },
 ];
 
 const createTextElement = (
@@ -239,10 +265,20 @@ const buildStarterTemplate = (
 
 const CertificateList: React.FC = () => {
   const navigate = useNavigate();
+  const user = useUser();
+  const canManage = canManageCertificateTemplates(user?.role);
   const [form] = Form.useForm<CreateTemplateFormValues>();
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [mutatingId, setMutatingId] = useState<number | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    CertificateTemplateStatus | undefined
+  >();
+  const requestIdRef = useRef(0);
   const [data, setData] = useState<{
     meta: Pagination;
     data: CertificateTemplate[];
@@ -250,22 +286,28 @@ const CertificateList: React.FC = () => {
   const [parameter, setParameter] = useState({
     page: 1,
     per_page: 10,
-    search: "",
   });
 
   const fetchData = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     setLoading(true);
+    setLoadError(null);
     try {
       const result = await getCertificateTemplates({
         page: String(parameter.page),
         per_page: String(parameter.per_page),
-        search: parameter.search || undefined,
+        search: appliedSearch || undefined,
+        status: statusFilter,
       });
-      if (result) setData(result);
+      if (requestId === requestIdRef.current) setData(result);
+    } catch {
+      if (requestId === requestIdRef.current) {
+        setLoadError("Template gagal dimuat. Periksa koneksi lalu coba lagi.");
+      }
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
-  }, [parameter]);
+  }, [appliedSearch, parameter.page, parameter.per_page, statusFilter]);
 
   useEffect(() => {
     fetchData();
@@ -279,6 +321,8 @@ const CertificateList: React.FC = () => {
         name: values.name,
         description: values.description || null,
         templateData,
+        isActive: false,
+        status: "draft",
       });
       if (template) {
         message.success("Template berhasil dibuat");
@@ -292,30 +336,77 @@ const CertificateList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
+    setMutatingId(id);
     try {
       await deleteCertificateTemplate(id);
       message.success("Template berhasil dihapus");
-      fetchData();
+      await fetchData();
     } catch {
       // Error handled by handleError
+    } finally {
+      setMutatingId(null);
     }
   };
 
   const handleDuplicate = async (record: CertificateTemplate) => {
+    setMutatingId(record.id);
     try {
       const template = await createCertificateTemplate({
         name: `${record.name} (Salinan)`,
         description: record.description,
         templateData: record.template_data,
+        isActive: false,
+        status: "draft",
       });
       if (template) {
         message.success("Template berhasil diduplikat");
-        fetchData();
+        await fetchData();
       }
     } catch {
       // Error handled by handleError
+    } finally {
+      setMutatingId(null);
     }
   };
+
+  const handleLifecycleChange = async (
+    record: CertificateTemplate,
+    status: CertificateTemplateStatus,
+  ): Promise<void> => {
+    const readiness = getCertificateReadiness(
+      record.template_data,
+      record.background_image,
+    );
+    const ready =
+      (record.readiness?.ready ?? true) &&
+      isCertificateTemplateReady(readiness);
+    if (status === "published" && !ready) {
+      message.warning("Perbaiki masalah kesiapan sebelum mempublikasikan.");
+      return;
+    }
+
+    setMutatingId(record.id);
+    try {
+      await updateCertificateTemplateLifecycle(record.id, status);
+      message.success(
+        status === "published"
+          ? "Template dipublikasikan"
+          : status === "archived"
+            ? "Template diarsipkan"
+            : "Template dikembalikan ke draf",
+      );
+      await fetchData();
+    } catch {
+      // Error handled centrally.
+    } finally {
+      setMutatingId(null);
+    }
+  };
+
+  const applySearch = useCallback(() => {
+    setAppliedSearch(searchInput.trim());
+    setParameter((current) => ({ ...current, page: 1 }));
+  }, [searchInput]);
 
   const columns: TableProps<CertificateTemplate>["columns"] = [
     {
@@ -342,13 +433,42 @@ const CertificateList: React.FC = () => {
     },
     {
       title: "Status",
-      dataIndex: "is_active",
-      width: 100,
-      render: (value: boolean) => (
-        <Tag color={value ? "green" : "default"}>
-          {value ? "Aktif" : "Nonaktif"}
-        </Tag>
-      ),
+      key: "status",
+      width: 190,
+      render: (_, record) => {
+        const status = getCertificateTemplateStatus(record);
+        const issues = getCertificateReadiness(
+          record.template_data,
+          record.background_image,
+        );
+        const ready =
+          (record.readiness?.ready ?? true) &&
+          isCertificateTemplateReady(issues);
+        const label =
+          status === "published"
+            ? "Dipublikasikan"
+            : status === "archived"
+              ? "Diarsipkan"
+              : "Draf";
+        return (
+          <Space direction="vertical" size={2}>
+            <Tag
+              color={
+                status === "published"
+                  ? "green"
+                  : status === "archived"
+                    ? "default"
+                    : "gold"
+              }
+            >
+              {label}
+            </Tag>
+            <Text type={ready ? "success" : "danger"} style={{ fontSize: 12 }}>
+              {ready ? "Siap diterbitkan" : "Perlu diperbaiki"}
+            </Text>
+          </Space>
+        );
+      },
     },
     {
       title: "Tanggal Dibuat",
@@ -360,37 +480,116 @@ const CertificateList: React.FC = () => {
     {
       title: "Aksi",
       key: "action",
-      width: 150,
-      render: (_, record) => (
-        <Space size={4}>
-          <Tooltip title="Edit">
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/digital-certificate/${record.id}/edit`)}
-            />
-          </Tooltip>
-          <Tooltip title="Duplikat">
-            <Button
-              size="small"
-              icon={<CopyOutlined />}
-              onClick={() => handleDuplicate(record)}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="Hapus template?"
-            description="Template yang dihapus tidak dapat dikembalikan."
-            onConfirm={() => handleDelete(record.id)}
-            okText="Hapus"
-            cancelText="Batal"
-            okButtonProps={{ danger: true }}
-          >
-            <Tooltip title="Hapus">
-              <Button size="small" danger icon={<DeleteOutlined />} />
+      width: 260,
+      render: (_, record) => {
+        if (!canManage) return <Text type="secondary">Hanya lihat</Text>;
+
+        const status = getCertificateTemplateStatus(record);
+        const ready =
+          (record.readiness?.ready ?? true) &&
+          isCertificateTemplateReady(
+            getCertificateReadiness(
+              record.template_data,
+              record.background_image,
+            ),
+          );
+        const isMutating = mutatingId === record.id;
+        const isInUse =
+          (record.activity_usage_count || 0) > 0 ||
+          (record.issued_certificate_count || 0) > 0;
+
+        return (
+          <Space size={4} wrap>
+            <Tooltip title="Edit template">
+              <Button
+                size="small"
+                icon={<EditOutlined />}
+                style={TOUCH_ACTION_STYLE}
+                aria-label={`Edit ${record.name}`}
+                onClick={() =>
+                  navigate(`/digital-certificate/${record.id}/edit`)
+                }
+              />
             </Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
+            <Tooltip title="Duplikat sebagai draf">
+              <Button
+                size="small"
+                icon={<CopyOutlined />}
+                style={TOUCH_ACTION_STYLE}
+                aria-label={`Duplikat ${record.name}`}
+                loading={isMutating}
+                onClick={() => handleDuplicate(record)}
+              />
+            </Tooltip>
+            {status !== "published" && (
+              <Tooltip title={ready ? "Publikasikan" : "Template belum siap"}>
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<CheckCircleOutlined />}
+                  style={TOUCH_ACTION_STYLE}
+                  disabled={!ready || isMutating}
+                  aria-label={`Publikasikan ${record.name}`}
+                  onClick={() => handleLifecycleChange(record, "published")}
+                />
+              </Tooltip>
+            )}
+            {status !== "archived" && (
+              <Popconfirm
+                title="Arsipkan template?"
+                description="Template tidak dapat dipilih untuk penerbitan baru. Sertifikat lama tetap tersedia."
+                onConfirm={() => handleLifecycleChange(record, "archived")}
+                okText="Arsipkan"
+                cancelText="Batal"
+              >
+                <Tooltip title="Arsipkan">
+                  <Button
+                    size="small"
+                    icon={<InboxOutlined />}
+                    style={TOUCH_ACTION_STYLE}
+                    aria-label={`Arsipkan ${record.name}`}
+                    disabled={isMutating}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            )}
+            {status === "archived" && (
+              <Button
+                size="small"
+                disabled={isMutating}
+                style={{ minHeight: 44 }}
+                onClick={() => handleLifecycleChange(record, "draft")}
+              >
+                Jadikan draf
+              </Button>
+            )}
+            <Popconfirm
+              title={`Hapus ${record.name}?`}
+              description={
+                isInUse
+                  ? "Template masih digunakan dan tidak dapat dihapus. Arsipkan sebagai gantinya."
+                  : "Template yang dihapus tidak dapat dikembalikan."
+              }
+              disabled={isInUse}
+              onConfirm={() => handleDelete(record.id)}
+              okText="Hapus"
+              cancelText="Batal"
+              okButtonProps={{ danger: true }}
+            >
+              <Tooltip title={isInUse ? "Template masih digunakan" : "Hapus"}>
+                <Button
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  style={TOUCH_ACTION_STYLE}
+                  aria-label={`Hapus ${record.name}`}
+                  disabled={isInUse || isMutating}
+                />
+              </Tooltip>
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -407,6 +606,8 @@ const CertificateList: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -414,23 +615,24 @@ const CertificateList: React.FC = () => {
               style={{ fontSize: 24, color: "#1890ff" }}
             />
             <div>
-              <Text strong style={{ fontSize: 16 }}>
+              <Title level={1} style={{ fontSize: 18, margin: 0 }}>
                 Sertifikat Digital
-              </Text>
-              <br />
+              </Title>
               <Text type="secondary" style={{ fontSize: 12 }}>
                 Kelola template sertifikat digital
               </Text>
             </div>
           </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setCreateModalOpen(true)}
-            loading={creating}
-          >
-            Buat Template
-          </Button>
+          {canManage && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setCreateModalOpen(true)}
+              loading={creating}
+            >
+              Buat Template
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -454,30 +656,64 @@ const CertificateList: React.FC = () => {
               placeholder="Cari template"
               allowClear
               style={{ width: 250 }}
-              value={parameter.search}
-              onChange={(e) =>
-                setParameter((prev) => ({ ...prev, search: e.target.value }))
-              }
-              onPressEnter={() =>
-                setParameter((prev) => ({ ...prev, page: 1 }))
-              }
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              onPressEnter={applySearch}
               prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              aria-label="Cari template sertifikat"
             />
             <Button
               icon={<SearchOutlined />}
               type="primary"
-              onClick={() => setParameter((prev) => ({ ...prev, page: 1 }))}
+              onClick={applySearch}
+            >
+              Cari
+            </Button>
+            <Select
+              allowClear
+              placeholder="Semua status"
+              aria-label="Filter status template"
+              value={statusFilter}
+              options={STATUS_OPTIONS}
+              style={{ width: 180 }}
+              onChange={(value: CertificateTemplateStatus | undefined) => {
+                setStatusFilter(value);
+                setParameter((current) => ({ ...current, page: 1 }));
+              }}
             />
           </Space>
           <Tooltip title="Refresh Data">
             <Button
               icon={<ReloadOutlined />}
+              style={TOUCH_ACTION_STYLE}
               onClick={fetchData}
               loading={loading}
+              aria-label="Muat ulang template"
             />
           </Tooltip>
         </div>
       </Card>
+
+      {!canManage && (
+        <Alert
+          type="info"
+          showIcon
+          title="Akses hanya lihat"
+          description="Anda dapat melihat template dan menerbitkan sertifikat dari halaman peserta. Perubahan template hanya tersedia untuk admin yang berwenang."
+          style={{ marginTop: 12 }}
+        />
+      )}
+
+      {loadError && (
+        <Alert
+          type="error"
+          showIcon
+          title="Template tidak dapat dimuat"
+          description={loadError}
+          action={<Button onClick={fetchData}>Coba lagi</Button>}
+          style={{ marginTop: 12 }}
+        />
+      )}
 
       {/* Table */}
       <Table
@@ -505,46 +741,56 @@ const CertificateList: React.FC = () => {
         scroll={{ x: 800 }}
         size="small"
         bordered
+        locale={{ emptyText: "Belum ada template pada filter ini" }}
       />
 
-      <Modal
-        title="Buat Template Sertifikat"
-        open={createModalOpen}
-        onCancel={() => setCreateModalOpen(false)}
-        onOk={() => form.submit()}
-        okText="Buat Template"
-        cancelText="Batal"
-        confirmLoading={creating}
-        destroyOnHidden
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            name: "Template Baru",
-            preset: "a4-landscape",
-            layout: "basic",
+      {canManage && (
+        <Modal
+          title="Buat Template Sertifikat"
+          open={createModalOpen}
+          onCancel={() => {
+            setCreateModalOpen(false);
+            form.resetFields();
           }}
-          onFinish={handleCreate}
+          onOk={() => form.submit()}
+          okText="Buat Template"
+          cancelText="Batal"
+          confirmLoading={creating}
+          destroyOnHidden
         >
-          <Form.Item
-            name="name"
-            label="Nama Template"
-            rules={[{ required: true, message: "Nama template wajib diisi" }]}
+          <Form
+            form={form}
+            preserve={false}
+            layout="vertical"
+            initialValues={{
+              name: "Template Baru",
+              preset: "a4-landscape",
+              layout: "basic",
+            }}
+            onFinish={handleCreate}
           >
-            <Input placeholder="Nama template" />
-          </Form.Item>
-          <Form.Item name="description" label="Deskripsi">
-            <Input.TextArea rows={2} placeholder="Deskripsi opsional" />
-          </Form.Item>
-          <Form.Item name="preset" label="Ukuran Kanvas">
-            <Select options={CANVAS_PRESETS} />
-          </Form.Item>
-          <Form.Item name="layout" label="Starter Layout">
-            <Select options={STARTER_LAYOUTS} />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Form.Item
+              name="name"
+              label="Nama Template"
+              rules={[
+                { required: true, message: "Nama template wajib diisi" },
+                { max: 255, message: "Nama template maksimal 255 karakter" },
+              ]}
+            >
+              <Input placeholder="Nama template" />
+            </Form.Item>
+            <Form.Item name="description" label="Deskripsi">
+              <Input.TextArea rows={2} placeholder="Deskripsi opsional" />
+            </Form.Item>
+            <Form.Item name="preset" label="Ukuran Kanvas">
+              <Select options={CANVAS_PRESETS} />
+            </Form.Item>
+            <Form.Item name="layout" label="Starter Layout">
+              <Select options={STARTER_LAYOUTS} />
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
     </div>
   );
 };

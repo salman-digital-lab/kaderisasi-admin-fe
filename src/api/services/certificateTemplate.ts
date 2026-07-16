@@ -8,7 +8,6 @@ import {
   UpdateCertificateTemplateReq,
   UpdateCertificateTemplateResp,
   DeleteCertificateTemplateResp,
-  UploadBackgroundResp,
   GenerateCertificatesReq,
   GenerateCertificatesResp,
   GenerateSingleCertificateReq,
@@ -19,9 +18,53 @@ import {
   IssueCertificateResp,
   RevokeCertificateReq,
   RevokeCertificateResp,
+  CertificatePayload,
+  GetIssuedCertificatesReq,
+  IssuedCertificate,
+  CertificateTemplateStatus,
+  CertificateTemplate,
+  CertificateTemplateData,
 } from "../../types/services/certificateTemplate";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
+import { isAxiosError } from "axios";
+
+const isUnsupportedEndpoint = (error: unknown): boolean =>
+  isAxiosError(error) &&
+  (error.response?.status === 404 || error.response?.status === 405);
+
+export const normalizeCertificateTemplate = <T extends CertificateTemplate>(
+  template: T,
+): T => ({
+  ...template,
+  template_data: normalizeCertificateTemplateData(template.template_data),
+  status:
+    template.status ??
+    template.lifecycle_status ??
+    (template.is_active ? "published" : "draft"),
+});
+
+function normalizeCertificateTemplateData(
+  templateData: CertificateTemplateData,
+): CertificateTemplateData {
+  const value = templateData as Partial<CertificateTemplateData> | null;
+
+  return {
+    backgroundUrl:
+      typeof value?.backgroundUrl === "string" ? value.backgroundUrl : null,
+    elements: Array.isArray(value?.elements) ? value.elements : [],
+    canvasWidth:
+      typeof value?.canvasWidth === "number" &&
+      Number.isFinite(value.canvasWidth)
+        ? value.canvasWidth
+        : 800,
+    canvasHeight:
+      typeof value?.canvasHeight === "number" &&
+      Number.isFinite(value.canvasHeight)
+        ? value.canvasHeight
+        : 566,
+  };
+}
 
 export const getCertificateTemplates = async (
   props: GetCertificateTemplatesReq,
@@ -32,9 +75,13 @@ export const getCertificateTemplates = async (
     const res = await axios.get<GetCertificateTemplatesResp>(
       "/certificate-templates?" + urlSearch,
     );
-    return res.data.data;
+    return {
+      ...res.data.data,
+      data: res.data.data.data.map(normalizeCertificateTemplate),
+    };
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -43,9 +90,10 @@ export const getCertificateTemplate = async (id: number) => {
     const res = await axios.get<GetCertificateTemplateResp>(
       "/certificate-templates/" + id,
     );
-    return res.data.data;
+    return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -57,7 +105,7 @@ export const createCertificateTemplate = async (
       "/certificate-templates",
       data,
     );
-    return res.data.data;
+    return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
     handleError(error);
     throw error;
@@ -73,7 +121,7 @@ export const updateCertificateTemplate = async (
       "/certificate-templates/" + id,
       data,
     );
-    return res.data.data;
+    return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
     handleError(error);
     throw error;
@@ -92,19 +140,49 @@ export const deleteCertificateTemplate = async (id: number) => {
   }
 };
 
-export const uploadCertificateBackground = async (id: number, file: File) => {
+export const uploadCertificateAsset = async (id: number, file: File) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await axios.post<UploadBackgroundResp>(
-      `/certificate-templates/${id}/background`,
-      formData,
-    );
-    return res.data.data;
+    const res = await axios.post<{
+      message: string;
+      data: { asset_key?: string; assetKey?: string; url: string };
+    }>(`/certificate-templates/${id}/assets`, formData);
+    return {
+      assetKey: res.data.data.asset_key || res.data.data.assetKey,
+      url: res.data.data.url,
+    };
   } catch (error) {
     handleError(error);
     throw error;
+  }
+};
+
+export const updateCertificateTemplateLifecycle = async (
+  id: number,
+  status: CertificateTemplateStatus,
+) => {
+  if (status === "draft") {
+    return updateCertificateTemplate(id, { status, isActive: false });
+  }
+
+  const action = status === "published" ? "publish" : "archive";
+  try {
+    const res = await axios.post<UpdateCertificateTemplateResp>(
+      `/certificate-templates/${id}/${action}`,
+    );
+    return normalizeCertificateTemplate(res.data.data);
+  } catch (error) {
+    if (!isUnsupportedEndpoint(error)) {
+      handleError(error);
+      throw error;
+    }
+
+    return updateCertificateTemplate(id, {
+      status,
+      isActive: status === "published",
+    });
   }
 };
 
@@ -136,13 +214,51 @@ export const generateSingleCertificate = async (
   }
 };
 
-export const getIssuedCertificates = async (activityId?: number) => {
+export const getIssuedCertificates = async (
+  activityOrRequest?: number | GetIssuedCertificatesReq,
+): Promise<IssuedCertificate[]> => {
   try {
-    const query = activityId ? `?activity_id=${activityId}` : "";
-    const res = await axios.get<GetIssuedCertificatesResp>(
-      `/certificates${query}`,
+    const request =
+      typeof activityOrRequest === "number"
+        ? { activity_id: activityOrRequest }
+        : activityOrRequest || {};
+    const fetchPage = async (page: number) => {
+      const queryParams = new URLSearchParams();
+      if (request.activity_id) {
+        queryParams.set("activity_id", String(request.activity_id));
+      }
+      queryParams.set("page", String(page));
+      queryParams.set(
+        "per_page",
+        String(Math.min(request.per_page || 100, 100)),
+      );
+      if (request.status) queryParams.set("status", request.status);
+
+      const res = await axios.get<GetIssuedCertificatesResp>(
+        `/certificates?${queryParams.toString()}`,
+      );
+      return res.data.data;
+    };
+
+    const firstPage = await fetchPage(request.page || 1);
+    if (Array.isArray(firstPage) || request.page) {
+      return Array.isArray(firstPage) ? firstPage : firstPage.data;
+    }
+
+    const remainingPages = Array.from(
+      { length: Math.max(firstPage.meta.last_page - 1, 0) },
+      (_, index) => index + 2,
     );
-    return res.data.data;
+    const remainingResults = await Promise.all(
+      remainingPages.map((page) => fetchPage(page)),
+    );
+
+    return [
+      ...firstPage.data,
+      ...remainingResults.flatMap((page) =>
+        Array.isArray(page) ? page : page.data,
+      ),
+    ];
   } catch (error) {
     handleError(error);
     throw error;
@@ -169,6 +285,53 @@ export const issueBulkCertificates = async (data: IssueBulkCertificatesReq) => {
     const res = await axios.post<IssueBulkCertificatesResp>(
       "/certificates/issue-bulk",
       data,
+    );
+    const result = res.data.data;
+    const created = result.created || result.issued || [];
+    const alreadyIssued = result.already_issued || [];
+    const skipped = result.skipped || [];
+    const failed = result.failed || [];
+    return {
+      ...result,
+      created,
+      already_issued: alreadyIssued,
+      skipped,
+      failed,
+      total_requested:
+        result.total_requested ??
+        created.length + alreadyIssued.length + skipped.length + failed.length,
+      total_created:
+        result.total_created ?? result.total_issued ?? created.length,
+      total_already_issued: result.total_already_issued ?? alreadyIssued.length,
+      total_skipped: result.total_skipped ?? skipped.length,
+      total_failed: result.total_failed ?? failed.length,
+    };
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const getIssuedCertificate = async (
+  id: number,
+): Promise<CertificatePayload> => {
+  try {
+    const res = await axios.get<{ message: string; data: CertificatePayload }>(
+      `/certificates/${id}`,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
+export const getIssuedCertificateByCode = async (
+  code: string,
+): Promise<CertificatePayload> => {
+  try {
+    const res = await axios.get<{ message: string; data: CertificatePayload }>(
+      `/certificates/code/${encodeURIComponent(code)}`,
     );
     return res.data.data;
   } catch (error) {

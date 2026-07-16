@@ -13,15 +13,17 @@ import {
 import { Link } from "react-router-dom";
 import type { MenuProps } from "antd";
 import { useAuthStore } from "../../../stores/authStore";
+import { canAccessCertificates } from "../../../utils/certificate-permissions";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
 // Re-export clearAuth as clearMenuCache for backward compatibility
 export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 
-export const menuItems: (permissions: string[]) => MenuItem[] = (
-  permissions,
-) => {
+export const menuItems: (
+  permissions: string[],
+  role?: string | number,
+) => MenuItem[] = (permissions, role) => {
   const menuItems: MenuItem[] = [
     {
       key: "/dashboard",
@@ -92,12 +94,13 @@ export const menuItems: (permissions: string[]) => MenuItem[] = (
     });
   }
 
-  // Experimental: Digital Certificate - available to all authenticated admins
-  menuItems.push({
-    key: "/digital-certificate",
-    icon: <SafetyCertificateOutlined />,
-    label: <Link to="/digital-certificate">Sertifikat Digital</Link>,
-  });
+  if (permissions.includes("kegiatan") && canAccessCertificates(role)) {
+    menuItems.push({
+      key: "/digital-certificate",
+      icon: <SafetyCertificateOutlined />,
+      label: <Link to="/digital-certificate">Sertifikat Digital</Link>,
+    });
+  }
 
   if (permissions.includes("pusatdata")) {
     menuItems.push({

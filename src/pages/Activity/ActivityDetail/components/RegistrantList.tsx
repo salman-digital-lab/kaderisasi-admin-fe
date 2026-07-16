@@ -35,7 +35,22 @@ import {
   getRegistrantStatistics,
   putActivity,
 } from "../../../../api/services/activity";
-import { getCertificateTemplates } from "../../../../api/services/certificateTemplate";
+import {
+  getCertificateTemplate,
+  getCertificateTemplates,
+} from "../../../../api/services/certificateTemplate";
+import type { Activity } from "../../../../types/model/activity";
+import type { CertificateTemplate } from "../../../../types/services/certificateTemplate";
+import { useUser } from "../../../../stores/authStore";
+import {
+  canAccessCertificates,
+  canManageCertificateTemplates,
+} from "../../../../utils/certificate-permissions";
+import {
+  getCertificateReadiness,
+  getCertificateTemplateStatus,
+  isCertificateTemplateReady,
+} from "../../../DigitalCertificate/utils/certificate-readiness";
 
 import MembersListModal from "./Modal/MembersListModal";
 
@@ -74,11 +89,17 @@ const statusConfig: Record<
 const RegistrantList = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const user = useUser();
+  const canAccessCertificateFeature = canAccessCertificates(user?.role);
+  const canManageCertificates = canManageCertificateTemplates(user?.role);
 
   const [modalState, { toggle: toggleModal }] = useToggle();
   const [form] = Form.useForm();
-  const [isChanged, setIsChanged] = useState(false);
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [statusSettingsChanged, setStatusSettingsChanged] = useState(false);
+  const [certificateChanged, setCertificateChanged] = useState(false);
+  const [templates, setTemplates] = useState<CertificateTemplate[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
     null,
   );
@@ -96,10 +117,6 @@ const RegistrantList = () => {
     refresh: refreshActivity,
   } = useRequest(() => getActivity(Number(id)), {
     onSuccess: (data) => {
-      console.log(
-        "Activity data loaded:",
-        data?.additional_config?.certificate_template_id,
-      );
       form.setFieldsValue({
         status_is_visible:
           data?.additional_config?.status_visibility?.is_visible ?? true,
@@ -107,40 +124,54 @@ const RegistrantList = () => {
           ?.visible_at
           ? dayjs(data.additional_config.status_visibility.visible_at)
           : undefined,
-        certificate_template_id:
-          data?.additional_config?.certificate_template_id,
       });
       loadTemplates(data);
     },
   });
 
   // Load certificate templates
-  const loadTemplates = async (currentActivityData?: any) => {
-    console.log(
-      "loadTemplates called with:",
-      currentActivityData?.additional_config?.certificate_template_id,
-    );
+  const loadTemplates = async (
+    currentActivityData?: Activity,
+  ): Promise<void> => {
+    setTemplatesLoading(true);
+    setTemplatesError(null);
     try {
       const data = await getCertificateTemplates({
         page: "1",
         per_page: "100",
-        is_active: "true",
       });
       if (data?.data) {
-        setTemplates(data.data);
-        // Set the initial value from activity data after templates are loaded
         const activityConfig = currentActivityData?.additional_config;
-        console.log(
-          "Setting selectedTemplateId to:",
-          activityConfig?.certificate_template_id,
-        );
         const templateId = activityConfig?.certificate_template_id || null;
+        let availableTemplates = data.data;
+        if (
+          templateId &&
+          !availableTemplates.some((template) => template.id === templateId)
+        ) {
+          try {
+            const assignedTemplate = await getCertificateTemplate(templateId);
+            availableTemplates = [...availableTemplates, assignedTemplate];
+          } catch {
+            setTemplatesError(
+              "Template yang sedang terpasang tidak dapat dimuat. Pilihan tidak diubah.",
+            );
+          }
+        }
+        setTemplates(
+          availableTemplates.filter(
+            (template) =>
+              getCertificateTemplateStatus(template) === "published" ||
+              template.id === templateId,
+          ),
+        );
         setSelectedTemplateId(templateId);
         setOriginalTemplateId(templateId);
-        setIsChanged(false);
+        setCertificateChanged(false);
       }
-    } catch (error) {
-      console.error("Failed to load templates:", error);
+    } catch {
+      setTemplatesError("Daftar template sertifikat tidak dapat dimuat.");
+    } finally {
+      setTemplatesLoading(false);
     }
   };
 
@@ -153,7 +184,7 @@ const RegistrantList = () => {
       if (!activityData) {
         throw new Error("Activity data not loaded");
       }
-      return putActivity(Number(id), {
+      const updatedActivity = await putActivity(Number(id), {
         additional_config: {
           ...activityData.additional_config,
           status_visibility: {
@@ -164,6 +195,8 @@ const RegistrantList = () => {
           },
         },
       });
+      if (!updatedActivity) throw new Error("ACTIVITY_UPDATE_FAILED");
+      return updatedActivity;
     },
     {
       manual: true,
@@ -172,9 +205,7 @@ const RegistrantList = () => {
           message: "Berhasil",
           description: "Pengaturan pengumuman status berhasil disimpan",
         });
-        setIsChanged(false);
-        // Refresh the activity data to update the cache
-        refreshActivity();
+        setStatusSettingsChanged(false);
       },
     },
   );
@@ -252,7 +283,7 @@ const RegistrantList = () => {
       <Form
         form={form}
         layout="vertical"
-        onValuesChange={() => setIsChanged(true)}
+        onValuesChange={() => setStatusSettingsChanged(true)}
         onFinish={async (values) => {
           await saveSettings(values);
         }}
@@ -270,7 +301,7 @@ const RegistrantList = () => {
               type="primary"
               icon={<SaveOutlined />}
               loading={saveLoading}
-              disabled={!isChanged || !activityData}
+              disabled={!statusSettingsChanged || !activityData}
               htmlType="submit"
               size="small"
             >
@@ -325,93 +356,150 @@ const RegistrantList = () => {
       </Form>
 
       {/* Certificate Template Settings */}
-      <Card
-        variant="outlined"
-        style={{ borderRadius: 0, marginBottom: 24 }}
-        styles={{ body: { padding: "24px" } }}
-      >
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
+      {canAccessCertificateFeature && (
+        <Card
+          variant="outlined"
+          style={{ borderRadius: 0, marginBottom: 24 }}
+          styles={{ body: { padding: "24px" } }}
         >
-          <Space align="center">
-            <SafetyCertificateOutlined
-              style={{ fontSize: 20, color: "#1890ff" }}
-            />
-            <Typography.Title level={5} style={{ margin: 0 }}>
-              Template Sertifikat
-            </Typography.Title>
-          </Space>
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            loading={savingCertificate}
-            disabled={!activityData || !isChanged}
-            onClick={async () => {
-              console.log("Selected template id:", selectedTemplateId);
-              if (!activityData) return;
-
-              setSavingCertificate(true);
-              try {
-                const currentConfig = activityData.additional_config || {};
-                await putActivity(Number(id), {
-                  additional_config: {
-                    ...currentConfig,
-                    certificate_template_id: selectedTemplateId || undefined,
-                  },
-                });
-                notification.success({
-                  message: "Berhasil",
-                  description: "Template sertifikat berhasil disimpan",
-                });
-                setOriginalTemplateId(selectedTemplateId);
-                setIsChanged(false);
-                refreshActivity();
-              } catch {
-                notification.error({
-                  message: "Gagal",
-                  description: "Gagal menyimpan template sertifikat",
-                });
-              } finally {
-                setSavingCertificate(false);
-              }
-            }}
-            size="small"
+          <Row
+            justify="space-between"
+            align="middle"
+            style={{ marginBottom: 16 }}
           >
-            Simpan
-          </Button>
-        </Row>
-        <Divider style={{ margin: "0 0 16px 0" }} />
-        <Form.Item
-          label="Pilih template sertifikat untuk kegiatan ini"
-          tooltip="Template sertifikat yang akan digunakan untuk peserta yang LULUS KEGIATAN"
-        >
-          <Select
-            placeholder="Pilih template sertifikat"
-            allowClear
-            value={selectedTemplateId}
-            onChange={(value) => {
-              setSelectedTemplateId(value);
-              form.setFieldsValue({ certificate_template_id: value });
-              setIsChanged(value !== originalTemplateId);
-            }}
-            options={templates.map((t) => ({
-              value: t.id,
-              label: t.name,
-            }))}
-            loading={templates.length === 0}
-          />
-        </Form.Item>
-        {templates.length === 0 && (
-          <Alert
-            message="Tidak ada template sertifikat"
-            description="Silakan buat template sertifikat terlebih dahulu di halaman Digital Certificate"
-            type="warning"
-            showIcon
-          />
-        )}
-      </Card>
+            <Space align="center">
+              <SafetyCertificateOutlined
+                style={{ fontSize: 20, color: "#1890ff" }}
+              />
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                Template Sertifikat
+              </Typography.Title>
+            </Space>
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              loading={savingCertificate}
+              disabled={
+                !canManageCertificates || !activityData || !certificateChanged
+              }
+              onClick={async () => {
+                if (!activityData) return;
+
+                setSavingCertificate(true);
+                try {
+                  const currentConfig = activityData.additional_config || {};
+                  const updatedActivity = await putActivity(Number(id), {
+                    additional_config: {
+                      ...currentConfig,
+                      certificate_template_id: selectedTemplateId || undefined,
+                    },
+                  });
+                  if (!updatedActivity) {
+                    throw new Error("CERTIFICATE_TEMPLATE_UPDATE_FAILED");
+                  }
+                  notification.success({
+                    message: "Berhasil",
+                    description: "Template sertifikat berhasil disimpan",
+                  });
+                  setOriginalTemplateId(selectedTemplateId);
+                  setCertificateChanged(false);
+                  refreshActivity();
+                } catch {
+                  notification.error({
+                    message: "Gagal",
+                    description: "Gagal menyimpan template sertifikat",
+                  });
+                } finally {
+                  setSavingCertificate(false);
+                }
+              }}
+              size="small"
+            >
+              Simpan
+            </Button>
+          </Row>
+          <Divider style={{ margin: "0 0 16px 0" }} />
+          <div style={{ marginBottom: 24 }}>
+            <Typography.Text strong>
+              Pilih template sertifikat untuk kegiatan ini
+            </Typography.Text>
+            <Typography.Paragraph type="secondary" style={{ marginBottom: 8 }}>
+              Template ini digunakan untuk peserta berstatus LULUS KEGIATAN.
+            </Typography.Paragraph>
+            <Select
+              placeholder="Pilih template sertifikat"
+              allowClear
+              aria-label="Template sertifikat kegiatan"
+              style={{ width: "100%" }}
+              value={selectedTemplateId}
+              disabled={!canManageCertificates}
+              onChange={(value) => {
+                setSelectedTemplateId(value);
+                setCertificateChanged(value !== originalTemplateId);
+              }}
+              options={templates.map((template) => {
+                const status = getCertificateTemplateStatus(template);
+                const ready =
+                  (template.readiness?.ready ?? true) &&
+                  isCertificateTemplateReady(
+                    getCertificateReadiness(
+                      template.template_data,
+                      template.background_image,
+                    ),
+                  );
+                return {
+                  value: template.id,
+                  label: `${template.name}${status !== "published" ? " (tidak lagi dipublikasikan)" : !ready ? " (belum siap)" : ""}`,
+                  disabled: status !== "published" || !ready,
+                };
+              })}
+              loading={templatesLoading}
+            />
+          </div>
+          {templatesError && (
+            <Alert
+              message="Template tidak dapat dimuat"
+              description={templatesError}
+              action={
+                <Button
+                  size="small"
+                  onClick={() => loadTemplates(activityData)}
+                >
+                  Coba lagi
+                </Button>
+              }
+              type="error"
+              showIcon
+              style={{ marginBottom: 12 }}
+            />
+          )}
+          {!canManageCertificates && (
+            <Alert
+              message="Template hanya dapat diubah oleh Super Admin atau Admin"
+              type="info"
+              showIcon
+              style={{ marginBottom: 12 }}
+            />
+          )}
+          {!templatesLoading && !templatesError && templates.length === 0 && (
+            <Alert
+              message="Tidak ada template sertifikat"
+              description="Silakan buat template sertifikat terlebih dahulu di halaman Digital Certificate"
+              type="warning"
+              showIcon
+            />
+          )}
+          {canManageCertificates && (
+            <Button
+              type="link"
+              style={{ paddingInline: 0 }}
+              onClick={() => navigate("/digital-certificate")}
+            >
+              Kelola template sertifikat
+            </Button>
+          )}
+        </Card>
+      )}
 
       {/* Statistics by Status */}
       <div>

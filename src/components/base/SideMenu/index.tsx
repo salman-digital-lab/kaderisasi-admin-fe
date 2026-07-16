@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import { menuItems } from "./data";
 import { SidebarProps } from "../../../types";
-import { usePermissions } from "../../../stores/authStore";
+import { usePermissions, useUser } from "../../../stores/authStore";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -12,11 +12,12 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const permissions = usePermissions();
+  const user = useUser();
 
   // Memoize menu items based on permissions - will re-calculate when permissions change
   const memoizedMenuItems = useMemo(
-    () => menuItems(permissions),
-    [permissions],
+    () => menuItems(permissions, user?.role),
+    [permissions, user?.role],
   );
 
   // Determine selected keys based on current path
@@ -35,6 +36,9 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
     if (currentPath.startsWith("/universities")) return ["/universities"];
     if (currentPath.startsWith("/custom-form")) return ["/custom-form"];
     if (currentPath.startsWith("/admin-users")) return ["/admin-users"];
+    if (currentPath.startsWith("/digital-certificate")) {
+      return ["/digital-certificate"];
+    }
     return ["/dashboard"];
   };
 

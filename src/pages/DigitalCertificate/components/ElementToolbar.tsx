@@ -25,7 +25,7 @@ import {
   ControlOutlined,
 } from "@ant-design/icons";
 import { ElementType } from "../types";
-import { readUploadFileAsDataUrl } from "../utils/readUploadFile";
+import { getValidatedUploadFile } from "../utils/readUploadFile";
 
 type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
 
@@ -33,8 +33,10 @@ type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
 
 interface ElementToolbarProps {
   onAddElement: (type: ElementType) => void;
-  onBackgroundUpload: (url: string, file?: File) => void;
-  onImageUpload: (url: string) => void;
+  onBackgroundUpload: (file: File) => void;
+  onImageUpload: (file: File) => void;
+  uploadingBackground: boolean;
+  uploadingAsset: boolean;
   onDeleteSelected: () => void;
   onDuplicateSelected: () => void;
   onCopySelected: () => void;
@@ -76,6 +78,8 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
     onAddElement,
     onBackgroundUpload,
     onImageUpload,
+    uploadingBackground,
+    uploadingAsset,
     onDeleteSelected,
     onDuplicateSelected,
     onCopySelected,
@@ -96,22 +100,16 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
   }) => {
     const handleBackgroundChange = React.useCallback(
       (info: { file: import("antd").UploadFile }) => {
-        readUploadFileAsDataUrl(
-          info,
-          (dataUrl, file) => onBackgroundUpload(dataUrl, file),
-          message.error,
-        );
+        const file = getValidatedUploadFile(info, message.error);
+        if (file) onBackgroundUpload(file);
       },
       [onBackgroundUpload],
     );
 
     const handleImageChange = React.useCallback(
       (info: { file: import("antd").UploadFile }) => {
-        readUploadFileAsDataUrl(
-          info,
-          (dataUrl) => onImageUpload(dataUrl),
-          message.error,
-        );
+        const file = getValidatedUploadFile(info, message.error);
+        if (file) onImageUpload(file);
       },
       [onImageUpload],
     );
@@ -160,13 +158,16 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         {/* Canvas settings */}
         <Upload
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp"
           showUploadList={false}
           beforeUpload={() => false}
           onChange={handleBackgroundChange}
+          disabled={uploadingBackground}
         >
           <Tooltip title="Upload Background">
-            <Button icon={<PictureOutlined />}>Background</Button>
+            <Button icon={<PictureOutlined />} loading={uploadingBackground}>
+              Background
+            </Button>
           </Tooltip>
         </Upload>
 
@@ -200,12 +201,12 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         {/* Media elements */}
         <Space.Compact>
-          <Tooltip title="Tambah QR Code">
+          <Tooltip title="Tambah QR verifikasi unik">
             <Button
               icon={<QrcodeOutlined />}
               onClick={() => onAddElement("qr-code")}
             >
-              QR Code
+              QR Verifikasi
             </Button>
           </Tooltip>
           <Tooltip title="Tambah Tanda Tangan">
@@ -219,13 +220,16 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         </Space.Compact>
 
         <Upload
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp"
           showUploadList={false}
           beforeUpload={() => false}
           onChange={handleImageChange}
+          disabled={uploadingAsset}
         >
           <Tooltip title="Tambah Gambar (Logo, dll)">
-            <Button icon={<FileImageOutlined />}>Gambar</Button>
+            <Button icon={<FileImageOutlined />} loading={uploadingAsset}>
+              Gambar
+            </Button>
           </Tooltip>
         </Upload>
 

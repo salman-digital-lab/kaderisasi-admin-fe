@@ -19,6 +19,7 @@ export interface CertificateElement {
   lineHeight?: number;
   letterSpacing?: number;
   imageUrl?: string;
+  assetKey?: string;
   opacity?: number;
   rotation?: number;
   borderRadius?: number;

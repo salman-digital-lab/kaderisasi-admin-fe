@@ -1,38 +1,17 @@
-import { useState, useCallback } from "react";
-import { message } from "antd";
-import { CertificateElement, CertificateTemplate } from "../../types";
-import { VARIABLE_OPTIONS } from "../../constants";
+import { createElement, useCallback, useState } from "react";
+import { QRCode, message } from "antd";
+import { flushSync } from "react-dom";
+import { createRoot, type Root } from "react-dom/client";
+import type { CertificateElement, CertificateTemplate } from "../../types";
+import {
+  CERTIFICATE_SAMPLE_CODE,
+  getCertificateAssetUrl,
+  getCertificateVerificationUrl,
+  resolveCertificateSampleText,
+} from "../../utils/certificate-content";
 
-const SAMPLE_DATA: Record<string, string> = {
-  "{{name}}": "Ahmad Fauzan",
-  "{{email}}": "ahmad.fauzan@email.com",
-  "{{activity_name}}": "Pelatihan Dasar Kaderisasi",
-  "{{activity_date}}": "13 Februari 2026",
-  "{{date}}": "13 Februari 2026",
-  "{{certificate_id}}": "CERT-2026-001",
-  "{{certificate_code}}": "CERT-2026-001",
-  "{{university}}": "Institut Teknologi Bandung",
-  "{{gender}}": "Laki-laki",
-};
-
-function replaceVariables(text: string): string {
-  let result = text;
-  for (const option of VARIABLE_OPTIONS) {
-    if (result.includes(option.value)) {
-      result = result.replace(
-        new RegExp(option.value.replace(/[{}]/g, "\\$&"), "g"),
-        SAMPLE_DATA[option.value] || option.label,
-      );
-    }
-  }
-  return result;
-}
-
-const getPlaceholderLabel = (type: CertificateElement["type"]): string => {
-  if (type === "qr-code") return "QR Code";
-  if (type === "signature") return "Tanda Tangan";
-  return "Gambar";
-};
+const getPlaceholderLabel = (type: CertificateElement["type"]): string =>
+  type === "signature" ? "Tanda Tangan" : "Gambar";
 
 export const usePdfPreview = () => {
   const [generating, setGenerating] = useState(false);
@@ -40,17 +19,40 @@ export const usePdfPreview = () => {
   const generatePdf = useCallback(async (template: CertificateTemplate) => {
     setGenerating(true);
     let container: HTMLDivElement | null = null;
-    try {
-      const pdfModulePromise = import("../../utils/certificatePdf");
+    const reactRoots: Root[] = [];
+    const previewWindow = window.open("", "_blank");
 
-      // Create an off-screen container to render the certificate
+    if (!previewWindow) {
+      message.error(
+        "Popup diblokir browser. Izinkan popup untuk membuka preview PDF.",
+      );
+      setGenerating(false);
+      return;
+    }
+
+    previewWindow.opener = null;
+    previewWindow.document.body.textContent = "Menyiapkan preview PDF…";
+
+    try {
+      const verificationUrl = getCertificateVerificationUrl(
+        CERTIFICATE_SAMPLE_CODE,
+      );
+      if (
+        template.elements.some(
+          (element) => element.visible !== false && element.type === "qr-code",
+        ) &&
+        !verificationUrl
+      ) {
+        throw new Error("PUBLIC_CERTIFICATE_URL_NOT_CONFIGURED");
+      }
+
+      const pdfModulePromise = import("../../utils/certificatePdf");
       container = document.createElement("div");
       container.style.position = "fixed";
       container.style.left = "-9999px";
       container.style.top = "0";
       document.body.appendChild(container);
 
-      // Create the canvas element
       const canvas = document.createElement("div");
       canvas.style.position = "relative";
       canvas.style.width = `${template.canvasWidth}px`;
@@ -58,82 +60,88 @@ export const usePdfPreview = () => {
       canvas.style.backgroundColor = "#ffffff";
 
       if (template.backgroundUrl) {
-        canvas.style.backgroundImage = `url(${template.backgroundUrl})`;
+        const backgroundUrl = getCertificateAssetUrl(template.backgroundUrl);
+        if (backgroundUrl) {
+          canvas.style.backgroundImage = `url(${backgroundUrl})`;
+        }
         canvas.style.backgroundSize = "cover";
         canvas.style.backgroundPosition = "center";
       }
 
       for (const element of template.elements) {
-        if (element.visible === false) continue;
         if (
+          element.visible === false ||
           element.type === "static-text" ||
           element.type === "variable-text"
         ) {
           continue;
         }
 
-        const el = document.createElement("div");
-        el.style.position = "absolute";
-        el.style.left = `${element.x}px`;
-        el.style.top = `${element.y}px`;
-        el.style.width = `${element.width}px`;
-        el.style.height = `${element.height}px`;
-        el.style.padding = "4px";
-        el.style.boxSizing = "border-box";
-        el.style.opacity = String((element.opacity ?? 100) / 100);
-        el.style.transform = `rotate(${element.rotation || 0}deg)`;
-        el.style.transformOrigin = "center center";
-        el.style.borderRadius = `${element.borderRadius || 0}px`;
-        el.style.overflow = "hidden";
+        const target = document.createElement("div");
+        target.style.position = "absolute";
+        target.style.left = `${element.x}px`;
+        target.style.top = `${element.y}px`;
+        target.style.width = `${element.width}px`;
+        target.style.height = `${element.height}px`;
+        target.style.padding = "4px";
+        target.style.boxSizing = "border-box";
+        target.style.opacity = String((element.opacity ?? 100) / 100);
+        target.style.transform = `rotate(${element.rotation || 0}deg)`;
+        target.style.transformOrigin = "center center";
+        target.style.borderRadius = `${element.borderRadius || 0}px`;
+        target.style.overflow = "hidden";
 
-        if (
-          element.type === "image" ||
-          element.type === "qr-code" ||
-          element.type === "signature"
-        ) {
-          if (element.imageUrl) {
-            const img = document.createElement("img");
-            img.src = element.imageUrl;
-            img.crossOrigin = "anonymous";
-            img.style.width = "100%";
-            img.style.height = "100%";
-            img.style.objectFit = element.objectFit || "contain";
-            img.style.borderRadius = `${element.borderRadius || 0}px`;
-            el.appendChild(img);
-          } else {
-            el.style.border = "1px dashed #d9d9d9";
-            el.style.display = "flex";
-            el.style.alignItems = "center";
-            el.style.justifyContent = "center";
-            el.style.color = "#bfbfbf";
-            el.style.fontSize = "12px";
-            el.textContent = getPlaceholderLabel(element.type);
-          }
+        if (element.type === "qr-code" && verificationUrl) {
+          const root = createRoot(target);
+          reactRoots.push(root);
+          flushSync(() => {
+            root.render(
+              createElement(QRCode, {
+                type: "svg",
+                bordered: false,
+                value: verificationUrl,
+                size: Math.max(24, Math.min(element.width, element.height) - 8),
+                style: { width: "100%", height: "100%" },
+              }),
+            );
+          });
+        } else if (element.imageUrl) {
+          const image = document.createElement("img");
+          image.src = getCertificateAssetUrl(element.imageUrl) || "";
+          image.crossOrigin = "anonymous";
+          image.style.width = "100%";
+          image.style.height = "100%";
+          image.style.objectFit = element.objectFit || "contain";
+          image.style.borderRadius = `${element.borderRadius || 0}px`;
+          target.appendChild(image);
+        } else {
+          target.style.border = "1px dashed #d9d9d9";
+          target.style.display = "flex";
+          target.style.alignItems = "center";
+          target.style.justifyContent = "center";
+          target.style.color = "#bfbfbf";
+          target.style.fontSize = "12px";
+          target.textContent = getPlaceholderLabel(element.type);
         }
 
-        canvas.appendChild(el);
+        canvas.appendChild(target);
       }
 
       container.appendChild(canvas);
 
-      // Wait for images to load
-      const images = canvas.querySelectorAll("img");
       const imagesReady = Promise.all(
-        Array.from(images).map(
-          (img) =>
+        Array.from(canvas.querySelectorAll("img")).map(
+          (image) =>
             new Promise<void>((resolve) => {
-              if (img.complete) {
-                resolve();
-              } else {
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
+              if (image.complete) resolve();
+              else {
+                image.onload = () => resolve();
+                image.onerror = () => resolve();
               }
             }),
         ),
       );
 
-      // PDF dependencies are large and only needed on demand. Load them in
-      // parallel with image decoding after the user requests a preview.
       const [, { openCertificatePdf }] = await Promise.all([
         imagesReady,
         pdfModulePromise,
@@ -141,20 +149,23 @@ export const usePdfPreview = () => {
       await openCertificatePdf({
         template,
         sourceElement: canvas,
-        resolveText: (element) =>
-          element.type === "variable-text"
-            ? replaceVariables(element.variable || "")
-            : element.content || "",
+        resolveText: resolveCertificateSampleText,
+        targetWindow: previewWindow,
       });
 
-      message.success("PDF berhasil di-generate");
+      message.success("Preview PDF berhasil dibuat");
     } catch (error) {
       console.error("PDF generation error:", error);
-      message.error("Gagal membuat PDF preview");
+      if (!previewWindow.closed) previewWindow.close();
+      message.error(
+        error instanceof Error &&
+          error.message === "PUBLIC_CERTIFICATE_URL_NOT_CONFIGURED"
+          ? "VITE_PUBLIC_WEB_URL diperlukan untuk membuat QR preview."
+          : "Gagal membuat PDF preview",
+      );
     } finally {
-      if (container?.parentNode) {
-        document.body.removeChild(container);
-      }
+      reactRoots.forEach((root) => root.unmount());
+      if (container?.parentNode) document.body.removeChild(container);
       setGenerating(false);
     }
   }, []);

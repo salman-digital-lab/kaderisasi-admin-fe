@@ -10,7 +10,10 @@ import {
   Tag,
   Tooltip,
   Card,
-  Popconfirm,
+  Alert,
+  List,
+  Modal,
+  Typography,
 } from "antd";
 import {
   CopyOutlined,
@@ -25,6 +28,8 @@ import {
 } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import { useRequest, useToggle } from "ahooks";
+import dayjs from "dayjs";
+import type { TablePaginationConfig } from "antd/es/table";
 
 import {
   getRegistrants,
@@ -32,14 +37,15 @@ import {
   getExportRegistrants,
 } from "../../../api/services/activity";
 import {
+  getCertificateTemplate,
   getIssuedCertificates,
   issueBulkCertificates,
   issueSingleCertificate,
   revokeCertificate,
 } from "../../../api/services/certificateTemplate";
 import type {
-  CertificatePayload,
   IssuedCertificate,
+  IssueBulkCertificatesResult,
 } from "../../../types/services/certificateTemplate";
 import type { Registrant } from "../../../types/model/activity";
 
@@ -56,6 +62,18 @@ import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../constants/options";
+import { useUser } from "../../../stores/authStore";
+import {
+  canAccessCertificates,
+  canIssueCertificates,
+  canRevokeCertificates,
+} from "../../../utils/certificate-permissions";
+import { getCertificateVerificationUrl } from "../../DigitalCertificate/utils/certificate-content";
+import {
+  getCertificateReadiness,
+  getCertificateTemplateStatus,
+  isCertificateTemplateReady,
+} from "../../DigitalCertificate/utils/certificate-readiness";
 
 interface FilterValues {
   search?: string;
@@ -69,50 +87,42 @@ const cardStyle = {
   boxShadow: "none",
 };
 
-const webAppUrl =
-  import.meta.env.VITE_PUBLIC_WEB_URL || "http://localhost:3000";
-
-function buildCertificatePayloadFromIssued(
-  issued: IssuedCertificate,
-): CertificatePayload {
-  return {
-    activity: {
-      id: issued.activity_id,
-      name: issued.participant_snapshot.activity_name,
-      activity_start: null,
-    },
-    template: issued.template_snapshot,
-    participant: issued.participant_snapshot,
-    certificate: {
-      id: issued.id,
-      certificate_code: issued.certificate_code,
-      registration_id: issued.registration_id,
-      activity_id: issued.activity_id,
-      template_id: issued.template_id,
-      issued_at: issued.issued_at,
-      revoked_at: issued.revoked_at,
-      revoked_reason: issued.revoked_reason,
-    },
-  };
-}
+const { Text } = Typography;
+const MAX_BULK_CERTIFICATES = 100;
+const TOUCH_ACTION_STYLE: React.CSSProperties = {
+  minWidth: 44,
+  minHeight: 44,
+};
 
 const ActivityParticipants = () => {
   const { id } = useParams<{ id: string }>();
+  const user = useUser();
+  const canAccessCertificateFeature = canAccessCertificates(user?.role);
+  const canIssue = canIssueCertificates(user?.role);
+  const canRevoke = canRevokeCertificates(user?.role);
 
   // Modal states
   const [addParticipantModal, { toggle: toggleAddParticipant }] = useToggle();
 
   // Table state
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [certificateSelectionMode, setCertificateSelectionMode] =
+    useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [generatingCertificate, setGeneratingCertificate] = useState<
     number | null
   >(null);
   const [bulkIssuing, setBulkIssuing] = useState(false);
+  const [bulkResult, setBulkResult] =
+    useState<IssueBulkCertificatesResult | null>(null);
   const [revokingCertificate, setRevokingCertificate] = useState<number | null>(
     null,
   );
+  const [revokeTarget, setRevokeTarget] = useState<IssuedCertificate | null>(
+    null,
+  );
+  const [revokeReason, setRevokeReason] = useState("");
 
   // Pagination & sorting state
   const [pagination, setPagination] = useState({
@@ -131,6 +141,37 @@ const ActivityParticipants = () => {
       cacheKey: `activity-${id}`,
     },
   );
+  const assignedTemplateId =
+    activity?.additional_config?.certificate_template_id;
+  const {
+    data: assignedTemplate,
+    loading: assignedTemplateLoading,
+    run: fetchAssignedTemplate,
+  } = useRequest(() => getCertificateTemplate(Number(assignedTemplateId)), {
+    ready: canAccessCertificateFeature && Boolean(assignedTemplateId),
+    refreshDeps: [assignedTemplateId, canAccessCertificateFeature],
+  });
+
+  const assignedTemplateReady = useMemo(() => {
+    if (!assignedTemplate) return false;
+    return (
+      getCertificateTemplateStatus(assignedTemplate) === "published" &&
+      (assignedTemplate.readiness?.ready ?? true) &&
+      isCertificateTemplateReady(
+        getCertificateReadiness(
+          assignedTemplate.template_data,
+          assignedTemplate.background_image,
+        ),
+      )
+    );
+  }, [assignedTemplate]);
+  const certificateIssuanceAvailable = canIssue && assignedTemplateReady;
+
+  useEffect(() => {
+    if (certificateIssuanceAvailable || !certificateSelectionMode) return;
+    setCertificateSelectionMode(false);
+    setSelectedRowKeys([]);
+  }, [certificateIssuanceAvailable, certificateSelectionMode]);
 
   // Fetch custom form to determine which profile columns to show
   const { data: customForm, loading: customFormLoading } = useRequest(
@@ -198,15 +239,25 @@ const ActivityParticipants = () => {
     data: issuedCertificates,
     loading: certificatesLoading,
     run: fetchIssuedCertificates,
-  } = useRequest(() => getIssuedCertificates(Number(id)), {
-    ready: !!id,
-    refreshDeps: [id],
-  });
+  } = useRequest(
+    () => getIssuedCertificates({ activity_id: Number(id), per_page: 500 }),
+    {
+      ready: !!id,
+      refreshDeps: [id],
+    },
+  );
 
   const issuedByRegistrationId = useMemo(() => {
     const map = new Map<number, IssuedCertificate>();
     issuedCertificates?.forEach((certificate) => {
-      map.set(certificate.registration_id, certificate);
+      const current = map.get(certificate.registration_id);
+      if (
+        !current ||
+        new Date(certificate.issued_at).getTime() >=
+          new Date(current.issued_at).getTime()
+      ) {
+        map.set(certificate.registration_id, certificate);
+      }
     });
     return map;
   }, [issuedCertificates]);
@@ -240,64 +291,96 @@ const ActivityParticipants = () => {
   const handleSearch = useCallback(() => {
     setFilters((prev) => ({ ...prev, search: searchInput || undefined }));
     setPagination((prev) => ({ ...prev, page: 1 }));
+    setSelectedRowKeys([]);
   }, [searchInput]);
 
   // Handle status filter
   const handleStatusFilter = useCallback((value: string | undefined) => {
     setFilters((prev) => ({ ...prev, status: value }));
     setPagination((prev) => ({ ...prev, page: 1 }));
+    setSelectedRowKeys([]);
   }, []);
 
   // Handle table change (pagination)
-  const handleTableChange = useCallback((paginationConfig: any) => {
-    setPagination({
-      page: paginationConfig.current || 1,
-      per_page: paginationConfig.pageSize || 50,
-    });
-    setSelectedRowKeys([]);
-  }, []);
+  const handleTableChange = useCallback(
+    (paginationConfig: TablePaginationConfig) => {
+      setPagination({
+        page: paginationConfig.current || 1,
+        per_page: paginationConfig.pageSize || 50,
+      });
+      setSelectedRowKeys([]);
+    },
+    [],
+  );
 
   // Handle refresh
   const handleRefresh = useCallback(() => {
     fetchParticipants();
     fetchIssuedCertificates();
+    if (assignedTemplateId) fetchAssignedTemplate();
     setSelectedRowKeys([]);
-  }, [fetchParticipants, fetchIssuedCertificates]);
+  }, [
+    assignedTemplateId,
+    fetchAssignedTemplate,
+    fetchIssuedCertificates,
+    fetchParticipants,
+  ]);
 
-  const openCertificatePreview = useCallback((data: CertificatePayload) => {
-    sessionStorage.setItem("certificatePreview", JSON.stringify(data));
-    window.open("/certificate-preview", "_blank");
+  const openCertificatePreview = useCallback((certificateId: number) => {
+    const previewWindow = window.open(
+      `/certificate-preview/${certificateId}`,
+      "_blank",
+    );
+    if (previewWindow) previewWindow.opener = null;
   }, []);
 
   const handleIssueCertificate = useCallback(
     async (registrationId: number) => {
+      if (!certificateIssuanceAvailable) return;
+      const previewWindow = window.open("", "_blank");
+      if (previewWindow) {
+        previewWindow.opener = null;
+        previewWindow.document.body.textContent =
+          "Menyiapkan preview sertifikat…";
+      }
+
       setGeneratingCertificate(registrationId);
       try {
         const data = await issueSingleCertificate({
           registration_id: registrationId,
         });
         fetchIssuedCertificates();
-        openCertificatePreview(data);
-        message.success("Sertifikat berhasil diterbitkan");
+        if (data.certificate?.id && previewWindow) {
+          previewWindow.location.href = `/certificate-preview/${data.certificate.id}`;
+        } else if (previewWindow) {
+          previewWindow.close();
+        }
+        message.success("Sertifikat peserta siap dilihat");
       } catch {
-        message.error("Gagal menerbitkan sertifikat");
+        if (previewWindow && !previewWindow.closed) previewWindow.close();
       } finally {
         setGeneratingCertificate(null);
       }
     },
-    [fetchIssuedCertificates, openCertificatePreview],
+    [certificateIssuanceAvailable, fetchIssuedCertificates],
   );
 
   const handleViewCertificate = useCallback(
     (issued: IssuedCertificate) => {
-      openCertificatePreview(buildCertificatePayloadFromIssued(issued));
+      openCertificatePreview(issued.id);
     },
     [openCertificatePreview],
   );
 
   const handleCopyVerificationLink = useCallback(
     async (certificateCode: string) => {
-      const url = `${webAppUrl}/certificate/${certificateCode}`;
+      const url = getCertificateVerificationUrl(certificateCode);
+      if (!url) {
+        message.error(
+          "VITE_PUBLIC_WEB_URL belum dikonfigurasi. Link tidak dapat disalin.",
+        );
+        return;
+      }
       try {
         await navigator.clipboard.writeText(url);
         message.success("Link verifikasi disalin");
@@ -308,40 +391,139 @@ const ActivityParticipants = () => {
     [],
   );
 
-  const handleRevokeCertificate = useCallback(
-    async (certificateId: number) => {
-      setRevokingCertificate(certificateId);
-      try {
-        await revokeCertificate(certificateId, {
-          reason: "Dicabut oleh admin",
-        });
-        fetchIssuedCertificates();
-        message.success("Sertifikat berhasil dicabut");
-      } catch {
-        message.error("Gagal mencabut sertifikat");
-      } finally {
-        setRevokingCertificate(null);
-      }
-    },
-    [fetchIssuedCertificates],
-  );
-
-  const handleIssueBulk = useCallback(async () => {
-    setBulkIssuing(true);
+  const handleRevokeCertificate = useCallback(async () => {
+    if (!revokeTarget || !canRevoke || !revokeReason.trim()) return;
+    setRevokingCertificate(revokeTarget.id);
     try {
-      const result = await issueBulkCertificates({
-        registration_ids: selectedRowKeys.map((key) => Number(key)),
+      await revokeCertificate(revokeTarget.id, {
+        reason: revokeReason.trim(),
       });
       fetchIssuedCertificates();
-      message.success(
-        `${result.total_issued} sertifikat diterbitkan, ${result.total_skipped} dilewati`,
-      );
+      message.success("Sertifikat berhasil dicabut");
+      setRevokeTarget(null);
+      setRevokeReason("");
     } catch {
-      message.error("Gagal menerbitkan sertifikat massal");
+      // API errors are surfaced by the shared error handler.
     } finally {
-      setBulkIssuing(false);
+      setRevokingCertificate(null);
     }
-  }, [fetchIssuedCertificates, selectedRowKeys]);
+  }, [canRevoke, fetchIssuedCertificates, revokeReason, revokeTarget]);
+
+  const selectedCertificateSummary = useMemo(() => {
+    const selectedIds = new Set(selectedRowKeys.map(Number));
+    const selectedRows = (participantsData?.data || []).filter((participant) =>
+      selectedIds.has(participant.id),
+    );
+    const alreadyIssued = selectedRows.filter((participant) =>
+      issuedByRegistrationId.has(participant.id),
+    );
+    const ineligible = selectedRows.filter(
+      (participant) =>
+        participant.status !== "LULUS KEGIATAN" &&
+        !issuedByRegistrationId.has(participant.id),
+    );
+    const eligibleIds = selectedRows
+      .filter(
+        (participant) =>
+          participant.status === "LULUS KEGIATAN" &&
+          !issuedByRegistrationId.has(participant.id),
+      )
+      .map((participant) => participant.id);
+
+    return { eligibleIds, alreadyIssued, ineligible };
+  }, [issuedByRegistrationId, participantsData?.data, selectedRowKeys]);
+
+  const bulkResultDetails = useMemo(() => {
+    if (!bulkResult) return [];
+    const created = bulkResult.created || bulkResult.issued || [];
+    return [
+      ...created.map((certificate) => ({
+        key: `created-${certificate.certificate?.id || certificate.participant.registration_id}`,
+        status: "Dibuat",
+        color: "green",
+        registrationId: certificate.participant.registration_id,
+        reason: certificate.certificate?.certificate_code,
+      })),
+      ...bulkResult.already_issued.map((certificate) => ({
+        key: `existing-${certificate.certificate?.id || certificate.participant.registration_id}`,
+        status: "Sudah terbit",
+        color: "blue",
+        registrationId: certificate.participant.registration_id,
+        reason: certificate.certificate?.certificate_code,
+      })),
+      ...(bulkResult.skipped || []).map((item) => ({
+        key: `skipped-${item.registration_id}`,
+        status: "Dilewati",
+        color: "gold",
+        registrationId: item.registration_id,
+        reason: item.reason,
+      })),
+      ...bulkResult.failed.map((item) => ({
+        key: `failed-${item.registration_id}`,
+        status: "Gagal",
+        color: "red",
+        registrationId: item.registration_id,
+        reason: item.reason,
+      })),
+    ];
+  }, [bulkResult]);
+
+  const handleIssueBulk = useCallback(() => {
+    const registrationIds = selectedCertificateSummary.eligibleIds.slice(
+      0,
+      MAX_BULK_CERTIFICATES,
+    );
+    if (!certificateIssuanceAvailable || registrationIds.length === 0) return;
+
+    Modal.confirm({
+      title: "Terbitkan sertifikat massal?",
+      content: (
+        <Space direction="vertical" size={4} style={{ marginTop: 8 }}>
+          <Text>{registrationIds.length} peserta memenuhi syarat.</Text>
+          {selectedCertificateSummary.alreadyIssued.length > 0 && (
+            <Text type="secondary">
+              {selectedCertificateSummary.alreadyIssued.length} sudah memiliki
+              sertifikat dan tidak dikirim ulang.
+            </Text>
+          )}
+          {selectedCertificateSummary.ineligible.length > 0 && (
+            <Text type="secondary">
+              {selectedCertificateSummary.ineligible.length} belum berstatus
+              LULUS KEGIATAN dan dilewati.
+            </Text>
+          )}
+          {selectedCertificateSummary.eligibleIds.length >
+            MAX_BULK_CERTIFICATES && (
+            <Text type="warning">
+              Maksimal {MAX_BULK_CERTIFICATES} sertifikat per permintaan;
+              pilihan sisanya tetap dipilih untuk batch berikutnya.
+            </Text>
+          )}
+        </Space>
+      ),
+      okText: `Terbitkan ${registrationIds.length}`,
+      cancelText: "Batal",
+      onOk: async () => {
+        setBulkIssuing(true);
+        try {
+          const result = await issueBulkCertificates({
+            registration_ids: registrationIds,
+          });
+          setBulkResult(result);
+          setSelectedRowKeys(
+            selectedCertificateSummary.eligibleIds.slice(MAX_BULK_CERTIFICATES),
+          );
+          fetchIssuedCertificates();
+        } finally {
+          setBulkIssuing(false);
+        }
+      },
+    });
+  }, [
+    certificateIssuanceAvailable,
+    fetchIssuedCertificates,
+    selectedCertificateSummary,
+  ]);
 
   // Handle export
   const handleExport = useCallback(async () => {
@@ -378,32 +560,43 @@ const ActivityParticipants = () => {
     const hasCertificateTemplate =
       !!activity?.additional_config?.certificate_template_id;
 
-    // Add certificate column for LULUS KEGIATAN participants
-    if (hasCertificateTemplate) {
+    if (
+      canAccessCertificateFeature &&
+      (hasCertificateTemplate || issuedByRegistrationId.size > 0)
+    ) {
       cols.push({
         title: "Sertifikat",
         dataIndex: "id",
         key: "certificate",
-        width: 220,
+        width: 300,
         fixed: "right" as const,
         render: (_: unknown, record: ParticipantRow) => {
-          if (record.status !== "LULUS KEGIATAN") {
-            return null;
-          }
-
           const issued = issuedByRegistrationId.get(record.id);
 
           if (issued?.revoked_at) {
             return (
-              <Space size={4}>
-                <Tag color="red">Dicabut</Tag>
-                <Tooltip title="Lihat Sertifikat">
-                  <Button
-                    type="text"
-                    icon={<EyeOutlined />}
-                    onClick={() => handleViewCertificate(issued)}
-                  />
-                </Tooltip>
+              <Space direction="vertical" size={2}>
+                <Space size={4}>
+                  <Tag color="red">Dicabut</Tag>
+                  <Tooltip title="Lihat sertifikat yang dicabut">
+                    <Button
+                      type="text"
+                      icon={<EyeOutlined />}
+                      style={TOUCH_ACTION_STYLE}
+                      aria-label="Lihat sertifikat yang dicabut"
+                      onClick={() => handleViewCertificate(issued)}
+                    />
+                  </Tooltip>
+                </Space>
+                <Text type="secondary" style={{ fontSize: 11 }}>
+                  {issued.revoked_reason || "Tanpa alasan"} ·{" "}
+                  {dayjs(issued.revoked_at).format("DD MMM YYYY HH:mm")}
+                  {issued.revoked_by_name
+                    ? ` · ${issued.revoked_by_name}`
+                    : issued.revoked_by
+                      ? ` · Admin #${issued.revoked_by}`
+                      : ""}
+                </Text>
               </Space>
             );
           }
@@ -416,6 +609,8 @@ const ActivityParticipants = () => {
                   <Button
                     type="text"
                     icon={<EyeOutlined />}
+                    style={TOUCH_ACTION_STYLE}
+                    aria-label="Lihat sertifikat"
                     onClick={() => handleViewCertificate(issued)}
                   />
                 </Tooltip>
@@ -423,30 +618,43 @@ const ActivityParticipants = () => {
                   <Button
                     type="text"
                     icon={<CopyOutlined />}
+                    style={TOUCH_ACTION_STYLE}
+                    aria-label="Salin link verifikasi sertifikat"
                     onClick={() =>
                       handleCopyVerificationLink(issued.certificate_code)
                     }
                   />
                 </Tooltip>
-                <Popconfirm
-                  title="Cabut sertifikat?"
-                  description="Sertifikat yang dicabut akan tampil tidak valid di halaman publik."
-                  okText="Cabut"
-                  cancelText="Batal"
-                  okButtonProps={{ danger: true }}
-                  onConfirm={() => handleRevokeCertificate(issued.id)}
-                >
+                {canRevoke && (
                   <Tooltip title="Cabut Sertifikat">
                     <Button
                       type="text"
                       danger
                       icon={<StopOutlined />}
+                      style={TOUCH_ACTION_STYLE}
+                      aria-label="Cabut sertifikat"
                       loading={revokingCertificate === issued.id}
+                      onClick={() => {
+                        setRevokeTarget(issued);
+                        setRevokeReason("");
+                      }}
                     />
                   </Tooltip>
-                </Popconfirm>
+                )}
               </Space>
             );
+          }
+
+          if (!hasCertificateTemplate) {
+            return <Tag>Template belum dipilih</Tag>;
+          }
+
+          if (record.status !== "LULUS KEGIATAN") {
+            return <Tag color="gold">Belum memenuhi syarat</Tag>;
+          }
+
+          if (!certificateIssuanceAvailable) {
+            return <Tag color="red">Penerbitan tidak tersedia</Tag>;
           }
 
           return (
@@ -454,8 +662,19 @@ const ActivityParticipants = () => {
               <Button
                 type="text"
                 icon={<SafetyCertificateOutlined />}
+                style={TOUCH_ACTION_STYLE}
+                aria-label="Terbitkan sertifikat"
                 loading={generatingCertificate === record.id}
-                onClick={() => handleIssueCertificate(record.id)}
+                onClick={() =>
+                  Modal.confirm({
+                    title: "Terbitkan sertifikat?",
+                    content:
+                      "Snapshot template dan data peserta akan dikunci untuk sertifikat ini.",
+                    okText: "Terbitkan",
+                    cancelText: "Batal",
+                    onOk: () => handleIssueCertificate(record.id),
+                  })
+                }
               />
             </Tooltip>
           );
@@ -470,10 +689,12 @@ const ActivityParticipants = () => {
     sortOrder,
     handleSort,
     activity,
+    canAccessCertificateFeature,
+    certificateIssuanceAvailable,
+    canRevoke,
     generatingCertificate,
     handleCopyVerificationLink,
     handleIssueCertificate,
-    handleRevokeCertificate,
     handleViewCertificate,
     issuedByRegistrationId,
     revokingCertificate,
@@ -501,7 +722,23 @@ const ActivityParticipants = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
-    preserveSelectedRowKeys: true,
+    preserveSelectedRowKeys: false,
+    getCheckboxProps: (record: ParticipantRow) => {
+      if (!certificateSelectionMode) return {};
+      const alreadyIssued = issuedByRegistrationId.has(record.id);
+      const statusEligible = record.status === "LULUS KEGIATAN";
+      const reason = alreadyIssued
+        ? "Sertifikat sudah pernah diterbitkan"
+        : !statusEligible
+          ? "Peserta belum berstatus LULUS KEGIATAN"
+          : undefined;
+      return {
+        disabled: Boolean(reason),
+        title: reason,
+        "aria-label":
+          reason || `Pilih ${record.name} untuk penerbitan sertifikat`,
+      };
+    },
   };
 
   if (activityLoading || customFormLoading) {
@@ -519,6 +756,81 @@ const ActivityParticipants = () => {
         open={addParticipantModal}
         toggle={toggleAddParticipant}
       />
+
+      <Modal
+        title="Cabut sertifikat"
+        open={Boolean(revokeTarget)}
+        okText="Cabut sertifikat"
+        cancelText="Batal"
+        okButtonProps={{
+          danger: true,
+          disabled: revokeReason.trim().length < 3,
+        }}
+        confirmLoading={Boolean(revokingCertificate)}
+        onOk={handleRevokeCertificate}
+        onCancel={() => {
+          if (revokingCertificate) return;
+          setRevokeTarget(null);
+          setRevokeReason("");
+        }}
+      >
+        <Alert
+          type="warning"
+          showIcon
+          title="Sertifikat akan tetap tersimpan, tetapi ditandai tidak valid."
+          style={{ marginBottom: 16 }}
+        />
+        <Input.TextArea
+          value={revokeReason}
+          onChange={(event) => setRevokeReason(event.target.value)}
+          placeholder="Tuliskan alasan pencabutan"
+          aria-label="Alasan pencabutan sertifikat"
+          autoSize={{ minRows: 3, maxRows: 6 }}
+          maxLength={500}
+          showCount
+        />
+      </Modal>
+
+      <Modal
+        title="Hasil penerbitan sertifikat"
+        open={Boolean(bulkResult)}
+        footer={
+          <Button type="primary" onClick={() => setBulkResult(null)}>
+            Selesai
+          </Button>
+        }
+        onCancel={() => setBulkResult(null)}
+        width={640}
+      >
+        {bulkResult && (
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            <Space wrap>
+              <Tag color="green">{bulkResult.total_created} dibuat</Tag>
+              <Tag color="blue">
+                {bulkResult.total_already_issued} sudah terbit
+              </Tag>
+              <Tag color="gold">{bulkResult.total_skipped} dilewati</Tag>
+              <Tag color="red">{bulkResult.total_failed} gagal</Tag>
+            </Space>
+            <List
+              size="small"
+              bordered
+              dataSource={bulkResultDetails}
+              locale={{ emptyText: "Tidak ada detail hasil." }}
+              renderItem={(item) => (
+                <List.Item>
+                  <Space>
+                    <Tag color={item.color}>{item.status}</Tag>
+                    <Text>Registrasi #{item.registrationId}</Text>
+                    {item.reason && <Text type="secondary">{item.reason}</Text>}
+                  </Space>
+                </List.Item>
+              )}
+              style={{ maxHeight: 360, overflow: "auto" }}
+            />
+          </Space>
+        )}
+      </Modal>
 
       {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
@@ -540,7 +852,6 @@ const ActivityParticipants = () => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onSearch={handleSearch}
-              onPressEnter={handleSearch}
               prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
             />
 
@@ -562,21 +873,45 @@ const ActivityParticipants = () => {
               </Tag>
             )}
 
-            <StatusBulkActions
-              selectedRowKeys={selectedRowKeys}
-              activityId={id || ""}
-              customSelectionStatus={customSelectionStatus}
-              onSuccess={handleRefresh}
-            />
+            {!certificateSelectionMode && (
+              <StatusBulkActions
+                selectedRowKeys={selectedRowKeys}
+                activityId={id || ""}
+                customSelectionStatus={customSelectionStatus}
+                onSuccess={handleRefresh}
+              />
+            )}
 
-            {!!activity?.additional_config?.certificate_template_id &&
-              selectedRowKeys.length > 0 && (
+            {certificateIssuanceAvailable && assignedTemplateId && (
+              <Button
+                type={certificateSelectionMode ? "primary" : "default"}
+                icon={<SafetyCertificateOutlined />}
+                onClick={() => {
+                  setCertificateSelectionMode((current) => !current);
+                  setSelectedRowKeys([]);
+                }}
+              >
+                {certificateSelectionMode
+                  ? "Selesai pilih sertifikat"
+                  : "Pilih untuk sertifikat"}
+              </Button>
+            )}
+
+            {certificateSelectionMode &&
+              certificateIssuanceAvailable &&
+              assignedTemplateId &&
+              selectedCertificateSummary.eligibleIds.length > 0 && (
                 <Button
                   icon={<SendOutlined />}
                   onClick={handleIssueBulk}
                   loading={bulkIssuing}
                 >
-                  Terbitkan Sertifikat
+                  Terbitkan{" "}
+                  {Math.min(
+                    selectedCertificateSummary.eligibleIds.length,
+                    MAX_BULK_CERTIFICATES,
+                  )}{" "}
+                  Sertifikat
                 </Button>
               )}
 
@@ -613,6 +948,51 @@ const ActivityParticipants = () => {
           </Space>
         </div>
       </Card>
+
+      {canIssue && !assignedTemplateId && (
+        <Alert
+          type="warning"
+          showIcon
+          title="Template sertifikat belum dipilih"
+          description="Pilih template yang sudah dipublikasikan di detail kegiatan sebelum menerbitkan sertifikat."
+          style={{ marginTop: 12 }}
+        />
+      )}
+
+      {canIssue && assignedTemplateId && (
+        <Alert
+          type={
+            assignedTemplateLoading
+              ? "info"
+              : assignedTemplateReady
+                ? "success"
+                : "error"
+          }
+          showIcon
+          title={
+            assignedTemplateLoading
+              ? "Memeriksa template sertifikat"
+              : assignedTemplateReady
+                ? `Template siap: ${assignedTemplate?.name}`
+                : "Template yang dipilih belum dapat digunakan"
+          }
+          description={
+            assignedTemplateLoading
+              ? "Memeriksa kesiapan template…"
+              : assignedTemplate
+                ? `Status template: ${getCertificateTemplateStatus(assignedTemplate)}. Publikasikan dan perbaiki semua masalah kesiapan sebelum menerbitkan.`
+                : "Template tidak dapat dimuat. Coba muat ulang sebelum menerbitkan."
+          }
+          action={
+            !assignedTemplateReady ? (
+              <Button size="small" onClick={fetchAssignedTemplate}>
+                Periksa ulang
+              </Button>
+            ) : undefined
+          }
+          style={{ marginTop: 12 }}
+        />
+      )}
 
       {/* Participants Table */}
       <div style={{ marginTop: 12 }}>

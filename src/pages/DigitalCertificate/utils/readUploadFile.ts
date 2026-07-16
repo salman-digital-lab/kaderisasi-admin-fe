@@ -1,37 +1,24 @@
 import type { UploadFile } from "antd";
 
-const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-/**
- * Reads a file from an Ant Design Upload event as a base64 data URL.
- * Consolidates the duplicated FileReader logic used across
- * ElementToolbar, PropertyPanel, etc.
- */
-export function readUploadFileAsDataUrl(
+export function getValidatedUploadFile(
   info: { file: UploadFile },
-  onResult: (dataUrl: string, file: File) => void,
   onError?: (errorMessage: string) => void,
-): void {
+): File | null {
   const file = info.file.originFileObj || (info.file as unknown as File);
   if (!(file instanceof File)) {
     onError?.("File tidak dapat dibaca");
-    return;
+    return null;
   }
-  if (!file.type.startsWith("image/")) {
-    onError?.("Pilih file gambar yang valid");
-    return;
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    onError?.("Gunakan gambar JPG, PNG, atau WebP");
+    return null;
   }
   if (file.size > MAX_IMAGE_SIZE_BYTES) {
-    onError?.("Ukuran gambar maksimal 10 MB");
-    return;
+    onError?.("Ukuran gambar maksimal 5 MB");
+    return null;
   }
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (e.target?.result) {
-      onResult(e.target.result as string, file);
-    }
-  };
-  reader.onerror = () => onError?.("Gambar gagal dibaca");
-  reader.readAsDataURL(file);
+  return file;
 }

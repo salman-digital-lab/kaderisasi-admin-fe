@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
+import { getCertificateAssetUrl } from "../utils/certificate-content";
 import { DragOutlined, SelectOutlined } from "@ant-design/icons";
 import { Button, Switch, Tooltip } from "antd";
 import { CertificateElement, CertificateTemplate } from "../types";
@@ -419,6 +420,10 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       () => template.elements.filter((element) => element.visible !== false),
       [template.elements],
     );
+    const resolvedBackgroundUrl = useMemo(
+      () => getCertificateAssetUrl(template.backgroundUrl),
+      [template.backgroundUrl],
+    );
 
     // ── Cursor ────────────────────────────────────────────────────────────
 
@@ -498,8 +503,8 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
               width: template.canvasWidth,
               height: template.canvasHeight,
               backgroundColor: "#ffffff",
-              backgroundImage: template.backgroundUrl
-                ? `url(${template.backgroundUrl})`
+              backgroundImage: resolvedBackgroundUrl
+                ? `url(${resolvedBackgroundUrl})`
                 : undefined,
               backgroundSize: "cover",
               backgroundPosition: "center",

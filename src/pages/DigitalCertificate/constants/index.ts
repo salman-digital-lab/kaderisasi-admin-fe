@@ -1,6 +1,5 @@
 export const VARIABLE_OPTIONS = [
-  { label: "Nama Peserta", value: "{{name}}" },
-  { label: "Email", value: "{{email}}" },
+  { label: "Nama Peserta / Tamu", value: "{{name}}" },
   { label: "Nama Kegiatan", value: "{{activity_name}}" },
   { label: "Tanggal", value: "{{activity_date}}" },
   { label: "Tanggal (Legacy)", value: "{{date}}" },
@@ -9,6 +8,8 @@ export const VARIABLE_OPTIONS = [
   { label: "Nama Universitas", value: "{{university}}" },
   { label: "Jenis Kelamin", value: "{{gender}}" },
 ] as const;
+
+export const DEPRECATED_PRIVATE_VARIABLES = ["{{email}}"] as const;
 
 export const DEFAULT_CANVAS_WIDTH = 800;
 export const DEFAULT_CANVAS_HEIGHT = 566; // A4 landscape aspect ratio

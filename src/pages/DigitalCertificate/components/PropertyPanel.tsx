@@ -13,11 +13,13 @@ import {
   Divider,
   Segmented,
   message,
+  Alert,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { CertificateElement } from "../types";
 import { VARIABLE_OPTIONS, DEFAULT_FONT_FAMILIES } from "../constants";
-import { readUploadFileAsDataUrl } from "../utils/readUploadFile";
+import { getValidatedUploadFile } from "../utils/readUploadFile";
+import { getCertificateAssetUrl } from "../utils/certificate-content";
 
 const { Text } = Typography;
 
@@ -30,6 +32,10 @@ interface PropertyPanelProps {
     historyGroup?: string,
   ) => void;
   onUpdateComplete: (historyGroup: string) => void;
+  onAssetUpload: (
+    file: File,
+  ) => Promise<{ url: string; assetKey?: string } | null>;
+  assetUploading: boolean;
 }
 
 // ─── Reusable sub-components ────────────────────────────────────────────────
@@ -91,18 +97,19 @@ const PropertySection: React.FC<{
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
-  ({ element, onUpdate, onUpdateComplete }) => {
+  ({ element, onUpdate, onUpdateComplete, onAssetUpload, assetUploading }) => {
     // ── Callbacks ───────────────────────────────────────────────────────
 
     const handleImageUpload = useCallback(
-      (info: { file: import("antd").UploadFile }) => {
-        readUploadFileAsDataUrl(
-          info,
-          (dataUrl) => onUpdate({ imageUrl: dataUrl }),
-          message.error,
-        );
+      async (info: { file: import("antd").UploadFile }) => {
+        const file = getValidatedUploadFile(info, message.error);
+        if (!file) return;
+        const uploaded = await onAssetUpload(file);
+        if (uploaded) {
+          onUpdate({ imageUrl: uploaded.url, assetKey: uploaded.assetKey });
+        }
       },
-      [onUpdate],
+      [onAssetUpload, onUpdate],
     );
 
     const updateField = useCallback(
@@ -138,9 +145,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     const isTextElement =
       element.type === "static-text" || element.type === "variable-text";
     const isImageElement =
-      element.type === "image" ||
-      element.type === "qr-code" ||
-      element.type === "signature";
+      element.type === "image" || element.type === "signature";
 
     // ── Render ───────────────────────────────────────────────────────────
 
@@ -249,6 +254,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   min={8}
                   max={120}
                   value={element.fontSize || 16}
+                  aria-label="Ukuran font"
                   onChange={(v) => updateField("fontSize", v, true)}
                   onChangeComplete={() => onUpdateComplete("fontSize")}
                 />
@@ -418,12 +424,17 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               <PropertySection label="Upload Gambar">
                 <div style={{ marginTop: 4 }}>
                   <Upload
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,.webp"
                     showUploadList={false}
                     beforeUpload={() => false}
                     onChange={handleImageUpload}
+                    disabled={assetUploading}
                   >
-                    <Button size="small" icon={<UploadOutlined />}>
+                    <Button
+                      size="small"
+                      icon={<UploadOutlined />}
+                      loading={assetUploading}
+                    >
                       Pilih Gambar
                     </Button>
                   </Upload>
@@ -431,7 +442,9 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                 {element.imageUrl && (
                   <div style={{ marginTop: 8 }}>
                     <img
-                      src={element.imageUrl}
+                      src={
+                        getCertificateAssetUrl(element.imageUrl) || undefined
+                      }
                       alt="Preview"
                       style={{
                         width: "100%",
@@ -447,6 +460,18 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             </>
           )}
 
+          {element.type === "qr-code" && (
+            <>
+              <Divider style={{ margin: "8px 0" }} />
+              <Alert
+                type="info"
+                showIcon
+                title="QR verifikasi otomatis"
+                description="QR akan menggunakan link verifikasi unik dari kode sertifikat saat diterbitkan."
+              />
+            </>
+          )}
+
           <Divider style={{ margin: "8px 0" }} />
 
           <PropertySection label="Opacity">
@@ -454,6 +479,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               min={0}
               max={100}
               value={element.opacity ?? 100}
+              aria-label="Opacity elemen"
               onChange={(v) => updateField("opacity", v, true)}
               onChangeComplete={() => onUpdateComplete("opacity")}
             />
@@ -464,6 +490,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               min={-180}
               max={180}
               value={element.rotation || 0}
+              aria-label="Rotasi elemen"
               onChange={(v) => updateField("rotation", v, true)}
               onChangeComplete={() => onUpdateComplete("rotation")}
             />
@@ -474,6 +501,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               min={0}
               max={80}
               value={element.borderRadius || 0}
+              aria-label="Radius sudut elemen"
               onChange={(v) => updateField("borderRadius", v, true)}
               onChangeComplete={() => onUpdateComplete("borderRadius")}
             />

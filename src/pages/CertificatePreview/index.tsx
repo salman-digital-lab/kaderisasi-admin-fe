@@ -1,146 +1,55 @@
-import { useEffect, useRef, useState } from "react";
-import { Card, Spin, Button, message } from "antd";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Alert,
+  Button,
+  Card,
+  QRCode,
+  Result,
+  Skeleton,
+  Space,
+  Tag,
+  Typography,
+  message,
+} from "antd";
 import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
+import { useParams } from "react-router-dom";
+import { getIssuedCertificate } from "../../api/services/certificateTemplate";
+import type { CertificatePayload } from "../../types/services/certificateTemplate";
 import type { CertificateElement } from "../DigitalCertificate/types";
+import {
+  getCertificateAssetUrl,
+  getCertificateVerificationUrl,
+  resolveCertificateText,
+} from "../DigitalCertificate/utils/certificate-content";
 import { saveCertificatePdf } from "../DigitalCertificate/utils/certificatePdf";
 
-interface CertificateData {
-  activity: {
-    id: number;
-    name: string;
-    activity_start: string;
-  };
-  template: {
-    id: number;
-    name: string;
-    background_image: string | null;
-    template_data: {
-      backgroundUrl: string | null;
-      elements: CertificateElement[];
-      canvasWidth: number;
-      canvasHeight: number;
-    };
-  };
-  participant: {
-    registration_id: number;
-    user_id: number;
-    name: string;
-    email: string;
-    university: string;
-    activity_name: string;
-    activity_date: string;
-  };
-  certificate?: {
-    id: number;
-    certificate_code: string;
-    registration_id: number;
-    activity_id: number;
-    template_id: number;
-    issued_at: string;
-    revoked_at: string | null;
-    revoked_reason: string | null;
-  };
-}
+const { Text, Title } = Typography;
 
-const PLACEHOLDER_LABELS: Record<string, string> = {
-  image: "Gambar",
-  "qr-code": "QR Code",
-  signature: "Tanda Tangan",
-};
-
-const VariableTextContent: React.FC<{
-  variable: string;
-  style: React.CSSProperties;
-}> = ({ variable, style }) => <div style={style}>{variable}</div>;
-
-const getJustifyContent = (align?: CertificateElement["textAlign"]): string => {
+const getJustifyContent = (
+  align?: CertificateElement["textAlign"],
+): React.CSSProperties["justifyContent"] => {
   if (align === "left") return "flex-start";
   if (align === "right") return "flex-end";
   return "center";
 };
 
-const getAlignItems = (align?: CertificateElement["verticalAlign"]): string => {
+const getAlignItems = (
+  align?: CertificateElement["verticalAlign"],
+): React.CSSProperties["alignItems"] => {
   if (align === "top") return "flex-start";
   if (align === "bottom") return "flex-end";
   return "center";
 };
 
-const ImageContent: React.FC<{
-  imageUrl?: string;
-  alt: string;
-  placeholderLabel: string;
-  objectFit: CertificateElement["objectFit"];
-  borderRadius: number;
-}> = ({ imageUrl, alt, placeholderLabel, objectFit, borderRadius }) =>
-  imageUrl ? (
-    <img
-      src={imageUrl}
-      alt={alt}
-      style={{
-        width: "100%",
-        height: "100%",
-        objectFit,
-        borderRadius,
-      }}
-      draggable={false}
-    />
-  ) : (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f5f5f5",
-        border: "1px dashed #d9d9d9",
-        borderRadius,
-        fontSize: 12,
-        color: "#999",
-      }}
-    >
-      {placeholderLabel}
-    </div>
-  );
-
-const resolveCertificateText = (
-  element: CertificateElement,
-  participantData: CertificateData["participant"],
-  certificateData?: CertificateData["certificate"],
-): string => {
-  if (element.type === "static-text") return element.content || "";
-
-  const varValue = element.variable?.replace(/{{|}}/g, "").trim() || "";
-
-  switch (varValue) {
-    case "name":
-      return participantData.name;
-    case "email":
-      return participantData.email;
-    case "university":
-      return participantData.university;
-    case "activity_name":
-      return participantData.activity_name;
-    case "activity_date":
-    case "date":
-      return participantData.activity_date;
-    case "registration_id":
-      return String(participantData.registration_id);
-    case "user_id":
-      return String(participantData.user_id);
-    case "certificate_id":
-    case "certificate_code":
-      return certificateData?.certificate_code || "";
-    default:
-      return element.content || "";
-  }
-};
-
-const CertificateElementComponent: React.FC<{
+const CertificateElementView: React.FC<{
   element: CertificateElement;
-  participantData: CertificateData["participant"];
-  certificateData?: CertificateData["certificate"];
-}> = ({ element, participantData, certificateData }) => {
+  data: CertificatePayload;
+  verificationUrl: string | null;
+}> = ({ element, data, verificationUrl }) => {
+  if (element.visible === false) return null;
+
+  const isText =
+    element.type === "static-text" || element.type === "variable-text";
   const textStyle: React.CSSProperties = {
     width: "100%",
     height: "100%",
@@ -156,57 +65,66 @@ const CertificateElementComponent: React.FC<{
     letterSpacing: element.letterSpacing || 0,
     color: element.color || "#000000",
     textAlign: element.textAlign || "center",
-    margin: 0,
     wordBreak: "break-word",
     whiteSpace: "pre-wrap",
   };
 
-  const renderContent = () => {
-    switch (element.type) {
-      case "static-text":
-        return <div style={textStyle}>{element.content || ""}</div>;
-      case "variable-text": {
-        const text = resolveCertificateText(
-          element,
-          participantData,
-          certificateData,
-        );
-        return <VariableTextContent variable={text} style={textStyle} />;
-      }
-      case "image":
-      case "qr-code":
-      case "signature":
-        return (
-          <ImageContent
-            imageUrl={element.imageUrl}
-            alt={element.type}
-            objectFit={element.objectFit || "contain"}
-            borderRadius={element.borderRadius || 0}
-            placeholderLabel={PLACEHOLDER_LABELS[element.type] || element.type}
-          />
-        );
-      default:
-        return null;
+  const renderContent = (): React.ReactNode => {
+    if (isText) {
+      return (
+        <div style={textStyle}>
+          {resolveCertificateText(
+            element,
+            data.participant,
+            data.certificate?.certificate_code,
+          )}
+        </div>
+      );
     }
+
+    if (element.type === "qr-code") {
+      return verificationUrl ? (
+        <QRCode
+          type="svg"
+          bordered={false}
+          value={verificationUrl}
+          size={Math.max(24, Math.min(element.width, element.height) - 8)}
+          style={{ width: "100%", height: "100%" }}
+        />
+      ) : (
+        <div style={{ fontSize: 12, color: "#cf1322", textAlign: "center" }}>
+          URL verifikasi belum dikonfigurasi
+        </div>
+      );
+    }
+
+    const imageUrl = getCertificateAssetUrl(element.imageUrl);
+    return imageUrl ? (
+      <img
+        src={imageUrl}
+        alt={element.type === "signature" ? "Tanda tangan" : "Aset sertifikat"}
+        crossOrigin="anonymous"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: element.objectFit || "contain",
+          borderRadius: element.borderRadius || 0,
+        }}
+      />
+    ) : null;
   };
-
-  const isTextType =
-    element.type === "static-text" || element.type === "variable-text";
-
-  if (element.visible === false) return null;
 
   return (
     <div
+      data-certificate-text-element={isText ? "true" : undefined}
       style={{
         position: "absolute",
         left: element.x,
         top: element.y,
         width: element.width,
-        ...(isTextType
+        ...(isText
           ? { minHeight: element.height }
           : { height: element.height }),
-        cursor: "default",
-        borderRadius: element.borderRadius || 4,
         padding: 4,
         boxSizing: "border-box",
         opacity: (element.opacity ?? 100) / 100,
@@ -214,7 +132,6 @@ const CertificateElementComponent: React.FC<{
         transformOrigin: "center center",
         overflow: "hidden",
       }}
-      data-certificate-text-element={isTextType ? "true" : undefined}
     >
       {renderContent()}
     </div>
@@ -222,167 +139,291 @@ const CertificateElementComponent: React.FC<{
 };
 
 const CertificatePreview: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const certificateId = Number(id);
+  const [data, setData] = useState<CertificatePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
-  const [data, setData] = useState<CertificateData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [scale, setScale] = useState(1);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const certificateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadCertificate = () => {
-      try {
-        const stored = sessionStorage.getItem("certificatePreview");
-        if (stored) {
-          const parsed = JSON.parse(stored) as CertificateData;
-          setData(parsed);
-        } else {
-          setError("Data sertifikat tidak ditemukan");
-        }
-      } catch {
-        setError("Gagal memuat data sertifikat");
-      } finally {
+    let active = true;
+
+    const loadCertificate = async (): Promise<void> => {
+      if (!Number.isInteger(certificateId) || certificateId <= 0) {
+        setError("ID sertifikat tidak valid.");
         setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await getIssuedCertificate(certificateId);
+        if (active) setData(result);
+      } catch {
+        if (active) setError("Sertifikat tidak dapat dimuat.");
+      } finally {
+        if (active) setLoading(false);
       }
     };
 
-    loadCertificate();
-  }, []);
+    void loadCertificate();
+    return () => {
+      active = false;
+    };
+  }, [certificateId, reloadToken]);
 
-  const handleDownload = async () => {
-    if (!data || !certificateRef.current) return;
+  const templateData = data?.template.template_data;
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || !templateData) return;
+
+    const updateScale = (): void => {
+      setScale(Math.min(1, viewport.clientWidth / templateData.canvasWidth));
+    };
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [templateData]);
+
+  const verificationUrl = useMemo(
+    () => getCertificateVerificationUrl(data?.certificate?.certificate_code),
+    [data?.certificate?.certificate_code],
+  );
+  const revoked = Boolean(data?.certificate?.revoked_at);
+  const hasVerificationQr = Boolean(
+    templateData?.elements.some(
+      (element) => element.visible !== false && element.type === "qr-code",
+    ),
+  );
+
+  const handleDownload = useCallback(async (): Promise<void> => {
+    if (
+      !data ||
+      !templateData ||
+      !certificateRef.current ||
+      (hasVerificationQr && !verificationUrl) ||
+      revoked
+    ) {
+      return;
+    }
 
     setDownloading(true);
+    const source = certificateRef.current.cloneNode(true) as HTMLDivElement;
+    source.style.transform = "none";
+    source.style.position = "fixed";
+    source.style.left = "-99999px";
+    source.style.top = "0";
+    document.body.appendChild(source);
+
     try {
-      const { template_data } = data.template;
+      const participantName =
+        data.participant.guest_name || data.participant.name;
+      const safeName = participantName
+        .normalize("NFKD")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase();
       await saveCertificatePdf({
-        template: template_data,
-        sourceElement: certificateRef.current,
-        filename: `sertifikat-${data.participant.name.replace(/\s+/g, "-")}.pdf`,
+        template: templateData,
+        sourceElement: source,
+        filename: `sertifikat-${safeName || data.certificate?.certificate_code || "peserta"}.pdf`,
         resolveText: (element) =>
-          resolveCertificateText(element, data.participant, data.certificate),
+          resolveCertificateText(
+            element,
+            data.participant,
+            data.certificate?.certificate_code,
+          ),
       });
     } catch {
-      message.error("Gagal mengunduh sertifikat");
+      message.error("PDF sertifikat tidak dapat diunduh.");
     } finally {
+      document.body.removeChild(source);
       setDownloading(false);
     }
-  };
+  }, [data, hasVerificationQr, revoked, templateData, verificationUrl]);
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          backgroundColor: "#f5f5f5",
-        }}
-      >
-        <Spin size="large" />
-      </div>
+      <main style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
+        <Skeleton active paragraph={{ rows: 8 }} />
+      </main>
     );
   }
 
-  if (error || !data) {
+  if (error || !data || !templateData) {
     return (
-      <div style={{ padding: 24, textAlign: "center" }}>
-        <Card>
-          <p>{error || "Terjadi kesalahan"}</p>
-          <Button icon={<LeftOutlined />} onClick={() => window.close()}>
+      <Result
+        status="error"
+        title="Preview sertifikat tidak tersedia"
+        subTitle={error || "Snapshot template sertifikat tidak ditemukan."}
+        extra={[
+          <Button
+            key="retry"
+            type="primary"
+            onClick={() => setReloadToken((v) => v + 1)}
+          >
+            Coba lagi
+          </Button>,
+          <Button
+            key="close"
+            icon={<LeftOutlined />}
+            onClick={() => window.close()}
+          >
             Tutup
-          </Button>
-        </Card>
-      </div>
+          </Button>,
+        ]}
+      />
     );
   }
 
-  const { template, participant } = data;
-  const { template_data, background_image } = template;
-
-  if (!template_data || !template_data.elements) {
-    return (
-      <div style={{ padding: 24, textAlign: "center" }}>
-        <Card>
-          <p>Template sertifikat tidak tersedia</p>
-          <Button icon={<LeftOutlined />} onClick={() => window.close()}>
-            Tutup
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  // Get full URL for background image
-  const backgroundImageUrl = background_image
-    ? `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL || ""}/${background_image}`
-    : null;
+  const participantName = data.participant.guest_name || data.participant.name;
+  const backgroundUrl =
+    getCertificateAssetUrl(data.template.background_image) ||
+    getCertificateAssetUrl(templateData.backgroundUrl);
 
   return (
-    <div
+    <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#e8e8e8",
-        padding: 24,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 16,
+        background: "#f5f5f5",
+        padding: "clamp(12px, 3vw, 24px)",
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-          maxWidth: 900,
-        }}
-      >
-        <div>
-          <h2 style={{ margin: 0 }}>{participant.name}</h2>
-          <p style={{ margin: "4px 0 0", color: "#666" }}>
-            {data.activity.name} - {participant.activity_date}
-          </p>
-        </div>
-        <Button
-          type="primary"
-          icon={<DownloadOutlined />}
-          onClick={handleDownload}
-          loading={downloading}
-        >
-          Unduh PDF
-        </Button>
-      </div>
+      <div style={{ width: "100%", maxWidth: 960, margin: "0 auto" }}>
+        <Card style={{ marginBottom: 16 }}>
+          <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <div>
+                <Title level={1} style={{ margin: 0, fontSize: 28 }}>
+                  {participantName}
+                </Title>
+                <Text type="secondary">
+                  {data.activity.name} · {data.participant.activity_date}
+                </Text>
+                <div style={{ marginTop: 8 }}>
+                  <Tag color={revoked ? "red" : "green"}>
+                    {revoked ? "Dicabut" : "Valid"}
+                  </Tag>
+                  {data.certificate?.certificate_code && (
+                    <Text code>{data.certificate.certificate_code}</Text>
+                  )}
+                </div>
+              </div>
+              <Button
+                type="primary"
+                icon={<DownloadOutlined />}
+                onClick={handleDownload}
+                loading={downloading}
+                disabled={(hasVerificationQr && !verificationUrl) || revoked}
+                style={{ minHeight: 44 }}
+              >
+                Unduh PDF
+              </Button>
+            </div>
 
-      {/* Certificate */}
-      <div
-        ref={certificateRef}
-        style={{
-          position: "relative",
-          width: template_data.canvasWidth,
-          height: template_data.canvasHeight,
-          backgroundColor: "#ffffff",
-          backgroundImage: backgroundImageUrl
-            ? `url(${backgroundImageUrl})`
-            : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-          overflow: "hidden",
-        }}
-      >
-        {template_data.elements.map((element) => (
-          <CertificateElementComponent
-            key={element.id}
-            element={element}
-            participantData={participant}
-            certificateData={data.certificate}
-          />
-        ))}
+            {revoked && (
+              <Alert
+                type="error"
+                showIcon
+                title="Sertifikat ini telah dicabut"
+                description={
+                  data.certificate?.revoked_reason ||
+                  "Sertifikat tidak lagi berlaku."
+                }
+              />
+            )}
+            {hasVerificationQr && !verificationUrl && (
+              <Alert
+                type="error"
+                showIcon
+                title="URL verifikasi publik belum dikonfigurasi"
+                description="Tetapkan VITE_PUBLIC_WEB_URL sebelum menampilkan QR atau mengunduh PDF."
+              />
+            )}
+          </Space>
+        </Card>
+
+        <div
+          ref={viewportRef}
+          style={{ width: "100%", overflow: "hidden" }}
+          aria-label="Preview visual sertifikat"
+        >
+          <div
+            style={{
+              position: "relative",
+              width: templateData.canvasWidth * scale,
+              height: templateData.canvasHeight * scale,
+              margin: "0 auto",
+            }}
+          >
+            <div
+              ref={certificateRef}
+              data-certificate-canvas="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: templateData.canvasWidth,
+                height: templateData.canvasHeight,
+                transform: `scale(${scale})`,
+                transformOrigin: "0 0",
+                backgroundColor: "#ffffff",
+                backgroundImage: backgroundUrl
+                  ? `url(${backgroundUrl})`
+                  : undefined,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.18)",
+                overflow: "hidden",
+              }}
+            >
+              {templateData.elements.map((element) => (
+                <CertificateElementView
+                  key={element.id}
+                  element={element}
+                  data={data}
+                  verificationUrl={verificationUrl}
+                />
+              ))}
+              {revoked && (
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 999,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "rgba(207, 19, 34, 0.28)",
+                    fontSize: Math.max(64, templateData.canvasWidth / 8),
+                    fontWeight: 800,
+                    transform: "rotate(-24deg)",
+                    pointerEvents: "none",
+                  }}
+                >
+                  DICABUT
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 };
 

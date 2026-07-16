@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import {
   Button,
   Card,
@@ -10,6 +16,7 @@ import {
   Tag,
   Tooltip,
   Typography,
+  Alert,
 } from "antd";
 import {
   SafetyCertificateOutlined,
@@ -17,8 +24,9 @@ import {
   ArrowLeftOutlined,
   FilePdfOutlined,
   WarningOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useBlocker } from "react-router-dom";
 import {
   CertificateCanvas,
   ElementToolbar,
@@ -32,11 +40,18 @@ import type { CertificateElement, ElementType } from "../types";
 import {
   getCertificateTemplate,
   updateCertificateTemplate,
-  uploadCertificateBackground,
+  uploadCertificateAsset,
+  updateCertificateTemplateLifecycle,
 } from "../../../api/services/certificateTemplate";
 import { usePdfPreview } from "./hooks/usePdfPreview";
 import styles from "./CertificateDesigner.module.css";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import type { CertificateTemplateStatus } from "../../../types/services/certificateTemplate";
+import {
+  getCertificateReadiness,
+  getCertificateTemplateStatus,
+  isCertificateTemplateReady,
+} from "../utils/certificate-readiness";
 
 const { Text } = Typography;
 
@@ -44,6 +59,7 @@ const CertificateDesigner: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const templateId = Number(id);
+  const pageRef = useRef<HTMLElement>(null);
 
   const {
     template,
@@ -78,6 +94,15 @@ const CertificateDesigner: React.FC = () => {
   const [templateDescription, setTemplateDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [uploadingBackground, setUploadingBackground] = useState(false);
+  const [uploadingAsset, setUploadingAsset] = useState(false);
+  const [assetError, setAssetError] = useState<string | null>(null);
+  const [templateStatus, setTemplateStatus] =
+    useState<CertificateTemplateStatus>("draft");
+  const [backgroundImagePath, setBackgroundImagePath] = useState<string | null>(
+    null,
+  );
   const [variableModalVisible, setVariableModalVisible] = useState(false);
   const [canvasSettingsVisible, setCanvasSettingsVisible] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(true);
@@ -95,23 +120,16 @@ const CertificateDesigner: React.FC = () => {
       JSON.stringify({
         name: templateName.trim(),
         description: templateDescription || null,
+        backgroundImage: backgroundImagePath,
         template: currentTemplate,
       }),
-    [template, templateDescription, templateName],
+    [backgroundImagePath, template, templateDescription, templateName],
   );
 
   const isDirty = useMemo(() => {
     if (!savedSnapshot) return false;
     return getDesignerStateSnapshot() !== savedSnapshot;
   }, [getDesignerStateSnapshot, savedSnapshot]);
-
-  const getImageUrl = useCallback((path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith("data:") || path.startsWith("http")) return path;
-
-    const imageBaseUrl = import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL || "";
-    return `${imageBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
-  }, []);
 
   // Load template data on mount
   useEffect(() => {
@@ -123,11 +141,11 @@ const CertificateDesigner: React.FC = () => {
 
         setTemplateName(data.name);
         setTemplateDescription(data.description || "");
+        setTemplateStatus(getCertificateTemplateStatus(data));
+        setBackgroundImagePath(data.background_image);
         const nextTemplate = {
           backgroundUrl:
-            getImageUrl(data.background_image) ||
-            data.template_data?.backgroundUrl ||
-            null,
+            data.background_image || data.template_data?.backgroundUrl || null,
           elements: data.template_data?.elements || [],
           canvasWidth: data.template_data?.canvasWidth || 800,
           canvasHeight: data.template_data?.canvasHeight || 566,
@@ -137,6 +155,7 @@ const CertificateDesigner: React.FC = () => {
           JSON.stringify({
             name: data.name.trim(),
             description: data.description || null,
+            backgroundImage: data.background_image,
             template: nextTemplate,
           }),
         );
@@ -155,14 +174,15 @@ const CertificateDesigner: React.FC = () => {
     }
 
     loadTemplate();
-  }, [getImageUrl, templateId, navigate, setTemplate]);
+  }, [templateId, navigate, setTemplate]);
 
-  const handleSave = useCallback(async () => {
-    if (!isDirty || saving) return;
+  const handleSave = useCallback(async (): Promise<boolean> => {
+    if (!isDirty) return true;
+    if (saving) return false;
 
     if (!templateName.trim()) {
       message.warning("Nama template tidak boleh kosong");
-      return;
+      return false;
     }
 
     setSaving(true);
@@ -171,11 +191,14 @@ const CertificateDesigner: React.FC = () => {
         name: templateName,
         description: templateDescription || null,
         templateData: template,
+        backgroundImage: backgroundImagePath,
       });
       setSavedSnapshot(getDesignerStateSnapshot());
       message.success("Template berhasil disimpan");
+      return true;
     } catch {
       // Error handled by handleError
+      return false;
     } finally {
       setSaving(false);
     }
@@ -187,13 +210,53 @@ const CertificateDesigner: React.FC = () => {
     templateName,
     templateDescription,
     template,
+    backgroundImagePath,
+  ]);
+
+  const readinessIssues = useMemo(
+    () => getCertificateReadiness(template, backgroundImagePath),
+    [backgroundImagePath, template],
+  );
+  const templateReady = isCertificateTemplateReady(readinessIssues);
+
+  const handlePublish = useCallback(async (): Promise<void> => {
+    if (!templateReady || publishing || uploadingAsset || uploadingBackground) {
+      message.warning("Perbaiki masalah kesiapan sebelum mempublikasikan.");
+      return;
+    }
+
+    setPublishing(true);
+    try {
+      const saved = await handleSave();
+      if (!saved) return;
+      const updated = await updateCertificateTemplateLifecycle(
+        templateId,
+        "published",
+      );
+      setTemplateStatus(getCertificateTemplateStatus(updated));
+      message.success("Template berhasil dipublikasikan");
+    } catch {
+      // Error handled centrally.
+    } finally {
+      setPublishing(false);
+    }
+  }, [
+    handleSave,
+    publishing,
+    templateId,
+    templateReady,
+    uploadingAsset,
+    uploadingBackground,
   ]);
 
   const handleBack = useCallback(() => {
-    if (!isDirty) {
-      navigate("/digital-certificate");
-      return;
-    }
+    navigate("/digital-certificate");
+  }, [navigate]);
+
+  const navigationBlocker = useBlocker(isDirty && !saving && !publishing);
+
+  useEffect(() => {
+    if (navigationBlocker.state !== "blocked") return;
 
     Modal.confirm({
       title: "Keluar tanpa menyimpan?",
@@ -201,9 +264,10 @@ const CertificateDesigner: React.FC = () => {
       okText: "Keluar",
       cancelText: "Tetap di sini",
       okButtonProps: { danger: true },
-      onOk: () => navigate("/digital-certificate"),
+      onOk: () => navigationBlocker.proceed(),
+      onCancel: () => navigationBlocker.reset(),
     });
-  }, [isDirty, navigate]);
+  }, [navigationBlocker]);
 
   const handleAddElement = useCallback(
     (type: ElementType) => {
@@ -237,19 +301,21 @@ const CertificateDesigner: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        (e.target as HTMLElement).isContentEditable
-      ) {
-        return;
-      }
-
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      if (!target || !pageRef.current?.contains(target)) return;
       const modifierKey = e.metaKey || e.ctrlKey;
 
       if (modifierKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
         handleSave();
+        return;
+      }
+
+      const certificateElement = target.closest("[data-element-id]");
+      const isInteractive = target.closest(
+        "input, textarea, select, button, a, [contenteditable='true'], [role='option'], [role='menuitem'], [role='dialog']",
+      );
+      if (target.isContentEditable || (isInteractive && !certificateElement)) {
         return;
       }
 
@@ -352,76 +418,83 @@ const CertificateDesigner: React.FC = () => {
     }
   }, [pasteElement]);
 
+  const handleAssetUpload = useCallback(
+    async (file: File): Promise<{ url: string; assetKey?: string } | null> => {
+      if (uploadingAsset) return null;
+
+      setUploadingAsset(true);
+      setAssetError(null);
+      try {
+        const uploaded = await uploadCertificateAsset(templateId, file);
+        if (!uploaded.assetKey) {
+          throw new Error("Kunci aset terkelola tidak tersedia");
+        }
+        return { url: uploaded.assetKey, assetKey: uploaded.assetKey };
+      } catch {
+        setAssetError(
+          "Aset gagal diunggah. File tidak ditambahkan agar template tidak menyimpan URL sementara.",
+        );
+        return null;
+      } finally {
+        setUploadingAsset(false);
+      }
+    },
+    [templateId, uploadingAsset],
+  );
+
   const handleImageUpload = useCallback(
-    (url: string) => {
-      addElement("image", { imageUrl: url });
+    async (file: File): Promise<void> => {
+      const uploaded = await handleAssetUpload(file);
+      if (!uploaded) return;
+      addElement("image", {
+        imageUrl: uploaded.url,
+        assetKey: uploaded.assetKey,
+      });
       message.success("Gambar berhasil ditambahkan");
     },
-    [addElement],
+    [addElement, handleAssetUpload],
   );
 
   const handleBackgroundUpload = useCallback(
-    async (url: string, file?: File) => {
-      if (file && templateId) {
-        try {
-          const result = await uploadCertificateBackground(templateId, file);
-          if (result) {
-            setBackgroundUrl(getImageUrl(result.backgroundImage) || url);
-            message.success("Background berhasil diupload");
-            return;
-          }
-        } catch {
-          setBackgroundUrl(url);
-          message.warning(
-            "Upload ke penyimpanan gagal. Background disimpan sementara di template.",
-          );
-          return;
+    async (file: File): Promise<void> => {
+      if (uploadingBackground) return;
+
+      setUploadingBackground(true);
+      setAssetError(null);
+      try {
+        const uploaded = await uploadCertificateAsset(templateId, file);
+        if (!uploaded.assetKey) {
+          throw new Error("Aset background terkelola tidak tersedia");
         }
+        setBackgroundImagePath(uploaded.assetKey);
+        setBackgroundUrl(uploaded.assetKey);
+        message.success(
+          "Background berhasil diunggah. Klik Simpan Template untuk menerapkannya.",
+        );
+      } catch {
+        setAssetError(
+          "Background gagal diunggah. File tidak disimpan dan background sebelumnya tetap digunakan.",
+        );
+      } finally {
+        setUploadingBackground(false);
       }
-      setBackgroundUrl(url);
-      message.success("Background berhasil diupload");
     },
-    [getImageUrl, setBackgroundUrl, templateId],
+    [setBackgroundUrl, templateId, uploadingBackground],
   );
 
-  const validationWarnings = useMemo(() => {
-    const warnings: string[] = [];
-    if (!template.backgroundUrl) warnings.push("Background belum diatur");
-    if (template.elements.length === 0) warnings.push("Belum ada elemen");
-    if (
-      !template.elements.some(
-        (element) =>
-          element.type === "variable-text" && element.variable === "{{name}}",
-      )
-    ) {
-      warnings.push("Variabel nama peserta belum ada");
-    }
-    if (
-      template.elements.some(
-        (element) =>
-          element.x < 0 ||
-          element.y < 0 ||
-          element.x + element.width > template.canvasWidth ||
-          element.y + element.height > template.canvasHeight,
-      )
-    ) {
-      warnings.push("Ada elemen di luar kanvas");
-    }
-    if (
-      template.elements.some(
-        (element) =>
-          ["image", "qr-code", "signature"].includes(element.type) &&
-          !element.imageUrl,
-      )
-    ) {
-      warnings.push("Ada elemen gambar tanpa file");
-    }
-    return warnings;
-  }, [template]);
-
   const handlePreviewPdf = useCallback(() => {
+    if (
+      readinessIssues.some(
+        (issue) => issue.code === "MISSING_PUBLIC_CERTIFICATE_URL",
+      )
+    ) {
+      message.error(
+        "Konfigurasi URL web publik diperlukan untuk membuat QR preview.",
+      );
+      return;
+    }
     generatePdf(template);
-  }, [generatePdf, template]);
+  }, [generatePdf, readinessIssues, template]);
 
   const handleMoveSelectedForward = useCallback(() => {
     if (selectedElementId) {
@@ -535,6 +608,8 @@ const CertificateDesigner: React.FC = () => {
       element={selectedElement}
       onUpdate={handleUpdateSelected}
       onUpdateComplete={handleUpdateSelectedComplete}
+      onAssetUpload={handleAssetUpload}
+      assetUploading={uploadingAsset}
     />
   );
 
@@ -554,7 +629,7 @@ const CertificateDesigner: React.FC = () => {
   }
 
   return (
-    <main className={styles.page}>
+    <main ref={pageRef} className={styles.page}>
       {/* Header */}
       <Card
         variant="outlined"
@@ -599,12 +674,27 @@ const CertificateDesigner: React.FC = () => {
                     ? "Belum disimpan"
                     : "Tersimpan"}
               </Tag>
-              {validationWarnings.length > 0 && (
+              <Tag
+                color={
+                  templateStatus === "published"
+                    ? "green"
+                    : templateStatus === "archived"
+                      ? "default"
+                      : "gold"
+                }
+              >
+                {templateStatus === "published"
+                  ? "Dipublikasikan"
+                  : templateStatus === "archived"
+                    ? "Diarsipkan"
+                    : "Draf"}
+              </Tag>
+              {readinessIssues.length > 0 && (
                 <Tooltip
                   title={
                     <ul className={styles.validationList}>
-                      {validationWarnings.map((warning) => (
-                        <li key={warning}>{warning}</li>
+                      {readinessIssues.map((issue) => (
+                        <li key={issue.code}>{issue.message}</li>
                       ))}
                     </ul>
                   }
@@ -614,11 +704,16 @@ const CertificateDesigner: React.FC = () => {
                     size="small"
                     type="text"
                     icon={<WarningOutlined />}
-                    aria-label={`${validationWarnings.length} hal perlu diperiksa`}
+                    aria-label={`${readinessIssues.length} hal perlu diperiksa`}
                   >
-                    {validationWarnings.length} perhatian
+                    {readinessIssues.length} perhatian
                   </Button>
                 </Tooltip>
+              )}
+              {templateReady && (
+                <Tag icon={<CheckCircleOutlined />} color="success">
+                  Siap diterbitkan
+                </Tag>
               )}
             </div>
           </div>
@@ -627,6 +722,7 @@ const CertificateDesigner: React.FC = () => {
               icon={<FilePdfOutlined />}
               onClick={handlePreviewPdf}
               loading={generating}
+              disabled={uploadingAsset || uploadingBackground}
             >
               Preview PDF
             </Button>
@@ -639,9 +735,58 @@ const CertificateDesigner: React.FC = () => {
             >
               Simpan Template
             </Button>
+            {templateStatus !== "published" && (
+              <Button
+                type="primary"
+                ghost
+                icon={<CheckCircleOutlined />}
+                onClick={handlePublish}
+                loading={publishing}
+                disabled={
+                  !templateReady ||
+                  saving ||
+                  uploadingAsset ||
+                  uploadingBackground
+                }
+              >
+                Publikasikan
+              </Button>
+            )}
           </Space>
         </div>
       </Card>
+
+      {assetError && (
+        <Alert
+          className={styles.assetAlert}
+          type="error"
+          showIcon
+          closable
+          title="Upload belum berhasil"
+          description={assetError}
+          onClose={() => setAssetError(null)}
+        />
+      )}
+
+      {readinessIssues.length > 0 && (
+        <Alert
+          className={styles.assetAlert}
+          type={templateReady ? "warning" : "error"}
+          showIcon
+          title={
+            templateReady
+              ? "Template siap, tetapi masih ada saran"
+              : "Template belum siap dipublikasikan"
+          }
+          description={
+            <ul className={styles.validationList}>
+              {readinessIssues.map((issue) => (
+                <li key={issue.code}>{issue.message}</li>
+              ))}
+            </ul>
+          }
+        />
+      )}
 
       {/* Main Content */}
       <Card
@@ -679,6 +824,8 @@ const CertificateDesigner: React.FC = () => {
           showPanelControls={isCompactLayout}
           onOpenLayers={handleOpenLayerPanel}
           onOpenProperties={handleOpenPropertyPanel}
+          uploadingBackground={uploadingBackground}
+          uploadingAsset={uploadingAsset}
         />
 
         {/* Canvas and Property Panel */}
