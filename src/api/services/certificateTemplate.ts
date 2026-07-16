@@ -52,7 +52,25 @@ function normalizeCertificateTemplateData(
   return {
     backgroundUrl:
       typeof value?.backgroundUrl === "string" ? value.backgroundUrl : null,
-    elements: Array.isArray(value?.elements) ? value.elements : [],
+    elements: Array.isArray(value?.elements)
+      ? value.elements.map((item) => {
+          const legacyItem = item as typeof item & {
+            assetKey?: string;
+            asset_key?: string;
+          };
+          const { assetKey: _unusedAssetKey, ...element } = legacyItem;
+          const legacyElement = element as typeof element & {
+            asset_key?: string;
+          };
+          const imageUrl =
+            element.imageUrl || legacyElement.asset_key || _unusedAssetKey;
+          const canonicalElement = { ...legacyElement };
+          delete canonicalElement.asset_key;
+          return imageUrl
+            ? { ...canonicalElement, imageUrl }
+            : canonicalElement;
+        })
+      : [],
     canvasWidth:
       typeof value?.canvasWidth === "number" &&
       Number.isFinite(value.canvasWidth)
@@ -123,7 +141,9 @@ export const updateCertificateTemplate = async (
     );
     return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
-    handleError(error);
+    if (!isAxiosError(error) || error.response?.status !== 422) {
+      handleError(error);
+    }
     throw error;
   }
 };
@@ -175,7 +195,9 @@ export const updateCertificateTemplateLifecycle = async (
     return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
     if (!isUnsupportedEndpoint(error)) {
-      handleError(error);
+      if (!isAxiosError(error) || error.response?.status !== 422) {
+        handleError(error);
+      }
       throw error;
     }
 

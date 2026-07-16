@@ -21,7 +21,7 @@ export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
   const [isPanning, setIsPanning] = useState(false);
 
   const handlePanMove = useCallback(
-    (e: MouseEvent) => {
+    (e: PointerEvent) => {
       if (!panRef.current) return;
 
       setOffset({
@@ -35,13 +35,15 @@ export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
   const handlePanUp = useCallback(() => {
     panRef.current = null;
     setIsPanning(false);
-    document.removeEventListener("mousemove", handlePanMove);
-    document.removeEventListener("mouseup", handlePanUp);
+    document.removeEventListener("pointermove", handlePanMove);
+    document.removeEventListener("pointerup", handlePanUp);
+    document.removeEventListener("pointercancel", handlePanUp);
   }, [handlePanMove]);
 
   const startPan = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.PointerEvent) => {
       e.preventDefault();
+      e.currentTarget.setPointerCapture(e.pointerId);
       panRef.current = {
         startX: e.clientX,
         startY: e.clientY,
@@ -49,15 +51,19 @@ export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
         offsetStartY: offset.y,
       };
       setIsPanning(true);
-      document.addEventListener("mousemove", handlePanMove);
-      document.addEventListener("mouseup", handlePanUp);
+      document.addEventListener("pointermove", handlePanMove);
+      document.addEventListener("pointerup", handlePanUp);
+      document.addEventListener("pointercancel", handlePanUp);
     },
     [offset, handlePanMove, handlePanUp],
   );
 
   const cleanup = useCallback(() => {
-    document.removeEventListener("mousemove", handlePanMove);
-    document.removeEventListener("mouseup", handlePanUp);
+    panRef.current = null;
+    setIsPanning(false);
+    document.removeEventListener("pointermove", handlePanMove);
+    document.removeEventListener("pointerup", handlePanUp);
+    document.removeEventListener("pointercancel", handlePanUp);
   }, [handlePanMove, handlePanUp]);
 
   return { isPanning, startPan, cleanup };

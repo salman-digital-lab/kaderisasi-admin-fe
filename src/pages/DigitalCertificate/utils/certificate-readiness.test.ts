@@ -4,6 +4,7 @@ import {
   getCertificateReadiness,
   getCertificateTemplateStatus,
   isCertificateTemplateReady,
+  mapBackendReadinessErrors,
 } from "./certificate-readiness";
 
 const buildReadyTemplate = (): CertificateTemplateData => ({
@@ -119,5 +120,27 @@ describe("certificate template readiness", () => {
       }),
     ).toBe("archived");
     expect(getCertificateTemplateStatus({ is_active: true })).toBe("published");
+  });
+
+  it("maps authoritative backend validation errors into checklist issues", () => {
+    expect(
+      mapBackendReadinessErrors({
+        errors: [
+          { code: "MISSING_PARTICIPANT_NAME", message: "Nama wajib ada." },
+          "Ukuran tidak valid.",
+        ],
+      }),
+    ).toEqual([
+      {
+        code: "MISSING_PARTICIPANT_NAME",
+        message: "Nama wajib ada.",
+        severity: "error",
+      },
+      {
+        code: "SERVER_1",
+        message: "Ukuran tidak valid.",
+        severity: "error",
+      },
+    ]);
   });
 });

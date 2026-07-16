@@ -174,3 +174,39 @@ export function isCertificateTemplateReady(
 ): boolean {
   return !issues.some((issue) => issue.severity === "error");
 }
+
+export function mapBackendReadinessErrors(
+  payload: unknown,
+): CertificateReadinessIssue[] {
+  const data = payload as {
+    errors?: unknown;
+    error?: unknown;
+    message?: unknown;
+  } | null;
+  const source = Array.isArray(data?.errors)
+    ? data.errors
+    : Array.isArray(data?.error)
+      ? data.error
+      : data?.message
+        ? [data.message]
+        : [];
+
+  return source.map((item, index) => {
+    if (typeof item === "string") {
+      return {
+        code: `SERVER_${index}`,
+        message: item,
+        severity: "error" as const,
+      };
+    }
+    const value = item as { code?: unknown; message?: unknown };
+    return {
+      code: typeof value?.code === "string" ? value.code : `SERVER_${index}`,
+      message:
+        typeof value?.message === "string"
+          ? value.message
+          : "Template ditolak oleh server.",
+      severity: "error" as const,
+    };
+  });
+}

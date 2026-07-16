@@ -15,19 +15,22 @@ interface DraggableElementProps {
   element: CertificateElement;
   isSelected: boolean;
   onSelect: (id: string) => void;
-  onDragStart: (element: CertificateElement, e: React.MouseEvent) => void;
+  onDragStart: (element: CertificateElement, e: React.PointerEvent) => void;
   onResizeStart?: (
     element: CertificateElement,
     handle: ResizeHandle,
-    e: React.MouseEvent,
+    e: React.PointerEvent,
   ) => void;
   onContentChange?: (id: string, content: string) => void;
   onNodeChange: (id: string, node: HTMLDivElement | null) => void;
+  startEditing?: boolean;
+  onEditComplete?: () => void;
+  zoom?: number;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const HANDLE_SIZE = 8;
+const HANDLE_SIZE = 14;
 
 const RESIZE_HANDLES: {
   key: ResizeHandle;
@@ -157,8 +160,31 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     onResizeStart,
     onContentChange,
     onNodeChange,
+    startEditing,
+    onEditComplete,
+    zoom = 1,
   }) => {
     const [isEditing, setIsEditing] = React.useState(false);
+    const nodeRef = React.useRef<HTMLDivElement | null>(null);
+
+    React.useEffect(() => {
+      if (!startEditing || element.type !== "static-text" || element.locked)
+        return;
+      setIsEditing(true);
+      requestAnimationFrame(() => {
+        const editable = nodeRef.current?.querySelector<HTMLElement>(
+          "[contenteditable='true']",
+        );
+        editable?.focus();
+        if (editable) {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(editable);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      });
+    }, [element.locked, element.type, startEditing]);
 
     // ── Event handlers ──────────────────────────────────────────────────
 
@@ -177,17 +203,27 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         if (isEditing && onContentChange) {
           onContentChange(element.id, e.currentTarget.textContent || "");
           setIsEditing(false);
+          onEditComplete?.();
         }
       },
-      [element.id, isEditing, onContentChange],
+      [element.id, isEditing, onContentChange, onEditComplete],
     );
 
-    const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        (e.target as HTMLElement).blur();
-      }
-    }, []);
+    const handleKeyDown = React.useCallback(
+      (e: React.KeyboardEvent) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          e.currentTarget.textContent = element.content || "";
+          setIsEditing(false);
+          onEditComplete?.();
+          (e.currentTarget as HTMLElement).blur();
+        } else if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement).blur();
+        }
+      },
+      [element.content, onEditComplete],
+    );
 
     const handleClick = React.useCallback(
       (e: React.MouseEvent) => {
@@ -197,11 +233,13 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
       [element.id, onSelect],
     );
 
-    const handleMouseDown = React.useCallback(
-      (e: React.MouseEvent) => {
+    const handlePointerDown = React.useCallback(
+      (e: React.PointerEvent) => {
+        if (e.button !== 0 || element.locked) return;
+        onSelect(element.id);
         if (!isEditing) onDragStart(element, e);
       },
-      [element, isEditing, onDragStart],
+      [element, isEditing, onDragStart, onSelect],
     );
 
     const handleElementKeyDown = React.useCallback(
@@ -217,7 +255,10 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     );
 
     const handleNodeChange = React.useCallback(
-      (node: HTMLDivElement | null) => onNodeChange(element.id, node),
+      (node: HTMLDivElement | null) => {
+        nodeRef.current = node;
+        onNodeChange(element.id, node);
+      },
       [element.id, onNodeChange],
     );
 
@@ -333,7 +374,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         ref={handleNodeChange}
         data-element-id={element.id}
         role="button"
-        tabIndex={0}
+        tabIndex={-1}
         aria-label={`${element.name || element.type}${element.locked ? ", terkunci" : ""}`}
         aria-pressed={isSelected}
         style={{
@@ -356,7 +397,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           willChange: "left, top",
         }}
         onClick={handleClick}
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
         onDoubleClick={handleDoubleClick}
         onKeyDown={handleElementKeyDown}
       >
@@ -376,8 +417,10 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
                 borderRadius: "50%",
                 cursor,
                 zIndex: 10,
+                transform: `scale(${1 / zoom})`,
+                transformOrigin: "center",
               }}
-              onMouseDown={(e) => {
+              onPointerDown={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onResizeStart?.(element, key, e);

@@ -44,6 +44,7 @@ function computeResize(
   startH: number,
   canvasWidth: number,
   canvasHeight: number,
+  preserveAspect: boolean,
 ) {
   let x = startX;
   let y = startY;
@@ -71,6 +72,14 @@ function computeResize(
       x = startX + (startW - w);
       y = startY + (startH - h);
       break;
+  }
+
+  if (preserveAspect) {
+    const ratio = startW / startH;
+    if (Math.abs(deltaX) >= Math.abs(deltaY)) h = w / ratio;
+    else w = h * ratio;
+    if (handle === "nw" || handle === "sw") x = startX + startW - w;
+    if (handle === "nw" || handle === "ne") y = startY + startH - h;
   }
 
   x = Math.min(Math.max(0, x), Math.max(0, canvasWidth - ELEMENT_MIN_WIDTH));
@@ -127,8 +136,8 @@ export function useElementResize({
     [elementNodesRef],
   );
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
+  const handlePointerMove = useCallback(
+    (e: PointerEvent) => {
       if (!resizeRef.current) return;
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -149,6 +158,7 @@ export function useElementResize({
           r.elementStartH,
           canvasWidth,
           canvasHeight,
+          e.shiftKey,
         );
 
         r.latestX = result.x;
@@ -173,7 +183,7 @@ export function useElementResize({
     [canvasHeight, canvasWidth, elementPositionsRef, updateDomSize, zoom],
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -191,18 +201,20 @@ export function useElementResize({
     }
 
     setIsResizing(false);
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
-  }, [handleMouseMove, onUpdateElement]);
+    document.removeEventListener("pointermove", handlePointerMove);
+    document.removeEventListener("pointerup", handlePointerUp);
+    document.removeEventListener("pointercancel", handlePointerUp);
+  }, [handlePointerMove, onUpdateElement]);
 
   const startResize = useCallback(
     (
       element: CertificateElement,
       handle: ResizeHandle,
-      e: React.MouseEvent,
+      e: React.PointerEvent,
     ) => {
       e.preventDefault();
       e.stopPropagation();
+      e.currentTarget.setPointerCapture(e.pointerId);
 
       resizeRef.current = {
         elementId: element.id,
@@ -222,17 +234,21 @@ export function useElementResize({
       };
 
       setIsResizing(true);
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("pointermove", handlePointerMove);
+      document.addEventListener("pointerup", handlePointerUp);
+      document.addEventListener("pointercancel", handlePointerUp);
     },
-    [handleMouseMove, handleMouseUp],
+    [handlePointerMove, handlePointerUp],
   );
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
-  }, [handleMouseMove, handleMouseUp]);
+    resizeRef.current = null;
+    setIsResizing(false);
+    document.removeEventListener("pointermove", handlePointerMove);
+    document.removeEventListener("pointerup", handlePointerUp);
+    document.removeEventListener("pointercancel", handlePointerUp);
+  }, [handlePointerMove, handlePointerUp]);
 
   return { isResizing, startResize, cleanup };
 }

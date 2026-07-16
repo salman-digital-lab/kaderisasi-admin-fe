@@ -1,22 +1,18 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useReducer } from "react";
 import { CertificateElement, CertificateTemplate } from "../types";
 import {
   DEFAULT_CANVAS_WIDTH,
   DEFAULT_CANVAS_HEIGHT,
   DEFAULT_ELEMENT_STYLES,
 } from "../constants";
+import {
+  cloneCertificateTemplate,
+  createDocumentHistoryState,
+  documentHistoryReducer,
+} from "../CertificateDesigner/document-reducer";
 
 const generateId = () =>
   `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-const HISTORY_LIMIT = 50;
-
-const cloneTemplate = (template: CertificateTemplate): CertificateTemplate => ({
-  ...template,
-  // Element values are flat, so a manual clone keeps immutable image/base64 strings
-  // shared instead of repeatedly copying large template assets into undo history.
-  elements: template.elements.map((element) => ({ ...element })),
-});
 
 const getElementName = (
   type: CertificateElement["type"],
@@ -45,67 +41,40 @@ interface ElementUpdateOptions {
 }
 
 export const useCertificateDesigner = () => {
-  const [template, setTemplateState] = useState<CertificateTemplate>({
-    backgroundUrl: null,
-    elements: [],
-    canvasWidth: DEFAULT_CANVAS_WIDTH,
-    canvasHeight: DEFAULT_CANVAS_HEIGHT,
-  });
-
-  const [past, setPast] = useState<CertificateTemplate[]>([]);
-  const [future, setFuture] = useState<CertificateTemplate[]>([]);
-  const [clipboardElement, setClipboardElement] =
-    useState<CertificateElement | null>(null);
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(
-    null,
+  const [state, dispatch] = useReducer(
+    documentHistoryReducer,
+    {
+      backgroundUrl: null,
+      elements: [],
+      canvasWidth: DEFAULT_CANVAS_WIDTH,
+      canvasHeight: DEFAULT_CANVAS_HEIGHT,
+    },
+    createDocumentHistoryState,
   );
-  const activeHistoryGroupRef = useRef<string | null>(null);
+  const {
+    template,
+    selectedElementId,
+    clipboardElement,
+    revision,
+    past,
+    future,
+  } = state;
 
   const selectedElement =
     template.elements.find((el) => el.id === selectedElementId) || null;
-
-  useEffect(() => {
-    if (
-      selectedElementId &&
-      !template.elements.some((element) => element.id === selectedElementId)
-    ) {
-      setSelectedElementId(null);
-    }
-  }, [selectedElementId, template.elements]);
 
   const applyTemplateUpdate = useCallback(
     (
       updater: (current: CertificateTemplate) => CertificateTemplate,
       historyGroup?: string,
     ) => {
-      const shouldRecordHistory =
-        !historyGroup || activeHistoryGroupRef.current !== historyGroup;
-      activeHistoryGroupRef.current = historyGroup || null;
-
-      setTemplateState((current) => {
-        const next = updater(current);
-        if (next === current) return current;
-
-        if (shouldRecordHistory) {
-          setPast((items) =>
-            [...items, cloneTemplate(current)].slice(-HISTORY_LIMIT),
-          );
-        }
-
-        setFuture([]);
-        return next;
-      });
+      dispatch({ type: "apply", update: updater, historyGroup });
     },
     [],
   );
 
   const setTemplate = useCallback((next: CertificateTemplate) => {
-    setTemplateState(next);
-    setPast([]);
-    setFuture([]);
-    setClipboardElement(null);
-    setSelectedElementId(null);
-    activeHistoryGroupRef.current = null;
+    dispatch({ type: "reset", template: next });
   }, []);
 
   const setBackgroundUrl = useCallback(
@@ -179,7 +148,7 @@ export const useCertificateDesigner = () => {
         elements: [...prev.elements, newElement],
       }));
 
-      setSelectedElementId(newElement.id);
+      dispatch({ type: "select", id: newElement.id });
       return newElement.id;
     },
     [applyTemplateUpdate, template.elements.length],
@@ -211,9 +180,7 @@ export const useCertificateDesigner = () => {
   );
 
   const finishHistoryGroup = useCallback((historyGroup?: string) => {
-    if (!historyGroup || activeHistoryGroupRef.current === historyGroup) {
-      activeHistoryGroupRef.current = null;
-    }
+    dispatch({ type: "finish-history-group", historyGroup });
   }, []);
 
   const deleteElement = useCallback(
@@ -222,7 +189,6 @@ export const useCertificateDesigner = () => {
         ...prev,
         elements: prev.elements.filter((el) => el.id !== id),
       }));
-      setSelectedElementId((prev) => (prev === id ? null : prev));
     },
     [applyTemplateUpdate],
   );
@@ -235,11 +201,11 @@ export const useCertificateDesigner = () => {
   );
 
   const selectElement = useCallback((id: string | null) => {
-    setSelectedElementId(id);
+    dispatch({ type: "select", id });
   }, []);
 
   const clearSelection = useCallback(() => {
-    setSelectedElementId(null);
+    dispatch({ type: "select", id: null });
   }, []);
 
   const moveElementBy = useCallback(
@@ -273,31 +239,43 @@ export const useCertificateDesigner = () => {
           ...element,
           id: generateId(),
           name: `${element.name || getElementName(element.type, 1)} Salinan`,
-          x: element.x + 20,
-          y: element.y + 20,
+          x: Math.min(
+            Math.max(0, template.canvasWidth - element.width),
+            element.x + 20,
+          ),
+          y: Math.min(
+            Math.max(0, template.canvasHeight - element.height),
+            element.y + 20,
+          ),
         };
         applyTemplateUpdate((prev) => ({
           ...prev,
           elements: [...prev.elements, newElement],
         }));
-        setSelectedElementId(newElement.id);
+        dispatch({ type: "select", id: newElement.id });
       }
     },
-    [applyTemplateUpdate, template.elements],
+    [
+      applyTemplateUpdate,
+      template.canvasHeight,
+      template.canvasWidth,
+      template.elements,
+    ],
   );
 
   const copyElement = useCallback(
     (id: string) => {
       const element = template.elements.find((el) => el.id === id);
       if (!element) return false;
-      setClipboardElement(
-        cloneTemplate({
+      dispatch({
+        type: "clipboard",
+        element: cloneCertificateTemplate({
           backgroundUrl: null,
           elements: [element],
           canvasWidth: 0,
           canvasHeight: 0,
         }).elements[0],
-      );
+      });
       return true;
     },
     [template.elements],
@@ -310,18 +288,47 @@ export const useCertificateDesigner = () => {
       ...clipboardElement,
       id: generateId(),
       name: `${clipboardElement.name || getElementName(clipboardElement.type, 1)} Salinan`,
-      x: clipboardElement.x + 24,
-      y: clipboardElement.y + 24,
+      x: Math.min(
+        Math.max(0, template.canvasWidth - clipboardElement.width),
+        clipboardElement.x + 24,
+      ),
+      y: Math.min(
+        Math.max(0, template.canvasHeight - clipboardElement.height),
+        clipboardElement.y + 24,
+      ),
     };
 
     applyTemplateUpdate((prev) => ({
       ...prev,
       elements: [...prev.elements, newElement],
     }));
-    setSelectedElementId(newElement.id);
-    setClipboardElement(newElement);
+    dispatch({ type: "select", id: newElement.id });
+    dispatch({ type: "clipboard", element: newElement });
     return true;
-  }, [applyTemplateUpdate, clipboardElement]);
+  }, [
+    applyTemplateUpdate,
+    clipboardElement,
+    template.canvasHeight,
+    template.canvasWidth,
+  ]);
+
+  const reorderElement = useCallback(
+    (activeId: string, overId: string) => {
+      applyTemplateUpdate((prev) => {
+        const activeIndex = prev.elements.findIndex(
+          (item) => item.id === activeId,
+        );
+        const overIndex = prev.elements.findIndex((item) => item.id === overId);
+        if (activeIndex < 0 || overIndex < 0 || activeIndex === overIndex)
+          return prev;
+        const elements = [...prev.elements];
+        const [active] = elements.splice(activeIndex, 1);
+        elements.splice(overIndex, 0, active);
+        return { ...prev, elements };
+      });
+    },
+    [applyTemplateUpdate],
+  );
 
   const updateElementOrder = useCallback(
     (id: string, direction: "front" | "back" | "forward" | "backward") => {
@@ -384,37 +391,11 @@ export const useCertificateDesigner = () => {
   );
 
   const undo = useCallback(() => {
-    activeHistoryGroupRef.current = null;
-    setPast((items) => {
-      if (items.length === 0) return items;
-      const previous = items[items.length - 1];
-
-      setTemplateState((current) => {
-        setFuture((futureItems) =>
-          [cloneTemplate(current), ...futureItems].slice(0, HISTORY_LIMIT),
-        );
-        return cloneTemplate(previous);
-      });
-
-      return items.slice(0, -1);
-    });
+    dispatch({ type: "undo" });
   }, []);
 
   const redo = useCallback(() => {
-    activeHistoryGroupRef.current = null;
-    setFuture((items) => {
-      if (items.length === 0) return items;
-      const next = items[0];
-
-      setTemplateState((current) => {
-        setPast((pastItems) =>
-          [...pastItems, cloneTemplate(current)].slice(-HISTORY_LIMIT),
-        );
-        return cloneTemplate(next);
-      });
-
-      return items.slice(1);
-    });
+    dispatch({ type: "redo" });
   }, []);
 
   const canUndo = past.length > 0;
@@ -464,6 +445,7 @@ export const useCertificateDesigner = () => {
     copyElement,
     pasteElement,
     updateElementOrder,
+    reorderElement,
     alignElement,
     renameElement,
     toggleElementVisibility,
@@ -473,5 +455,6 @@ export const useCertificateDesigner = () => {
     canUndo,
     canRedo,
     hasClipboard: !!clipboardElement,
+    revision,
   };
 };

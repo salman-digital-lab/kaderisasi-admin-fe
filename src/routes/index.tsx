@@ -143,6 +143,19 @@ const CertificateRoleUser = ({
 const routes = createBrowserRouter(
   [
     {
+      path: "/digital-certificate/:id/edit",
+      element: (
+        <CertificateRoleUser
+          manageOnly
+          element={
+            <SuspenseWrapper>
+              <CertificateDesigner />
+            </SuspenseWrapper>
+          }
+        />
+      ),
+    },
+    {
       path: "/certificate-preview/:id",
       element: (
         <CertificateRoleUser
@@ -470,19 +483,6 @@ const routes = createBrowserRouter(
               element={
                 <SuspenseWrapper>
                   <DigitalCertificate />
-                </SuspenseWrapper>
-              }
-            />
-          ),
-        },
-        {
-          path: "/digital-certificate/:id/edit",
-          element: (
-            <CertificateRoleUser
-              manageOnly
-              element={
-                <SuspenseWrapper>
-                  <CertificateDesigner />
                 </SuspenseWrapper>
               }
             />

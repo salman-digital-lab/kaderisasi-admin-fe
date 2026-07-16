@@ -23,7 +23,6 @@ export interface CertificateTemplateElement {
   lineHeight?: number;
   letterSpacing?: number;
   imageUrl?: string;
-  assetKey?: string;
   opacity?: number;
   rotation?: number;
   borderRadius?: number;
@@ -65,6 +64,7 @@ export interface CertificateTemplate {
   };
   created_at: string;
   updated_at: string;
+  version?: string | number;
 }
 
 export interface CertificateTemplateSnapshot {
