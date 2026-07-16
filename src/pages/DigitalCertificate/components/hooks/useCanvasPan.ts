@@ -19,18 +19,17 @@ interface UseCanvasPanOptions {
 export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
   const panRef = useRef<PanState | null>(null);
   const [isPanning, setIsPanning] = useState(false);
+  const optionsRef = useRef({ offset, setOffset });
+  optionsRef.current = { offset, setOffset };
 
-  const handlePanMove = useCallback(
-    (e: PointerEvent) => {
-      if (!panRef.current) return;
+  const handlePanMove = useCallback((e: PointerEvent) => {
+    if (!panRef.current) return;
 
-      setOffset({
-        x: panRef.current.offsetStartX + (e.clientX - panRef.current.startX),
-        y: panRef.current.offsetStartY + (e.clientY - panRef.current.startY),
-      });
-    },
-    [setOffset],
-  );
+    optionsRef.current.setOffset({
+      x: panRef.current.offsetStartX + (e.clientX - panRef.current.startX),
+      y: panRef.current.offsetStartY + (e.clientY - panRef.current.startY),
+    });
+  }, []);
 
   const handlePanUp = useCallback(() => {
     panRef.current = null;
@@ -47,15 +46,15 @@ export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
       panRef.current = {
         startX: e.clientX,
         startY: e.clientY,
-        offsetStartX: offset.x,
-        offsetStartY: offset.y,
+        offsetStartX: optionsRef.current.offset.x,
+        offsetStartY: optionsRef.current.offset.y,
       };
       setIsPanning(true);
       document.addEventListener("pointermove", handlePanMove);
       document.addEventListener("pointerup", handlePanUp);
       document.addEventListener("pointercancel", handlePanUp);
     },
-    [offset, handlePanMove, handlePanUp],
+    [handlePanMove, handlePanUp],
   );
 
   const cleanup = useCallback(() => {

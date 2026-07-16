@@ -139,6 +139,10 @@ const CertificateDesigner: React.FC = () => {
   const [tool, setTool] = useState<EditorTool>("select");
   const [editElementId, setEditElementId] = useState<string | null>(null);
   const viewportCentreRef = useRef<ViewportPoint>({ x: 400, y: 283 });
+  const handleViewportCentreChange = useCallback((point: ViewportPoint) => {
+    viewportCentreRef.current = point;
+  }, []);
+  const handleEditComplete = useCallback(() => setEditElementId(null), []);
 
   const isCompactLayout = useMediaQuery("(max-width: 1279px)");
   const isMobileLayout = useMediaQuery("(max-width: 767px)");
@@ -997,11 +1001,9 @@ const CertificateDesigner: React.FC = () => {
               selectedElementId={selectedElementId}
               tool={tool}
               onToolChange={setTool}
-              onViewportCentreChange={(point) => {
-                viewportCentreRef.current = point;
-              }}
+              onViewportCentreChange={handleViewportCentreChange}
               editElementId={editElementId}
-              onEditComplete={() => setEditElementId(null)}
+              onEditComplete={handleEditComplete}
               onSelectElement={selectElement}
               onMoveElement={moveElement}
               onUpdateElement={updateElement}
@@ -1009,8 +1011,6 @@ const CertificateDesigner: React.FC = () => {
               showGrid={showGrid}
               showGuides={showGuides}
               snapToGuides={snapToGuides}
-              onSnapToGridChange={() => undefined}
-              onShowGuidesChange={() => undefined}
             />
           ) : (
             <Splitter
@@ -1058,11 +1058,9 @@ const CertificateDesigner: React.FC = () => {
                   selectedElementId={selectedElementId}
                   tool={tool}
                   onToolChange={setTool}
-                  onViewportCentreChange={(point) => {
-                    viewportCentreRef.current = point;
-                  }}
+                  onViewportCentreChange={handleViewportCentreChange}
                   editElementId={editElementId}
-                  onEditComplete={() => setEditElementId(null)}
+                  onEditComplete={handleEditComplete}
                   onSelectElement={selectElement}
                   onMoveElement={moveElement}
                   onUpdateElement={updateElement}
@@ -1070,8 +1068,6 @@ const CertificateDesigner: React.FC = () => {
                   showGrid={showGrid}
                   showGuides={showGuides}
                   snapToGuides={snapToGuides}
-                  onSnapToGridChange={() => undefined}
-                  onShowGuidesChange={() => undefined}
                 />
               </Splitter.Panel>
               <Splitter.Panel

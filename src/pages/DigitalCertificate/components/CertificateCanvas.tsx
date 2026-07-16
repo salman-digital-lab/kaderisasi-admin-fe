@@ -42,8 +42,6 @@ interface CertificateCanvasProps {
   showGrid: boolean;
   showGuides: boolean;
   snapToGuides: boolean;
-  onSnapToGridChange: (value: boolean) => void;
-  onShowGuidesChange: (value: boolean) => void;
 }
 
 const GRID_SIZE = 10;
@@ -76,6 +74,8 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     });
     const previousSizeRef = useRef<ViewportPoint>({ x: 0, y: 0 });
     const heldSpaceRef = useRef(false);
+    const viewportCentreCallbackRef = useRef(onViewportCentreChange);
+    viewportCentreCallbackRef.current = onViewportCentreChange;
     const pointersRef = useRef<Map<number, ViewportPoint>>(new Map());
     const pinchRef = useRef<{
       distance: number;
@@ -104,14 +104,15 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
 
     const reportViewportCentre = useCallback(() => {
       const node = containerRef.current;
-      if (!node || !onViewportCentreChange) return;
-      onViewportCentreChange(
+      const callback = viewportCentreCallbackRef.current;
+      if (!node || !callback) return;
+      callback(
         screenToCanvas(
           { x: node.clientWidth / 2, y: node.clientHeight / 2 },
           viewportRef.current,
         ),
       );
-    }, [onViewportCentreChange]);
+    }, []);
 
     const fit = useCallback(() => {
       const node = containerRef.current;
@@ -176,6 +177,30 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       [],
     );
 
+    const handleMoveCommit = useCallback(
+      (id: string, x: number, y: number) => {
+        onMoveElement(id, x, y);
+        setAnnouncement(`Posisi elemen ${Math.round(x)}, ${Math.round(y)}`);
+      },
+      [onMoveElement],
+    );
+
+    const handleResizeCommit = useCallback(
+      (id: string, updates: Partial<CertificateElement>) => {
+        onUpdateElement(id, updates);
+        setAnnouncement(
+          `Ukuran elemen ${Math.round(updates.width || 0)} kali ${Math.round(updates.height || 0)}`,
+        );
+      },
+      [onUpdateElement],
+    );
+
+    const handleViewportOffsetChange = useCallback(
+      (offset: ViewportPoint) =>
+        setViewport((current) => ({ ...current, offset, mode: "custom" })),
+      [setViewport],
+    );
+
     const {
       isDragging,
       startDrag,
@@ -189,10 +214,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       snapToGuides,
       gridSize: GRID_SIZE,
       onGuidesChange: handleGuidesChange,
-      onMoveElement: (id, x, y) => {
-        onMoveElement(id, x, y);
-        setAnnouncement(`Posisi elemen ${Math.round(x)}, ${Math.round(y)}`);
-      },
+      onMoveElement: handleMoveCommit,
       elementPositionsRef,
       elementNodesRef,
     });
@@ -204,12 +226,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       zoom: viewport.zoom,
       canvasWidth: template.canvasWidth,
       canvasHeight: template.canvasHeight,
-      onUpdateElement: (id, updates) => {
-        onUpdateElement(id, updates);
-        setAnnouncement(
-          `Ukuran elemen ${Math.round(updates.width || 0)} kali ${Math.round(updates.height || 0)}`,
-        );
-      },
+      onUpdateElement: handleResizeCommit,
       elementPositionsRef,
       elementNodesRef,
     });
@@ -219,8 +236,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       cleanup: cleanupPan,
     } = useCanvasPan({
       offset: viewport.offset,
-      setOffset: (offset) =>
-        setViewport((current) => ({ ...current, offset, mode: "custom" })),
+      setOffset: handleViewportOffsetChange,
     });
 
     useEffect(

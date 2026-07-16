@@ -48,18 +48,43 @@ export function useElementDrag({
   const dragRef = useRef<DragState | null>(null);
   const rafRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const optionsRef = useRef({
+    zoom,
+    toolMode,
+    canvasWidth,
+    canvasHeight,
+    snapToGrid,
+    snapToGuides,
+    gridSize,
+    onGuidesChange,
+    onMoveElement,
+    elementPositionsRef,
+    elementNodesRef,
+  });
+  optionsRef.current = {
+    zoom,
+    toolMode,
+    canvasWidth,
+    canvasHeight,
+    snapToGrid,
+    snapToGuides,
+    gridSize,
+    onGuidesChange,
+    onMoveElement,
+    elementPositionsRef,
+    elementNodesRef,
+  };
 
-  const updateDomPosition = useCallback(
-    (id: string, x: number, y: number) => {
-      const el = elementNodesRef.current.get(id);
-      if (el) {
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
-      }
-      elementPositionsRef.current.set(id, { x, y });
-    },
-    [elementNodesRef, elementPositionsRef],
-  );
+  const updateDomPosition = useCallback((id: string, x: number, y: number) => {
+    const { elementNodesRef: nodesRef, elementPositionsRef: positionsRef } =
+      optionsRef.current;
+    const el = nodesRef.current.get(id);
+    if (el) {
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
+    positionsRef.current.set(id, { x, y });
+  }, []);
 
   const handlePointerMove = useCallback(
     (e: PointerEvent) => {
@@ -81,11 +106,21 @@ export function useElementDrag({
       rafRef.current = requestAnimationFrame(() => {
         if (!dragRef.current) return;
 
-        const deltaX = (e.clientX - dragRef.current.startX) / zoom;
-        const deltaY = (e.clientY - dragRef.current.startY) / zoom;
+        const {
+          zoom: currentZoom,
+          canvasWidth: currentCanvasWidth,
+          canvasHeight: currentCanvasHeight,
+          snapToGrid: shouldSnapToGrid,
+          snapToGuides: shouldSnapToGuides,
+          gridSize: currentGridSize,
+          onGuidesChange: reportGuides,
+        } = optionsRef.current;
+
+        const deltaX = (e.clientX - dragRef.current.startX) / currentZoom;
+        const deltaY = (e.clientY - dragRef.current.startY) / currentZoom;
         const { elementWidth, elementHeight } = dragRef.current;
-        const maxX = Math.max(0, canvasWidth - elementWidth);
-        const maxY = Math.max(0, canvasHeight - elementHeight);
+        const maxX = Math.max(0, currentCanvasWidth - elementWidth);
+        const maxY = Math.max(0, currentCanvasHeight - elementHeight);
 
         let newX = Math.min(
           maxX,
@@ -96,19 +131,19 @@ export function useElementDrag({
           Math.max(0, dragRef.current.elementStartY + deltaY),
         );
 
-        if (snapToGrid) {
-          newX = Math.round(newX / gridSize) * gridSize;
-          newY = Math.round(newY / gridSize) * gridSize;
+        if (shouldSnapToGrid) {
+          newX = Math.round(newX / currentGridSize) * currentGridSize;
+          newY = Math.round(newY / currentGridSize) * currentGridSize;
         }
 
-        const canvasCenterX = canvasWidth / 2;
-        const canvasCenterY = canvasHeight / 2;
+        const canvasCenterX = currentCanvasWidth / 2;
+        const canvasCenterY = currentCanvasHeight / 2;
         const elementCenterX = newX + elementWidth / 2;
         const elementCenterY = newY + elementHeight / 2;
         const verticalGuide =
-          snapToGuides && Math.abs(elementCenterX - canvasCenterX) <= 6;
+          shouldSnapToGuides && Math.abs(elementCenterX - canvasCenterX) <= 6;
         const horizontalGuide =
-          snapToGuides && Math.abs(elementCenterY - canvasCenterY) <= 6;
+          shouldSnapToGuides && Math.abs(elementCenterY - canvasCenterY) <= 6;
 
         if (verticalGuide) newX = Math.round(canvasCenterX - elementWidth / 2);
         if (horizontalGuide) {
@@ -118,7 +153,7 @@ export function useElementDrag({
         newX = Math.min(maxX, Math.max(0, newX));
         newY = Math.min(maxY, Math.max(0, newY));
 
-        onGuidesChange({
+        reportGuides({
           vertical: verticalGuide,
           horizontal: horizontalGuide,
         });
@@ -126,16 +161,7 @@ export function useElementDrag({
         updateDomPosition(dragRef.current.elementId, newX, newY);
       });
     },
-    [
-      canvasHeight,
-      canvasWidth,
-      gridSize,
-      onGuidesChange,
-      snapToGrid,
-      snapToGuides,
-      updateDomPosition,
-      zoom,
-    ],
+    [updateDomPosition],
   );
 
   const handlePointerUp = useCallback(() => {
@@ -145,23 +171,25 @@ export function useElementDrag({
     }
 
     if (dragRef.current) {
-      const pos = elementPositionsRef.current.get(dragRef.current.elementId);
+      const { elementPositionsRef: positionsRef, onMoveElement: commitMove } =
+        optionsRef.current;
+      const pos = positionsRef.current.get(dragRef.current.elementId);
       if (pos) {
-        onMoveElement(dragRef.current.elementId, pos.x, pos.y);
+        commitMove(dragRef.current.elementId, pos.x, pos.y);
       }
       dragRef.current = null;
     }
 
     setIsDragging(false);
-    onGuidesChange({ vertical: false, horizontal: false });
+    optionsRef.current.onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
     document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, onGuidesChange, onMoveElement, elementPositionsRef]);
+  }, [handlePointerMove]);
 
   const startDrag = useCallback(
     (element: CertificateElement, e: React.PointerEvent) => {
-      if (toolMode === "pan" || element.locked) return;
+      if (optionsRef.current.toolMode === "pan" || element.locked) return;
       e.preventDefault();
       e.stopPropagation();
 
@@ -182,18 +210,18 @@ export function useElementDrag({
       document.addEventListener("pointerup", handlePointerUp);
       document.addEventListener("pointercancel", handlePointerUp);
     },
-    [handlePointerMove, handlePointerUp, toolMode],
+    [handlePointerMove, handlePointerUp],
   );
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     dragRef.current = null;
     setIsDragging(false);
-    onGuidesChange({ vertical: false, horizontal: false });
+    optionsRef.current.onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
     document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, handlePointerUp, onGuidesChange]);
+  }, [handlePointerMove, handlePointerUp]);
 
   return { isDragging, startDrag, cleanup };
 }

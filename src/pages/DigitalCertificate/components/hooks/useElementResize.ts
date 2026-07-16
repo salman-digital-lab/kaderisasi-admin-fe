@@ -111,6 +111,22 @@ export function useElementResize({
   const resizeRef = useRef<ResizeState | null>(null);
   const rafRef = useRef<number | null>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const optionsRef = useRef({
+    zoom,
+    canvasWidth,
+    canvasHeight,
+    onUpdateElement,
+    elementPositionsRef,
+    elementNodesRef,
+  });
+  optionsRef.current = {
+    zoom,
+    canvasWidth,
+    canvasHeight,
+    onUpdateElement,
+    elementPositionsRef,
+    elementNodesRef,
+  };
 
   const updateDomSize = useCallback(
     (
@@ -121,7 +137,7 @@ export function useElementResize({
       h: number,
       usesMinHeight: boolean,
     ) => {
-      const el = elementNodesRef.current.get(id);
+      const el = optionsRef.current.elementNodesRef.current.get(id);
       if (el) {
         el.style.left = `${x}px`;
         el.style.top = `${y}px`;
@@ -133,7 +149,7 @@ export function useElementResize({
         }
       }
     },
-    [elementNodesRef],
+    [],
   );
 
   const handlePointerMove = useCallback(
@@ -145,9 +161,15 @@ export function useElementResize({
       rafRef.current = requestAnimationFrame(() => {
         const r = resizeRef.current;
         if (!r) return;
+        const {
+          zoom: currentZoom,
+          canvasWidth: currentCanvasWidth,
+          canvasHeight: currentCanvasHeight,
+          elementPositionsRef: positionsRef,
+        } = optionsRef.current;
 
-        const deltaX = (e.clientX - r.startX) / zoom;
-        const deltaY = (e.clientY - r.startY) / zoom;
+        const deltaX = (e.clientX - r.startX) / currentZoom;
+        const deltaY = (e.clientY - r.startY) / currentZoom;
         const result = computeResize(
           r.handle,
           deltaX,
@@ -156,8 +178,8 @@ export function useElementResize({
           r.elementStartY,
           r.elementStartW,
           r.elementStartH,
-          canvasWidth,
-          canvasHeight,
+          currentCanvasWidth,
+          currentCanvasHeight,
           e.shiftKey,
         );
 
@@ -174,13 +196,13 @@ export function useElementResize({
           result.h,
           r.usesMinHeight,
         );
-        elementPositionsRef.current.set(r.elementId, {
+        positionsRef.current.set(r.elementId, {
           x: result.x,
           y: result.y,
         });
       });
     },
-    [canvasHeight, canvasWidth, elementPositionsRef, updateDomSize, zoom],
+    [updateDomSize],
   );
 
   const handlePointerUp = useCallback(() => {
@@ -191,7 +213,7 @@ export function useElementResize({
 
     if (resizeRef.current) {
       const r = resizeRef.current;
-      onUpdateElement(r.elementId, {
+      optionsRef.current.onUpdateElement(r.elementId, {
         x: r.latestX,
         y: r.latestY,
         width: r.latestW,
@@ -204,7 +226,7 @@ export function useElementResize({
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
     document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, onUpdateElement]);
+  }, [handlePointerMove]);
 
   const startResize = useCallback(
     (
