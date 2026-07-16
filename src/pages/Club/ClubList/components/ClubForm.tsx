@@ -1,62 +1,61 @@
-import { Modal, Form, Input, Button, DatePicker, Row, Col, Select } from "antd";
+import { Modal, Form, Input, DatePicker, Row, Col, Select } from "antd";
 import { useRequest } from "ahooks";
-import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 import { postClub } from "../../../../api/services/club";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
 import type { ClubType } from "../../../../types/model/club";
+import {
+  createDraftClubPayload,
+  serializeClubDate,
+} from "../../utils/mutation-payloads";
 
 type ClubFormProps = {
   open: boolean;
   onClose: () => void;
-  refresh: () => void;
 };
 
 type FieldType = {
   name: string;
   club_type: ClubType;
   short_description?: string;
-  start_period?: Dayjs;
-  end_period?: Dayjs;
+  start_period?: Dayjs | null;
+  end_period?: Dayjs | null;
   is_registration_open?: boolean;
-  registration_end_date?: Dayjs;
+  registration_end_date?: Dayjs | null;
 };
 
-const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
+const ClubForm = ({ open, onClose }: ClubFormProps) => {
+  const navigate = useNavigate();
   const [form] = Form.useForm<FieldType>();
 
   const { loading, run } = useRequest(
     (data: FieldType) =>
-      postClub({
-        ...data,
-        start_period: data.start_period
-          ? dayjs(data.start_period).format("YYYY-MM-DD")
-          : undefined,
-        end_period: data.end_period
-          ? dayjs(data.end_period).format("YYYY-MM-DD")
-          : undefined,
-        registration_end_date: data.registration_end_date
-          ? dayjs(data.registration_end_date).format("YYYY-MM-DD")
-          : undefined,
-      }),
+      postClub(
+        createDraftClubPayload({
+          ...data,
+          start_period: serializeClubDate(data.start_period),
+          end_period: serializeClubDate(data.end_period),
+          registration_end_date: serializeClubDate(data.registration_end_date),
+        }),
+      ),
     {
       manual: true,
-      onSuccess: () => {
+      onSuccess: (createdClub) => {
         form.resetFields();
         onClose();
-        refresh();
+        navigate(`/club/${createdClub.id}?setup=1`);
       },
     },
   );
 
-  const handleSubmit = () => {
-    form.validateFields().then((values) => {
-      run(values);
-    });
+  const handleSubmit = (): void => {
+    form.submit();
   };
 
-  const handleCancel = () => {
+  const handleCancel = (): void => {
+    if (loading) return;
     form.resetFields();
     onClose();
   };
@@ -66,21 +65,16 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
       title="Tambah Unit Kegiatan"
       open={open}
       onCancel={handleCancel}
-      footer={[
-        <Button key="cancel" onClick={handleCancel}>
-          Batal
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={handleSubmit}
-        >
-          Simpan
-        </Button>,
-      ]}
+      onOk={handleSubmit}
+      okText="Simpan sebagai Draf"
+      cancelText="Batal"
+      confirmLoading={loading}
+      cancelButtonProps={{ disabled: loading }}
+      closable={!loading}
+      keyboard={!loading}
+      maskClosable={!loading}
     >
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onFinish={run}>
         <Form.Item
           label="Tipe Club"
           name="club_type"
@@ -115,7 +109,7 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
           />
         </Form.Item>
         <Row gutter={16}>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Periode Mulai"
               name="start_period"
@@ -130,12 +124,32 @@ const ClubForm = ({ open, onClose, refresh }: ClubFormProps) => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               label="Periode Berakhir"
               name="end_period"
+              dependencies={["start_period"]}
               rules={[
                 { required: true, message: "Periode berakhir wajib diisi!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value?: Dayjs) {
+                    const startPeriod = getFieldValue("start_period") as
+                      | Dayjs
+                      | undefined;
+                    if (
+                      !value ||
+                      !startPeriod ||
+                      !value.isBefore(startPeriod, "month")
+                    ) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error(
+                        "Periode berakhir tidak boleh sebelum periode mulai!",
+                      ),
+                    );
+                  },
+                }),
               ]}
             >
               <DatePicker

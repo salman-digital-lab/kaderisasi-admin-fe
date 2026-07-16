@@ -31,6 +31,7 @@ export const getClubRegistrations = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -47,6 +48,7 @@ export const getClubMembers = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -61,12 +63,13 @@ export const createClubRegistration = async (
       bodyData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -78,6 +81,7 @@ export const getClubRegistration = async (registrationId: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -92,12 +96,13 @@ export const updateClubRegistration = async (
       bodyData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -111,12 +116,13 @@ export const bulkUpdateClubRegistrations = async (
       bodyData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -126,12 +132,13 @@ export const deleteClubRegistration = async (registrationId: number) => {
       `/club-registrations/${registrationId}`,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -143,6 +150,7 @@ export const exportClubRegistrations = async (clubId: number) => {
     return res.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -157,11 +165,12 @@ export const updateClubRegistrationInfo = async (
       bodyData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };

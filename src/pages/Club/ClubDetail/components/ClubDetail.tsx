@@ -10,7 +10,6 @@ import {
   Col,
   Select,
   Divider,
-  notification,
   Skeleton,
   Space,
   Tag,
@@ -25,6 +24,7 @@ import { getClub, putClub } from "../../../../api/services/club";
 import type { ClubType } from "../../../../types/model/club";
 import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
+import { serializeClubDate } from "../../utils/mutation-payloads";
 
 const { Title } = Typography;
 
@@ -33,11 +33,11 @@ type FieldType = {
   club_type: ClubType;
   description?: string;
   short_description?: string;
-  start_period?: Dayjs;
-  end_period?: Dayjs;
+  start_period?: Dayjs | null;
+  end_period?: Dayjs | null;
   is_show?: boolean;
   is_registration_open?: boolean;
-  registration_end_date?: Dayjs;
+  registration_end_date?: Dayjs | null;
 };
 
 const ClubDetail = () => {
@@ -78,15 +78,9 @@ const ClubDetail = () => {
         ...data,
         description,
         short_description: shortDescription,
-        start_period: data.start_period
-          ? dayjs(data.start_period).format("YYYY-MM-DD")
-          : undefined,
-        end_period: data.end_period
-          ? dayjs(data.end_period).format("YYYY-MM-DD")
-          : undefined,
-        registration_end_date: data.registration_end_date
-          ? dayjs(data.registration_end_date).format("YYYY-MM-DD")
-          : undefined,
+        start_period: serializeClubDate(data.start_period),
+        end_period: serializeClubDate(data.end_period),
+        registration_end_date: serializeClubDate(data.registration_end_date),
       }),
     {
       manual: true,
@@ -95,10 +89,6 @@ const ClubDetail = () => {
           setDescription(data.description || "");
           setShortDescription(data.short_description || "");
           setIsChanged(false);
-          notification.success({
-            message: "Berhasil",
-            description: "Data unit kegiatan berhasil diubah.",
-          });
         }
       },
     },

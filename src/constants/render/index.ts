@@ -119,12 +119,16 @@ export function renderNotification(code: string) {
       return "Media berhasil dihapus";
     case "MEDIA_NOT_FOUND":
       return "Media tidak ditemukan";
+    case "MEDIA_ALREADY_EXISTS":
+      return "Media tersebut sudah ada di unit kegiatan ini";
     case "INVALID_MEDIA_INDEX":
       return "Indeks media tidak valid";
     case "REGISTRATION_INFO_UPDATED":
       return "Informasi pendaftaran berhasil diperbarui";
     case "ACTIVE_CUSTOM_FORM_REQUIRED":
       return "Aktifkan dan lampirkan form pendaftaran sebelum membuka pendaftaran klub";
+    case "REGISTRATION_END_DATE_PASSED":
+      return "Tanggal akhir pendaftaran sudah lewat. Pilih tanggal yang masih berlaku sebelum membuka pendaftaran";
 
     // Club Registration Messages
     case "CLUB_REGISTRATIONS_RETRIEVED":

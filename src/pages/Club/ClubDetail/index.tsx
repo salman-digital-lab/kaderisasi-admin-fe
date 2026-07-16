@@ -1,4 +1,4 @@
-import { Tabs } from "antd";
+import { Alert, Tabs } from "antd";
 import { useParams, useSearchParams } from "react-router-dom";
 import type { TabsProps } from "antd";
 
@@ -9,11 +9,21 @@ import ClubRegistrationInfo from "../ClubRegistrationInfo";
 import ClubRegistrationsPage from "../ClubRegistrations";
 import ClubActivitiesPage from "../ClubActivities";
 
+const CLUB_DETAIL_TABS = new Set(["1", "2", "3", "4", "5", "8"]);
+
 const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("tab") || "1";
-  const activeTab = requestedTab === "7" ? "5" : requestedTab;
+  const legacyTab = requestedTab === "7" ? "5" : requestedTab;
+  const activeTab = CLUB_DETAIL_TABS.has(legacyTab) ? legacyTab : "1";
+  const isSetupFlow = searchParams.get("setup") === "1";
+
+  const dismissSetupGuide = (): void => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("setup");
+    setSearchParams(newParams, { replace: true });
+  };
 
   const items: TabsProps["items"] = [
     {
@@ -50,6 +60,16 @@ const MainClubDetail = () => {
 
   return (
     <div style={{ minWidth: 0, width: "100%", padding: 12 }}>
+      {isSetupFlow ? (
+        <Alert
+          type="info"
+          showIcon
+          title="Unit kegiatan dibuat sebagai draf"
+          description='Lengkapi detail, logo, media, dan form pendaftaran terlebih dahulu. Aktifkan "Tampilkan Unit Kegiatan" hanya setelah semuanya siap dipublikasikan.'
+          closable={{ onClose: dismissSetupGuide }}
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
       <Tabs
         activeKey={activeTab}
         onChange={(key) => {

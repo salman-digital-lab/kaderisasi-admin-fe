@@ -25,13 +25,13 @@ import {
   PlusOutlined,
   ExclamationCircleOutlined,
   SearchOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import {
   getClubRegistrations,
-  createClubRegistration,
   updateClubRegistration,
   deleteClubRegistration,
   bulkUpdateClubRegistrations,
@@ -46,17 +46,15 @@ import {
 import type { ClubRegistration } from "../../../types/model/clubRegistration";
 import type { Club } from "../../../types/model/club";
 import type { ClubMemberRole } from "../../../types/model/clubMemberRole";
+import ApplicationDetailDrawer from "./components/ApplicationDetailDrawer";
 import MembersListModal from "./components/MembersListModal";
 import { CLUB_REGISTRATION_STATUS_OPTIONS } from "../../../constants/options";
+import { createRegistrationStatusPayload } from "../utils/mutation-payloads";
 
-const { Option } = Select;
-const { confirm } = Modal;
-const { Title } = Typography;
+const { Text, Title } = Typography;
 
 type RegistrationFormType = {
-  member_id: number;
   status: ClubRegistration["status"];
-  additional_data?: string;
 };
 
 type FilterFormType = {
@@ -71,6 +69,8 @@ type RoleFormType = {
   sort_order?: number;
 };
 
+type BulkStatus = Extract<ClubRegistration["status"], "APPROVED" | "REJECTED">;
+
 const getMemberName = (registration: ClubRegistration): string =>
   registration.member?.profile?.name || registration.member?.email || "N/A";
 
@@ -81,13 +81,18 @@ const ClubRegistrationsPage: React.FC = () => {
   const [roleForm] = Form.useForm<RoleFormType>();
 
   const [club, setClub] = useState<Club | null>(null);
+  const [modal, modalContextHolder] = Modal.useModal();
+  const [messageApi, messageContextHolder] = message.useMessage();
   const [registrations, setRegistrations] = useState<ClubRegistration[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMembersModalVisible, setIsMembersModalVisible] = useState(false);
   const [selectedRegistration, setSelectedRegistration] =
     useState<ClubRegistration | null>(null);
+  const [viewedRegistration, setViewedRegistration] =
+    useState<ClubRegistration | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [totalItems, setTotalItems] = useState(0);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -96,15 +101,24 @@ const ClubRegistrationsPage: React.FC = () => {
     useState<ClubRegistration | null>(null);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [savingRole, setSavingRole] = useState(false);
-
-  const pageSize = 20;
+  const [savingRegistration, setSavingRegistration] = useState(false);
+  const [bulkUpdating, setBulkUpdating] = useState<BulkStatus | null>(null);
+  const [reviewingStatus, setReviewingStatus] = useState<BulkStatus | null>(
+    null,
+  );
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (clubId) {
       fetchClubData();
+    }
+  }, [clubId]);
+
+  useEffect(() => {
+    if (clubId) {
       fetchRegistrations();
     }
-  }, [clubId, currentPage, statusFilter]);
+  }, [clubId, currentPage, pageSize, statusFilter]);
 
   const fetchClubData = async () => {
     try {
@@ -113,7 +127,7 @@ const ClubRegistrationsPage: React.FC = () => {
         setClub(response);
       }
     } catch {
-      message.error("Gagal memuat data klub");
+      messageApi.error("Gagal memuat data klub");
     }
   };
 
@@ -132,7 +146,7 @@ const ClubRegistrationsPage: React.FC = () => {
         setTotalItems(response.meta.total);
       }
     } catch {
-      message.error("Gagal memuat keanggotaan");
+      messageApi.error("Gagal memuat data pendaftaran");
     } finally {
       setLoading(false);
     }
@@ -146,54 +160,86 @@ const ClubRegistrationsPage: React.FC = () => {
     setSelectedRegistration(registration);
     registrationForm.setFieldsValue({
       status: registration.status,
-      additional_data: JSON.stringify(registration.additional_data, null, 2),
     });
     setIsModalVisible(true);
   };
 
-  const handleDeleteRegistration = (registration: ClubRegistration) => {
-    confirm({
-      title: "Hapus Keanggotaan",
-      icon: <ExclamationCircleOutlined />,
-      content: `Apakah Anda yakin ingin menghapus keanggotaan untuk ${registration.member?.profile?.name || registration.member?.email}?`,
+  const closeApplicationDrawer = (): void => {
+    if (reviewingStatus) return;
+    setViewedRegistration(null);
+  };
+
+  const handleReviewApplication = (status: BulkStatus): void => {
+    if (!viewedRegistration) return;
+
+    const registration = viewedRegistration;
+    const isApproval = status === "APPROVED";
+    const actionLabel = isApproval ? "Terima" : "Tolak";
+
+    modal.confirm({
+      title: `${actionLabel} pendaftaran ${getMemberName(registration)}?`,
+      content: isApproval
+        ? "Pendaftar akan menjadi anggota unit kegiatan."
+        : "Pendaftaran akan ditandai sebagai ditolak.",
+      okText: actionLabel,
+      cancelText: "Batal",
+      okButtonProps: { danger: !isApproval },
       onOk: async () => {
+        setReviewingStatus(status);
         try {
-          await deleteClubRegistration(registration.id);
-          fetchRegistrations();
-        } catch {
-          // Error is already handled by the API function
+          await updateClubRegistration(
+            registration.id,
+            createRegistrationStatusPayload(status),
+          );
+          setViewedRegistration(null);
+          await fetchRegistrations();
+        } finally {
+          setReviewingStatus(null);
         }
       },
     });
   };
 
+  const closeRegistrationModal = (): void => {
+    if (savingRegistration) return;
+    setIsModalVisible(false);
+    setSelectedRegistration(null);
+    registrationForm.resetFields();
+  };
+
+  const handleDeleteRegistration = (registration: ClubRegistration) => {
+    modal.confirm({
+      title: "Hapus Pendaftaran",
+      icon: <ExclamationCircleOutlined />,
+      content: `Apakah Anda yakin ingin menghapus pendaftaran ${getMemberName(registration)}?`,
+      okText: "Hapus",
+      cancelText: "Batal",
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        await deleteClubRegistration(registration.id);
+        await fetchRegistrations();
+      },
+    });
+  };
+
   const handleModalOk = async () => {
+    if (!selectedRegistration) return;
+
     try {
       const values = await registrationForm.validateFields();
-
-      if (selectedRegistration) {
-        // Update existing registration
-        await updateClubRegistration(selectedRegistration.id, {
-          status: values.status,
-          additional_data: values.additional_data
-            ? JSON.parse(values.additional_data)
-            : {},
-        });
-      } else {
-        // Create new registration
-        await createClubRegistration(Number(clubId!), {
-          member_id: values.member_id,
-          additional_data: values.additional_data
-            ? JSON.parse(values.additional_data)
-            : {},
-        });
-      }
-
+      setSavingRegistration(true);
+      await updateClubRegistration(
+        selectedRegistration.id,
+        createRegistrationStatusPayload(values.status),
+      );
       setIsModalVisible(false);
+      setSelectedRegistration(null);
       registrationForm.resetFields();
-      fetchRegistrations();
+      await fetchRegistrations();
     } catch {
       // Error is already handled by the API function
+    } finally {
+      setSavingRegistration(false);
     }
   };
 
@@ -255,48 +301,66 @@ const ClubRegistrationsPage: React.FC = () => {
       }
 
       closeRoleModal();
-      fetchRegistrations();
+      await fetchRegistrations();
+    } catch {
+      // The API service displays the error and keeps the modal open for retry.
     } finally {
       setSavingRole(false);
     }
   };
 
   const handleDeleteRole = (role: ClubMemberRole) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Hapus Peran",
       content: `Hapus peran "${role.role_name}" dari anggota ini?`,
       okText: "Hapus",
+      cancelText: "Batal",
       okButtonProps: { danger: true },
       onOk: async () => {
         await deleteClubMemberRole(role.id);
-        fetchRegistrations();
+        await fetchRegistrations();
       },
     });
   };
 
-  const handleBulkStatusUpdate = async (status: string) => {
+  const handleBulkStatusUpdate = (status: BulkStatus): void => {
     if (selectedRowKeys.length === 0) {
-      message.warning("Silakan pilih keanggotaan yang akan diperbarui");
+      messageApi.warning("Silakan pilih keanggotaan yang akan diperbarui");
       return;
     }
 
-    try {
-      await bulkUpdateClubRegistrations({
-        registrations: selectedRowKeys.map((key) => ({
-          id: Number(key),
-          status: status as "PENDING" | "APPROVED" | "REJECTED",
-        })),
-      });
-      setSelectedRowKeys([]);
-      fetchRegistrations();
-    } catch {
-      // Error is already handled by the API function
-    }
+    const isApproval = status === "APPROVED";
+    const actionLabel = isApproval ? "Terima" : "Tolak";
+    modal.confirm({
+      title: `${actionLabel} ${selectedRowKeys.length} pendaftaran?`,
+      content: isApproval
+        ? "Pendaftar yang dipilih akan menjadi anggota unit kegiatan."
+        : "Pendaftaran yang dipilih akan ditandai sebagai ditolak.",
+      okText: actionLabel,
+      cancelText: "Batal",
+      okButtonProps: { danger: !isApproval },
+      onOk: async () => {
+        setBulkUpdating(status);
+        try {
+          await bulkUpdateClubRegistrations({
+            registrations: selectedRowKeys.map((key) => ({
+              id: Number(key),
+              status,
+            })),
+          });
+          setSelectedRowKeys([]);
+          await fetchRegistrations();
+        } finally {
+          setBulkUpdating(null);
+        }
+      },
+    });
   };
 
   const handleExport = async () => {
     if (!clubId) return;
 
+    setExporting(true);
     try {
       const blob = await exportClubRegistrations(Number(clubId));
       const url = window.URL.createObjectURL(blob);
@@ -307,6 +371,8 @@ const ClubRegistrationsPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch {
       // Error is already handled by the API function
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -375,6 +441,7 @@ const ClubRegistrationsPage: React.FC = () => {
                     size="small"
                     icon={<EditOutlined />}
                     onClick={() => openEditRole(record, role)}
+                    aria-label={`Edit peran ${role.role_name} untuk ${getMemberName(record)}`}
                   />
                 </Tooltip>
                 <Tooltip title="Hapus peran">
@@ -383,6 +450,7 @@ const ClubRegistrationsPage: React.FC = () => {
                     danger
                     icon={<DeleteOutlined />}
                     onClick={() => handleDeleteRole(role)}
+                    aria-label={`Hapus peran ${role.role_name} dari ${getMemberName(record)}`}
                   />
                 </Tooltip>
               </Space>
@@ -394,7 +462,7 @@ const ClubRegistrationsPage: React.FC = () => {
       },
     },
     {
-      title: "Tanggal Keanggotaan",
+      title: "Tanggal Pendaftaran",
       dataIndex: "created_at",
       key: "registrationDate",
       render: (date: string) => dayjs(date).format("DD MMM YYYY"),
@@ -404,12 +472,21 @@ const ClubRegistrationsPage: React.FC = () => {
       key: "actions",
       render: (_, record) => (
         <Space wrap>
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => setViewedRegistration(record)}
+            size="small"
+            aria-label={`Lihat jawaban pendaftaran ${getMemberName(record)}`}
+          >
+            Lihat jawaban
+          </Button>
           {record.status === "APPROVED" ? (
             <Tooltip title="Tambah peran">
               <Button
                 icon={<PlusOutlined />}
                 onClick={() => openCreateRole(record)}
                 size="small"
+                aria-label={`Tambah peran untuk ${getMemberName(record)}`}
               />
             </Tooltip>
           ) : null}
@@ -418,6 +495,7 @@ const ClubRegistrationsPage: React.FC = () => {
               icon={<EditOutlined />}
               onClick={() => handleEditRegistration(record)}
               size="small"
+              aria-label={`Ubah status pendaftaran ${getMemberName(record)}`}
             />
           </Tooltip>
           <Tooltip title="Hapus pendaftaran">
@@ -426,6 +504,7 @@ const ClubRegistrationsPage: React.FC = () => {
               danger
               onClick={() => handleDeleteRegistration(record)}
               size="small"
+              aria-label={`Hapus pendaftaran ${getMemberName(record)}`}
             />
           </Tooltip>
         </Space>
@@ -440,6 +519,8 @@ const ClubRegistrationsPage: React.FC = () => {
 
   return (
     <>
+      {modalContextHolder}
+      {messageContextHolder}
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
         <Title level={4} style={{ margin: 0 }}>
           {club?.name} - Anggota & Pendaftaran
@@ -458,11 +539,12 @@ const ClubRegistrationsPage: React.FC = () => {
           onFinish={(val) => {
             setStatusFilter(val.status || "");
             setCurrentPage(1);
+            setSelectedRowKeys([]);
           }}
         >
           <Row gutter={16} align="bottom">
             <Col xs={24} md={8} lg={6}>
-              <Form.Item label="Status Keanggotaan" name="status">
+              <Form.Item label="Status Pendaftaran" name="status">
                 <Select
                   options={CLUB_REGISTRATION_STATUS_OPTIONS}
                   placeholder="Status Keanggotaan"
@@ -473,10 +555,16 @@ const ClubRegistrationsPage: React.FC = () => {
             <Col flex="auto">
               <Form.Item>
                 <Space wrap>
+                  <Text type="secondary" aria-live="polite">
+                    {selectedRowKeys.length
+                      ? `${selectedRowKeys.length} pendaftaran dipilih`
+                      : "Pilih pendaftaran untuk aksi massal"}
+                  </Text>
                   <Button
                     onClick={() => handleBulkStatusUpdate("APPROVED")}
                     icon={<EditOutlined />}
                     disabled={!selectedRowKeys.length}
+                    loading={bulkUpdating === "APPROVED"}
                     type="primary"
                   >
                     Terima
@@ -485,21 +573,24 @@ const ClubRegistrationsPage: React.FC = () => {
                     onClick={() => handleBulkStatusUpdate("REJECTED")}
                     icon={<EditOutlined />}
                     disabled={!selectedRowKeys.length}
+                    loading={bulkUpdating === "REJECTED"}
                     danger
                   >
                     Tolak
                   </Button>
-                  <Button onClick={handleExport} icon={<DownloadOutlined />}>
+                  <Button
+                    onClick={handleExport}
+                    icon={<DownloadOutlined />}
+                    loading={exporting}
+                  >
                     Export XLSX
                   </Button>
                   <Button onClick={handleAddMember} icon={<PlusOutlined />}>
-                    Tambah Keanggotaan
+                    Tambahkan Pendaftar
                   </Button>
-                  <Button
-                    icon={<SearchOutlined />}
-                    type="primary"
-                    htmlType="submit"
-                  />
+                  <Button icon={<SearchOutlined />} htmlType="submit">
+                    Terapkan Filter
+                  </Button>
                 </Space>
               </Form.Item>
             </Col>
@@ -519,44 +610,48 @@ const ClubRegistrationsPage: React.FC = () => {
             total: totalItems,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} dari ${total} item`,
-            onChange: (page) => setCurrentPage(page),
+            onChange: (page, nextPageSize) => {
+              setCurrentPage(page);
+              setPageSize(nextPageSize);
+              setSelectedRowKeys([]);
+            },
           }}
           scroll={{ x: 1200 }}
         />
       </Space>
 
+      <ApplicationDetailDrawer
+        open={viewedRegistration !== null}
+        registration={viewedRegistration}
+        formSchema={club?.attachedCustomForm?.form_schema}
+        reviewingStatus={reviewingStatus}
+        onClose={closeApplicationDrawer}
+        onReview={handleReviewApplication}
+      />
+
       <Modal
-        title={selectedRegistration ? "Edit Keanggotaan" : "Buat Keanggotaan"}
+        title="Ubah Status Pendaftaran"
         open={isModalVisible}
         onOk={handleModalOk}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={closeRegistrationModal}
+        okText="Simpan"
+        cancelText="Batal"
+        confirmLoading={savingRegistration}
+        cancelButtonProps={{ disabled: savingRegistration }}
+        closable={!savingRegistration}
         width={600}
+        destroyOnHidden
       >
         <Form form={registrationForm} layout="vertical">
-          {!selectedRegistration && (
-            <Form.Item
-              name="member_id"
-              label="ID Anggota"
-              rules={[
-                { required: true, message: "Silakan masukkan ID anggota" },
-              ]}
-            >
-              <Input placeholder="Masukkan ID anggota" />
-            </Form.Item>
-          )}
-
           <Form.Item
             name="status"
             label="Status"
             rules={[{ required: true, message: "Silakan pilih status" }]}
           >
-            <Select placeholder="Pilih status">
-              {CLUB_REGISTRATION_STATUS_OPTIONS.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
+            <Select
+              placeholder="Pilih status"
+              options={CLUB_REGISTRATION_STATUS_OPTIONS}
+            />
           </Form.Item>
         </Form>
       </Modal>

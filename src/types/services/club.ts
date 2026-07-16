@@ -68,7 +68,7 @@ export type addYoutubeMediaResp = {
 };
 
 export type deleteMediaReq = {
-  index: number;
+  media_url: string;
 };
 
 export type deleteMediaResp = {

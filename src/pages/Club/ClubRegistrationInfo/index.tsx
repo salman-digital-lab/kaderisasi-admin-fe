@@ -57,11 +57,10 @@ const ClubRegistrationInfo: React.FC<ClubRegistrationInfoProps> = ({
         registration_info: values.registration_info || "",
       });
 
-      message.success("Informasi keanggotaan berhasil diperbarui");
       onUpdate?.();
-      fetchClubData();
+      await fetchClubData();
     } catch {
-      message.error("Gagal memperbarui informasi keanggotaan");
+      // The API service displays the error and keeps the editor content intact.
     } finally {
       setSaving(false);
     }

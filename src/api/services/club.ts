@@ -26,6 +26,7 @@ export const getClubs = async (props: getClubsReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -35,6 +36,7 @@ export const getClub = async (id: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -42,12 +44,13 @@ export const postClub = async (data: postClubReq) => {
   try {
     const res = await axios.post<postClubResp>("/clubs", data);
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: "Unit Kegiatan berhasil ditambahkan",
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -55,12 +58,13 @@ export const putClub = async (id: number, data: putClubReq) => {
   try {
     const res = await axios.put<putClubResp>("/clubs/" + id, data);
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: "Unit Kegiatan berhasil diubah",
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -74,7 +78,7 @@ export const uploadClubLogo = async (id: number, file: File) => {
       formData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: "Logo berhasil diunggah",
     });
     return res.data.data;
@@ -95,7 +99,7 @@ export const uploadClubImageMedia = async (id: number, file: File) => {
       formData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: "Gambar berhasil diunggah",
     });
     return res.data.data;
@@ -115,7 +119,7 @@ export const addClubYoutubeMedia = async (
       data,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: "Video YouTube berhasil ditambahkan",
     });
     return res.data.data;
@@ -132,11 +136,12 @@ export const deleteClubMedia = async (id: number, data: deleteMediaReq) => {
       data,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: "Media berhasil dihapus",
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };

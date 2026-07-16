@@ -1,5 +1,5 @@
-import { ClubRegistration } from "../model/clubRegistration";
-import { Pagination } from "./base";
+import type { ClubRegistration } from "../model/clubRegistration";
+import type { Pagination } from "./base";
 
 export type getClubRegistrationsReq = {
   page: string;
@@ -23,7 +23,7 @@ export type getClubRegistrationResp = {
 
 export type postClubRegistrationReq = {
   member_id: number;
-  additional_data?: Record<string, any>;
+  additional_data?: Record<string, unknown>;
 };
 
 export type postClubRegistrationResp = {
@@ -33,7 +33,7 @@ export type postClubRegistrationResp = {
 
 export type putClubRegistrationReq = {
   status: "PENDING" | "APPROVED" | "REJECTED";
-  additional_data?: Record<string, any>;
+  additional_data?: Record<string, unknown>;
 };
 
 export type putClubRegistrationResp = {
@@ -45,7 +45,7 @@ export type putClubRegistrationsBulkReq = {
   registrations: Array<{
     id: number;
     status: "PENDING" | "APPROVED" | "REJECTED";
-    additional_data?: Record<string, any>;
+    additional_data?: Record<string, unknown>;
   }>;
 };
 

@@ -150,6 +150,8 @@ const ClubMembersPage = () => {
 
       closeRoleModal();
       fetchMembers();
+    } catch {
+      // The API service displays the error and keeps the modal open for retry.
     } finally {
       setSavingRole(false);
     }

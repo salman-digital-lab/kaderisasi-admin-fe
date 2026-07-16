@@ -1,11 +1,7 @@
 import { Input, Card, Button, Space, Tooltip, Select } from "antd";
 import { useState } from "react";
 import { useToggle } from "ahooks";
-import {
-  SearchOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import { FilterType } from "../constants/type";
 import ClubForm from "./ClubForm";
@@ -27,10 +23,10 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [clubType, setClubType] = useState<string | undefined>();
 
-  const handleSearch = () => {
+  const handleSearch = (value: string): void => {
     setParameter((prev) => ({
       ...prev,
-      name: searchInput,
+      name: value,
       club_type: clubType,
       page: 1,
     }));
@@ -56,8 +52,7 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onSearch={handleSearch}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+            aria-label="Cari unit kegiatan berdasarkan nama"
           />
           <Select
             allowClear
@@ -79,19 +74,20 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         {/* Right: Actions */}
         <Space size={8} wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={toggle}>
-            Tambah Club
+            Tambah Unit Kegiatan
           </Button>
           <Tooltip placement="left" title="Refresh Data">
             <Button
               icon={<ReloadOutlined />}
               onClick={refresh}
               loading={loading}
+              aria-label="Muat ulang daftar unit kegiatan"
             />
           </Tooltip>
         </Space>
       </div>
 
-      <ClubForm open={state} onClose={toggle} refresh={refresh} />
+      <ClubForm open={state} onClose={toggle} />
     </Card>
   );
 };

@@ -25,11 +25,11 @@ export interface Club {
   logo?: string;
   media: MediaStructure;
   registration_info?: RegistrationInfo;
-  start_period?: string;
-  end_period?: string;
+  start_period?: string | null;
+  end_period?: string | null;
   is_show?: boolean;
   is_registration_open?: boolean;
-  registration_end_date?: string;
+  registration_end_date?: string | null;
   attachedCustomForm?: CustomForm;
   created_at: string;
   updated_at: string;

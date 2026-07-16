@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRequest } from "ahooks";
+import { Alert, Button } from "antd";
 
 import { getClubs } from "../../../api/services/club";
 
@@ -14,7 +15,7 @@ const ClubList = () => {
     name: "",
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, refresh, error } = useRequest(
     () =>
       getClubs({
         per_page: String(parameters.per_page),
@@ -35,7 +36,21 @@ const ClubList = () => {
         loading={loading}
       />
       <div style={{ marginTop: 12 }}>
-        <ClubTable data={data} loading={loading} setParameter={setParameters} />
+        {error ? (
+          <Alert
+            type="error"
+            showIcon
+            title="Daftar unit kegiatan gagal dimuat"
+            description="Periksa koneksi atau layanan API, lalu coba kembali."
+            action={<Button onClick={refresh}>Coba Lagi</Button>}
+          />
+        ) : (
+          <ClubTable
+            data={data}
+            loading={loading}
+            setParameter={setParameters}
+          />
+        )}
       </div>
     </div>
   );

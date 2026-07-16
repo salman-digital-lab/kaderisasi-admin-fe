@@ -22,7 +22,7 @@ export const handleError = (error: unknown) => {
           axiosError.response.data.message,
         );
         notification.error({
-          message: "Gagal",
+          title: "Gagal",
           description: (
             <Paragraph>
               {translatedMessage !== axiosError.response.data.message ? (
@@ -39,7 +39,7 @@ export const handleError = (error: unknown) => {
         });
       } else {
         notification.error({
-          message: "Gagal",
+          title: "Gagal",
           description: (
             <Paragraph>
               Server membalas dengan: <pre>{axiosError.message}</pre>
@@ -50,13 +50,13 @@ export const handleError = (error: unknown) => {
       }
     } else if (axiosError.request) {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description:
           "Tidak dapat menghubungi server. Silahkan cek koneksi internet anda.",
       });
     } else {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description:
           "Telah terjadi kegagalan, silahkan ulangi setelah beberapa saat",
       });
@@ -64,7 +64,7 @@ export const handleError = (error: unknown) => {
   } else if (error instanceof Error) {
     const errorMessage = error.message;
     notification.error({
-      message: "Gagal",
+      title: "Gagal",
       description: (
         <Paragraph>
           Terjadi kegagalan: <pre>{errorMessage}</pre>
@@ -74,7 +74,7 @@ export const handleError = (error: unknown) => {
   } else {
     console.error("Unknown error:", error);
     notification.error({
-      message: "Gagal",
+      title: "Gagal",
       description:
         "Telah terjadi kegagalan, silahkan ulangi setelah beberapa saat",
     });
@@ -88,7 +88,7 @@ function isAxiosError(error: unknown): error is AxiosError {
 export const handleSuccess = (message: string) => {
   const translatedMessage = renderNotification(message);
   notification.success({
-    message: "Berhasil",
+    title: "Berhasil",
     description: translatedMessage,
   });
 };

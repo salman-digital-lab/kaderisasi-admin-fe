@@ -21,6 +21,7 @@ export const getClubMemberRoles = async (clubId: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -32,6 +33,7 @@ export const getClubMemberRoleSuggestions = async (clubId: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -46,12 +48,13 @@ export const createClubMemberRole = async (
       bodyData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -66,12 +69,13 @@ export const updateClubMemberRole = async (
       bodyData,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -81,11 +85,12 @@ export const deleteClubMemberRole = async (roleId: number) => {
       `/club-registrations/member-roles/${roleId}`,
     );
     notification.success({
-      message: "Berhasil",
+      title: "Berhasil",
       description: renderNotification(res.data.message),
     });
     return res.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
