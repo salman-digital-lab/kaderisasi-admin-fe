@@ -39,10 +39,14 @@ import {
   createMediaDeletePayload,
   createMediaRowKey,
 } from "../../utils/mutation-payloads";
+import {
+  getImageUploadError,
+  IMAGE_UPLOAD_ACCEPT,
+  IMAGE_UPLOAD_POLICIES,
+  MAX_CLUB_MEDIA_ITEMS,
+} from "../../../../utils/image-upload";
 
 const { Text, Title } = Typography;
-
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const YOUTUBE_URL_PATTERN =
   /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?.*v=|embed\/)|youtu\.be\/)[^\s&?]+/i;
@@ -126,6 +130,13 @@ const MediaList = () => {
   };
 
   const handleYoutubeAdd = (): void => {
+    if (mediaLimitReached) {
+      messageApi.error(
+        `Batas ${MAX_CLUB_MEDIA_ITEMS} media per klub sudah tercapai.`,
+      );
+      return;
+    }
+
     const normalizedUrl = youtubeUrl.trim();
     if (!YOUTUBE_URL_PATTERN.test(normalizedUrl)) {
       messageApi.error("Masukkan URL video YouTube yang valid.");
@@ -135,17 +146,10 @@ const MediaList = () => {
   };
 
   const beforeUpload: UploadProps["beforeUpload"] = (file) => {
-    const isSupportedImage = ALLOWED_IMAGE_TYPES.has(file.type);
-    const isWithinSizeLimit = file.size / 1024 / 1024 <= 5;
-
-    if (!isSupportedImage) {
-      messageApi.error("Gunakan gambar berformat JPG, PNG, atau WEBP.");
-      return false;
-    }
-
-    if (!isWithinSizeLimit) {
-      messageApi.error("Ukuran gambar maksimal 5 MB.");
-      return false;
+    const error = getImageUploadError(file, IMAGE_UPLOAD_POLICIES.clubMedia);
+    if (error) {
+      messageApi.error(error);
+      return Upload.LIST_IGNORE;
     }
 
     setFileList([
@@ -196,6 +200,7 @@ const MediaList = () => {
       tableKey: createMediaRowKey(item, index),
     }),
   );
+  const mediaLimitReached = mediaItems.length >= MAX_CLUB_MEDIA_ITEMS;
 
   const columns: ColumnsType<MediaTableItem> = [
     {
@@ -329,11 +334,16 @@ const MediaList = () => {
                         fileList={fileList}
                         beforeUpload={beforeUpload}
                         onRemove={() => setFileList([])}
-                        accept=".jpg,.jpeg,.png,.webp"
+                        accept={IMAGE_UPLOAD_ACCEPT}
                         maxCount={1}
-                        disabled={uploadLoading}
+                        disabled={uploadLoading || mediaLimitReached}
                       >
-                        <Button icon={<UploadOutlined />}>Pilih Gambar</Button>
+                        <Button
+                          icon={<UploadOutlined />}
+                          disabled={uploadLoading || mediaLimitReached}
+                        >
+                          Pilih Gambar
+                        </Button>
                       </Upload>
                     </div>
                   </>
@@ -346,7 +356,7 @@ const MediaList = () => {
                         value={youtubeUrl}
                         onChange={(e) => setYoutubeUrl(e.target.value)}
                         aria-label="URL video YouTube"
-                        disabled={youtubeLoading}
+                        disabled={youtubeLoading || mediaLimitReached}
                       />
                     </div>
                   </>
@@ -357,7 +367,9 @@ const MediaList = () => {
             <div style={{ marginTop: 16 }}>
               <Text type="secondary">
                 {mediaType === "image"
-                  ? "Format gambar: JPG, PNG, JPEG, WEBP. Maksimal 5MB."
+                  ? mediaLimitReached
+                    ? `Batas ${MAX_CLUB_MEDIA_ITEMS} media per klub sudah tercapai.`
+                    : `${IMAGE_UPLOAD_POLICIES.clubMedia.guidance} Maksimal ${MAX_CLUB_MEDIA_ITEMS} media per klub.`
                   : "Masukkan link YouTube dalam format: https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/VIDEO_ID"}
               </Text>
             </div>
@@ -371,6 +383,7 @@ const MediaList = () => {
                       type="primary"
                       onClick={handleImageUpload}
                       loading={uploadLoading}
+                      disabled={mediaLimitReached}
                     >
                       Upload Gambar
                     </Button>
@@ -379,6 +392,7 @@ const MediaList = () => {
                       type="primary"
                       onClick={handleYoutubeAdd}
                       loading={youtubeLoading}
+                      disabled={mediaLimitReached}
                     >
                       Tambah Video YouTube
                     </Button>

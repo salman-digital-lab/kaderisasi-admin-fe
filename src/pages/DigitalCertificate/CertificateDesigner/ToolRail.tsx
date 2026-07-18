@@ -13,6 +13,7 @@ import type { EditorTool } from "./editor-state";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
 import styles from "./CertificateDesigner.module.css";
 import { VariableTextChooser } from "../components/VariableTextChooser";
+import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 
 interface ToolRailProps {
   tool: EditorTool;
@@ -122,7 +123,7 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
         </React.Fragment>
       ))}
       <Upload
-        accept=".jpg,.jpeg,.png,.webp"
+        accept={IMAGE_UPLOAD_ACCEPT}
         showUploadList={false}
         beforeUpload={() => false}
         disabled={uploading}
@@ -141,7 +142,7 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
         </Tooltip>
       </Upload>
       <Upload
-        accept=".jpg,.jpeg,.png,.webp"
+        accept={IMAGE_UPLOAD_ACCEPT}
         showUploadList={false}
         beforeUpload={() => false}
         disabled={uploading}

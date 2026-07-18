@@ -13,6 +13,7 @@ import {
   getRegistrantResp,
   putRegistrantReq,
   putActivityImagesReq,
+  postActivityImageResp,
   putRemoveActivityImageReq,
   putReorderActivityImagesReq,
   getRegistrantStatisticsResp,
@@ -86,9 +87,9 @@ export const postActivityImages = async (
   try {
     const formData = new FormData();
 
-    formData.append("file", fileImage as unknown as File);
+    formData.append("file", fileImage);
 
-    const res = await axios.post<putActivityResp>(
+    const res = await axios.post<postActivityImageResp>(
       "/activities/" + id + "/images",
       formData,
     );

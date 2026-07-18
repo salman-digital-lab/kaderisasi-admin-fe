@@ -23,7 +23,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import type { GetProp, UploadProps } from "antd";
+import type { UploadProps } from "antd";
 import {
   Typography,
   Upload,
@@ -33,6 +33,7 @@ import {
   Tooltip,
   Button,
   Skeleton,
+  Popconfirm,
 } from "antd";
 import { useParams } from "react-router-dom";
 import {
@@ -42,25 +43,20 @@ import {
   putReorderActivityImages,
 } from "../../../../api/services/activity";
 import { useRequest } from "ahooks";
-import { RcFile } from "antd/es/upload";
+import {
+  getImageUploadError,
+  IMAGE_UPLOAD_ACCEPT,
+  IMAGE_UPLOAD_POLICIES,
+  MAX_ACTIVITY_IMAGES,
+} from "../../../../utils/image-upload";
 
 const { Title, Text } = Typography;
-
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 interface ImageItem {
   uid: string;
   name: string;
   url: string;
 }
-
-const getBase64 = (file: FileType): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
 
 // Sortable image item component
 const SortableImageItem = ({
@@ -73,7 +69,7 @@ const SortableImageItem = ({
   item: ImageItem;
   index: number;
   onPreview: (url: string) => void;
-  onRemove: (item: ImageItem, index: number) => void;
+  onRemove: (item: ImageItem) => void;
   isRemoving: string | null;
 }) => {
   const {
@@ -152,9 +148,11 @@ const SortableImageItem = ({
               {index + 1}
             </div>
             {/* Drag handle */}
-            <div
+            <button
+              type="button"
               {...attributes}
               {...listeners}
+              aria-label={`Ubah urutan gambar ${index + 1}`}
               style={{
                 position: "absolute",
                 top: 6,
@@ -167,10 +165,12 @@ const SortableImageItem = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                padding: 0,
+                border: 0,
               }}
             >
               <HolderOutlined style={{ color: "#fff", fontSize: 12 }} />
-            </div>
+            </button>
             {/* Action buttons overlay */}
             <div
               style={{
@@ -191,21 +191,31 @@ const SortableImageItem = ({
                   size="small"
                   icon={<EyeOutlined style={{ color: "#fff", fontSize: 14 }} />}
                   onClick={() => onPreview(item.url)}
+                  aria-label={`Pratinjau gambar ${index + 1}`}
                   style={{ padding: 2, minWidth: 24, height: 24 }}
                 />
               </Tooltip>
               <Tooltip title="Hapus">
-                <Button
-                  type="text"
-                  size="small"
-                  icon={
-                    <DeleteOutlined
-                      style={{ color: "#ff4d4f", fontSize: 14 }}
-                    />
-                  }
-                  onClick={() => onRemove(item, index)}
-                  style={{ padding: 2, minWidth: 24, height: 24 }}
-                />
+                <Popconfirm
+                  title="Hapus gambar?"
+                  description="Gambar akan dihapus permanen dari aktivitas."
+                  okText="Hapus"
+                  cancelText="Batal"
+                  okButtonProps={{ danger: true }}
+                  onConfirm={() => onRemove(item)}
+                >
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={
+                      <DeleteOutlined
+                        style={{ color: "#ff4d4f", fontSize: 14 }}
+                      />
+                    }
+                    aria-label={`Hapus gambar ${index + 1}`}
+                    style={{ padding: 2, minWidth: 24, height: 24 }}
+                  />
+                </Popconfirm>
               </Tooltip>
             </div>
           </>
@@ -253,12 +263,13 @@ const ImageList = () => {
     setPreviewOpen(true);
   };
 
-  const handleRemove = async (item: ImageItem, index: number) => {
+  const handleRemove = async (item: ImageItem) => {
     setRemovingId(item.uid);
     try {
-      await putRemoveActivityImage(Number(id) || 0, { index });
-      const newFileList = fileList.filter((_, i) => i !== index);
-      setFileList(newFileList);
+      await putRemoveActivityImage(Number(id) || 0, { image: item.name });
+      setFileList((currentFiles) =>
+        currentFiles.filter((currentItem) => currentItem.uid !== item.uid),
+      );
       notification.success({
         message: "Berhasil",
         description: "Gambar berhasil dihapus",
@@ -306,42 +317,26 @@ const ImageList = () => {
     [fileList, id],
   );
 
-  const handleUpload = async (file: RcFile) => {
-    const isCorrectImageType =
-      file.type === "image/jpeg" ||
-      file.type === "image/png" ||
-      file.type === "image/jpg" ||
-      file.type === "image/webp";
-    if (!isCorrectImageType) {
+  const handleUpload: UploadProps["beforeUpload"] = async (file) => {
+    const error = getImageUploadError(file, IMAGE_UPLOAD_POLICIES.activity);
+    if (error) {
       notification.error({
         message: "Gagal",
-        description:
-          "Hanya dapat mengupload file Gambar dengan format JPG, PNG, atau WebP",
+        description: error,
       });
-      return false;
-    }
-    const isLt2M = file.size / 1024 / 1024 < 1;
-    if (!isLt2M) {
-      notification.error({
-        message: "Gagal",
-        description: "Ukuran gambar harus lebih kecil dari 1MB",
-      });
-      return false;
+      return Upload.LIST_IGNORE;
     }
 
     setUploading(true);
     try {
-      const uploadKey = `${crypto.randomUUID()}.${file.name.split(".").pop()}`;
-      const uploadedFile = new File([file], uploadKey, {
-        type: file.type,
-      });
-      await postActivityImages(Number(id) || 0, uploadedFile);
-      setFileList([
-        ...fileList,
+      const uploaded = await postActivityImages(Number(id) || 0, file);
+      const imageKey = uploaded.image;
+      setFileList((currentFiles) => [
+        ...currentFiles,
         {
-          uid: uploadKey,
-          name: uploadKey,
-          url: await getBase64(file),
+          uid: imageKey,
+          name: imageKey,
+          url: `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${imageKey}`,
         },
       ]);
       notification.success({
@@ -408,14 +403,17 @@ const ImageList = () => {
               ))}
 
               {/* Upload button */}
-              {fileList.length < 8 && (
+              {fileList.length < MAX_ACTIVITY_IMAGES && (
                 <Upload
                   showUploadList={false}
                   beforeUpload={handleUpload}
-                  accept="image/jpeg,image/png,image/jpg,image/webp"
+                  accept={IMAGE_UPLOAD_ACCEPT}
                   disabled={uploading}
                 >
-                  <div
+                  <button
+                    type="button"
+                    aria-label="Tambah gambar aktivitas"
+                    disabled={uploading}
                     style={{
                       width: 128,
                       height: 128,
@@ -428,6 +426,7 @@ const ImageList = () => {
                       justifyContent: "center",
                       cursor: uploading ? "not-allowed" : "pointer",
                       transition: "all 0.2s ease",
+                      padding: 0,
                     }}
                     onMouseEnter={(e) => {
                       if (!uploading) {
@@ -455,7 +454,7 @@ const ImageList = () => {
                         </Text>
                       </>
                     )}
-                  </div>
+                  </button>
                 </Upload>
               )}
             </div>
@@ -487,20 +486,20 @@ const ImageList = () => {
           }}
         >
           <Text type="secondary" style={{ fontSize: 12 }}>
-            {fileList.length}/8 gambar
+            {fileList.length}/{MAX_ACTIVITY_IMAGES} gambar
           </Text>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            Format: JPG, PNG, WebP • Maks: 1MB
+            {IMAGE_UPLOAD_POLICIES.activity.guidance}
           </Text>
         </div>
 
         {/* Preview modal */}
         {previewImage && (
           <Image
-            wrapperStyle={{ display: "none" }}
+            styles={{ root: { display: "none" } }}
             preview={{
-              visible: previewOpen,
-              onVisibleChange: (visible) => setPreviewOpen(visible),
+              open: previewOpen,
+              onOpenChange: (visible) => setPreviewOpen(visible),
               afterOpenChange: (visible) => !visible && setPreviewImage(""),
             }}
             src={previewImage}

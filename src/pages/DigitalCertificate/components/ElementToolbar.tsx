@@ -26,6 +26,7 @@ import {
 } from "@ant-design/icons";
 import { ElementType } from "../types";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
+import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 
 type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
 
@@ -158,7 +159,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         {/* Canvas settings */}
         <Upload
-          accept=".jpg,.jpeg,.png,.webp"
+          accept={IMAGE_UPLOAD_ACCEPT}
           showUploadList={false}
           beforeUpload={() => false}
           onChange={handleBackgroundChange}
@@ -220,7 +221,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         </Space.Compact>
 
         <Upload
-          accept=".jpg,.jpeg,.png,.webp"
+          accept={IMAGE_UPLOAD_ACCEPT}
           showUploadList={false}
           beforeUpload={() => false}
           onChange={handleImageChange}

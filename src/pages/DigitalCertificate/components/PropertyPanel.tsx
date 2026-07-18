@@ -35,6 +35,7 @@ import { VARIABLE_OPTIONS, DEFAULT_FONT_FAMILIES } from "../constants";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
 import { getCertificateAssetUrl } from "../utils/certificate-content";
 import { getBoundedGeometryValue } from "../CertificateDesigner/geometry";
+import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 
 const { Text } = Typography;
 
@@ -284,7 +285,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             </PropertySection>
             {onBackgroundUpload ? (
               <Upload
-                accept=".jpg,.jpeg,.png,.webp"
+                accept={IMAGE_UPLOAD_ACCEPT}
                 showUploadList={false}
                 beforeUpload={() => false}
                 onChange={(info) => {
@@ -740,7 +741,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                 <PropertySection label="Upload Gambar">
                   <div style={{ marginTop: 4 }}>
                     <Upload
-                      accept=".jpg,.jpeg,.png,.webp"
+                      accept={IMAGE_UPLOAD_ACCEPT}
                       showUploadList={false}
                       beforeUpload={() => false}
                       onChange={handleImageUpload}

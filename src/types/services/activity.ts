@@ -60,7 +60,15 @@ export type putActivityResp = {
 
 export type putActivityImagesReq = File;
 
-export type putRemoveActivityImageReq = { index: number };
+export type postActivityImageResp = {
+  message: string;
+  data: {
+    image: string;
+    images: string[];
+  };
+};
+
+export type putRemoveActivityImageReq = { image: string };
 
 export type putReorderActivityImagesReq = { images: string[] };
 
