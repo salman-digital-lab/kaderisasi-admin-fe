@@ -5,6 +5,7 @@ import {
   readRecoverySnapshot,
   RECOVERY_MAX_AGE_MS,
   writeRecoverySnapshot,
+  readEditorPreferences,
 } from "./editor-state";
 import {
   fitViewport,
@@ -13,6 +14,8 @@ import {
   screenToCanvas,
   zoomAtPoint,
 } from "./viewport-math";
+import { getBoundedGeometryValue } from "./geometry";
+import { getCertificateReadinessAction } from "../utils/certificate-readiness";
 
 beforeEach(() => {
   const values = new Map<string, string>();
@@ -58,6 +61,39 @@ describe("certificate editor state", () => {
     expect(hasRecoveryConflict(snapshot, "two")).toBe(true);
     expect(readRecoverySnapshot(12, 100 + RECOVERY_MAX_AGE_MS + 1)).toBeNull();
   });
+
+  it("migrates helper visibility once while preserving panel preferences", () => {
+    localStorage.setItem(
+      "certificate-editor:preferences:v1",
+      JSON.stringify({
+        version: 1,
+        layersWidth: 300,
+        inspectorWidth: 360,
+        layersCollapsed: true,
+        inspectorCollapsed: false,
+        canvas: {
+          gridSize: 20,
+          showGrid: true,
+          snapToGrid: false,
+          showGuides: true,
+          snapToGuides: false,
+        },
+      }),
+    );
+    expect(readEditorPreferences()).toMatchObject({
+      version: 2,
+      layersWidth: 300,
+      inspectorWidth: 360,
+      layersCollapsed: true,
+      canvas: {
+        gridSize: 20,
+        showGrid: false,
+        snapToGrid: true,
+        showGuides: false,
+        snapToGuides: true,
+      },
+    });
+  });
 });
 
 describe("certificate viewport math", () => {
@@ -81,5 +117,24 @@ describe("certificate viewport math", () => {
     ).toEqual({ x: 0, y: 0 });
     expect(hasPassedDragThreshold(2, 2)).toBe(false);
     expect(hasPassedDragThreshold(3, 0)).toBe(true);
+  });
+});
+
+describe("certificate editor routing and bounds", () => {
+  it("rejects non-finite geometry and clamps commits to bounds", () => {
+    expect(getBoundedGeometryValue(null, 42, 0, 100)).toBe(42);
+    expect(getBoundedGeometryValue(Number.NaN, 42, 0, 100)).toBe(42);
+    expect(getBoundedGeometryValue(-5, 42, 0, 100)).toBe(0);
+    expect(getBoundedGeometryValue(120, 42, 0, 100)).toBe(100);
+  });
+
+  it("routes readiness issues only to controls that can resolve them", () => {
+    expect(getCertificateReadinessAction("INVALID_CANVAS")).toBe(
+      "open-canvas-settings",
+    );
+    expect(getCertificateReadinessAction("MISSING_ASSET")).toBe("select-layer");
+    expect(
+      getCertificateReadinessAction("MISSING_PUBLIC_CERTIFICATE_URL"),
+    ).toBe("explain");
   });
 });

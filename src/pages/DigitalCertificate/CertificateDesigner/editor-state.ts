@@ -29,7 +29,7 @@ export interface CanvasPreferences {
 }
 
 export interface EditorPreferences {
-  version: 1;
+  version: 2;
   layersWidth: number;
   inspectorWidth: number;
   layersCollapsed: boolean;
@@ -49,16 +49,16 @@ export interface RecoverySnapshot {
 }
 
 export const DEFAULT_EDITOR_PREFERENCES: EditorPreferences = {
-  version: 1,
+  version: 2,
   layersWidth: 240,
   inspectorWidth: 320,
   layersCollapsed: false,
   inspectorCollapsed: false,
   canvas: {
     gridSize: 10,
-    showGrid: true,
+    showGrid: false,
     snapToGrid: true,
-    showGuides: true,
+    showGuides: false,
     snapToGuides: true,
   },
 };
@@ -74,14 +74,24 @@ export function readEditorPreferences(): EditorPreferences {
   try {
     const parsed = JSON.parse(
       localStorage.getItem(PREFERENCES_KEY) || "null",
-    ) as Partial<EditorPreferences> | null;
-    if (!parsed || parsed.version !== 1) return DEFAULT_EDITOR_PREFERENCES;
+    ) as
+      | (Partial<Omit<EditorPreferences, "version">> & { version?: number })
+      | null;
+    if (!parsed) return DEFAULT_EDITOR_PREFERENCES;
+    const migratedCanvas =
+      parsed.version === 1
+        ? {
+            ...DEFAULT_EDITOR_PREFERENCES.canvas,
+            gridSize: clamp(parsed.canvas?.gridSize || 10, 2, 100),
+          }
+        : { ...DEFAULT_EDITOR_PREFERENCES.canvas, ...parsed.canvas };
     return {
       ...DEFAULT_EDITOR_PREFERENCES,
       ...parsed,
+      version: 2,
       layersWidth: clamp(parsed.layersWidth || 240, 200, 360),
       inspectorWidth: clamp(parsed.inspectorWidth || 320, 280, 420),
-      canvas: { ...DEFAULT_EDITOR_PREFERENCES.canvas, ...parsed.canvas },
+      canvas: migratedCanvas,
     };
   } catch {
     return DEFAULT_EDITOR_PREFERENCES;

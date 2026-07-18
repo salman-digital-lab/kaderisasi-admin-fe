@@ -14,6 +14,32 @@ export interface CertificateReadinessIssue {
   severity: CertificateReadinessSeverity;
 }
 
+export type CertificateReadinessAction =
+  | "open-variable-chooser"
+  | "open-canvas-settings"
+  | "open-canvas-inspector"
+  | "select-layer"
+  | "explain";
+
+export function getCertificateReadinessAction(
+  code: string,
+): CertificateReadinessAction {
+  if (code === "MISSING_PARTICIPANT_NAME" || code === "EMPTY_TEMPLATE") {
+    return "open-variable-chooser";
+  }
+  if (code === "INVALID_CANVAS") return "open-canvas-settings";
+  if (code === "MISSING_BACKGROUND") return "open-canvas-inspector";
+  if (
+    code === "MISSING_ASSET" ||
+    code === "ELEMENT_OUT_OF_BOUNDS" ||
+    code === "PRIVATE_VARIABLE" ||
+    code === "UNSUPPORTED_VARIABLE"
+  ) {
+    return "select-layer";
+  }
+  return "explain";
+}
+
 const ALLOWED_VARIABLES = new Set<string>(
   VARIABLE_OPTIONS.map((option) => option.value),
 );

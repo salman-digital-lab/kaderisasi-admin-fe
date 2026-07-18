@@ -133,6 +133,7 @@ export const createCertificateTemplate = async (
 export const updateCertificateTemplate = async (
   id: number,
   data: UpdateCertificateTemplateReq,
+  options?: { silent?: boolean },
 ) => {
   try {
     const res = await axios.put<UpdateCertificateTemplateResp>(
@@ -141,7 +142,11 @@ export const updateCertificateTemplate = async (
     );
     return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
-    if (!isAxiosError(error) || error.response?.status !== 422) {
+    if (
+      !options?.silent &&
+      (!isAxiosError(error) ||
+        (error.response?.status !== 409 && error.response?.status !== 422))
+    ) {
       handleError(error);
     }
     throw error;
@@ -182,15 +187,21 @@ export const uploadCertificateAsset = async (id: number, file: File) => {
 export const updateCertificateTemplateLifecycle = async (
   id: number,
   status: CertificateTemplateStatus,
+  expectedVersion: number,
 ) => {
   if (status === "draft") {
-    return updateCertificateTemplate(id, { status, isActive: false });
+    return updateCertificateTemplate(id, {
+      status,
+      isActive: false,
+      expectedVersion,
+    });
   }
 
   const action = status === "published" ? "publish" : "archive";
   try {
     const res = await axios.post<UpdateCertificateTemplateResp>(
       `/certificate-templates/${id}/${action}`,
+      { expectedVersion },
     );
     return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
@@ -204,6 +215,7 @@ export const updateCertificateTemplateLifecycle = async (
     return updateCertificateTemplate(id, {
       status,
       isActive: status === "published",
+      expectedVersion,
     });
   }
 };

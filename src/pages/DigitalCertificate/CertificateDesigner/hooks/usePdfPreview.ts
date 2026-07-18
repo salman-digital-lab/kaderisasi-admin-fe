@@ -152,8 +152,6 @@ export const usePdfPreview = () => {
         resolveText: resolveCertificateSampleText,
         targetWindow: previewWindow,
       });
-
-      message.success("Preview PDF berhasil dibuat");
     } catch (error) {
       console.error("PDF generation error:", error);
       if (!previewWindow.closed) previewWindow.close();

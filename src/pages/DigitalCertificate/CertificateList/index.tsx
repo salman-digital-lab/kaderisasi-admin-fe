@@ -387,7 +387,11 @@ const CertificateList: React.FC = () => {
 
     setMutatingId(record.id);
     try {
-      await updateCertificateTemplateLifecycle(record.id, status);
+      await updateCertificateTemplateLifecycle(
+        record.id,
+        status,
+        Number(record.version),
+      );
       message.success(
         status === "published"
           ? "Template dipublikasikan"

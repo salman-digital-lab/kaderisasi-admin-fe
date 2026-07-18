@@ -5,6 +5,7 @@ import {
   CERTIFICATE_SAMPLE_CODE,
   getCertificateAssetUrl,
   getCertificateVerificationUrl,
+  resolveCertificateSampleText,
 } from "../utils/certificate-content";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -113,20 +114,24 @@ const StaticTextContent: React.FC<{
   </div>
 );
 
-/** Variable text element with highlighted background. */
+/** Variable text element rendered with representative sample data. */
 const VariableTextContent: React.FC<{
-  variable: string;
+  element: CertificateElement;
   style: React.CSSProperties;
-}> = ({ variable, style }) => (
+  selected: boolean;
+}> = ({ element, style, selected }) => (
   <div
     style={{
       ...style,
-      backgroundColor: "rgba(24, 144, 255, 0.1)",
-      padding: "2px 8px",
-      borderRadius: 4,
+      ...(selected
+        ? {
+            boxShadow: "inset 0 -2px 0 rgba(22, 119, 255, 0.55)",
+          }
+        : {}),
     }}
+    title={`Terikat ke ${element.variable || "variabel"}`}
   >
-    {variable}
+    {resolveCertificateSampleText(element)}
   </div>
 );
 
@@ -294,6 +299,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         outline: "none",
         wordBreak: "break-word",
         whiteSpace: "pre-wrap",
+        overflow: "hidden",
       }),
       [
         element.color,
@@ -308,9 +314,6 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         element.verticalAlign,
       ],
     );
-
-    const isTextType =
-      element.type === "static-text" || element.type === "variable-text";
 
     // ── Content renderer ────────────────────────────────────────────────
 
@@ -329,8 +332,9 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         case "variable-text":
           return (
             <VariableTextContent
-              variable={element.variable || ""}
+              element={element}
               style={textStyle}
+              selected={isSelected}
             />
           );
         case "qr-code": {
@@ -374,7 +378,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         ref={handleNodeChange}
         data-element-id={element.id}
         role="button"
-        tabIndex={-1}
+        tabIndex={0}
         aria-label={`${element.name || element.type}${element.locked ? ", terkunci" : ""}`}
         aria-pressed={isSelected}
         style={{
@@ -382,11 +386,12 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           left: element.x,
           top: element.y,
           width: element.width,
-          ...(isTextType
-            ? { minHeight: element.height }
-            : { height: element.height }),
+          height: element.height,
           cursor: element.locked ? "default" : isEditing ? "text" : "move",
-          border: isSelected ? "2px solid #1890ff" : "1px dashed transparent",
+          border: "1px solid transparent",
+          boxShadow: isSelected
+            ? `0 0 0 ${Math.max(1, 2 / zoom)}px #1677ff`
+            : undefined,
           borderRadius: element.borderRadius || 4,
           padding: 4,
           boxSizing: "border-box",
@@ -405,12 +410,17 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
 
         {isSelected &&
           !element.locked &&
-          RESIZE_HANDLES.map(({ key, cursor, ...pos }) => (
+          RESIZE_HANDLES.map(({ key, cursor }) => (
             <div
               key={key}
               style={{
                 position: "absolute",
-                ...pos,
+                ...(key === "nw" || key === "ne"
+                  ? { top: -HANDLE_SIZE / (2 * zoom) }
+                  : { bottom: -HANDLE_SIZE / (2 * zoom) }),
+                ...(key === "nw" || key === "sw"
+                  ? { left: -HANDLE_SIZE / (2 * zoom) }
+                  : { right: -HANDLE_SIZE / (2 * zoom) }),
                 width: HANDLE_SIZE,
                 height: HANDLE_SIZE,
                 backgroundColor: "#1890ff",

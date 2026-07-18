@@ -9,6 +9,7 @@ import {
   cloneCertificateTemplate,
   createDocumentHistoryState,
   documentHistoryReducer,
+  reorderElementById,
 } from "../CertificateDesigner/document-reducer";
 
 const generateId = () =>
@@ -314,18 +315,7 @@ export const useCertificateDesigner = () => {
 
   const reorderElement = useCallback(
     (activeId: string, overId: string) => {
-      applyTemplateUpdate((prev) => {
-        const activeIndex = prev.elements.findIndex(
-          (item) => item.id === activeId,
-        );
-        const overIndex = prev.elements.findIndex((item) => item.id === overId);
-        if (activeIndex < 0 || overIndex < 0 || activeIndex === overIndex)
-          return prev;
-        const elements = [...prev.elements];
-        const [active] = elements.splice(activeIndex, 1);
-        elements.splice(overIndex, 0, active);
-        return { ...prev, elements };
-      });
+      applyTemplateUpdate((prev) => reorderElementById(prev, activeId, overId));
     },
     [applyTemplateUpdate],
   );

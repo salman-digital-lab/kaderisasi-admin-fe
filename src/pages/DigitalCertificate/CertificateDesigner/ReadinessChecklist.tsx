@@ -13,27 +13,36 @@ const { Text } = Typography;
 interface ReadinessChecklistProps {
   issues: CertificateReadinessIssue[];
   onIssueAction: (issue: CertificateReadinessIssue) => void;
+  isIssueActionable: (issue: CertificateReadinessIssue) => boolean;
 }
 
 const IssueGroup: React.FC<{
   title: string;
   issues: CertificateReadinessIssue[];
   onAction: (issue: CertificateReadinessIssue) => void;
-}> = ({ title, issues, onAction }) =>
+  isActionable: (issue: CertificateReadinessIssue) => boolean;
+}> = ({ title, issues, onAction, isActionable }) =>
   issues.length > 0 ? (
     <section className={styles.checklistGroup}>
       <Text strong>{title}</Text>
       <ul>
         {issues.map((issue) => (
           <li key={issue.code}>
-            <Button type="text" onClick={() => onAction(issue)}>
-              {issue.severity === "error" ? (
-                <ExclamationCircleOutlined />
-              ) : (
+            {isActionable(issue) ? (
+              <Button type="text" onClick={() => onAction(issue)}>
+                {issue.severity === "error" ? (
+                  <ExclamationCircleOutlined />
+                ) : (
+                  <InfoCircleOutlined />
+                )}
+                <span>{issue.message}</span>
+              </Button>
+            ) : (
+              <div className={styles.checklistExplanation}>
                 <InfoCircleOutlined />
-              )}
-              <span>{issue.message}</span>
-            </Button>
+                <span>{issue.message}</span>
+              </div>
+            )}
           </li>
         ))}
       </ul>
@@ -43,6 +52,7 @@ const IssueGroup: React.FC<{
 export const ReadinessChecklist: React.FC<ReadinessChecklistProps> = ({
   issues,
   onIssueAction,
+  isIssueActionable,
 }) => {
   const errors = issues.filter((issue) => issue.severity === "error");
   const warnings = issues.filter((issue) => issue.severity === "warning");
@@ -59,12 +69,14 @@ export const ReadinessChecklist: React.FC<ReadinessChecklistProps> = ({
             title="Harus diperbaiki"
             issues={errors}
             onAction={onIssueAction}
+            isActionable={isIssueActionable}
           />
           {errors.length > 0 && warnings.length > 0 ? <Divider /> : null}
           <IssueGroup
             title="Rekomendasi"
             issues={warnings}
             onAction={onIssueAction}
+            isActionable={isIssueActionable}
           />
         </>
       )}

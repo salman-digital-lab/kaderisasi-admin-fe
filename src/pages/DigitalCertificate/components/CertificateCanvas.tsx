@@ -5,7 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button, Space } from "antd";
+import { Button, Divider, Popover, Space, Switch, Typography } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
 import { getCertificateAssetUrl } from "../utils/certificate-content";
 import type { CertificateElement, CertificateTemplate } from "../types";
 import { DraggableElement } from "./DraggableElement";
@@ -42,6 +43,10 @@ interface CertificateCanvasProps {
   showGrid: boolean;
   showGuides: boolean;
   snapToGuides: boolean;
+  onSnapToGridChange?: (value: boolean) => void;
+  onShowGridChange?: (value: boolean) => void;
+  onShowGuidesChange?: (value: boolean) => void;
+  onSnapToGuidesChange?: (value: boolean) => void;
 }
 
 const GRID_SIZE = 10;
@@ -62,6 +67,10 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     showGrid,
     showGuides,
     snapToGuides,
+    onSnapToGridChange,
+    onShowGridChange,
+    onShowGuidesChange,
+    onSnapToGuidesChange,
   }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -511,6 +520,45 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             +
           </Button>
           <Button onClick={fit}>Fit</Button>
+          <Popover
+            trigger="click"
+            placement="topLeft"
+            content={
+              <Space direction="vertical" size="small">
+                <Typography.Text strong>Tampilan & snap</Typography.Text>
+                <Divider style={{ margin: 0 }} />
+                <Switch
+                  checked={showGrid}
+                  onChange={onShowGridChange}
+                  checkedChildren="Grid"
+                  unCheckedChildren="Grid"
+                />
+                <Switch
+                  checked={snapToGrid}
+                  onChange={onSnapToGridChange}
+                  checkedChildren="Snap grid"
+                  unCheckedChildren="Snap grid"
+                />
+                <Switch
+                  checked={showGuides}
+                  onChange={onShowGuidesChange}
+                  checkedChildren="Sumbu tetap"
+                  unCheckedChildren="Sumbu tetap"
+                />
+                <Switch
+                  checked={snapToGuides}
+                  onChange={onSnapToGuidesChange}
+                  checkedChildren="Snap tengah"
+                  unCheckedChildren="Snap tengah"
+                />
+              </Space>
+            }
+          >
+            <Button
+              icon={<SettingOutlined />}
+              aria-label="Pengaturan tampilan dan snapping"
+            />
+          </Popover>
         </Space.Compact>
         <div className={styles.canvasHint}>
           V Pilih · H Tangan · Spasi Geser
@@ -544,7 +592,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             }}
             onPointerDown={handleCanvasPointerDown}
           >
-            {showGuides ? (
+            {showGuides || activeGuides.vertical || activeGuides.horizontal ? (
               <>
                 <div
                   className={`${styles.guideVertical} ${activeGuides.vertical ? styles.guideActive : ""}`}
@@ -560,7 +608,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
                 element={element}
                 isSelected={element.id === selectedElementId}
                 onSelect={(id) => {
-                  if (!element.locked && effectiveTool === "select") {
+                  if (effectiveTool === "select") {
                     onSelectElement(id);
                     setAnnouncement(`${element.name || element.type} dipilih`);
                   }

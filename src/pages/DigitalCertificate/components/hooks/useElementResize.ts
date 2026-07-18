@@ -147,6 +147,8 @@ export function useElementResize({
         } else {
           el.style.height = `${h}px`;
         }
+        el.dataset.geometry = `${Math.round(w)} × ${Math.round(h)}`;
+        el.classList.add("certificate-element-manipulating");
       }
     },
     [],
@@ -219,6 +221,9 @@ export function useElementResize({
         width: r.latestW,
         height: r.latestH,
       });
+      const node = optionsRef.current.elementNodesRef.current.get(r.elementId);
+      node?.classList.remove("certificate-element-manipulating");
+      if (node) delete node.dataset.geometry;
       resizeRef.current = null;
     }
 
@@ -251,8 +256,7 @@ export function useElementResize({
         latestY: element.y,
         latestW: element.width,
         latestH: element.height,
-        usesMinHeight:
-          element.type === "static-text" || element.type === "variable-text",
+        usesMinHeight: false,
       };
 
       setIsResizing(true);
@@ -265,12 +269,30 @@ export function useElementResize({
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (resizeRef.current) {
+      const r = resizeRef.current;
+      updateDomSize(
+        r.elementId,
+        r.elementStartX,
+        r.elementStartY,
+        r.elementStartW,
+        r.elementStartH,
+        r.usesMinHeight,
+      );
+      optionsRef.current.elementPositionsRef.current.set(r.elementId, {
+        x: r.elementStartX,
+        y: r.elementStartY,
+      });
+      const node = optionsRef.current.elementNodesRef.current.get(r.elementId);
+      node?.classList.remove("certificate-element-manipulating");
+      if (node) delete node.dataset.geometry;
+    }
     resizeRef.current = null;
     setIsResizing(false);
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
     document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, handlePointerUp]);
+  }, [handlePointerMove, handlePointerUp, updateDomSize]);
 
   return { isResizing, startResize, cleanup };
 }

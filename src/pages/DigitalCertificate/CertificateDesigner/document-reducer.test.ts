@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDocumentHistoryState,
   documentHistoryReducer,
+  reorderElementById,
 } from "./document-reducer";
 
 const template = {
@@ -44,5 +45,53 @@ describe("certificate document history reducer", () => {
     expect(state.revision).toBe(savedRevision);
     state = documentHistoryReducer(state, { type: "redo" });
     expect(state.template.canvasHeight).toBe(700);
+  });
+
+  it("preserves a valid selection through undo and redo", () => {
+    const element = {
+      id: "title",
+      type: "static-text" as const,
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 40,
+    };
+    let state = createDocumentHistoryState({
+      ...template,
+      elements: [element],
+    });
+    state = documentHistoryReducer(state, { type: "select", id: element.id });
+    state = documentHistoryReducer(state, {
+      type: "apply",
+      update: (current) => ({
+        ...current,
+        elements: current.elements.map((item) => ({ ...item, x: 20 })),
+      }),
+    });
+    state = documentHistoryReducer(state, { type: "undo" });
+    expect(state.selectedElementId).toBe(element.id);
+    state = documentHistoryReducer(state, { type: "redo" });
+    expect(state.selectedElementId).toBe(element.id);
+  });
+
+  it("maps reversed layer drag order back to document stack order", () => {
+    const elements = ["bottom", "middle", "top"].map((id) => ({
+      id,
+      type: "static-text" as const,
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 40,
+    }));
+    const reordered = reorderElementById(
+      { ...template, elements },
+      "top",
+      "bottom",
+    );
+    expect(reordered.elements.map((element) => element.id)).toEqual([
+      "top",
+      "bottom",
+      "middle",
+    ]);
   });
 });

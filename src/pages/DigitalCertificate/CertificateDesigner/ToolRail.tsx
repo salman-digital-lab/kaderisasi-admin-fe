@@ -8,10 +8,11 @@ import {
   QrcodeOutlined,
   SelectOutlined,
 } from "@ant-design/icons";
-import { Button, message, Tooltip, Upload } from "antd";
+import { Button, message, Popover, Tooltip, Upload } from "antd";
 import type { EditorTool } from "./editor-state";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
 import styles from "./CertificateDesigner.module.css";
+import { VariableTextChooser } from "../components/VariableTextChooser";
 
 interface ToolRailProps {
   tool: EditorTool;
@@ -20,6 +21,9 @@ interface ToolRailProps {
   onAddElement: (tool: EditorTool) => void;
   onImageUpload: (file: File) => Promise<void>;
   onSignatureUpload: (file: File) => Promise<void>;
+  variableChooserOpen: boolean;
+  onVariableChooserOpenChange: (open: boolean) => void;
+  onVariableSelect: (variable: string) => void;
 }
 
 const tools: Array<{
@@ -64,25 +68,57 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
     onAddElement,
     onImageUpload,
     onSignatureUpload,
+    variableChooserOpen,
+    onVariableChooserOpenChange,
+    onVariableSelect,
   }) => (
     <nav className={styles.toolRail} aria-label="Alat editor">
       {tools.map((item, index) => (
         <React.Fragment key={item.tool}>
           {index === 2 ? <div className={styles.toolDivider} /> : null}
-          <Tooltip
-            title={`${item.label}${item.shortcut ? ` (${item.shortcut})` : ""}`}
-            placement="right"
-          >
-            <Button
-              type={!item.command && tool === item.tool ? "primary" : "text"}
-              icon={item.icon}
-              aria-label={item.label}
-              aria-pressed={!item.command ? tool === item.tool : undefined}
-              onClick={() =>
-                item.command ? onAddElement(item.tool) : onToolChange(item.tool)
+          {item.tool === "variable-text" ? (
+            <Popover
+              open={variableChooserOpen}
+              onOpenChange={onVariableChooserOpenChange}
+              trigger="click"
+              placement="rightTop"
+              content={
+                <VariableTextChooser
+                  onSelect={(variable) => {
+                    onVariableSelect(variable);
+                    onVariableChooserOpenChange(false);
+                  }}
+                />
               }
-            />
-          </Tooltip>
+            >
+              <Tooltip title="Teks variabel" placement="right">
+                <Button
+                  type={variableChooserOpen ? "primary" : "text"}
+                  icon={item.icon}
+                  aria-label={item.label}
+                  aria-expanded={variableChooserOpen}
+                />
+              </Tooltip>
+            </Popover>
+          ) : (
+            <Tooltip
+              title={`${item.label}${item.shortcut ? ` (${item.shortcut})` : ""}`}
+              placement="right"
+            >
+              <Button
+                type={!item.command && tool === item.tool ? "primary" : "text"}
+                icon={item.icon}
+                aria-label={item.label}
+                aria-keyshortcuts={item.shortcut}
+                aria-pressed={!item.command ? tool === item.tool : undefined}
+                onClick={() =>
+                  item.command
+                    ? onAddElement(item.tool)
+                    : onToolChange(item.tool)
+                }
+              />
+            </Tooltip>
+          )}
         </React.Fragment>
       ))}
       <Upload

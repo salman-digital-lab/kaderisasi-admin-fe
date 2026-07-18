@@ -16,11 +16,25 @@ import {
   Alert,
   Switch,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import {
+  AlignCenterOutlined,
+  AlignLeftOutlined,
+  AlignRightOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  LockOutlined,
+  UploadOutlined,
+  VerticalAlignBottomOutlined,
+  VerticalAlignMiddleOutlined,
+  VerticalAlignTopOutlined,
+} from "@ant-design/icons";
 import { CertificateElement } from "../types";
 import { VARIABLE_OPTIONS, DEFAULT_FONT_FAMILIES } from "../constants";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
 import { getCertificateAssetUrl } from "../utils/certificate-content";
+import { getBoundedGeometryValue } from "../CertificateDesigner/geometry";
 
 const { Text } = Typography;
 
@@ -49,29 +63,46 @@ interface PropertyPanelProps {
   onSnapToGuidesChange?: (value: boolean) => void;
   onOpenCanvasSettings?: () => void;
   onBackgroundUpload?: (file: File) => Promise<void>;
+  backgroundUrl?: string | null;
+  onBackgroundRemove?: () => void;
+  onAlign?: (
+    alignment: "left" | "center" | "right" | "top" | "middle" | "bottom",
+  ) => void;
+  onDuplicate?: () => void;
+  onToggleVisibility?: () => void;
+  onToggleLock?: () => void;
+  onDelete?: () => void;
 }
 
 // ─── Reusable sub-components ────────────────────────────────────────────────
 
 /** A number input that only commits on blur or Enter for performance. */
-const DebouncedInput: React.FC<{
+const BoundedNumberInput: React.FC<{
   value: number;
+  min: number;
+  max: number;
   onChange: (value: number) => void;
   label: string;
-}> = React.memo(({ value, onChange, label }) => {
-  const [localValue, setLocalValue] = useState(value);
+}> = React.memo(({ value, min, max, onChange, label }) => {
+  const [localValue, setLocalValue] = useState<number | null>(value);
 
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
   const handleBlur = useCallback(() => {
-    if (localValue !== value) onChange(localValue);
-  }, [localValue, value, onChange]);
+    if (localValue === null || !Number.isFinite(localValue)) {
+      setLocalValue(value);
+      return;
+    }
+    const bounded = getBoundedGeometryValue(localValue, value, min, max);
+    setLocalValue(bounded);
+    if (bounded !== value) onChange(bounded);
+  }, [localValue, max, min, value, onChange]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") onChange(localValue);
+      if (e.key === "Enter") (e.currentTarget as HTMLElement).blur();
     },
     [localValue, onChange],
   );
@@ -79,20 +110,26 @@ const DebouncedInput: React.FC<{
   return (
     <div style={{ flex: 1 }}>
       <Text style={{ fontSize: 11 }}>{label}</Text>
-      <Input
+      <InputNumber
         size="small"
-        type="number"
+        min={min}
+        max={max}
         value={localValue}
-        onChange={(e) => setLocalValue(Number(e.target.value))}
+        onChange={(next) =>
+          setLocalValue(
+            typeof next === "number" && Number.isFinite(next) ? next : null,
+          )
+        }
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         aria-label={label}
+        style={{ width: "100%" }}
       />
     </div>
   );
 });
 
-DebouncedInput.displayName = "DebouncedInput";
+BoundedNumberInput.displayName = "BoundedNumberInput";
 
 /** Label + content wrapper for each property section. */
 const PropertySection: React.FC<{
@@ -162,6 +199,13 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     onSnapToGuidesChange,
     onOpenCanvasSettings,
     onBackgroundUpload,
+    backgroundUrl,
+    onBackgroundRemove,
+    onAlign,
+    onDuplicate,
+    onToggleVisibility,
+    onToggleLock,
+    onDelete,
   }) => {
     // ── Callbacks ───────────────────────────────────────────────────────
 
@@ -253,6 +297,30 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                 </Button>
               </Upload>
             ) : null}
+            {backgroundUrl ? (
+              <div>
+                <img
+                  src={getCertificateAssetUrl(backgroundUrl) || undefined}
+                  alt="Preview background sertifikat"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    maxHeight: 140,
+                    objectFit: "cover",
+                    borderRadius: 6,
+                  }}
+                />
+                <Button
+                  block
+                  danger
+                  size="small"
+                  onClick={onBackgroundRemove}
+                  style={{ marginTop: 6 }}
+                >
+                  Hapus background
+                </Button>
+              </div>
+            ) : null}
             <Alert
               type="info"
               showIcon
@@ -293,11 +361,51 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             style={{ marginBottom: 8 }}
           />
         ) : null}
+        <div style={{ marginBottom: 8 }}>
+          <PropertySection label="Layer">
+            <Space.Compact block>
+              <Button
+                icon={
+                  element.visible === false ? (
+                    <EyeOutlined />
+                  ) : (
+                    <EyeInvisibleOutlined />
+                  )
+                }
+                aria-label={
+                  element.visible === false
+                    ? "Tampilkan layer"
+                    : "Sembunyikan layer"
+                }
+                onClick={onToggleVisibility}
+              />
+              <Button
+                icon={<CopyOutlined />}
+                aria-label="Duplikat layer"
+                onClick={onDuplicate}
+              />
+              <Button
+                icon={<LockOutlined />}
+                aria-label={element.locked ? "Buka kunci layer" : "Kunci layer"}
+                onClick={onToggleLock}
+              />
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                aria-label="Hapus layer"
+                onClick={onDelete}
+              />
+            </Space.Compact>
+          </PropertySection>
+        </div>
         <fieldset
           disabled={element.locked}
           style={{ minWidth: 0, margin: 0, padding: 0, border: 0 }}
         >
           <Space direction="vertical" style={{ width: "100%" }} size="small">
+            <Divider titlePlacement="start" plain style={{ margin: "2px 0" }}>
+              Geometry
+            </Divider>
             <PropertySection label="Nama Layer">
               <Input
                 size="small"
@@ -313,14 +421,18 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             {/* Position */}
             <PropertySection label="Posisi">
               <div style={{ display: "flex", gap: 8 }}>
-                <DebouncedInput
+                <BoundedNumberInput
                   label="X"
                   value={Math.round(element.x)}
+                  min={0}
+                  max={Math.max(0, (canvasWidth ?? 5000) - element.width)}
                   onChange={(v) => updateField("x", v)}
                 />
-                <DebouncedInput
+                <BoundedNumberInput
                   label="Y"
                   value={Math.round(element.y)}
+                  min={0}
+                  max={Math.max(0, (canvasHeight ?? 5000) - element.height)}
                   onChange={(v) => updateField("y", v)}
                 />
               </div>
@@ -329,23 +441,67 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             {/* Size */}
             <PropertySection label="Ukuran">
               <div style={{ display: "flex", gap: 8 }}>
-                <DebouncedInput
+                <BoundedNumberInput
                   label="Lebar"
                   value={Math.round(element.width)}
+                  min={1}
+                  max={Math.max(1, (canvasWidth ?? 5000) - element.x)}
                   onChange={(v) => updateField("width", v)}
                 />
-                <DebouncedInput
+                <BoundedNumberInput
                   label="Tinggi"
                   value={Math.round(element.height)}
+                  min={1}
+                  max={Math.max(1, (canvasHeight ?? 5000) - element.y)}
                   onChange={(v) => updateField("height", v)}
                 />
               </div>
+            </PropertySection>
+            <PropertySection label="Ratakan ke kanvas">
+              <Space.Compact block>
+                <Button
+                  icon={<AlignLeftOutlined />}
+                  aria-label="Rata kiri kanvas"
+                  onClick={() => onAlign?.("left")}
+                />
+                <Button
+                  icon={<AlignCenterOutlined />}
+                  aria-label="Rata tengah horizontal"
+                  onClick={() => onAlign?.("center")}
+                />
+                <Button
+                  icon={<AlignRightOutlined />}
+                  aria-label="Rata kanan kanvas"
+                  onClick={() => onAlign?.("right")}
+                />
+                <Button
+                  icon={<VerticalAlignTopOutlined />}
+                  aria-label="Rata atas kanvas"
+                  onClick={() => onAlign?.("top")}
+                />
+                <Button
+                  icon={<VerticalAlignMiddleOutlined />}
+                  aria-label="Rata tengah vertikal"
+                  onClick={() => onAlign?.("middle")}
+                />
+                <Button
+                  icon={<VerticalAlignBottomOutlined />}
+                  aria-label="Rata bawah kanvas"
+                  onClick={() => onAlign?.("bottom")}
+                />
+              </Space.Compact>
             </PropertySection>
 
             {/* Variable Selection */}
             {element.type === "variable-text" && (
               <>
-                <Divider style={{ margin: "8px 0" }} />
+                <Divider
+                  titlePlacement="start"
+                  plain
+                  style={{ margin: "8px 0" }}
+                >
+                  Content
+                </Divider>
                 <PropertySection label="Variabel">
                   <Select
                     size="small"
@@ -365,23 +521,37 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             {/* Text Properties */}
             {isTextElement && (
               <>
-                <Divider style={{ margin: "8px 0" }} />
-
                 {element.type === "static-text" && (
-                  <PropertySection label="Konten">
-                    <Input.TextArea
-                      size="small"
-                      rows={3}
-                      value={element.content}
-                      aria-label="Konten teks statis"
-                      onChange={(e) =>
-                        updateField("content", e.target.value, true)
-                      }
-                      onBlur={() => onUpdateComplete("content")}
-                    />
-                  </PropertySection>
+                  <>
+                    <Divider
+                      titlePlacement="start"
+                      plain
+                      style={{ margin: "8px 0" }}
+                    >
+                      Content
+                    </Divider>
+                    <PropertySection label="Konten">
+                      <Input.TextArea
+                        size="small"
+                        rows={3}
+                        value={element.content}
+                        aria-label="Konten teks statis"
+                        onChange={(e) =>
+                          updateField("content", e.target.value, true)
+                        }
+                        onBlur={() => onUpdateComplete("content")}
+                      />
+                    </PropertySection>
+                  </>
                 )}
 
+                <Divider
+                  titlePlacement="start"
+                  plain
+                  style={{ margin: "8px 0" }}
+                >
+                  Typography
+                </Divider>
                 <PropertySection label="Ukuran Font">
                   <SliderNumber
                     min={8}
@@ -541,7 +711,13 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             {/* Image Upload */}
             {isImageElement && (
               <>
-                <Divider style={{ margin: "8px 0" }} />
+                <Divider
+                  titlePlacement="start"
+                  plain
+                  style={{ margin: "8px 0" }}
+                >
+                  Asset
+                </Divider>
                 <PropertySection label="Object Fit">
                   <Segmented
                     block
@@ -612,7 +788,9 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               </>
             )}
 
-            <Divider style={{ margin: "8px 0" }} />
+            <Divider titlePlacement="start" plain style={{ margin: "8px 0" }}>
+              Appearance
+            </Divider>
 
             <PropertySection label="Opacity">
               <SliderNumber

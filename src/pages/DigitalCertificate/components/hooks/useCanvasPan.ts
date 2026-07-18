@@ -58,6 +58,12 @@ export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
   );
 
   const cleanup = useCallback(() => {
+    if (panRef.current) {
+      optionsRef.current.setOffset({
+        x: panRef.current.offsetStartX,
+        y: panRef.current.offsetStartY,
+      });
+    }
     panRef.current = null;
     setIsPanning(false);
     document.removeEventListener("pointermove", handlePanMove);

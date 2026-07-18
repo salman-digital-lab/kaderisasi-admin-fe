@@ -92,7 +92,14 @@ export interface CreateCertificateTemplateReq {
 }
 
 export interface UpdateCertificateTemplateReq extends Partial<CreateCertificateTemplateReq> {
+  expectedVersion: number;
   backgroundImage?: string | null;
+}
+
+export interface CertificateTemplateVersionConflict {
+  message: "CERTIFICATE_TEMPLATE_VERSION_CONFLICT";
+  currentVersion: number;
+  updatedAt: string;
 }
 
 // Response types

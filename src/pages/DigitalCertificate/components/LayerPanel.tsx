@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -10,7 +10,6 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
@@ -25,6 +24,11 @@ import {
   LockOutlined,
   MoreOutlined,
   UnlockOutlined,
+  FontSizeOutlined,
+  FieldStringOutlined,
+  FileImageOutlined,
+  QrcodeOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import { Button, Dropdown, Empty, Input, Tooltip, Typography } from "antd";
 import type { MenuProps } from "antd";
@@ -50,6 +54,14 @@ interface LayerPanelProps {
 const getName = (element: CertificateElement, index: number): string =>
   element.name || `${element.type} ${index + 1}`;
 
+const TYPE_ICONS: Record<CertificateElement["type"], React.ReactNode> = {
+  "static-text": <FontSizeOutlined />,
+  "variable-text": <FieldStringOutlined />,
+  image: <FileImageOutlined />,
+  "qr-code": <QrcodeOutlined />,
+  signature: <EditOutlined />,
+};
+
 const SortableLayer: React.FC<
   Omit<LayerPanelProps, "elements" | "selectedElementId" | "onReorder"> & {
     element: CertificateElement;
@@ -69,6 +81,9 @@ const SortableLayer: React.FC<
   onDuplicate,
   onDelete,
 }) => {
+  const [renaming, setRenaming] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const rowRef = useRef<HTMLLIElement | null>(null);
   const {
     attributes,
     listeners,
@@ -78,6 +93,18 @@ const SortableLayer: React.FC<
     isDragging,
   } = useSortable({ id: element.id });
   const name = getName(element, index);
+  useEffect(() => {
+    if (selected) rowRef.current?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
+  const beginRename = (): void => {
+    setDraftName(name);
+    setRenaming(true);
+  };
+  const commitRename = (): void => {
+    if (!renaming) return;
+    onRename(element.id, draftName);
+    setRenaming(false);
+  };
   const menuItems: MenuProps["items"] = [
     {
       key: "forward",
@@ -107,7 +134,10 @@ const SortableLayer: React.FC<
 
   return (
     <li
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        rowRef.current = node;
+      }}
       className={`${styles.layerRow} ${selected ? styles.layerRowSelected : ""}`}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -126,25 +156,50 @@ const SortableLayer: React.FC<
         />
       </Tooltip>
       <div className={styles.layerMain}>
-        <button
-          type="button"
-          className={styles.layerSelectButton}
-          aria-pressed={selected}
-          onClick={() => onSelect(element.id)}
-        >
-          <Text ellipsis>{name}</Text>
-          <Text type="secondary">{element.type}</Text>
-        </button>
-        {selected ? (
+        {renaming ? (
           <Input
+            autoFocus
             size="small"
-            defaultValue={name}
+            value={draftName}
             aria-label={`Nama ${name}`}
+            onChange={(event) => setDraftName(event.target.value)}
             onClick={(event) => event.stopPropagation()}
-            onBlur={(event) => onRename(element.id, event.target.value)}
+            onBlur={commitRename}
             onPressEnter={(event) => event.currentTarget.blur()}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                setRenaming(false);
+                event.currentTarget.blur();
+              }
+            }}
           />
-        ) : null}
+        ) : (
+          <button
+            type="button"
+            className={styles.layerSelectButton}
+            aria-pressed={selected}
+            onClick={() => onSelect(element.id)}
+            onDoubleClick={beginRename}
+            onKeyDown={(event) => {
+              if (selected && (event.key === "F2" || event.key === "Enter")) {
+                event.preventDefault();
+                beginRename();
+              }
+            }}
+          >
+            <span className={styles.layerTypeIcon} aria-hidden="true">
+              {TYPE_ICONS[element.type]}
+            </span>
+            <span className={styles.layerLabel}>
+              <Text ellipsis>{name}</Text>
+              {element.type === "variable-text" ? (
+                <Text type="secondary" ellipsis>
+                  {element.variable}
+                </Text>
+              ) : null}
+            </span>
+          </button>
+        )}
       </div>
       <Button
         type="text"
@@ -186,10 +241,7 @@ export const LayerPanel: React.FC<LayerPanelProps> = React.memo((props) => {
   );
   const handleDragEnd = ({ active, over }: DragEndEvent): void => {
     if (!over || active.id === over.id || !onReorder) return;
-    const oldIndex = ordered.findIndex((item) => item.id === active.id);
-    const newIndex = ordered.findIndex((item) => item.id === over.id);
-    const reordered = arrayMove(ordered, oldIndex, newIndex);
-    onReorder(String(active.id), reordered[newIndex].id);
+    onReorder(String(active.id), String(over.id));
   };
 
   return (

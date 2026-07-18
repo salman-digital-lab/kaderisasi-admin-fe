@@ -8,6 +8,7 @@ export const HISTORY_LIMIT = 50;
 interface HistoryEntry {
   template: CertificateTemplateData;
   revision: number;
+  selectedElementId: string | null;
 }
 
 export interface DocumentHistoryState {
@@ -58,6 +59,43 @@ export function createDocumentHistoryState(
   };
 }
 
+export function reorderElementById(
+  template: CertificateTemplateData,
+  activeId: string,
+  overId: string,
+): CertificateTemplateData {
+  const activeIndex = template.elements.findIndex(
+    (item) => item.id === activeId,
+  );
+  const overIndex = template.elements.findIndex((item) => item.id === overId);
+  if (activeIndex < 0 || overIndex < 0 || activeIndex === overIndex)
+    return template;
+  const elements = [...template.elements];
+  const [active] = elements.splice(activeIndex, 1);
+  elements.splice(overIndex, 0, active);
+  return { ...template, elements };
+}
+
+function getRestoredSelection(
+  template: CertificateTemplateData,
+  preferred: string | null,
+  fallback: string | null,
+): string | null {
+  if (
+    preferred &&
+    template.elements.some((element) => element.id === preferred)
+  ) {
+    return preferred;
+  }
+  if (
+    fallback &&
+    template.elements.some((element) => element.id === fallback)
+  ) {
+    return fallback;
+  }
+  return null;
+}
+
 export function documentHistoryReducer(
   state: DocumentHistoryState,
   action: DocumentHistoryAction,
@@ -93,6 +131,7 @@ export function documentHistoryReducer(
               {
                 template: cloneCertificateTemplate(state.template),
                 revision: state.revision,
+                selectedElementId: state.selectedElementId,
               },
             ].slice(-HISTORY_LIMIT)
           : state.past,
@@ -125,10 +164,15 @@ export function documentHistoryReducer(
           {
             template: cloneCertificateTemplate(state.template),
             revision: state.revision,
+            selectedElementId: state.selectedElementId,
           },
           ...state.future,
         ].slice(0, HISTORY_LIMIT),
-        selectedElementId: null,
+        selectedElementId: getRestoredSelection(
+          previous.template,
+          state.selectedElementId,
+          previous.selectedElementId,
+        ),
         revision: previous.revision,
         sequence: state.sequence + 1,
         activeHistoryGroup: null,
@@ -145,10 +189,15 @@ export function documentHistoryReducer(
           {
             template: cloneCertificateTemplate(state.template),
             revision: state.revision,
+            selectedElementId: state.selectedElementId,
           },
         ].slice(-HISTORY_LIMIT),
         future,
-        selectedElementId: null,
+        selectedElementId: getRestoredSelection(
+          next.template,
+          state.selectedElementId,
+          next.selectedElementId,
+        ),
         revision: next.revision,
         sequence: state.sequence + 1,
         activeHistoryGroup: null,

@@ -82,6 +82,8 @@ export function useElementDrag({
     if (el) {
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
+      el.dataset.geometry = `X ${Math.round(x)} · Y ${Math.round(y)}`;
+      el.classList.add("certificate-element-manipulating");
     }
     positionsRef.current.set(id, { x, y });
   }, []);
@@ -177,6 +179,11 @@ export function useElementDrag({
       if (pos) {
         commitMove(dragRef.current.elementId, pos.x, pos.y);
       }
+      const node = optionsRef.current.elementNodesRef.current.get(
+        dragRef.current.elementId,
+      );
+      node?.classList.remove("certificate-element-manipulating");
+      if (node) delete node.dataset.geometry;
       dragRef.current = null;
     }
 
@@ -215,13 +222,22 @@ export function useElementDrag({
 
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (dragRef.current) {
+      const drag = dragRef.current;
+      updateDomPosition(drag.elementId, drag.elementStartX, drag.elementStartY);
+      const node = optionsRef.current.elementNodesRef.current.get(
+        drag.elementId,
+      );
+      node?.classList.remove("certificate-element-manipulating");
+      if (node) delete node.dataset.geometry;
+    }
     dragRef.current = null;
     setIsDragging(false);
     optionsRef.current.onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
     document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, handlePointerUp]);
+  }, [handlePointerMove, handlePointerUp, updateDomPosition]);
 
   return { isDragging, startDrag, cleanup };
 }

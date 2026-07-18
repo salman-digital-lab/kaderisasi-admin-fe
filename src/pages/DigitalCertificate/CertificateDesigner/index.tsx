@@ -17,14 +17,17 @@ import {
   Typography,
   Alert,
   Splitter,
+  Tooltip,
 } from "antd";
 import {
-  SaveOutlined,
   ArrowLeftOutlined,
   FilePdfOutlined,
   CheckCircleOutlined,
   AppstoreOutlined,
   ControlOutlined,
+  UndoOutlined,
+  RedoOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import { isAxiosError } from "axios";
 import { useParams, useNavigate, useBlocker } from "react-router-dom";
@@ -32,11 +35,14 @@ import {
   CertificateCanvas,
   LayerPanel,
   PropertyPanel,
-  VariableTextModal,
   CanvasSettingsModal,
 } from "../components";
 import { useCertificateDesigner } from "../hooks";
-import type { CertificateElement, ElementType } from "../types";
+import type {
+  CertificateElement,
+  CertificateTemplate,
+  ElementType,
+} from "../types";
 import {
   getCertificateTemplate,
   updateCertificateTemplate,
@@ -49,6 +55,7 @@ import { useMediaQuery } from "../../../hooks/useMediaQuery";
 import type { CertificateTemplateStatus } from "../../../types/services/certificateTemplate";
 import {
   getCertificateReadiness,
+  getCertificateReadinessAction,
   getCertificateTemplateStatus,
   isCertificateTemplateReady,
   mapBackendReadinessErrors,
@@ -59,7 +66,6 @@ import { ReadinessChecklist } from "./ReadinessChecklist";
 import {
   clearRecoverySnapshot,
   DEFAULT_EDITOR_PREFERENCES,
-  getServerVersion,
   hasRecoveryConflict,
   readEditorPreferences,
   readRecoverySnapshot,
@@ -70,8 +76,22 @@ import {
   type ViewportPoint,
 } from "./editor-state";
 import { getCentredElementPosition } from "./viewport-math";
+import {
+  AUTOSAVE_STATUS_LABELS,
+  CertificateAutosaveController,
+  type AutosaveState,
+} from "./autosave-controller";
 
 const { Text } = Typography;
+
+interface EditorSaveSnapshot {
+  revision: number;
+  metadataSnapshot: string;
+  name: string;
+  description: string;
+  backgroundImagePath: string | null;
+  template: CertificateTemplate;
+}
 
 const CertificateDesigner: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,14 +123,15 @@ const CertificateDesigner: React.FC = () => {
     toggleElementLock,
     undo,
     redo,
+    canUndo,
+    canRedo,
+    alignElement,
     revision,
   } = useCertificateDesigner();
 
   const [templateName, setTemplateName] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saveFailed, setSaveFailed] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [uploadingBackground, setUploadingBackground] = useState(false);
   const [uploadingAsset, setUploadingAsset] = useState(false);
@@ -120,7 +141,7 @@ const CertificateDesigner: React.FC = () => {
   const [backgroundImagePath, setBackgroundImagePath] = useState<string | null>(
     null,
   );
-  const [variableModalVisible, setVariableModalVisible] = useState(false);
+  const [variableChooserOpen, setVariableChooserOpen] = useState(false);
   const [canvasSettingsVisible, setCanvasSettingsVisible] = useState(false);
   const [preferences, setPreferences] = useState<EditorPreferences>(() =>
     typeof localStorage === "undefined"
@@ -129,7 +150,11 @@ const CertificateDesigner: React.FC = () => {
   );
   const [savedRevision, setSavedRevision] = useState(0);
   const [savedMetadata, setSavedMetadata] = useState("");
-  const [serverVersion, setServerVersion] = useState("");
+  const [serverVersion, setServerVersion] = useState(1);
+  const [autosaveState, setAutosaveState] = useState<AutosaveState>({
+    status: "saved",
+    conflict: null,
+  });
   const [serverIssues, setServerIssues] = useState<CertificateReadinessIssue[]>(
     [],
   );
@@ -139,6 +164,8 @@ const CertificateDesigner: React.FC = () => {
   const [tool, setTool] = useState<EditorTool>("select");
   const [editElementId, setEditElementId] = useState<string | null>(null);
   const viewportCentreRef = useRef<ViewportPoint>({ x: 400, y: 283 });
+  const autosaveRef =
+    useRef<CertificateAutosaveController<EditorSaveSnapshot> | null>(null);
   const handleViewportCentreChange = useCallback((point: ViewportPoint) => {
     viewportCentreRef.current = point;
   }, []);
@@ -158,8 +185,89 @@ const CertificateDesigner: React.FC = () => {
       }),
     [backgroundImagePath, templateDescription, templateName],
   );
-  const latestDocumentRef = useRef({ revision, metadataSnapshot });
-  latestDocumentRef.current = { revision, metadataSnapshot };
+  const saveSnapshot = useMemo<EditorSaveSnapshot>(
+    () => ({
+      revision,
+      metadataSnapshot,
+      name: templateName,
+      description: templateDescription,
+      backgroundImagePath,
+      template,
+    }),
+    [
+      backgroundImagePath,
+      metadataSnapshot,
+      revision,
+      template,
+      templateDescription,
+      templateName,
+    ],
+  );
+  const latestDocumentRef = useRef(saveSnapshot);
+  latestDocumentRef.current = saveSnapshot;
+
+  if (!autosaveRef.current) {
+    autosaveRef.current = new CertificateAutosaveController({
+      initialVersion: 1,
+      save: async (snapshot, expectedVersion) => {
+        try {
+          const updated = await updateCertificateTemplate(
+            templateId,
+            {
+              expectedVersion,
+              name: snapshot.name,
+              description: snapshot.description || null,
+              templateData: snapshot.template,
+              backgroundImage: snapshot.backgroundImagePath,
+            },
+            { silent: true },
+          );
+          return Number(updated.version);
+        } catch (error) {
+          if (isAxiosError(error) && error.response?.status === 422) {
+            setServerIssues(mapBackendReadinessErrors(error.response.data));
+          }
+          throw error;
+        }
+      },
+      classifyError: (error) => {
+        if (isAxiosError(error) && error.response?.status === 409) {
+          const data = error.response.data as {
+            currentVersion?: number;
+            updatedAt?: string;
+          };
+          return {
+            type: "conflict" as const,
+            conflict: {
+              currentVersion: Number(data.currentVersion),
+              updatedAt: data.updatedAt || new Date().toISOString(),
+            },
+          };
+        }
+        if (
+          isAxiosError(error) &&
+          (!error.response || error.response.status >= 500)
+        ) {
+          return { type: "retryable" as const };
+        }
+        return { type: "fatal" as const };
+      },
+      onStateChange: setAutosaveState,
+      onSaved: (snapshot, version) => {
+        setSavedRevision(snapshot.revision);
+        setSavedMetadata(snapshot.metadataSnapshot);
+        setServerVersion(version);
+        setServerIssues([]);
+        if (
+          latestDocumentRef.current.revision === snapshot.revision &&
+          latestDocumentRef.current.metadataSnapshot ===
+            snapshot.metadataSnapshot
+        ) {
+          clearRecoverySnapshot(templateId);
+        }
+      },
+    });
+  }
 
   const isDirty =
     Boolean(savedMetadata) &&
@@ -180,8 +288,9 @@ const CertificateDesigner: React.FC = () => {
         setTemplateName(data.name);
         setTemplateDescription(data.description || "");
         setTemplateStatus(getCertificateTemplateStatus(data));
-        const nextServerVersion = getServerVersion(data);
+        const nextServerVersion = Number(data.version);
         setServerVersion(nextServerVersion);
+        autosaveRef.current?.setServerVersion(nextServerVersion);
         setBackgroundImagePath(data.background_image);
         const nextTemplate = {
           backgroundUrl:
@@ -202,7 +311,10 @@ const CertificateDesigner: React.FC = () => {
 
         const recovery = readRecoverySnapshot(templateId);
         if (recovery) {
-          const conflict = hasRecoveryConflict(recovery, nextServerVersion);
+          const conflict = hasRecoveryConflict(
+            recovery,
+            String(nextServerVersion),
+          );
           Modal.confirm({
             title: "Pulihkan perubahan yang belum disimpan?",
             content: conflict
@@ -216,6 +328,12 @@ const CertificateDesigner: React.FC = () => {
               setBackgroundImagePath(recovery.backgroundImage);
               setTemplate(recovery.template);
               setSavedRevision(-1);
+              if (conflict) {
+                autosaveRef.current?.pauseForConflict({
+                  currentVersion: nextServerVersion,
+                  updatedAt: data.updated_at,
+                });
+              }
             },
             onCancel: () => clearRecoverySnapshot(templateId),
           });
@@ -239,10 +357,9 @@ const CertificateDesigner: React.FC = () => {
 
   const handleSave = useCallback(async (): Promise<boolean> => {
     if (!isDirty) return true;
-    if (saving) return false;
 
     if (!templateName.trim()) {
-      message.warning("Nama template tidak boleh kosong");
+      setAutosaveState({ status: "needs-fix", conflict: null });
       return false;
     }
 
@@ -252,52 +369,17 @@ const CertificateDesigner: React.FC = () => {
         getCertificateReadiness(template, backgroundImagePath),
       )
     ) {
-      message.warning(
-        "Template terpublikasi hanya dapat disimpan setelah semua masalah wajib diperbaiki.",
-      );
+      setAutosaveState({ status: "needs-fix", conflict: null });
       return false;
     }
-
-    setSaving(true);
-    setSaveFailed(false);
-    try {
-      const updated = await updateCertificateTemplate(templateId, {
-        name: templateName,
-        description: templateDescription || null,
-        templateData: template,
-        backgroundImage: backgroundImagePath,
-      });
-      setSavedRevision(revision);
-      setSavedMetadata(metadataSnapshot);
-      setServerVersion(getServerVersion(updated));
-      setServerIssues([]);
-      if (
-        latestDocumentRef.current.revision === revision &&
-        latestDocumentRef.current.metadataSnapshot === metadataSnapshot
-      ) {
-        clearRecoverySnapshot(templateId);
-      }
-      message.success("Template berhasil disimpan");
-      return true;
-    } catch (error) {
-      setSaveFailed(true);
-      if (isAxiosError(error) && error.response?.status === 422) {
-        setServerIssues(mapBackendReadinessErrors(error.response.data));
-      }
-      return false;
-    } finally {
-      setSaving(false);
-    }
+    autosaveRef.current?.schedule(saveSnapshot, true);
+    return (await autosaveRef.current?.flush()) ?? false;
   }, [
-    isDirty,
-    saving,
-    templateId,
-    templateName,
-    templateDescription,
-    template,
     backgroundImagePath,
-    metadataSnapshot,
-    revision,
+    isDirty,
+    saveSnapshot,
+    templateName,
+    template,
     templateStatus,
   ]);
 
@@ -315,6 +397,36 @@ const CertificateDesigner: React.FC = () => {
     ];
   }, [frontendReadinessIssues, serverIssues]);
   const templateReady = isCertificateTemplateReady(readinessIssues);
+  const autosaveAllowed =
+    Boolean(templateName.trim()) &&
+    (templateStatus !== "published" || templateReady);
+
+  useEffect(() => {
+    if (loading || !savedMetadata) return;
+    const controller = autosaveRef.current;
+    if (!controller) return;
+    if (isDirty) {
+      controller.schedule(saveSnapshot, autosaveAllowed);
+    } else if (controller.isSaving()) {
+      controller.schedule(saveSnapshot, autosaveAllowed);
+    } else {
+      controller.cancelPending();
+    }
+  }, [autosaveAllowed, isDirty, loading, saveSnapshot, savedMetadata]);
+
+  useEffect(() => {
+    const controller = autosaveRef.current;
+    if (!controller) return;
+    const updateConnectivity = (): void =>
+      controller.setOnline(navigator.onLine);
+    updateConnectivity();
+    window.addEventListener("online", updateConnectivity);
+    window.addEventListener("offline", updateConnectivity);
+    return () => {
+      window.removeEventListener("online", updateConnectivity);
+      window.removeEventListener("offline", updateConnectivity);
+    };
+  }, []);
 
   const handlePublish = useCallback(async (): Promise<void> => {
     if (!templateReady || publishing || uploadingAsset || uploadingBackground) {
@@ -338,8 +450,12 @@ const CertificateDesigner: React.FC = () => {
               const updated = await updateCertificateTemplateLifecycle(
                 templateId,
                 "published",
+                autosaveRef.current?.getVersion() ?? serverVersion,
               );
               setTemplateStatus(getCertificateTemplateStatus(updated));
+              const nextVersion = Number(updated.version);
+              setServerVersion(nextVersion);
+              autosaveRef.current?.setServerVersion(nextVersion);
               message.success("Template berhasil dipublikasikan");
               resolve();
             } catch (error) {
@@ -352,6 +468,17 @@ const CertificateDesigner: React.FC = () => {
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 422) {
         setServerIssues(mapBackendReadinessErrors(error.response.data));
+      } else if (isAxiosError(error) && error.response?.status === 409) {
+        const data = error.response.data as {
+          currentVersion?: number;
+          updatedAt?: string;
+        };
+        autosaveRef.current?.schedule(saveSnapshot, true);
+        autosaveRef.current?.pauseForConflict({
+          currentVersion: Number(data.currentVersion),
+          updatedAt: data.updatedAt || new Date().toISOString(),
+        });
+        setSavedRevision(-1);
       }
     } finally {
       setPublishing(false);
@@ -363,18 +490,20 @@ const CertificateDesigner: React.FC = () => {
     templateReady,
     uploadingAsset,
     uploadingBackground,
+    serverVersion,
+    saveSnapshot,
   ]);
 
   const handleBack = useCallback(() => {
     navigate("/digital-certificate");
   }, [navigate]);
 
-  const navigationBlocker = useBlocker(isDirty && !saving && !publishing);
+  const navigationBlocker = useBlocker(isDirty && !publishing);
 
   const handleAddElement = useCallback(
     (type: ElementType) => {
       if (type === "variable-text") {
-        setVariableModalVisible(true);
+        setVariableChooserOpen(true);
       } else {
         const sizes: Record<ElementType, { width: number; height: number }> = {
           "static-text": { width: 200, height: 40 },
@@ -394,7 +523,6 @@ const CertificateDesigner: React.FC = () => {
           ),
         });
         if (type === "static-text") setEditElementId(elementId);
-        message.success(`${getElementTypeName(type)} berhasil ditambahkan`);
       }
     },
     [addElement, template.canvasHeight, template.canvasWidth],
@@ -413,8 +541,7 @@ const CertificateDesigner: React.FC = () => {
           template.canvasHeight,
         ),
       });
-      setVariableModalVisible(false);
-      message.success("Teks variabel berhasil ditambahkan");
+      setVariableChooserOpen(false);
     },
     [addElement, template.canvasHeight, template.canvasWidth],
   );
@@ -422,7 +549,6 @@ const CertificateDesigner: React.FC = () => {
   const handleDeleteSelected = useCallback(() => {
     if (selectedElementId) {
       deleteElement(selectedElementId);
-      message.success("Elemen berhasil dihapus");
     }
   }, [selectedElementId, deleteElement]);
 
@@ -536,7 +662,7 @@ const CertificateDesigner: React.FC = () => {
       writeRecoverySnapshot({
         version: 1,
         templateId,
-        serverVersion,
+        serverVersion: String(serverVersion),
         timestamp: Date.now(),
         name: templateName,
         description: templateDescription,
@@ -604,7 +730,6 @@ const CertificateDesigner: React.FC = () => {
           template.canvasHeight,
         ),
       });
-      message.success("Gambar berhasil ditambahkan");
     },
     [
       addElement,
@@ -629,7 +754,6 @@ const CertificateDesigner: React.FC = () => {
           template.canvasHeight,
         ),
       });
-      message.success("Tanda tangan berhasil ditambahkan");
     },
     [
       addElement,
@@ -652,9 +776,6 @@ const CertificateDesigner: React.FC = () => {
         }
         setBackgroundImagePath(uploaded.assetKey);
         setBackgroundUrl(uploaded.assetKey);
-        message.success(
-          "Background berhasil diunggah. Klik Simpan Template untuk menerapkannya.",
-        );
       } catch {
         setAssetError(
           "Background gagal diunggah. File tidak disimpan dan background sebelumnya tetap digunakan.",
@@ -694,7 +815,7 @@ const CertificateDesigner: React.FC = () => {
     (elementId: string) => {
       selectElement(elementId);
       if (isCompactLayout) {
-        setActiveDrawer(null);
+        setActiveDrawer("inspector");
       }
     },
     [isCompactLayout, selectElement],
@@ -725,7 +846,6 @@ const CertificateDesigner: React.FC = () => {
     (width: number, height: number) => {
       setCanvasSize(width, height);
       setCanvasSettingsVisible(false);
-      message.success("Ukuran kanvas berhasil diubah");
     },
     [setCanvasSize],
   );
@@ -738,11 +858,6 @@ const CertificateDesigner: React.FC = () => {
     () => setCanvasSettingsVisible(false),
     [],
   );
-  const handleCloseVariableModal = useCallback(
-    () => setVariableModalVisible(false),
-    [],
-  );
-
   const layerPanel = (
     <LayerPanel
       elements={template.elements}
@@ -800,30 +915,109 @@ const CertificateDesigner: React.FC = () => {
       }
       onOpenCanvasSettings={handleOpenCanvasSettings}
       onBackgroundUpload={handleBackgroundUpload}
+      backgroundUrl={backgroundImagePath || template.backgroundUrl}
+      onBackgroundRemove={() => {
+        setBackgroundImagePath(null);
+        setBackgroundUrl(null);
+      }}
+      onAlign={(alignment) => {
+        if (selectedElementId) alignElement(selectedElementId, alignment);
+      }}
+      onDuplicate={() => {
+        if (selectedElementId) duplicateElement(selectedElementId);
+      }}
+      onToggleVisibility={() => {
+        if (selectedElementId) toggleElementVisibility(selectedElementId);
+      }}
+      onToggleLock={() => {
+        if (selectedElementId) toggleElementLock(selectedElementId);
+      }}
+      onDelete={handleDeleteSelected}
     />
   );
 
   const handleReadinessAction = (issue: CertificateReadinessIssue): void => {
-    if (issue.code === "MISSING_PARTICIPANT_NAME") {
-      setVariableModalVisible(true);
+    const action = getCertificateReadinessAction(issue.code);
+    if (action === "open-variable-chooser") {
+      setVariableChooserOpen(true);
       return;
     }
-    if (
-      issue.code === "MISSING_ASSET" ||
-      issue.code === "ELEMENT_OUT_OF_BOUNDS"
-    ) {
+    if (action === "open-canvas-settings") {
+      setCanvasSettingsVisible(true);
+      return;
+    }
+    if (action === "open-canvas-inspector") {
+      selectElement(null);
+      if (isCompactLayout) setActiveDrawer("inspector");
+      return;
+    }
+    if (action === "select-layer") {
       const affected = template.elements.find((element) =>
         issue.code === "MISSING_ASSET"
           ? (element.type === "image" || element.type === "signature") &&
             !element.imageUrl
-          : element.x < 0 ||
-            element.y < 0 ||
-            element.x + element.width > template.canvasWidth ||
-            element.y + element.height > template.canvasHeight,
+          : issue.code === "PRIVATE_VARIABLE" ||
+              issue.code === "UNSUPPORTED_VARIABLE"
+            ? element.type === "variable-text" &&
+              element.variable !== "{{name}}"
+            : element.x < 0 ||
+              element.y < 0 ||
+              element.x + element.width > template.canvasWidth ||
+              element.y + element.height > template.canvasHeight,
       );
       if (affected) selectElement(affected.id);
     }
     if (isCompactLayout) setActiveDrawer("inspector");
+  };
+
+  const isReadinessActionable = (issue: CertificateReadinessIssue): boolean =>
+    getCertificateReadinessAction(issue.code) !== "explain";
+
+  const handleLoadServerVersion = async (): Promise<void> => {
+    try {
+      const data = await getCertificateTemplate(templateId);
+      const nextTemplate = {
+        backgroundUrl:
+          data.background_image || data.template_data?.backgroundUrl || null,
+        elements: data.template_data?.elements || [],
+        canvasWidth: data.template_data?.canvasWidth || 800,
+        canvasHeight: data.template_data?.canvasHeight || 566,
+      };
+      const nextMetadata = JSON.stringify({
+        name: data.name.trim(),
+        description: data.description || "",
+        backgroundImagePath: data.background_image,
+      });
+      const nextVersion = Number(data.version);
+      setTemplateName(data.name);
+      setTemplateDescription(data.description || "");
+      setBackgroundImagePath(data.background_image);
+      setTemplateStatus(getCertificateTemplateStatus(data));
+      setTemplate(nextTemplate);
+      setSavedRevision(0);
+      setSavedMetadata(nextMetadata);
+      setServerVersion(nextVersion);
+      autosaveRef.current?.setServerVersion(nextVersion);
+      autosaveRef.current?.cancelPending();
+      setAutosaveState({ status: "saved", conflict: null });
+      clearRecoverySnapshot(templateId);
+    } catch {
+      message.error("Versi server gagal dimuat.");
+    }
+  };
+
+  const handleOverwriteConflict = (): void => {
+    const currentVersion = autosaveState.conflict?.currentVersion;
+    if (!currentVersion) return;
+    Modal.confirm({
+      title: "Timpa versi server?",
+      content:
+        "Perubahan pada versi server akan diganti dengan versi lokal Anda. Tindakan ini tidak dapat dibatalkan.",
+      okText: "Timpa dengan versi saya",
+      okButtonProps: { danger: true },
+      cancelText: "Batal",
+      onOk: () => autosaveRef.current?.overwriteWithVersion(currentVersion),
+    });
   };
 
   if (loading) {
@@ -834,18 +1028,16 @@ const CertificateDesigner: React.FC = () => {
     );
   }
 
-  const saveStatus = saving
-    ? "Menyimpan…"
-    : saveFailed
-      ? "Gagal menyimpan"
-      : isDirty
-        ? "Belum disimpan"
-        : "Tersimpan";
-  const saveDisabled =
-    !isDirty ||
-    !templateName.trim() ||
-    (templateStatus === "published" &&
-      !isCertificateTemplateReady(frontendReadinessIssues));
+  const saveStatus = AUTOSAVE_STATUS_LABELS[autosaveState.status];
+  const saveStatusColor =
+    autosaveState.status === "saved"
+      ? "green"
+      : autosaveState.status === "saving"
+        ? "blue"
+        : autosaveState.status === "offline" ||
+            autosaveState.status === "needs-fix"
+          ? "gold"
+          : "red";
 
   return (
     <main ref={pageRef} className={styles.page}>
@@ -864,9 +1056,18 @@ const CertificateDesigner: React.FC = () => {
           variant="borderless"
         />
         <div className={styles.statusGroup} aria-live="polite">
-          <Tag color={saveFailed ? "error" : isDirty ? "gold" : "green"}>
+          <Tag color={saveStatusColor} icon={<CloudSyncOutlined />}>
             {saveStatus}
           </Tag>
+          {autosaveState.status === "error" ? (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => autosaveRef.current?.retry()}
+            >
+              Coba lagi
+            </Button>
+          ) : null}
           <Tag
             color={
               templateStatus === "published"
@@ -890,6 +1091,24 @@ const CertificateDesigner: React.FC = () => {
           </Text>
         ) : null}
         <div className={styles.topActions}>
+          <Tooltip title="Urungkan (Ctrl/Cmd+Z)">
+            <Button
+              icon={<UndoOutlined />}
+              disabled={!canUndo}
+              onClick={undo}
+              aria-label="Urungkan"
+              aria-keyshortcuts="Control+Z Meta+Z"
+            />
+          </Tooltip>
+          <Tooltip title="Ulangi (Ctrl/Cmd+Shift+Z)">
+            <Button
+              icon={<RedoOutlined />}
+              disabled={!canRedo}
+              onClick={redo}
+              aria-label="Ulangi"
+              aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z"
+            />
+          </Tooltip>
           {isCompactLayout && !isMobileLayout ? (
             <>
               <Button
@@ -913,24 +1132,19 @@ const CertificateDesigner: React.FC = () => {
           <ReadinessChecklist
             issues={readinessIssues}
             onIssueAction={handleReadinessAction}
+            isIssueActionable={isReadinessActionable}
           />
-          <Button
-            className={styles.previewAction}
-            icon={<FilePdfOutlined />}
-            onClick={handlePreviewPdf}
-            loading={generating}
-          >
-            Preview PDF
-          </Button>
-          <Button
-            type="primary"
-            icon={<SaveOutlined />}
-            onClick={() => void handleSave()}
-            loading={saving}
-            disabled={saveDisabled}
-          >
-            Simpan
-          </Button>
+          <Tooltip title="Dibuka di tab baru dari perubahan lokal saat ini dan data contoh.">
+            <Button
+              className={styles.previewAction}
+              icon={<FilePdfOutlined />}
+              onClick={handlePreviewPdf}
+              loading={generating}
+              aria-label="Preview PDF dari perubahan lokal dan data contoh"
+            >
+              Preview PDF
+            </Button>
+          </Tooltip>
           {templateStatus !== "published" ? (
             <Button
               icon={<CheckCircleOutlined />}
@@ -938,7 +1152,7 @@ const CertificateDesigner: React.FC = () => {
               loading={publishing}
               disabled={
                 !templateReady ||
-                saving ||
+                autosaveState.status === "saving" ||
                 uploadingAsset ||
                 uploadingBackground
               }
@@ -948,6 +1162,29 @@ const CertificateDesigner: React.FC = () => {
           ) : null}
         </div>
       </header>
+
+      {autosaveState.status === "conflict" ? (
+        <Alert
+          className={styles.conflictBanner}
+          type="error"
+          showIcon
+          title="Versi server berubah"
+          description={`Perubahan lokal tetap aman. Versi server ${autosaveState.conflict?.currentVersion ?? ""} diperbarui ${autosaveState.conflict?.updatedAt ? new Date(autosaveState.conflict.updatedAt).toLocaleString("id-ID") : ""}.`}
+          action={
+            <Space wrap>
+              <Button
+                size="small"
+                onClick={() => void handleLoadServerVersion()}
+              >
+                Muat versi server
+              </Button>
+              <Button size="small" danger onClick={handleOverwriteConflict}>
+                Timpa dengan versi saya
+              </Button>
+            </Space>
+          }
+        />
+      ) : null}
 
       {assetError ? (
         <Alert
@@ -989,6 +1226,9 @@ const CertificateDesigner: React.FC = () => {
             tool={tool}
             uploading={uploadingAsset}
             onToolChange={setTool}
+            variableChooserOpen={variableChooserOpen}
+            onVariableChooserOpenChange={setVariableChooserOpen}
+            onVariableSelect={handleVariableSelect}
             onAddElement={(nextTool) =>
               handleAddElement(nextTool as ElementType)
             }
@@ -1011,6 +1251,30 @@ const CertificateDesigner: React.FC = () => {
               showGrid={showGrid}
               showGuides={showGuides}
               snapToGuides={snapToGuides}
+              onSnapToGridChange={(value) =>
+                setPreferences((current) => ({
+                  ...current,
+                  canvas: { ...current.canvas, snapToGrid: value },
+                }))
+              }
+              onShowGridChange={(value) =>
+                setPreferences((current) => ({
+                  ...current,
+                  canvas: { ...current.canvas, showGrid: value },
+                }))
+              }
+              onShowGuidesChange={(value) =>
+                setPreferences((current) => ({
+                  ...current,
+                  canvas: { ...current.canvas, showGuides: value },
+                }))
+              }
+              onSnapToGuidesChange={(value) =>
+                setPreferences((current) => ({
+                  ...current,
+                  canvas: { ...current.canvas, snapToGuides: value },
+                }))
+              }
             />
           ) : (
             <Splitter
@@ -1068,6 +1332,30 @@ const CertificateDesigner: React.FC = () => {
                   showGrid={showGrid}
                   showGuides={showGuides}
                   snapToGuides={snapToGuides}
+                  onSnapToGridChange={(value) =>
+                    setPreferences((current) => ({
+                      ...current,
+                      canvas: { ...current.canvas, snapToGrid: value },
+                    }))
+                  }
+                  onShowGridChange={(value) =>
+                    setPreferences((current) => ({
+                      ...current,
+                      canvas: { ...current.canvas, showGrid: value },
+                    }))
+                  }
+                  onShowGuidesChange={(value) =>
+                    setPreferences((current) => ({
+                      ...current,
+                      canvas: { ...current.canvas, showGuides: value },
+                    }))
+                  }
+                  onSnapToGuidesChange={(value) =>
+                    setPreferences((current) => ({
+                      ...current,
+                      canvas: { ...current.canvas, snapToGuides: value },
+                    }))
+                  }
                 />
               </Splitter.Panel>
               <Splitter.Panel
@@ -1111,6 +1399,7 @@ const CertificateDesigner: React.FC = () => {
             key="discard"
             danger
             onClick={() => {
+              autosaveRef.current?.dispose();
               clearRecoverySnapshot(templateId);
               navigationBlocker.proceed?.();
             }}
@@ -1133,13 +1422,6 @@ const CertificateDesigner: React.FC = () => {
         membuang perubahan.
       </Modal>
 
-      {/* Variable Text Modal */}
-      <VariableTextModal
-        visible={variableModalVisible}
-        onCancel={handleCloseVariableModal}
-        onSelect={handleVariableSelect}
-      />
-
       {/* Canvas Settings Modal */}
       <CanvasSettingsModal
         visible={canvasSettingsVisible}
@@ -1151,22 +1433,5 @@ const CertificateDesigner: React.FC = () => {
     </main>
   );
 };
-
-function getElementTypeName(type: ElementType): string {
-  switch (type) {
-    case "static-text":
-      return "Teks statis";
-    case "variable-text":
-      return "Teks variabel";
-    case "image":
-      return "Gambar";
-    case "qr-code":
-      return "QR Code";
-    case "signature":
-      return "Tanda tangan";
-    default:
-      return "Elemen";
-  }
-}
 
 export default CertificateDesigner;
