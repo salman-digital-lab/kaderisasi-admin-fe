@@ -30,6 +30,13 @@ export const CLUB_TYPE_LABELS: Record<ClubType, string> = {
   AVISMAN_REGIONAL: "Avisman Regional",
 };
 
+export const CLUB_TYPE_DESCRIPTIONS: Record<ClubType, string> = {
+  UNIT: "Unit kegiatan umum.",
+  CLUB_KEPROFESIAN: "Komunitas berdasarkan bidang atau profesi.",
+  CLUB_BAHASA: "Komunitas pembelajaran atau praktik bahasa.",
+  AVISMAN_REGIONAL: "Komunitas Avisman berdasarkan wilayah.",
+};
+
 export interface Club {
   id: number;
   name: string;

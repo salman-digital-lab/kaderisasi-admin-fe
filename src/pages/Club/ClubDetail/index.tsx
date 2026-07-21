@@ -1,86 +1,155 @@
-import { Alert, Tabs } from "antd";
+import { useState } from "react";
+import { Alert, Button, Skeleton, Space, Tabs, Tag, Typography } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
 import { useParams, useSearchParams } from "react-router-dom";
+import { useRequest } from "ahooks";
 import type { TabsProps } from "antd";
 
-import ClubDetail from "./components/ClubDetail";
-import MediaList from "./components/MediaList";
-import LogoUpload from "./components/LogoUpload";
+import { getClub } from "../../../api/services/club";
+import type { Club } from "../../../types/model/club";
 import ClubRegistrationInfo from "../ClubRegistrationInfo";
-import ClubRegistrationsPage from "../ClubRegistrations";
 import ClubActivitiesPage from "../ClubActivities";
+import ClubOverview from "./components/ClubOverview";
+import ClubPeople from "./components/ClubPeople";
+import ClubProfile from "./components/ClubProfile";
+import {
+  getClubReadiness,
+  resolveClubSection,
+  type ClubSection,
+} from "../utils/club-workspace";
 
-const CLUB_DETAIL_TABS = new Set(["1", "2", "3", "4", "5", "8"]);
+const { Paragraph, Title } = Typography;
 
 const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const requestedTab = searchParams.get("tab") || "1";
-  const legacyTab = requestedTab === "7" ? "5" : requestedTab;
-  const activeTab = CLUB_DETAIL_TABS.has(legacyTab) ? legacyTab : "1";
-  const isSetupFlow = searchParams.get("setup") === "1";
+  const [club, setClub] = useState<Club | null>(null);
+  const activeSection = resolveClubSection(
+    searchParams.get("section"),
+    searchParams.get("tab"),
+  );
+  const isNewDraft = searchParams.get("setup") === "1";
 
-  const dismissSetupGuide = (): void => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete("setup");
-    setSearchParams(newParams, { replace: true });
+  const { loading, error, refresh } = useRequest(() => getClub(Number(id)), {
+    ready: Boolean(id),
+    refreshDeps: [id],
+    onSuccess: setClub,
+  });
+
+  const navigateToSection = (section: ClubSection): void => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("section", section);
+    nextParams.delete("tab");
+    nextParams.delete("setup");
+    setSearchParams(nextParams);
   };
 
+  if (loading && !club) {
+    return (
+      <div style={{ padding: 12 }}>
+        <Skeleton active />
+      </div>
+    );
+  }
+
+  if (error || !club) {
+    return (
+      <div style={{ padding: 12 }}>
+        <Alert
+          type="error"
+          showIcon
+          title="Detail klub gagal dimuat"
+          description="Periksa koneksi atau layanan API, lalu coba kembali."
+          action={
+            <Button icon={<ReloadOutlined />} onClick={refresh}>
+              Coba Lagi
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  const readiness = getClubReadiness(club);
   const items: TabsProps["items"] = [
     {
-      key: "1",
-      label: "Detail Klub",
-      children: <ClubDetail />,
+      key: "overview",
+      label: "Ringkasan",
+      children: (
+        <ClubOverview
+          club={club}
+          readiness={readiness}
+          isNewDraft={isNewDraft}
+          onUpdated={setClub}
+          onNavigate={navigateToSection}
+        />
+      ),
     },
     {
-      key: "2",
-      label: "Logo Klub",
-      children: <LogoUpload />,
+      key: "profile",
+      label: "Profil Publik",
+      children: <ClubProfile club={club} onUpdated={setClub} />,
     },
     {
-      key: "3",
-      label: "Media Klub",
-      children: <MediaList />,
+      key: "registration",
+      label: "Pendaftaran",
+      children: <ClubRegistrationInfo club={club} onUpdated={setClub} />,
     },
     {
-      key: "4",
-      label: "Info Pendaftaran",
-      children: <ClubRegistrationInfo clubId={Number(id)} />,
+      key: "people",
+      label: "Pendaftar & Anggota",
+      children: <ClubPeople club={club} />,
     },
     {
-      key: "5",
-      label: "Anggota & Pendaftaran",
-      children: <ClubRegistrationsPage />,
-    },
-    {
-      key: "8",
+      key: "activities",
       label: "Kegiatan",
       children: <ClubActivitiesPage />,
     },
   ];
 
   return (
-    <div style={{ minWidth: 0, width: "100%", padding: 12 }}>
-      {isSetupFlow ? (
-        <Alert
-          type="info"
-          showIcon
-          title="Klub dibuat sebagai draf"
-          description='Nama dan tipe klub sudah cukup untuk menyimpan draf. Detail lain, logo, dan media dapat dilengkapi sesuai kebutuhan. Form pendaftaran hanya diperlukan jika "Pendaftaran Dibuka" diaktifkan.'
-          closable={{ onClose: dismissSetupGuide }}
-          style={{ marginBottom: 16 }}
-        />
-      ) : null}
-      <Tabs
-        activeKey={activeTab}
-        onChange={(key) => {
-          const newParams = new URLSearchParams(searchParams);
-          newParams.set("tab", key);
-          setSearchParams(newParams);
+    <main style={{ minWidth: 0, width: "100%", padding: 12 }}>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 16,
+          marginBottom: 8,
         }}
+      >
+        <div>
+          <Space size="small" wrap>
+            <Title level={2} style={{ margin: 0 }}>
+              {club.name}
+            </Title>
+            <Tag color={club.is_show ? "success" : "default"}>
+              {club.is_show ? "Tayang" : "Draf"}
+            </Tag>
+            <Tag color={club.is_registration_open ? "processing" : "default"}>
+              {club.is_registration_open
+                ? "Pendaftaran Dibuka"
+                : "Pendaftaran Ditutup"}
+            </Tag>
+          </Space>
+          <Paragraph type="secondary" style={{ margin: "4px 0 0" }}>
+            Kelola profil publik, pendaftaran, anggota, dan kegiatan dari satu
+            tempat.
+          </Paragraph>
+        </div>
+        <Button icon={<ReloadOutlined />} loading={loading} onClick={refresh}>
+          Muat Ulang
+        </Button>
+      </header>
+
+      <Tabs
+        activeKey={activeSection}
+        onChange={(key) => navigateToSection(key as ClubSection)}
         tabPlacement="top"
         items={items}
       />
-    </div>
+    </main>
   );
 };
 

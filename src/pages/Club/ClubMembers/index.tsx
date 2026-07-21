@@ -245,7 +245,7 @@ const ClubMembersPage = () => {
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       <Title level={4} style={{ margin: 0 }}>
-        Anggota Unit
+        Daftar Anggota Klub
       </Title>
       <Space wrap>
         <Input.Search

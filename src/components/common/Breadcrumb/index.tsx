@@ -134,8 +134,8 @@ const getDynamicBreadcrumbs = (
     return [
       { path: "/club", title: "Daftar Klub" },
       {
-        path: `/club/${clubId}?tab=4`,
-        title: "Info Pendaftaran",
+        path: `/club/${clubId}?section=registration`,
+        title: "Pendaftaran",
       },
       { path: "", title: "Ubah Form Pendaftaran" },
     ];

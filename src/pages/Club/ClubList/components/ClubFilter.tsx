@@ -1,10 +1,8 @@
 import { Input, Card, Button, Space, Tooltip, Select } from "antd";
 import { useState } from "react";
-import { useToggle } from "ahooks";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import { FilterType } from "../constants/type";
-import ClubForm from "./ClubForm";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
 import type { ClubType } from "../../../../types/model/club";
 
@@ -17,10 +15,15 @@ type FilterProps = {
   setParameter: React.Dispatch<React.SetStateAction<FilterType>>;
   refresh: () => void;
   loading?: boolean;
+  onCreate: () => void;
 };
 
-const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
-  const [state, { toggle }] = useToggle(false);
+const ClubFilter = ({
+  setParameter,
+  refresh,
+  loading,
+  onCreate,
+}: FilterProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [clubType, setClubType] = useState<ClubType | undefined>();
 
@@ -44,8 +47,7 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           gap: 12,
         }}
       >
-        {/* Left: Filters */}
-        <Space size={12} wrap>
+        <Space size={12} wrap role="group" aria-label="Filter daftar klub">
           <Input.Search
             placeholder="Cari nama klub"
             allowClear
@@ -70,12 +72,50 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
               }));
             }}
           />
+          <Select
+            allowClear
+            placeholder="Status publik"
+            style={{ width: 150 }}
+            aria-label="Filter berdasarkan status publik"
+            options={[
+              { value: "published", label: "Tayang" },
+              { value: "draft", label: "Draf" },
+            ]}
+            onChange={(value) =>
+              setParameter((prev) => ({
+                ...prev,
+                visibility: value,
+                page: 1,
+              }))
+            }
+          />
+          <Select
+            allowClear
+            placeholder="Status pendaftaran"
+            style={{ width: 190 }}
+            aria-label="Filter berdasarkan status pendaftaran"
+            options={[
+              { value: "open", label: "Pendaftaran dibuka" },
+              { value: "closed", label: "Pendaftaran ditutup" },
+            ]}
+            onChange={(value) =>
+              setParameter((prev) => ({
+                ...prev,
+                registration: value,
+                page: 1,
+              }))
+            }
+          />
         </Space>
 
-        {/* Right: Actions */}
         <Space size={8} wrap>
-          <Button type="primary" icon={<PlusOutlined />} onClick={toggle}>
-            Tambah Klub
+          <Button
+            id="club-create-action"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={onCreate}
+          >
+            Buat Klub
           </Button>
           <Tooltip placement="left" title="Refresh Data">
             <Button
@@ -87,8 +127,6 @@ const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           </Tooltip>
         </Space>
       </div>
-
-      <ClubForm open={state} onClose={toggle} />
     </Card>
   );
 };

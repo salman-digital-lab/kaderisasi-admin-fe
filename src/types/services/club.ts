@@ -6,6 +6,8 @@ export type getClubsReq = {
   page: string;
   search?: string;
   club_type?: ClubType;
+  visibility?: "published" | "draft";
+  registration?: "open" | "closed";
 };
 
 export type getClubsResp = {

@@ -1,5 +1,6 @@
 import React from "react";
-import { Table } from "antd";
+import { Button, Empty, Table } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 import { Pagination } from "../../../../types/services/base";
 import { Club } from "../../../../types/model/club";
@@ -13,9 +14,15 @@ interface DataTypeProps {
   };
   loading: boolean;
   setParameter: React.Dispatch<React.SetStateAction<FilterType>>;
+  onCreate: () => void;
 }
 
-const ClubTable = ({ data, loading, setParameter }: DataTypeProps) => {
+const ClubTable = ({
+  data,
+  loading,
+  setParameter,
+  onCreate,
+}: DataTypeProps) => {
   const tableSchema = createTableSchema();
 
   return (
@@ -44,6 +51,18 @@ const ClubTable = ({ data, loading, setParameter }: DataTypeProps) => {
       scroll={{ x: 800 }}
       size="small"
       bordered
+      locale={{
+        emptyText: (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="Belum ada klub yang sesuai dengan filter"
+          >
+            <Button type="link" icon={<PlusOutlined />} onClick={onCreate}>
+              Buat Klub Pertama
+            </Button>
+          </Empty>
+        ),
+      }}
     />
   );
 };

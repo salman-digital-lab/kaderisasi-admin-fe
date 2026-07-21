@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import {
   Upload,
   Button,
@@ -13,7 +12,6 @@ import {
   Col,
   Input,
   Divider,
-  Skeleton,
   Tag,
   message,
 } from "antd";
@@ -29,7 +27,6 @@ import type { UploadFile, UploadProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 import {
-  getClub,
   uploadClubImageMedia,
   addClubYoutubeMedia,
   deleteClubMedia,
@@ -61,9 +58,12 @@ type MediaTableItem = MediaItem & {
   tableKey: string;
 };
 
-const MediaList = () => {
-  const { id } = useParams<{ id: string }>();
-  const [clubData, setClubData] = useState<Club | null>(null);
+type MediaListProps = {
+  club: Club;
+  onUpdated: (club: Club) => void;
+};
+
+const MediaList = ({ club, onUpdated }: MediaListProps) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -71,22 +71,11 @@ const MediaList = () => {
   const [messageApi, messageContextHolder] = message.useMessage();
 
   const updateMedia = (media: Club["media"]): void => {
-    setClubData((currentClub) =>
-      currentClub ? { ...currentClub, media } : currentClub,
-    );
+    onUpdated({ ...club, media });
   };
 
-  const { loading: fetchLoading } = useRequest(() => getClub(Number(id)), {
-    ready: !!id,
-    onSuccess: (data) => {
-      if (data) {
-        setClubData(data);
-      }
-    },
-  });
-
   const { loading: uploadLoading, run: uploadImage } = useRequest(
-    (file: File) => uploadClubImageMedia(Number(id), file),
+    (file: File) => uploadClubImageMedia(club.id, file),
     {
       manual: true,
       onSuccess: (data) => {
@@ -98,7 +87,7 @@ const MediaList = () => {
 
   const { loading: youtubeLoading, run: addYoutube } = useRequest(
     (url: string) =>
-      addClubYoutubeMedia(Number(id), {
+      addClubYoutubeMedia(club.id, {
         media_url: url,
         media_type: "video",
         video_source: "youtube",
@@ -114,7 +103,7 @@ const MediaList = () => {
 
   const { loading: deleteLoading, runAsync: deleteMedia } = useRequest(
     (mediaUrl: string) =>
-      deleteClubMedia(Number(id), createMediaDeletePayload(mediaUrl)),
+      deleteClubMedia(club.id, createMediaDeletePayload(mediaUrl)),
     {
       manual: true,
       onSuccess: (data) => {
@@ -194,7 +183,7 @@ const MediaList = () => {
     return { displayUrl, isImage, mediaUrl };
   };
 
-  const mediaItems: MediaTableItem[] = (clubData?.media?.items || []).map(
+  const mediaItems: MediaTableItem[] = (club.media?.items || []).map(
     (item, index) => ({
       ...item,
       tableKey: createMediaRowKey(item, index),
@@ -212,7 +201,7 @@ const MediaList = () => {
         return isImage ? (
           <Image
             src={mediaUrl}
-            alt={`Pratinjau media ${clubData?.name || "klub"}`}
+            alt={`Pratinjau media ${club.name}`}
             width={60}
             height={60}
             style={{ objectFit: "cover" }}
@@ -287,151 +276,149 @@ const MediaList = () => {
   return (
     <>
       {messageContextHolder}
-      <Skeleton loading={fetchLoading}>
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <section>
-            <Title level={4} style={{ marginTop: 0 }}>
-              Tambah Media Baru
-            </Title>
-            <Row gutter={16}>
-              <Col xs={24} md={8}>
-                <Text strong>Tipe Media:</Text>
-                <Select
-                  value={mediaType}
-                  onChange={(value) => {
-                    setMediaType(value);
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <section>
+          <Title level={4} style={{ marginTop: 0 }}>
+            Tambah Media Baru
+          </Title>
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Text strong>Tipe Media:</Text>
+              <Select
+                value={mediaType}
+                onChange={(value) => {
+                  setMediaType(value);
+                  setFileList([]);
+                  setYoutubeUrl("");
+                }}
+                style={{ width: "100%", marginTop: 8 }}
+                aria-label="Pilih tipe media"
+                options={[
+                  {
+                    value: "image",
+                    label: (
+                      <Space size={6}>
+                        <FileImageOutlined /> Gambar
+                      </Space>
+                    ),
+                  },
+                  {
+                    value: "video",
+                    label: (
+                      <Space size={6}>
+                        <VideoCameraOutlined /> Video YouTube
+                      </Space>
+                    ),
+                  },
+                ]}
+              />
+            </Col>
+            <Col xs={24} md={16}>
+              {mediaType === "image" ? (
+                <>
+                  <Text strong>File Gambar:</Text>
+                  <div style={{ marginTop: 8 }}>
+                    <Upload
+                      fileList={fileList}
+                      beforeUpload={beforeUpload}
+                      onRemove={() => setFileList([])}
+                      accept={IMAGE_UPLOAD_ACCEPT}
+                      maxCount={1}
+                      disabled={uploadLoading || mediaLimitReached}
+                    >
+                      <Button
+                        icon={<UploadOutlined />}
+                        disabled={uploadLoading || mediaLimitReached}
+                      >
+                        Pilih Gambar
+                      </Button>
+                    </Upload>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Text strong>Link YouTube:</Text>
+                  <div style={{ marginTop: 8 }}>
+                    <Input
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                      aria-label="URL video YouTube"
+                      disabled={youtubeLoading || mediaLimitReached}
+                    />
+                  </div>
+                </>
+              )}
+            </Col>
+          </Row>
+
+          <div style={{ marginTop: 16 }}>
+            <Text type="secondary">
+              {mediaType === "image"
+                ? mediaLimitReached
+                  ? `Batas ${MAX_CLUB_MEDIA_ITEMS} media per klub sudah tercapai.`
+                  : `${IMAGE_UPLOAD_POLICIES.clubMedia.guidance} Maksimal ${MAX_CLUB_MEDIA_ITEMS} media per klub.`
+                : "Masukkan link YouTube dalam format: https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/VIDEO_ID"}
+            </Text>
+          </div>
+
+          {(fileList.length > 0 ||
+            (mediaType === "video" && youtubeUrl.trim())) && (
+            <div style={{ marginTop: 16 }}>
+              <Space>
+                {mediaType === "image" ? (
+                  <Button
+                    type="primary"
+                    onClick={handleImageUpload}
+                    loading={uploadLoading}
+                    disabled={mediaLimitReached}
+                  >
+                    Upload Gambar
+                  </Button>
+                ) : (
+                  <Button
+                    type="primary"
+                    onClick={handleYoutubeAdd}
+                    loading={youtubeLoading}
+                    disabled={mediaLimitReached}
+                  >
+                    Tambah Video YouTube
+                  </Button>
+                )}
+                <Button
+                  onClick={() => {
                     setFileList([]);
                     setYoutubeUrl("");
                   }}
-                  style={{ width: "100%", marginTop: 8 }}
-                  aria-label="Pilih tipe media"
-                  options={[
-                    {
-                      value: "image",
-                      label: (
-                        <Space size={6}>
-                          <FileImageOutlined /> Gambar
-                        </Space>
-                      ),
-                    },
-                    {
-                      value: "video",
-                      label: (
-                        <Space size={6}>
-                          <VideoCameraOutlined /> Video YouTube
-                        </Space>
-                      ),
-                    },
-                  ]}
-                />
-              </Col>
-              <Col xs={24} md={16}>
-                {mediaType === "image" ? (
-                  <>
-                    <Text strong>File Gambar:</Text>
-                    <div style={{ marginTop: 8 }}>
-                      <Upload
-                        fileList={fileList}
-                        beforeUpload={beforeUpload}
-                        onRemove={() => setFileList([])}
-                        accept={IMAGE_UPLOAD_ACCEPT}
-                        maxCount={1}
-                        disabled={uploadLoading || mediaLimitReached}
-                      >
-                        <Button
-                          icon={<UploadOutlined />}
-                          disabled={uploadLoading || mediaLimitReached}
-                        >
-                          Pilih Gambar
-                        </Button>
-                      </Upload>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Text strong>Link YouTube:</Text>
-                    <div style={{ marginTop: 8 }}>
-                      <Input
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        value={youtubeUrl}
-                        onChange={(e) => setYoutubeUrl(e.target.value)}
-                        aria-label="URL video YouTube"
-                        disabled={youtubeLoading || mediaLimitReached}
-                      />
-                    </div>
-                  </>
-                )}
-              </Col>
-            </Row>
-
-            <div style={{ marginTop: 16 }}>
-              <Text type="secondary">
-                {mediaType === "image"
-                  ? mediaLimitReached
-                    ? `Batas ${MAX_CLUB_MEDIA_ITEMS} media per klub sudah tercapai.`
-                    : `${IMAGE_UPLOAD_POLICIES.clubMedia.guidance} Maksimal ${MAX_CLUB_MEDIA_ITEMS} media per klub.`
-                  : "Masukkan link YouTube dalam format: https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/VIDEO_ID"}
-              </Text>
+                  disabled={uploadLoading || youtubeLoading}
+                >
+                  Batal
+                </Button>
+              </Space>
             </div>
+          )}
+        </section>
 
-            {(fileList.length > 0 ||
-              (mediaType === "video" && youtubeUrl.trim())) && (
-              <div style={{ marginTop: 16 }}>
-                <Space>
-                  {mediaType === "image" ? (
-                    <Button
-                      type="primary"
-                      onClick={handleImageUpload}
-                      loading={uploadLoading}
-                      disabled={mediaLimitReached}
-                    >
-                      Upload Gambar
-                    </Button>
-                  ) : (
-                    <Button
-                      type="primary"
-                      onClick={handleYoutubeAdd}
-                      loading={youtubeLoading}
-                      disabled={mediaLimitReached}
-                    >
-                      Tambah Video YouTube
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => {
-                      setFileList([]);
-                      setYoutubeUrl("");
-                    }}
-                    disabled={uploadLoading || youtubeLoading}
-                  >
-                    Batal
-                  </Button>
-                </Space>
-              </div>
-            )}
-          </section>
-
-          <Divider style={{ margin: "4px 0" }} />
-          <section>
-            <Title level={4} style={{ marginTop: 0 }}>
-              Daftar Media ({mediaItems.length})
-            </Title>
-            <Table
-              rowKey="tableKey"
-              dataSource={mediaItems}
-              columns={columns}
-              pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} dari ${total} media`,
-              }}
-              locale={{ emptyText: "Belum ada media yang diunggah" }}
-              scroll={{ x: 720 }}
-            />
-          </section>
-        </Space>
-      </Skeleton>
+        <Divider style={{ margin: "4px 0" }} />
+        <section>
+          <Title level={4} style={{ marginTop: 0 }}>
+            Daftar Media ({mediaItems.length})
+          </Title>
+          <Table
+            rowKey="tableKey"
+            dataSource={mediaItems}
+            columns={columns}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} dari ${total} media`,
+            }}
+            locale={{ emptyText: "Belum ada media yang diunggah" }}
+            scroll={{ x: 720 }}
+          />
+        </section>
+      </Space>
     </>
   );
 };

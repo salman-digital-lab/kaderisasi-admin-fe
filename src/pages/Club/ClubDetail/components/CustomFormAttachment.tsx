@@ -29,6 +29,7 @@ const { Text, Title } = Typography;
 
 interface CustomFormAttachmentProps {
   club: Club;
+  onUpdated: (club: Club) => void;
 }
 
 const getQuestionCount = (form: CustomForm): number =>
@@ -39,6 +40,7 @@ const getQuestionCount = (form: CustomForm): number =>
 
 const CustomFormAttachment = ({
   club: initialClub,
+  onUpdated,
 }: CustomFormAttachmentProps) => {
   const navigate = useNavigate();
   const [club, setClub] = useState<Club>(initialClub);
@@ -52,7 +54,10 @@ const CustomFormAttachment = ({
 
   const fetchClub = async (): Promise<void> => {
     const result = await getClub(clubId);
-    if (result) setClub(result);
+    if (result) {
+      setClub(result);
+      onUpdated(result);
+    }
   };
 
   const fetchUnattachedForms = async (): Promise<void> => {
@@ -130,7 +135,7 @@ const CustomFormAttachment = ({
   const attachedForm = club?.attachedCustomForm;
 
   return (
-    <Card title="Form Pendaftaran" styles={{ body: { padding: 24 } }}>
+    <Card title="2. Form Pendaftaran" styles={{ body: { padding: 24 } }}>
       {!attachedForm ? (
         <div
           style={{

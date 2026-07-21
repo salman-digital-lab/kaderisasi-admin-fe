@@ -183,9 +183,9 @@ const CustomFormEdit: React.FC = () => {
             {clubId && (
               <Button
                 icon={<ArrowLeftOutlined />}
-                onClick={() => navigate(`/club/${clubId}?tab=4`)}
+                onClick={() => navigate(`/club/${clubId}?section=registration`)}
               >
-                Kembali ke Info Pendaftaran
+                Kembali ke Pendaftaran Klub
               </Button>
             )}
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

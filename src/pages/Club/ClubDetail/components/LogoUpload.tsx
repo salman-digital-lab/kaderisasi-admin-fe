@@ -1,19 +1,10 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
-import {
-  Upload,
-  Button,
-  Space,
-  Image,
-  Skeleton,
-  Typography,
-  message,
-} from "antd";
+import { Upload, Button, Space, Image, Typography, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import type { UploadFile, UploadProps } from "antd";
 
-import { getClub, uploadClubLogo } from "../../../../api/services/club";
+import { uploadClubLogo } from "../../../../api/services/club";
 import type { Club } from "../../../../types/model/club";
 import {
   getImageUploadError,
@@ -23,31 +14,22 @@ import {
 
 const { Text, Title } = Typography;
 
-const LogoUpload = () => {
-  const { id } = useParams<{ id: string }>();
-  const [clubData, setClubData] = useState<Club | null>(null);
+type LogoUploadProps = {
+  club: Club;
+  onUpdated: (club: Club) => void;
+};
+
+const LogoUpload = ({ club, onUpdated }: LogoUploadProps) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [messageApi, messageContextHolder] = message.useMessage();
 
-  const { loading: fetchLoading, refresh } = useRequest(
-    () => getClub(Number(id)),
-    {
-      ready: !!id,
-      onSuccess: (data) => {
-        if (data) {
-          setClubData(data);
-        }
-      },
-    },
-  );
-
   const { loading: uploadLoading, run: upload } = useRequest(
-    (file: File) => uploadClubLogo(Number(id), file),
+    (file: File) => uploadClubLogo(club.id, file),
     {
       manual: true,
-      onSuccess: () => {
+      onSuccess: (data) => {
         setFileList([]);
-        refresh();
+        onUpdated({ ...club, logo: data.logo });
       },
     },
   );
@@ -79,61 +61,66 @@ const LogoUpload = () => {
   return (
     <>
       {messageContextHolder}
-      <Skeleton loading={fetchLoading}>
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <div>
           <Title level={4} style={{ margin: 0 }}>
             Logo Klub
           </Title>
-          {clubData?.logo && (
-            <div>
-              <Text strong>Logo Saat Ini:</Text>
-              <div style={{ marginTop: 8 }}>
-                <Image
-                  src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${clubData.logo}`}
-                  alt="Logo klub"
-                  style={{ maxWidth: 200, maxHeight: 200 }}
-                />
-              </div>
-            </div>
-          )}
-
+          <Text type="secondary">
+            Logo membantu klub mudah dikenali di halaman publik.
+          </Text>
+        </div>
+        {club.logo ? (
           <div>
-            <Text strong>Upload Logo Baru:</Text>
+            <Text strong>Logo Saat Ini:</Text>
             <div style={{ marginTop: 8 }}>
-              <Upload
-                fileList={fileList}
-                beforeUpload={beforeUpload}
-                onRemove={() => setFileList([])}
-                accept={IMAGE_UPLOAD_ACCEPT}
-                maxCount={1}
-                disabled={uploadLoading}
-              >
-                <Button icon={<UploadOutlined />} disabled={uploadLoading}>
-                  Pilih File
-                </Button>
-              </Upload>
-              <div style={{ marginTop: 8 }}>
-                <Text type="secondary">
-                  {IMAGE_UPLOAD_POLICIES.clubLogo.guidance}
-                </Text>
-              </div>
+              <Image
+                src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${club.logo}`}
+                alt={`Logo ${club.name}`}
+                style={{ maxWidth: 200, maxHeight: 200 }}
+              />
             </div>
           </div>
+        ) : (
+          <Text type="secondary">Belum ada logo yang diunggah.</Text>
+        )}
 
-          {fileList.length > 0 && (
-            <Space>
-              <Button
-                type="primary"
-                onClick={handleUpload}
-                loading={uploadLoading}
-              >
-                Upload Logo
+        <div>
+          <Text strong>Upload Logo Baru:</Text>
+          <div style={{ marginTop: 8 }}>
+            <Upload
+              fileList={fileList}
+              beforeUpload={beforeUpload}
+              onRemove={() => setFileList([])}
+              accept={IMAGE_UPLOAD_ACCEPT}
+              maxCount={1}
+              disabled={uploadLoading}
+            >
+              <Button icon={<UploadOutlined />} disabled={uploadLoading}>
+                Pilih File
               </Button>
-              <Button onClick={() => setFileList([])}>Batal</Button>
-            </Space>
-          )}
-        </Space>
-      </Skeleton>
+            </Upload>
+            <div style={{ marginTop: 8 }}>
+              <Text type="secondary">
+                {IMAGE_UPLOAD_POLICIES.clubLogo.guidance}
+              </Text>
+            </div>
+          </div>
+        </div>
+
+        {fileList.length > 0 && (
+          <Space>
+            <Button
+              type="primary"
+              onClick={handleUpload}
+              loading={uploadLoading}
+            >
+              Upload Logo
+            </Button>
+            <Button onClick={() => setFileList([])}>Batal</Button>
+          </Space>
+        )}
+      </Space>
     </>
   );
 };

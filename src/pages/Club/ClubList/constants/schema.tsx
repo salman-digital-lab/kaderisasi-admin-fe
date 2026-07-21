@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { TableProps, Button, Tag } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Button, Space, Tag } from "antd";
+import { ArrowRightOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import type { TableProps } from "antd";
 
 import {
   CLUB_TYPE_LABELS,
@@ -16,77 +17,85 @@ const CLUB_TYPE_COLORS: Record<ClubType, string> = {
   AVISMAN_REGIONAL: "purple",
 };
 
+const getNextAction = (
+  club: Club,
+): { label: string; section: "overview" | "people" } => {
+  if (!club.is_show) {
+    return { label: "Lanjutkan Pengaturan", section: "overview" };
+  }
+
+  if (club.is_registration_open) {
+    return { label: "Kelola Pendaftar", section: "people" };
+  }
+
+  return { label: "Kelola Klub", section: "overview" };
+};
+
 export const createTableSchema = (): TableProps<Club>["columns"] => [
   {
-    title: "Nama Klub",
+    title: "Klub",
     dataIndex: "name",
     key: "name",
-    render: (name, record) => <Link to={`/club/${record.id}`}>{name}</Link>,
-    width: 200,
-  },
-  {
-    title: "Tipe",
-    dataIndex: "club_type",
-    key: "club_type",
-    width: 100,
-    render: (clubType: ClubType) => (
-      <Tag color={CLUB_TYPE_COLORS[clubType]}>{CLUB_TYPE_LABELS[clubType]}</Tag>
+    render: (name, record) => (
+      <Space direction="vertical" size={2}>
+        <Link to={`/club/${record.id}?section=overview`}>{name}</Link>
+        <Tag color={CLUB_TYPE_COLORS[record.club_type]}>
+          {CLUB_TYPE_LABELS[record.club_type]}
+        </Tag>
+      </Space>
     ),
+    width: 240,
   },
   {
-    title: "Periode Mulai",
-    dataIndex: "start_period",
-    key: "start_period",
-    width: 120,
-    render: (date) => (date ? dayjs(date).format("MMM YYYY") : "-"),
+    title: "Periode",
+    key: "period",
+    width: 180,
+    render: (_, record) => {
+      if (!record.start_period && !record.end_period) return "Belum ditentukan";
+      const start = record.start_period
+        ? dayjs(record.start_period).format("MMM YYYY")
+        : "-";
+      const end = record.end_period
+        ? dayjs(record.end_period).format("MMM YYYY")
+        : "-";
+      return `${start} – ${end}`;
+    },
   },
   {
-    title: "Periode Berakhir",
-    dataIndex: "end_period",
-    key: "end_period",
-    width: 120,
-    render: (date) => (date ? dayjs(date).format("MMM YYYY") : "-"),
+    title: "Status Publik",
+    dataIndex: "is_show",
+    key: "is_show",
+    width: 130,
+    render: (isShow) => (
+      <Tag color={isShow ? "success" : "default"}>
+        {isShow ? "Tayang" : "Draf"}
+      </Tag>
+    ),
   },
   {
     title: "Pendaftaran",
     dataIndex: "is_registration_open",
     key: "is_registration_open",
-    width: 120,
+    width: 160,
     render: (isOpen) => (
-      <Tag color={isOpen ? "green" : "red"}>
+      <Tag color={isOpen ? "processing" : "default"}>
         {isOpen ? "Dibuka" : "Ditutup"}
       </Tag>
     ),
   },
   {
-    title: "Berakhir Pendaftaran",
-    dataIndex: "registration_end_date",
-    key: "registration_end_date",
-    width: 150,
-    render: (date) => (date ? dayjs(date).format("DD MMM YYYY") : "-"),
-  },
-  {
-    title: "Status",
-    dataIndex: "is_show",
-    key: "is_show",
-    width: 100,
-    render: (isShow) => (
-      <Tag color={isShow ? "green" : "red"}>
-        {isShow ? "Tampil" : "Tersembunyi"}
-      </Tag>
-    ),
-  },
-
-  {
-    title: "Aksi",
-    key: "action",
-    width: 80,
-    render: (_, record) => (
-      <Link to={`/club/${record.id}`}>
-        <Button icon={<EditOutlined />} size="small">
-          Edit
-        </Button>
-      </Link>
-    ),
+    title: "Langkah Berikutnya",
+    key: "next-action",
+    width: 210,
+    render: (_, record) => {
+      const action = getNextAction(record);
+      return (
+        <Link to={`/club/${record.id}?section=${action.section}`}>
+          <Button icon={<ArrowRightOutlined />} size="small">
+            {action.label}
+          </Button>
+        </Link>
+      );
+    },
   },
 ];

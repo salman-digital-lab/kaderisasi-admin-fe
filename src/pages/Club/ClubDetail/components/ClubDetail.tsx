@@ -1,18 +1,13 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import {
+  Button,
+  Col,
+  DatePicker,
   Form,
   Input,
-  Button,
-  DatePicker,
-  Switch,
   Row,
-  Col,
   Select,
-  Divider,
-  Skeleton,
   Space,
-  Tag,
   Typography,
 } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
@@ -20,124 +15,89 @@ import { useRequest } from "ahooks";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 
-import { getClub, putClub } from "../../../../api/services/club";
-import type { ClubType } from "../../../../types/model/club";
+import { putClub } from "../../../../api/services/club";
+import type { Club, ClubType } from "../../../../types/model/club";
 import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
 import { serializeClubDate } from "../../utils/mutation-payloads";
 
-const { Title } = Typography;
+const { Paragraph, Title } = Typography;
 
 type FieldType = {
   name: string;
   club_type: ClubType;
-  description?: string;
-  short_description?: string;
   start_period?: Dayjs | null;
   end_period?: Dayjs | null;
-  is_show?: boolean;
-  is_registration_open?: boolean;
-  registration_end_date?: Dayjs | null;
 };
 
-const ClubDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const [form] = Form.useForm<FieldType>();
-  const isShown = Form.useWatch("is_show", form);
-  const isRegistrationOpen = Form.useWatch("is_registration_open", form);
-  const [description, setDescription] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [isChanged, setIsChanged] = useState(false);
+type ClubDetailProps = {
+  club: Club;
+  onUpdated: (club: Club) => void;
+};
 
-  const { loading: fetchLoading } = useRequest(() => getClub(Number(id)), {
-    ready: !!id,
-    onSuccess: (data) => {
-      if (data) {
-        setDescription(data.description || "");
-        setShortDescription(data.short_description || "");
-        form.setFieldsValue({
-          name: data.name,
-          club_type: data.club_type,
-          start_period: data.start_period
-            ? dayjs(data.start_period)
-            : undefined,
-          end_period: data.end_period ? dayjs(data.end_period) : undefined,
-          is_show: data.is_show,
-          is_registration_open: data.is_registration_open,
-          registration_end_date: data.registration_end_date
-            ? dayjs(data.registration_end_date)
-            : undefined,
-        });
-      }
-    },
-  });
+const ClubDetail = ({ club, onUpdated }: ClubDetailProps) => {
+  const [form] = Form.useForm<FieldType>();
+  const [description, setDescription] = useState(club.description || "");
+  const [shortDescription, setShortDescription] = useState(
+    club.short_description || "",
+  );
+  const [isChanged, setIsChanged] = useState(false);
 
   const { loading: updateLoading, run: updateClub } = useRequest(
     (data: FieldType) =>
-      putClub(Number(id), {
+      putClub(club.id, {
         ...data,
         description,
         short_description: shortDescription,
         start_period: serializeClubDate(data.start_period),
         end_period: serializeClubDate(data.end_period),
-        registration_end_date: serializeClubDate(data.registration_end_date),
       }),
     {
       manual: true,
-      onSuccess: (data) => {
-        if (data) {
-          setDescription(data.description || "");
-          setShortDescription(data.short_description || "");
-          setIsChanged(false);
-        }
+      onSuccess: (updatedClub) => {
+        setDescription(updatedClub.description || "");
+        setShortDescription(updatedClub.short_description || "");
+        setIsChanged(false);
+        onUpdated({ ...club, ...updatedClub });
       },
     },
   );
 
   return (
-    <Skeleton loading={fetchLoading}>
+    <section aria-labelledby="club-basic-information-title">
+      <Space direction="vertical" size={2} style={{ marginBottom: 16 }}>
+        <Title
+          id="club-basic-information-title"
+          level={4}
+          style={{ margin: 0 }}
+        >
+          Informasi Dasar
+        </Title>
+        <Paragraph type="secondary" style={{ margin: 0 }}>
+          Informasi ini membantu calon anggota memahami identitas dan fokus
+          klub.
+        </Paragraph>
+      </Space>
+
       <Form
         form={form}
         id="detail-club"
         layout="vertical"
+        initialValues={{
+          name: club.name,
+          club_type: club.club_type,
+          start_period: club.start_period ? dayjs(club.start_period) : null,
+          end_period: club.end_period ? dayjs(club.end_period) : null,
+        }}
         onFinish={updateClub}
         onValuesChange={() => setIsChanged(true)}
       >
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
-        >
-          <Space align="center" size="middle" wrap>
-            <Title level={4} style={{ margin: 0 }}>
-              Detail Umum
-            </Title>
-            <Tag color={isShown ? "green" : "default"}>
-              {isShown ? "Tayang" : "Draf"}
-            </Tag>
-            <Tag color={isRegistrationOpen ? "green" : "default"}>
-              {isRegistrationOpen
-                ? "Pendaftaran Dibuka"
-                : "Pendaftaran Ditutup"}
-            </Tag>
-          </Space>
-          <Button
-            form="detail-club"
-            htmlType="submit"
-            type="primary"
-            icon={<SaveOutlined />}
-            loading={updateLoading}
-            disabled={!isChanged}
-          >
-            Simpan
-          </Button>
-        </Row>
-
         <Row gutter={16}>
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Form.Item
               label="Tipe Klub"
               name="club_type"
+              extra="Pilih kategori yang paling sesuai dengan bentuk komunitas."
               rules={[{ required: true, message: "Tipe klub wajib dipilih!" }]}
             >
               <Select
@@ -146,7 +106,7 @@ const ClubDetail = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Form.Item
               label="Nama Klub"
               name="name"
@@ -157,21 +117,27 @@ const ClubDetail = () => {
           </Col>
         </Row>
 
-        <Form.Item label="Deskripsi Singkat (Opsional)">
+        <Form.Item
+          label="Deskripsi Singkat (Disarankan)"
+          extra="Tampil sebagai ringkasan cepat untuk calon anggota."
+        >
           <Input.TextArea
             value={shortDescription}
             onChange={(event) => {
               setShortDescription(event.target.value);
               setIsChanged(true);
             }}
-            placeholder="Masukkan deskripsi singkat klub (maks. 200 karakter)"
+            placeholder="Contoh: Komunitas belajar desain produk dan teknologi"
             maxLength={200}
             showCount
             rows={3}
           />
         </Form.Item>
 
-        <Form.Item label="Deskripsi (Opsional)">
+        <Form.Item
+          label="Deskripsi Lengkap (Disarankan)"
+          extra="Jelaskan fokus, manfaat, program, dan siapa yang cocok bergabung."
+        >
           <RichTextEditor
             value={description}
             onChange={(value) => {
@@ -182,15 +148,14 @@ const ClubDetail = () => {
           />
         </Form.Item>
 
-        <Divider style={{ margin: "12px 0" }} />
-        <Row style={{ marginBottom: 16 }}>
-          <Title level={4} style={{ margin: 0 }}>
-            Detail Waktu
-          </Title>
-        </Row>
+        <Title level={5}>Periode Klub</Title>
+        <Paragraph type="secondary">
+          Biarkan kosong jika klub tidak memiliki periode kepengurusan atau
+          program tertentu.
+        </Paragraph>
         <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Periode Mulai (Opsional)" name="start_period">
+          <Col xs={24} md={12}>
+            <Form.Item label="Periode Mulai" name="start_period">
               <DatePicker
                 picker="month"
                 placeholder="Pilih bulan mulai"
@@ -198,8 +163,33 @@ const ClubDetail = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
-            <Form.Item label="Periode Berakhir (Opsional)" name="end_period">
+          <Col xs={24} md={12}>
+            <Form.Item
+              label="Periode Berakhir"
+              name="end_period"
+              dependencies={["start_period"]}
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value?: Dayjs) {
+                    const startPeriod = getFieldValue("start_period") as
+                      | Dayjs
+                      | undefined;
+                    if (
+                      !value ||
+                      !startPeriod ||
+                      !value.isBefore(startPeriod, "month")
+                    ) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error(
+                        "Periode berakhir tidak boleh sebelum periode mulai!",
+                      ),
+                    );
+                  },
+                }),
+              ]}
+            >
               <DatePicker
                 picker="month"
                 placeholder="Pilih bulan berakhir"
@@ -209,54 +199,18 @@ const ClubDetail = () => {
           </Col>
         </Row>
 
-        <Divider style={{ margin: "12px 0" }} />
-        <Row style={{ marginBottom: 16 }}>
-          <Title level={4} style={{ margin: 0 }}>
-            Status Klub
-          </Title>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Pendaftaran Dibuka"
-              name="is_registration_open"
-              valuePropName="checked"
-            >
-              <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Tanggal Berakhir Pendaftaran (Opsional)"
-              name="registration_end_date"
-              help={
-                isRegistrationOpen
-                  ? "Kosongkan jika pendaftaran tidak memiliki batas waktu."
-                  : "Tidak perlu diisi selama pendaftaran ditutup."
-              }
-            >
-              <DatePicker
-                placeholder="Pilih tanggal berakhir pendaftaran"
-                style={{ width: "100%" }}
-                disabled={!isRegistrationOpen}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Tampilkan Klub"
-              name="is_show"
-              valuePropName="checked"
-            >
-              <Switch checkedChildren="Ya" unCheckedChildren="Tidak" />
-            </Form.Item>
-          </Col>
-        </Row>
+        <Button
+          form="detail-club"
+          htmlType="submit"
+          type="primary"
+          icon={<SaveOutlined />}
+          loading={updateLoading}
+          disabled={!isChanged}
+        >
+          Simpan Profil
+        </Button>
       </Form>
-    </Skeleton>
+    </section>
   );
 };
 

@@ -5,4 +5,6 @@ export interface FilterType {
   per_page: number;
   name: string;
   club_type?: ClubType;
+  visibility?: "published" | "draft";
+  registration?: "open" | "closed";
 }

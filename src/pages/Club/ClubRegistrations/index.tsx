@@ -37,7 +37,6 @@ import {
   bulkUpdateClubRegistrations,
   exportClubRegistrations,
 } from "../../../api/services/clubRegistration";
-import { getClub } from "../../../api/services/club";
 import {
   createClubMemberRole,
   deleteClubMemberRole,
@@ -74,13 +73,18 @@ type BulkStatus = Extract<ClubRegistration["status"], "APPROVED" | "REJECTED">;
 const getMemberName = (registration: ClubRegistration): string =>
   registration.member?.profile?.name || registration.member?.email || "N/A";
 
-const ClubRegistrationsPage: React.FC = () => {
+type ClubRegistrationsPageProps = {
+  club: Club;
+};
+
+const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
+  club,
+}) => {
   const { id: clubId } = useParams<{ id: string }>();
   const [filterForm] = Form.useForm<FilterFormType>();
   const [registrationForm] = Form.useForm<RegistrationFormType>();
   const [roleForm] = Form.useForm<RoleFormType>();
 
-  const [club, setClub] = useState<Club | null>(null);
   const [modal, modalContextHolder] = Modal.useModal();
   const [messageApi, messageContextHolder] = message.useMessage();
   const [registrations, setRegistrations] = useState<ClubRegistration[]>([]);
@@ -94,7 +98,7 @@ const ClubRegistrationsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalItems, setTotalItems] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("PENDING");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRole, setSelectedRole] = useState<ClubMemberRole | null>(null);
   const [roleRegistration, setRoleRegistration] =
@@ -110,26 +114,9 @@ const ClubRegistrationsPage: React.FC = () => {
 
   useEffect(() => {
     if (clubId) {
-      fetchClubData();
-    }
-  }, [clubId]);
-
-  useEffect(() => {
-    if (clubId) {
       fetchRegistrations();
     }
   }, [clubId, currentPage, pageSize, statusFilter]);
-
-  const fetchClubData = async () => {
-    try {
-      const response = await getClub(Number(clubId!));
-      if (response) {
-        setClub(response);
-      }
-    } catch {
-      messageApi.error("Gagal memuat data klub");
-    }
-  };
 
   const fetchRegistrations = async () => {
     if (!clubId) return;
@@ -366,7 +353,7 @@ const ClubRegistrationsPage: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${club?.name || "klub"}_registrations.xlsx`;
+      link.download = `${club.name}_registrations.xlsx`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch {
@@ -523,8 +510,12 @@ const ClubRegistrationsPage: React.FC = () => {
       {messageContextHolder}
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
         <Title level={4} style={{ margin: 0 }}>
-          {club?.name} - Anggota & Pendaftaran
+          Daftar Pendaftar
         </Title>
+        <Text type="secondary">
+          Pendaftar baru ditampilkan terlebih dahulu agar proses peninjauan
+          lebih cepat.
+        </Text>
         <MembersListModal
           open={isMembersModalVisible}
           toggle={setIsMembersModalVisible}
@@ -536,6 +527,7 @@ const ClubRegistrationsPage: React.FC = () => {
         <Form
           layout="vertical"
           form={filterForm}
+          initialValues={{ status: "PENDING" }}
           onFinish={(val) => {
             setStatusFilter(val.status || "");
             setCurrentPage(1);
@@ -623,7 +615,7 @@ const ClubRegistrationsPage: React.FC = () => {
       <ApplicationDetailDrawer
         open={viewedRegistration !== null}
         registration={viewedRegistration}
-        formSchema={club?.attachedCustomForm?.form_schema}
+        formSchema={club.attachedCustomForm?.form_schema}
         reviewingStatus={reviewingStatus}
         onClose={closeApplicationDrawer}
         onReview={handleReviewApplication}

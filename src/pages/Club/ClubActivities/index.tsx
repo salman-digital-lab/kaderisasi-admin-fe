@@ -85,8 +85,12 @@ const ClubActivitiesPage = () => {
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       <Title level={4} style={{ margin: 0 }}>
-        Kegiatan Unit
+        Kegiatan Klub
       </Title>
+      <Typography.Text type="secondary">
+        Kegiatan dibuat dan diedit melalui modul Kegiatan, kemudian dihubungkan
+        ke klub ini.
+      </Typography.Text>
       <Space wrap>
         <Input.Search
           allowClear
