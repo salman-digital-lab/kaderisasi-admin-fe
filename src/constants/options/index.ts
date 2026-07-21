@@ -12,6 +12,7 @@ import {
   USER_LEVEL_ENUM,
 } from "../../types/constants/profile";
 import { PROBLEM_STATUS_ENUM } from "../../types/constants/ruangcurhat";
+import { CLUB_TYPES, CLUB_TYPE_LABELS } from "../../types/model/club";
 
 export const USER_LEVEL_OPTIONS = [
   {
@@ -126,16 +127,10 @@ export const CLUB_REGISTRATION_STATUS_OPTIONS = [
   },
 ];
 
-export const CLUB_TYPE_OPTIONS = [
-  {
-    value: "UKM",
-    label: "UKM",
-  },
-  {
-    value: "AVISMAN",
-    label: "AVISMAN",
-  },
-];
+export const CLUB_TYPE_OPTIONS = CLUB_TYPES.map((value) => ({
+  value,
+  label: CLUB_TYPE_LABELS[value],
+}));
 
 export const GENDER_OPTION = [
   {

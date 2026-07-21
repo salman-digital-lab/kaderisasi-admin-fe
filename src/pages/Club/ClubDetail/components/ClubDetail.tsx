@@ -157,7 +157,7 @@ const ClubDetail = () => {
           </Col>
         </Row>
 
-        <Form.Item label="Deskripsi Singkat">
+        <Form.Item label="Deskripsi Singkat (Opsional)">
           <Input.TextArea
             value={shortDescription}
             onChange={(event) => {
@@ -171,7 +171,7 @@ const ClubDetail = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Deskripsi">
+        <Form.Item label="Deskripsi (Opsional)">
           <RichTextEditor
             value={description}
             onChange={(value) => {
@@ -190,7 +190,7 @@ const ClubDetail = () => {
         </Row>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Periode Mulai" name="start_period">
+            <Form.Item label="Periode Mulai (Opsional)" name="start_period">
               <DatePicker
                 picker="month"
                 placeholder="Pilih bulan mulai"
@@ -199,7 +199,7 @@ const ClubDetail = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Periode Berakhir" name="end_period">
+            <Form.Item label="Periode Berakhir (Opsional)" name="end_period">
               <DatePicker
                 picker="month"
                 placeholder="Pilih bulan berakhir"
@@ -227,12 +227,18 @@ const ClubDetail = () => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Tanggal Berakhir Pendaftaran"
+              label="Tanggal Berakhir Pendaftaran (Opsional)"
               name="registration_end_date"
+              help={
+                isRegistrationOpen
+                  ? "Kosongkan jika pendaftaran tidak memiliki batas waktu."
+                  : "Tidak perlu diisi selama pendaftaran ditutup."
+              }
             >
               <DatePicker
                 placeholder="Pilih tanggal berakhir pendaftaran"
                 style={{ width: "100%" }}
+                disabled={!isRegistrationOpen}
               />
             </Form.Item>
           </Col>

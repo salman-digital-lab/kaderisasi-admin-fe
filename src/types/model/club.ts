@@ -14,7 +14,21 @@ export interface RegistrationInfo {
   registration_info: string;
 }
 
-export type ClubType = "UKM" | "AVISMAN";
+export const CLUB_TYPES = [
+  "UNIT",
+  "CLUB_KEPROFESIAN",
+  "CLUB_BAHASA",
+  "AVISMAN_REGIONAL",
+] as const;
+
+export type ClubType = (typeof CLUB_TYPES)[number];
+
+export const CLUB_TYPE_LABELS: Record<ClubType, string> = {
+  UNIT: "Unit",
+  CLUB_KEPROFESIAN: "Club Keprofesian",
+  CLUB_BAHASA: "Club Bahasa",
+  AVISMAN_REGIONAL: "Avisman Regional",
+};
 
 export interface Club {
   id: number;

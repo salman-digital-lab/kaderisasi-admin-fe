@@ -41,6 +41,7 @@ import {
   ADMIN_ROLE_ENUM,
 } from "../../../../types/constants/profile";
 import { getUserRole } from "../../../../stores/authStore";
+import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
 
 const { Title } = Typography;
 
@@ -81,7 +82,7 @@ const ActivityDetail = () => {
 
   const clubOptions =
     clubsData?.data.map((club) => ({
-      label: `${club.name} (${club.club_type})`,
+      label: `${club.name} (${CLUB_TYPE_LABELS[club.club_type]})`,
       value: club.id,
     })) || [];
 

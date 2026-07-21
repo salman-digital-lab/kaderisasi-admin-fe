@@ -147,15 +147,16 @@ const CustomFormAttachment = ({
               <Space direction="vertical" size={4}>
                 <Text strong>Belum ada form pendaftaran</Text>
                 <Text type="secondary">
-                  Buat form khusus untuk klub ini, lalu tambahkan pertanyaan
-                  yang dibutuhkan.
+                  {club.is_registration_open
+                    ? "Form aktif diperlukan selama pendaftaran klub dibuka."
+                    : "Form ini opsional selama pendaftaran klub ditutup."}
                 </Text>
               </Space>
             }
           >
             <Space wrap style={{ justifyContent: "center" }}>
               <Button
-                type="primary"
+                type={club.is_registration_open ? "primary" : "default"}
                 size="large"
                 icon={<PlusOutlined />}
                 loading={creating}

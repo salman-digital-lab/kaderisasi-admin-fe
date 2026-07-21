@@ -26,6 +26,7 @@ import { getClubs } from "../../../../api/services/club";
 import { ACTIVITY_TYPE_ENUM } from "../../../../types/constants/activity";
 import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
 import { ACTIVITY_CATEGORY_ENUM } from "../../../../types/constants/activity";
+import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
 interface ActivityFormProps {
   open: boolean;
   onClose: () => void;
@@ -59,7 +60,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
 
   const clubOptions =
     clubsData?.data.map((club) => ({
-      label: `${club.name} (${club.club_type})`,
+      label: `${club.name} (${CLUB_TYPE_LABELS[club.club_type]})`,
       value: club.id,
     })) || [];
 

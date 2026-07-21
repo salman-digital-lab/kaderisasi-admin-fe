@@ -6,6 +6,7 @@ import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import { FilterType } from "../constants/type";
 import ClubForm from "./ClubForm";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
+import type { ClubType } from "../../../../types/model/club";
 
 const cardStyle = {
   borderRadius: 0,
@@ -21,7 +22,7 @@ type FilterProps = {
 const ClubFilter = ({ setParameter, refresh, loading }: FilterProps) => {
   const [state, { toggle }] = useToggle(false);
   const [searchInput, setSearchInput] = useState("");
-  const [clubType, setClubType] = useState<string | undefined>();
+  const [clubType, setClubType] = useState<ClubType | undefined>();
 
   const handleSearch = (value: string): void => {
     setParameter((prev) => ({

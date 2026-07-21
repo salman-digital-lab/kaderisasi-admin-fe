@@ -3,7 +3,18 @@ import { TableProps, Button, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-import { Club } from "../../../../types/model/club";
+import {
+  CLUB_TYPE_LABELS,
+  type Club,
+  type ClubType,
+} from "../../../../types/model/club";
+
+const CLUB_TYPE_COLORS: Record<ClubType, string> = {
+  UNIT: "blue",
+  CLUB_KEPROFESIAN: "magenta",
+  CLUB_BAHASA: "cyan",
+  AVISMAN_REGIONAL: "purple",
+};
 
 export const createTableSchema = (): TableProps<Club>["columns"] => [
   {
@@ -18,8 +29,8 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     dataIndex: "club_type",
     key: "club_type",
     width: 100,
-    render: (clubType) => (
-      <Tag color={clubType === "AVISMAN" ? "purple" : "blue"}>{clubType}</Tag>
+    render: (clubType: ClubType) => (
+      <Tag color={CLUB_TYPE_COLORS[clubType]}>{CLUB_TYPE_LABELS[clubType]}</Tag>
     ),
   },
   {

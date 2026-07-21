@@ -65,7 +65,7 @@ const MainClubDetail = () => {
           type="info"
           showIcon
           title="Klub dibuat sebagai draf"
-          description='Lengkapi detail, logo, media, dan form pendaftaran terlebih dahulu. Aktifkan "Tampilkan Klub" hanya setelah semuanya siap dipublikasikan.'
+          description='Nama dan tipe klub sudah cukup untuk menyimpan draf. Detail lain, logo, dan media dapat dilengkapi sesuai kebutuhan. Form pendaftaran hanya diperlukan jika "Pendaftaran Dibuka" diaktifkan.'
           closable={{ onClose: dismissSetupGuide }}
           style={{ marginBottom: 16 }}
         />

@@ -4,6 +4,7 @@ import { Table } from "antd";
 import { Pagination } from "../../../../types/services/base";
 import { Club } from "../../../../types/model/club";
 import { createTableSchema } from "../constants/schema";
+import type { FilterType } from "../constants/type";
 
 interface DataTypeProps {
   data?: {
@@ -11,14 +12,7 @@ interface DataTypeProps {
     data: Club[];
   };
   loading: boolean;
-  setParameter: React.Dispatch<
-    React.SetStateAction<{
-      page: number;
-      per_page: number;
-      name: string;
-      club_type?: string;
-    }>
-  >;
+  setParameter: React.Dispatch<React.SetStateAction<FilterType>>;
 }
 
 const ClubTable = ({ data, loading, setParameter }: DataTypeProps) => {

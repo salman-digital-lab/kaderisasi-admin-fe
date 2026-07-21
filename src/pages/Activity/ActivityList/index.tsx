@@ -21,6 +21,7 @@ import {
   ACTIVITY_CATEGORY_ENUM,
   ACTIVITY_TYPE_ENUM,
 } from "../../../types/constants/activity";
+import { CLUB_TYPE_LABELS } from "../../../types/model/club";
 
 const cardStyle = {
   borderRadius: 0,
@@ -59,7 +60,7 @@ const MainActivity = () => {
 
   const clubOptions =
     clubsData?.data.map((club) => ({
-      label: `${club.name} (${club.club_type})`,
+      label: `${club.name} (${CLUB_TYPE_LABELS[club.club_type]})`,
       value: String(club.id),
     })) || [];
 

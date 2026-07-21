@@ -78,7 +78,7 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
         <Form.Item
           label="Tipe Klub"
           name="club_type"
-          initialValue="UKM"
+          initialValue="UNIT"
           rules={[{ required: true, message: "Tipe klub wajib dipilih!" }]}
         >
           <Select options={CLUB_TYPE_OPTIONS} placeholder="Pilih tipe klub" />
@@ -92,11 +92,10 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
           <Input placeholder="Masukkan nama klub" />
         </Form.Item>
         <Form.Item
-          label="Deskripsi Singkat"
+          label="Deskripsi Singkat (Opsional)"
           name="short_description"
           rules={[
             { max: 200, message: "Deskripsi singkat maksimal 200 karakter!" },
-            { required: true, message: "Deskripsi singkat wajib diisi!" },
           ]}
         >
           <Input.TextArea
@@ -108,13 +107,7 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
         </Form.Item>
         <Row gutter={16}>
           <Col xs={24} sm={12}>
-            <Form.Item
-              label="Periode Mulai"
-              name="start_period"
-              rules={[
-                { required: true, message: "Periode mulai wajib diisi!" },
-              ]}
-            >
+            <Form.Item label="Periode Mulai (Opsional)" name="start_period">
               <DatePicker
                 picker="month"
                 placeholder="Pilih bulan mulai"
@@ -124,11 +117,10 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
           </Col>
           <Col xs={24} sm={12}>
             <Form.Item
-              label="Periode Berakhir"
+              label="Periode Berakhir (Opsional)"
               name="end_period"
               dependencies={["start_period"]}
               rules={[
-                { required: true, message: "Periode berakhir wajib diisi!" },
                 ({ getFieldValue }) => ({
                   validator(_, value?: Dayjs) {
                     const startPeriod = getFieldValue("start_period") as

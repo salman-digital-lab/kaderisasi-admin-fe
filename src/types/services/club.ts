@@ -1,11 +1,11 @@
-import { Club } from "../model/club";
-import { Pagination } from "./base";
+import type { Club, ClubType } from "../model/club";
+import type { Pagination } from "./base";
 
 export type getClubsReq = {
   per_page: string;
   page: string;
   search?: string;
-  club_type?: string;
+  club_type?: ClubType;
 };
 
 export type getClubsResp = {
