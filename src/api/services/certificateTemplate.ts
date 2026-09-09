@@ -21,6 +21,8 @@ import {
   IssueBulkCertificatesResp,
   IssueCertificateResp,
   IssuedCertificate,
+  LookupCertificatesReq,
+  LookupCertificatesResp,
   RevokeCertificateReq,
   RevokeCertificateResp,
   UpdateCertificateTemplateReq,
@@ -262,37 +264,45 @@ export const getIssuedCertificates = async (
       typeof activityOrRequest === "number"
         ? { activity_id: activityOrRequest }
         : activityOrRequest || {};
-    const ids = request.registration_ids;
-    if (ids && !ids.length) return [];
-    const groups = ids
-      ? Array.from({ length: Math.ceil(ids.length / 100) }, (_, index) =>
-          ids.slice(index * 100, (index + 1) * 100),
-        )
-      : [undefined];
-    const pages = await Promise.all(
-      groups.map(async (group) => {
-        const res = await axios.get<GetIssuedCertificatesResp>(
-          "/certificates",
-          {
-            params: {
-              activity_id: request.activity_id,
-              page: request.page || 1,
-              per_page: group ? 100 : request.per_page || 20,
-              registration_ids: group,
-            },
-          },
-        );
-        return Array.isArray(res.data.data)
-          ? res.data.data
-          : res.data.data.data;
-      }),
-    );
-    return pages.flat();
+    if (request.registration_ids) {
+      return await lookupCertificates({
+        activity_id: request.activity_id,
+        registration_ids: request.registration_ids,
+      });
+    }
+    const res = await axios.get<GetIssuedCertificatesResp>("/certificates", {
+      params: {
+        activity_id: request.activity_id,
+        page: request.page || 1,
+        per_page: request.per_page || 20,
+      },
+    });
+    return Array.isArray(res.data.data) ? res.data.data : res.data.data.data;
   } catch (error) {
     handleError(error);
     throw error;
   }
 };
+
+async function lookupCertificates(
+  request: LookupCertificatesReq,
+): Promise<IssuedCertificate[]> {
+  const ids = [...new Set(request.registration_ids)];
+  const batches = Array.from(
+    { length: Math.ceil(ids.length / 100) },
+    (_, index) => ids.slice(index * 100, (index + 1) * 100),
+  );
+  const results = await Promise.all(
+    batches.map(async (registrationIds) => {
+      const response = await axios.post<LookupCertificatesResp>(
+        "/certificates/lookup",
+        { activity_id: request.activity_id, registration_ids: registrationIds },
+      );
+      return response.data.data;
+    }),
+  );
+  return results.flat();
+}
 
 export const issueSingleCertificate = async (
   data: GenerateSingleCertificateReq,

@@ -229,6 +229,16 @@ export interface GetIssuedCertificatesReq {
   status?: "issued" | "revoked";
 }
 
+export interface LookupCertificatesReq {
+  activity_id?: number;
+  registration_ids: number[];
+}
+
+export interface LookupCertificatesResp {
+  message: string;
+  data: IssuedCertificate[];
+}
+
 export interface IssueCertificateResp {
   message: string;
   data: CertificatePayload;

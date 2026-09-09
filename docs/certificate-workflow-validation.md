@@ -17,6 +17,7 @@ All routes remain under `/v2` with existing JWT/permission middleware:
 | Route | Behavior |
 | --- | --- |
 | `GET /certificates/activities/:activityId/recipients` | Lightweight paginated rows, activity-wide counts and assigned-template readiness. Search and state filters affect rows, not aggregate counts. |
+| `POST /certificates/lookup` | Read-only lookup with JSON `{ activity_id?: number, registration_ids: number[] }` (1–100 IDs). Returns matching certificate summaries as `data: []`, including revoked certificates. Missing IDs are omitted; results are not ordered by the input IDs. Requires `certificate.read`. |
 | `POST /certificates/prepare-issuance` | Non-mutating review with `activity_id` and optional explicit `registration_ids`; returns frozen IDs, exclusions, template version and sample. |
 | `POST /certificates/issue-bulk` | Optional `expected: { activity_id, template_id, template_version }` and `response_mode: "compact"`; preserves the full legacy response by default. |
 | `POST /certificate-templates/:id/duplicate` | Copies assets, rewrites references, returns draft; rolls back incomplete copies. |
@@ -24,6 +25,8 @@ All routes remain under `/v2` with existing JWT/permission middleware:
 | Public backend `GET /certificates/code/:code/access` | Authenticated ownership/revocation summary without snapshots. |
 
 Assignment uses the existing activity update endpoint with **only** top-level `certificate_template_id`. Explicit `null` clears both supported representations.
+
+The participant page uses the JSON lookup for visible registration IDs. The client deduplicates IDs, splits larger selections into batches of 100, and merges the results. An empty selection makes no request. Lookups need no pagination parameters; ordinary browsing and older clients can continue using `GET /certificates` with its existing filters and pagination. Deploy the admin backend before the frontend that uses `/certificates/lookup`.
 
 ## Automated evidence
 
