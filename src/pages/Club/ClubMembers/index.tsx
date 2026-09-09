@@ -33,6 +33,7 @@ import {
 } from "../../../api/services/clubMemberRole";
 import type { ClubMemberRole } from "../../../types/model/clubMemberRole";
 import type { ClubRegistration } from "../../../types/model/clubRegistration";
+import { formatRegistrationTime } from "../../../utils/registration-time";
 
 type RoleFormType = {
   role_name: string;
@@ -54,6 +55,7 @@ const ClubMembersPage = () => {
   const [members, setMembers] = useState<ClubRegistration[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [totalItems, setTotalItems] = useState(0);
   const [search, setSearch] = useState("");
   const [selectedMember, setSelectedMember] = useState<ClubRegistration | null>(
@@ -73,6 +75,7 @@ const ClubMembersPage = () => {
         limit: pageSize.toString(),
         status: "APPROVED",
         search: search || undefined,
+        sort_order: sortOrder,
       });
 
       if (response) {
@@ -88,7 +91,7 @@ const ClubMembersPage = () => {
 
   useEffect(() => {
     fetchMembers();
-  }, [clubId, currentPage, search]);
+  }, [clubId, currentPage, search, sortOrder]);
 
   const openCreateRole = (member: ClubRegistration) => {
     setSelectedMember(member);
@@ -221,6 +224,16 @@ const ClubMembersPage = () => {
         ),
     },
     {
+      title: "Waktu Pendaftaran",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: 210,
+      sorter: true,
+      sortOrder: sortOrder === "asc" ? "ascend" : "descend",
+      sortDirections: ["descend", "ascend", "descend"],
+      render: formatRegistrationTime,
+    },
+    {
       title: "Tanggal Diterima",
       dataIndex: "updated_at",
       key: "updated_at",
@@ -271,7 +284,12 @@ const ClubMembersPage = () => {
           total: totalItems,
           showTotal: (total, range) =>
             `${range[0]}-${range[1]} dari ${total} anggota`,
-          onChange: (page) => setCurrentPage(page),
+        }}
+        onChange={(pagination, _filters, sorter, extra) => {
+          if (extra.action === "sort" && !Array.isArray(sorter)) {
+            setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
+          }
+          setCurrentPage(extra.action === "sort" ? 1 : pagination.current || 1);
         }}
         scroll={{ x: 1000 }}
       />

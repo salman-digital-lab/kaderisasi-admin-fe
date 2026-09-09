@@ -13,6 +13,7 @@ import {
   Alert,
   Button,
   Card,
+  Grid,
   Input,
   Modal,
   Select,
@@ -24,7 +25,7 @@ import {
   Typography,
   message,
 } from "antd";
-import type { TablePaginationConfig } from "antd/es/table";
+import type { TableProps } from "antd";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -80,6 +81,7 @@ const TOUCH_ACTION_STYLE: React.CSSProperties = {
 };
 
 const ActivityParticipants = () => {
+  const screens = Grid.useBreakpoint();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const permissions = usePermissions();
@@ -106,8 +108,8 @@ const ActivityParticipants = () => {
     page: 1,
     per_page: 50,
   });
-  const [sortBy, setSortBy] = useState<string>("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState<string>("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filters, setFilters] = useState<FilterValues>({});
   const [searchInput, setSearchInput] = useState("");
 
@@ -129,7 +131,7 @@ const ActivityParticipants = () => {
 
   // Derive columns allowed by the custom form's profile section (Pertanyaan Dasar)
   const formAllowedColumns = useMemo((): ColumnConfig[] => {
-    const ALWAYS_VISIBLE = new Set(["name", "status"]);
+    const ALWAYS_VISIBLE = new Set(["name", "created_at", "status"]);
 
     if (customForm) {
       const profileSection = customForm.form_schema.fields[0];
@@ -218,20 +220,6 @@ const ActivityParticipants = () => {
     [id],
   );
 
-  // Handle sort
-  const handleSort = useCallback(
-    (field: string) => {
-      if (sortBy === field) {
-        setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-      } else {
-        setSortBy(field);
-        setSortOrder("asc");
-      }
-      setPagination((prev) => ({ ...prev, page: 1 }));
-    },
-    [sortBy],
-  );
-
   // Handle search
   const handleSearch = useCallback(() => {
     setFilters((prev) => ({ ...prev, search: searchInput || undefined }));
@@ -246,17 +234,20 @@ const ActivityParticipants = () => {
     setSelectedRowKeys([]);
   }, []);
 
-  // Handle table change (pagination)
-  const handleTableChange = useCallback(
-    (paginationConfig: TablePaginationConfig) => {
-      setPagination({
-        page: paginationConfig.current || 1,
-        per_page: paginationConfig.pageSize || 50,
-      });
-      setSelectedRowKeys([]);
-    },
-    [],
-  );
+  // Sort the entire result set through the API before paginating.
+  const handleTableChange = useCallback<
+    NonNullable<TableProps<ParticipantRow>["onChange"]>
+  >((paginationConfig, _filters, sorter, extra) => {
+    if (extra.action === "sort" && !Array.isArray(sorter)) {
+      setSortBy(String(sorter.columnKey || "created_at"));
+      setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
+    }
+    setPagination({
+      page: extra.action === "sort" ? 1 : paginationConfig.current || 1,
+      per_page: paginationConfig.pageSize || 50,
+    });
+    setSelectedRowKeys([]);
+  }, []);
 
   // Handle refresh
   const handleRefresh = useCallback(() => {
@@ -345,8 +336,7 @@ const ActivityParticipants = () => {
 
   // Generate table columns
   const tableColumns = useMemo(() => {
-    const cols =
-      generateTableColumns(columns, sortBy, sortOrder, handleSort) || [];
+    const cols = generateTableColumns(columns, sortBy, sortOrder) || [];
 
     // Check if activity has certificate template
     const hasCertificateTemplate =
@@ -457,12 +447,14 @@ const ActivityParticipants = () => {
       });
     }
 
-    return cols;
+    return screens.md
+      ? cols
+      : cols.map((col) => ({ ...col, fixed: undefined }));
   }, [
     columns,
     sortBy,
     sortOrder,
-    handleSort,
+    screens.md,
     activity,
     id,
     canAccessCertificateFeature,
@@ -662,7 +654,13 @@ const ActivityParticipants = () => {
               `${range[0]}-${range[1]} dari ${total}`,
           }}
           onChange={handleTableChange}
-          scroll={{ x: 1400, y: "calc(100vh - 280px)" }}
+          scroll={{
+            x: tableColumns.reduce(
+              (width, col) => width + Number(col.width || 200),
+              48,
+            ),
+            y: "calc(100vh - 280px)",
+          }}
           sticky={{ offsetHeader: 0 }}
           size="small"
           bordered

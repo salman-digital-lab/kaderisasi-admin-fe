@@ -11,6 +11,7 @@ export type RecipientState =
   | "issued_revoked";
 export interface CertificateRecipient {
   registration_id: number;
+  created_at: string | null;
   name: string;
   status: string;
   state: RecipientState;

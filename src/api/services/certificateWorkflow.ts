@@ -15,6 +15,7 @@ export async function getCertificateRecipients(
     page?: number;
     per_page?: number;
     search?: string;
+    sort_order?: "asc" | "desc";
     state?: RecipientState;
     registration_ids?: number[];
   },

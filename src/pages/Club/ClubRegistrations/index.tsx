@@ -49,6 +49,7 @@ import ApplicationDetailDrawer from "./components/ApplicationDetailDrawer";
 import MembersListModal from "./components/MembersListModal";
 import { CLUB_REGISTRATION_STATUS_OPTIONS } from "../../../constants/options";
 import { createRegistrationStatusPayload } from "../utils/mutation-payloads";
+import { formatRegistrationTime } from "../../../utils/registration-time";
 
 const { Text, Title } = Typography;
 
@@ -96,6 +97,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
   const [viewedRegistration, setViewedRegistration] =
     useState<ClubRegistration | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [pageSize, setPageSize] = useState(20);
   const [totalItems, setTotalItems] = useState(0);
   const [statusFilter, setStatusFilter] = useState<string>("PENDING");
@@ -116,7 +118,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     if (clubId) {
       fetchRegistrations();
     }
-  }, [clubId, currentPage, pageSize, statusFilter]);
+  }, [clubId, currentPage, pageSize, statusFilter, sortOrder]);
 
   const fetchRegistrations = async () => {
     if (!clubId) return;
@@ -127,6 +129,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         page: currentPage.toString(),
         limit: pageSize.toString(),
         status: statusFilter || undefined,
+        sort_order: sortOrder,
       });
       if (response) {
         setRegistrations(response.data);
@@ -449,10 +452,14 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
       },
     },
     {
-      title: "Tanggal Pendaftaran",
+      title: "Waktu Pendaftaran",
       dataIndex: "created_at",
-      key: "registrationDate",
-      render: (date: string) => dayjs(date).format("DD MMM YYYY"),
+      key: "created_at",
+      width: 210,
+      sorter: true,
+      sortOrder: sortOrder === "asc" ? "ascend" : "descend",
+      sortDirections: ["descend", "ascend", "descend"],
+      render: formatRegistrationTime,
     },
     {
       title: "Aksi",
@@ -602,11 +609,16 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
             total: totalItems,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} dari ${total} item`,
-            onChange: (page, nextPageSize) => {
-              setCurrentPage(page);
-              setPageSize(nextPageSize);
-              setSelectedRowKeys([]);
-            },
+          }}
+          onChange={(pagination, _filters, sorter, extra) => {
+            if (extra.action === "sort" && !Array.isArray(sorter)) {
+              setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
+            }
+            setCurrentPage(
+              extra.action === "sort" ? 1 : pagination.current || 1,
+            );
+            setPageSize(pagination.pageSize || 20);
+            setSelectedRowKeys([]);
           }}
           scroll={{ x: 1200 }}
         />

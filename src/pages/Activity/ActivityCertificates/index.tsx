@@ -51,6 +51,7 @@ import {
   resolveCertificateText,
 } from "../../DigitalCertificate/utils/certificate-content";
 import { runCertificateBatches } from "./batch-runner";
+import { formatRegistrationTime } from "../../../utils/registration-time";
 import styles from "./index.module.css";
 
 const LABELS = {
@@ -80,6 +81,7 @@ export default function ActivityCertificates(): React.ReactElement {
   const [step, setStep] = useState(0);
   const [recipients, setRecipients] = useState<RecipientPage>();
   const [page, setPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -154,7 +156,12 @@ export default function ActivityCertificates(): React.ReactElement {
     setError("");
     getCertificateRecipients(
       activityId,
-      { page, per_page: 50, search: search || undefined },
+      {
+        page,
+        per_page: 50,
+        search: search || undefined,
+        sort_order: sortOrder,
+      },
       controller.signal,
     )
       .then((data) => {
@@ -173,7 +180,7 @@ export default function ActivityCertificates(): React.ReactElement {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [activityId, page, search, refresh]);
+  }, [activityId, page, search, refresh, sortOrder]);
   useEffect(() => {
     if (step !== 0) return;
     const controller = new AbortController();
@@ -310,6 +317,16 @@ export default function ActivityCertificates(): React.ReactElement {
   ];
   const columns: TableColumnsType<CertificateRecipient> = [
     { title: "Nama peserta", dataIndex: "name" },
+    {
+      title: "Waktu Pendaftaran",
+      dataIndex: "created_at",
+      key: "created_at",
+      width: 210,
+      sorter: true,
+      sortOrder: sortOrder === "asc" ? "ascend" : "descend",
+      sortDirections: ["descend", "ascend", "descend"],
+      render: formatRegistrationTime,
+    },
     {
       title: "Status",
       dataIndex: "state",
@@ -547,7 +564,7 @@ export default function ActivityCertificates(): React.ReactElement {
               columns={columns}
               dataSource={recipients?.data}
               loading={loading && !recipients}
-              scroll={{ x: 560 }}
+              scroll={{ x: 770 }}
               rowSelection={
                 selection === "selected"
                   ? {
@@ -566,7 +583,12 @@ export default function ActivityCertificates(): React.ReactElement {
                 pageSize: 50,
                 total: recipients?.meta.total,
                 showSizeChanger: false,
-                onChange: setPage,
+              }}
+              onChange={(pagination, _filters, sorter, extra) => {
+                if (extra.action === "sort" && !Array.isArray(sorter)) {
+                  setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
+                }
+                setPage(extra.action === "sort" ? 1 : pagination.current || 1);
               }}
             />
           </div>

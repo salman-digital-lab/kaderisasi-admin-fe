@@ -8,6 +8,7 @@ import { Registrant } from "../../../../types/model/activity";
 import type { EducationEntry } from "../../../../types/model/members";
 import { USER_LEVEL_OPTIONS } from "../../../../constants/options";
 import { formatCurrentEducation } from "../../../../utils/education";
+import { formatRegistrationTime } from "../../../../utils/registration-time";
 
 // Memoized text cell component
 const TextCell = memo(
@@ -153,6 +154,15 @@ export const ALL_COLUMNS: ColumnConfig[] = [
         activityId={record.activity_id}
       />
     ),
+  },
+  {
+    key: "created_at",
+    title: "Waktu Pendaftaran",
+    dataIndex: "created_at",
+    visible: true,
+    width: 210,
+    sortable: true,
+    render: (_, record) => formatRegistrationTime(record.created_at),
   },
   {
     key: "status",
@@ -319,26 +329,22 @@ export const generateTableColumns = (
   columns: ColumnConfig[],
   sortBy?: string,
   sortOrder?: "asc" | "desc",
-  onSort?: (field: string) => void,
 ): TableProps<Registrant>["columns"] => {
   return columns
     .filter((col) => col.visible)
     .map((col) => ({
-      title: col.sortable ? (
-        <div
-          style={{ cursor: "pointer", userSelect: "none" }}
-          onClick={() => onSort?.(col.key)}
-        >
-          {col.title}{" "}
-          {sortBy === col.key && (
-            <span style={{ marginLeft: 4 }}>
-              {sortOrder === "asc" ? "↑" : "↓"}
-            </span>
-          )}
-        </div>
-      ) : (
-        col.title
-      ),
+      title: col.title,
+      sorter: col.sortable,
+      sortOrder:
+        sortBy === col.key
+          ? sortOrder === "asc"
+            ? "ascend"
+            : "descend"
+          : null,
+      sortDirections:
+        col.key === "created_at"
+          ? ["descend", "ascend", "descend"]
+          : ["ascend", "descend", "ascend"],
       dataIndex: col.dataIndex,
       key: col.key,
       fixed: col.fixed,

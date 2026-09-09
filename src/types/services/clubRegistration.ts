@@ -6,6 +6,7 @@ export type getClubRegistrationsReq = {
   limit: string;
   status?: string;
   search?: string;
+  sort_order?: "asc" | "desc";
 };
 
 export type getClubRegistrationsResp = {
