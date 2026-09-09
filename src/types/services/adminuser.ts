@@ -24,9 +24,12 @@ export type GetAdminUserResp = {
   data: AdminUser;
 };
 
-export type PostAdminUserReq = Partial<
-  Omit<AdminUser, "id" | "createdAt" | "updatedAt">
->;
+export type PostAdminUserReq = {
+  displayName?: string;
+  email?: string;
+  password?: string;
+  role_code?: string | null;
+};
 
 export type PostAdminUserResp = {
   message: string;
@@ -36,8 +39,8 @@ export type PostAdminUserResp = {
 export type PutAdminUserReq = {
   id: string;
   data: {
-    role?: number;
     isActive?: boolean;
+    role_code?: string | null;
   };
 };
 

@@ -10,6 +10,14 @@ interface BreadcrumbItem {
 // Hardcoded breadcrumb mappings for all routes
 const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   "/": [{ path: "/", title: "Beranda" }],
+  "/my-requests": [
+    { path: "", title: "Akses & Tiket" },
+    { path: "/my-requests", title: "Permintaan Saya" },
+  ],
+  "/ticket-review": [
+    { path: "", title: "Akses & Tiket" },
+    { path: "/ticket-review", title: "Tinjau Permintaan" },
+  ],
   "/dashboard": [{ path: "/", title: "Beranda" }],
   "/member": [{ path: "/member", title: "Daftar Anggota" }],
   "/activity": [{ path: "/activity", title: "Daftar Kegiatan" }],
@@ -44,6 +52,12 @@ const getDynamicBreadcrumbs = (
   pathname: string,
   state?: any,
 ): BreadcrumbItem[] => {
+  if (/^\/(my-requests|ticket-review)\/[^/]+$/.test(pathname)) {
+    const parent = pathname.startsWith("/my-requests")
+      ? "/my-requests"
+      : "/ticket-review";
+    return [...breadcrumbMap[parent], { path: "", title: "Detail Permintaan" }];
+  }
   // Member detail pages
   if (pathname.match(/^\/member\/\d+$/)) {
     return [

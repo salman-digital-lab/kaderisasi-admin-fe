@@ -62,7 +62,7 @@ import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../constants/options";
-import { useUser } from "../../../stores/authStore";
+import { usePermissions } from "../../../stores/authStore";
 import {
   canAccessCertificates,
   canIssueCertificates,
@@ -96,10 +96,10 @@ const TOUCH_ACTION_STYLE: React.CSSProperties = {
 
 const ActivityParticipants = () => {
   const { id } = useParams<{ id: string }>();
-  const user = useUser();
-  const canAccessCertificateFeature = canAccessCertificates(user?.role);
-  const canIssue = canIssueCertificates(user?.role);
-  const canRevoke = canRevokeCertificates(user?.role);
+  const permissions = usePermissions();
+  const canAccessCertificateFeature = canAccessCertificates(permissions);
+  const canIssue = canIssueCertificates(permissions);
+  const canRevoke = canRevokeCertificates(permissions);
 
   // Modal states
   const [addParticipantModal, { toggle: toggleAddParticipant }] = useToggle();

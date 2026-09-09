@@ -1,9 +1,10 @@
 import { Layout, Menu, Typography } from "antd";
 import { useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { menuItems } from "./data";
 import { SidebarProps } from "../../../types";
-import { usePermissions, useUser } from "../../../stores/authStore";
+import { usePermissions } from "../../../stores/authStore";
+import { getReviewTickets } from "../../../api/services/access";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -12,17 +13,39 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const permissions = usePermissions();
-  const user = useUser();
+  const [reviewCount, setReviewCount] = useState(0);
+  const canReviewTickets = permissions.includes("tickets.review");
+
+  useEffect(() => {
+    if (!canReviewTickets) {
+      setReviewCount(0);
+      return;
+    }
+    let cancelled = false;
+    void getReviewTickets("open")
+      .then((tickets) => {
+        if (!cancelled) setReviewCount(tickets.length);
+      })
+      .catch(() => {
+        if (!cancelled) setReviewCount(0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentPath, canReviewTickets]);
 
   // Memoize menu items based on permissions - will re-calculate when permissions change
   const memoizedMenuItems = useMemo(
-    () => menuItems(permissions, user?.role),
-    [permissions, user?.role],
+    () => menuItems(permissions, reviewCount),
+    [permissions, reviewCount],
   );
 
   // Determine selected keys based on current path
   const getSelectedKeys = () => {
     if (currentPath.startsWith("/dashboard")) return ["/dashboard"];
+    if (currentPath.startsWith("/my-requests")) return ["/my-requests"];
+    if (currentPath.startsWith("/ticket-review")) return ["/ticket-review"];
+    if (currentPath.startsWith("/rbac")) return ["/rbac/roles"];
     if (currentPath.startsWith("/activity")) return ["/activity"];
     if (currentPath.startsWith("/member")) return ["/member"];
     if (currentPath.startsWith("/ruang-curhat")) return ["/ruang-curhat"];
@@ -44,12 +67,20 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
 
   const getOpenKeys = () => {
     if (
+      currentPath.startsWith("/my-requests") ||
+      currentPath.startsWith("/ticket-review")
+    )
+      return ["/access-tickets"];
+    if (
       currentPath.startsWith("/province") ||
       currentPath.startsWith("/universities")
     ) {
       return ["/data-center"];
     }
-    if (currentPath.startsWith("/admin-users")) {
+    if (
+      currentPath.startsWith("/admin-users") ||
+      currentPath.startsWith("/rbac")
+    ) {
       return ["setting"];
     }
     if (

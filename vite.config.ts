@@ -5,9 +5,17 @@ import envCompatible from "vite-plugin-env-compatible";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), envCompatible()],
+  server: {
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    },
+  },
   preview: {
     port: 3005,
     strictPort: true,
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    },
   },
   build: {
     rollupOptions: {

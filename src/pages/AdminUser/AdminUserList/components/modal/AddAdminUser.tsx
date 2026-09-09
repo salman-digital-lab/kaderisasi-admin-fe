@@ -1,8 +1,7 @@
 import { useRequest } from "ahooks";
-import { Form, Input, Modal, Select } from "antd";
+import { Form, Input, Modal } from "antd";
 
 import { postAdminUser } from "../../../../../api/services/adminuser";
-import { ADMIN_ROLE_OPTIONS } from "../../../../../constants/options";
 
 type AddAdminUserProps = {
   isOpen: boolean;
@@ -16,7 +15,6 @@ export default function AddAdminUser({ isOpen, setIsOpen }: AddAdminUserProps) {
     displayName?: string;
     email?: string;
     password?: string;
-    role?: number;
   }>();
 
   return (
@@ -60,17 +58,6 @@ export default function AddAdminUser({ isOpen, setIsOpen }: AddAdminUserProps) {
           rules={[{ required: true, message: "Password tidak boleh kosong" }]}
         >
           <Input placeholder="Password" />
-        </Form.Item>
-        <Form.Item
-          label="Role"
-          name="role"
-          rules={[{ required: true, message: "Role tidak boleh kosong" }]}
-        >
-          <Select
-            placeholder="Pilih Role"
-            style={{ width: "100%" }}
-            options={ADMIN_ROLE_OPTIONS}
-          />
         </Form.Item>
       </Form>
     </Modal>

@@ -36,11 +36,8 @@ import {
   ACTIVITY_CATEGORY_ENUM,
   ACTIVITY_TYPE_ENUM,
 } from "../../../../types/constants/activity";
-import {
-  USER_LEVEL_ENUM,
-  ADMIN_ROLE_ENUM,
-} from "../../../../types/constants/profile";
-import { getUserRole } from "../../../../stores/authStore";
+import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
+import { usePermissions } from "../../../../stores/authStore";
 import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
 
 const { Title } = Typography;
@@ -62,6 +59,7 @@ type FormType = {
 
 const ActivityDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const permissions = usePermissions();
 
   const [form] = Form.useForm<FormType>();
   const activityType = Form.useWatch("activity_type", form);
@@ -223,7 +221,7 @@ const ActivityDetail = () => {
             </Space>
 
             <Space>
-              {getUserRole() === ADMIN_ROLE_ENUM.SUPER_ADMIN && (
+              {permissions.includes("activities.manage") && (
                 <Space size={8}>
                   <Button
                     type={isRegistrationOpen ? "default" : "primary"}

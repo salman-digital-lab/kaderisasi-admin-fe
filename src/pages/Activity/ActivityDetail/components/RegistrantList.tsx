@@ -41,7 +41,7 @@ import {
 } from "../../../../api/services/certificateTemplate";
 import type { Activity } from "../../../../types/model/activity";
 import type { CertificateTemplate } from "../../../../types/services/certificateTemplate";
-import { useUser } from "../../../../stores/authStore";
+import { usePermissions } from "../../../../stores/authStore";
 import {
   canAccessCertificates,
   canManageCertificateTemplates,
@@ -89,9 +89,9 @@ const statusConfig: Record<
 const RegistrantList = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const user = useUser();
-  const canAccessCertificateFeature = canAccessCertificates(user?.role);
-  const canManageCertificates = canManageCertificateTemplates(user?.role);
+  const permissions = usePermissions();
+  const canAccessCertificateFeature = canAccessCertificates(permissions);
+  const canManageCertificates = canManageCertificateTemplates(permissions);
 
   const [modalState, { toggle: toggleModal }] = useToggle();
   const [form] = Form.useForm();

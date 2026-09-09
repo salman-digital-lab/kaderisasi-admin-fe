@@ -7,35 +7,21 @@ import {
 } from "./certificate-permissions";
 
 describe("certificate permissions", () => {
-  it.each([0, 1, 2, 3, "0", "3"])(
-    "allows certificate access and issuance for role %s",
-    (role) => {
-      expect(canAccessCertificates(role)).toBe(true);
-      expect(canIssueCertificates(role)).toBe(true);
-    },
-  );
+  it("uses effective permission codes", () => {
+    const permissions = [
+      "certificate.read",
+      "certificate.issue",
+      "certificate.template.manage",
+      "certificate.revoke",
+    ];
+    expect(canAccessCertificates(permissions)).toBe(true);
+    expect(canIssueCertificates(permissions)).toBe(true);
+    expect(canManageCertificateTemplates(permissions)).toBe(true);
+    expect(canRevokeCertificates(permissions)).toBe(true);
+  });
 
-  it.each([0, 1, "0", "1"])(
-    "limits template management and revocation to role %s",
-    (role) => {
-      expect(canManageCertificateTemplates(role)).toBe(true);
-      expect(canRevokeCertificates(role)).toBe(true);
-    },
-  );
-
-  it.each([2, 3, 4, "unknown", null, undefined])(
-    "denies management and revocation for role %s",
-    (role) => {
-      expect(canManageCertificateTemplates(role)).toBe(false);
-      expect(canRevokeCertificates(role)).toBe(false);
-    },
-  );
-
-  it.each([4, "4", "unknown", null, undefined])(
-    "denies certificate access for role %s",
-    (role) => {
-      expect(canAccessCertificates(role)).toBe(false);
-      expect(canIssueCertificates(role)).toBe(false);
-    },
-  );
+  it("does not derive access from numeric roles", () => {
+    expect(canAccessCertificates([])).toBe(false);
+    expect(canManageCertificateTemplates([])).toBe(false);
+  });
 });

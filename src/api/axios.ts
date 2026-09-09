@@ -1,41 +1,109 @@
-import axios from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "../stores/authStore";
+import type { AuthSessionResponse } from "../types/services/auth";
+
+const baseURL = import.meta.env.VITE_PUBLIC_BE_ADMIN_API as string;
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_PUBLIC_BE_ADMIN_API as string,
+  baseURL,
   timeout: 10000,
+  withCredentials: true,
 });
 
-instance.interceptors.request.use(
-  (config) => {
-    // Get token from Zustand store instead of localStorage for consistency
-    const { token } = useAuthStore.getState();
+const sessionClient = axios.create({
+  baseURL,
+  timeout: 10000,
+  withCredentials: true,
+});
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+let refreshPromise: Promise<string> | null = null;
+
+function endSession(): void {
+  // The route guard sends signed-out users to /login without reloading.
+  // A reload would bootstrap the same refresh cookie and restart the cycle.
+  useAuthStore.getState().clearAuth();
+}
+
+export async function refreshSession(): Promise<string> {
+  if (!refreshPromise) {
+    const originalToken = useAuthStore.getState().token;
+    refreshPromise = sessionClient
+      .post<AuthSessionResponse>("/auth/refresh")
+      .then(({ data }) => {
+        if (useAuthStore.getState().token !== originalToken) {
+          throw new axios.CanceledError("Session changed during refresh");
+        }
+        useAuthStore.getState().setSession(data.data);
+        return data.data.access_token;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+export async function refreshSessionProfile(): Promise<void> {
+  const token = useAuthStore.getState().token;
+  if (!token) return;
+  try {
+    const { data } = await sessionClient.get<AuthSessionResponse>("/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    useAuthStore.getState().setSession(data.data);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      await refreshSession();
+      return;
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+    throw error;
+  }
+}
 
-// Add response interceptor to handle 401 errors more gracefully
+instance.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 instance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // Only auto-logout if we're not already on the login page
-      if (window.location.pathname !== "/login") {
-        // Clear auth state
-        const { clearAuth } = useAuthStore.getState();
-        clearAuth();
+  (response) => response,
+  async (error: AxiosError) => {
+    const config = error.config as
+      | (InternalAxiosRequestConfig & {
+          _sessionRetry?: boolean;
+          _permissionRefresh?: boolean;
+        })
+      | undefined;
 
-        // Redirect to login with a message
-        window.location.href = "/login?message=session_expired";
+    const isAuthenticationAttempt =
+      config?.url === "/auth/login" || config?.url === "/auth/google";
+    if (error.response?.status === 401 && config && !isAuthenticationAttempt) {
+      // Stop rejected replays and late responses after session failure.
+      if (config._sessionRetry || !useAuthStore.getState().isAuthenticated) {
+        endSession();
+        return Promise.reject(error);
+      }
+      config._sessionRetry = true;
+      try {
+        const token = await refreshSession();
+        config.headers.Authorization = `Bearer ${token}`;
+        return instance(config);
+      } catch {
+        endSession();
+      }
+    }
+
+    if (
+      error.response?.status === 403 &&
+      config &&
+      !config._permissionRefresh
+    ) {
+      config._permissionRefresh = true;
+      try {
+        await refreshSessionProfile();
+      } catch {
+        // Keep the original forbidden response; profile refresh is best effort.
       }
     }
     return Promise.reject(error);

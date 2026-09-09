@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Button,
   Form,
@@ -14,9 +14,9 @@ import {
 import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-import { loginUser } from "../../../api/auth";
+import { loginUser, loginWithGoogle } from "../../../api/auth";
 import { renderNotification } from "../../../constants/render";
-import { useSetAuth } from "../../../stores/authStore";
+import { useSetSession } from "../../../stores/authStore";
 
 const { Title, Text } = Typography;
 
@@ -30,7 +30,23 @@ const LoginForm = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { token } = theme.useToken();
-  const setAuth = useSetAuth();
+  const setSession = useSetSession();
+  const googleButton = useRef<HTMLDivElement>(null);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  const finishLogin = (
+    session: Awaited<ReturnType<typeof loginUser>>["data"],
+  ) => {
+    setSession(session);
+    navigate(
+      session.permissions.includes("dashboard.read")
+        ? "/dashboard"
+        : "/my-requests",
+      {
+        replace: true,
+      },
+    );
+  };
 
   // Set focus to email field on component mount
   useEffect(() => {
@@ -47,9 +63,7 @@ const LoginForm = () => {
     try {
       const resp = await loginUser(values);
 
-      // Update auth state after successful login
-      const responseData = resp.data;
-      setAuth(responseData.token.token, responseData.user as any);
+      finishLogin(resp.data);
 
       notification.success({
         message: "Berhasil Login",
@@ -57,11 +71,6 @@ const LoginForm = () => {
         placement: "topRight",
         duration: 4,
       });
-
-      // Small delay to ensure auth state is properly updated before navigation
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 100);
     } catch (error) {
       if (error instanceof Error)
         notification.error({
@@ -81,6 +90,57 @@ const LoginForm = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!googleClientId || !googleButton.current) return;
+    const renderGoogleButton = () => {
+      if (!window.google || !googleButton.current) return;
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async ({ credential }) => {
+          setLoading(true);
+          try {
+            const response = await loginWithGoogle(credential);
+            finishLogin(response.data);
+            notification.success({
+              message: "Berhasil Login",
+              placement: "topRight",
+            });
+          } catch (error) {
+            notification.error({
+              message: "Login Google Gagal",
+              description:
+                error instanceof Error
+                  ? renderNotification(error.message)
+                  : "Silakan coba lagi.",
+              placement: "topRight",
+            });
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+      window.google.accounts.id.renderButton(googleButton.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        width: Math.min(360, googleButton.current.clientWidth),
+        text: "signin_with",
+      });
+    };
+    if (window.google) {
+      renderGoogleButton();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.onload = renderGoogleButton;
+    document.head.appendChild(script);
+    return () => {
+      script.onload = null;
+    };
+  }, [googleClientId]);
 
   const containerStyle = {
     minHeight: "100vh",
@@ -194,6 +254,16 @@ const LoginForm = () => {
                   </Button>
                 </Form.Item>
               </Form>
+
+              {googleClientId && (
+                <>
+                  <Divider plain>atau</Divider>
+                  <div
+                    ref={googleButton}
+                    style={{ display: "flex", justifyContent: "center" }}
+                  />
+                </>
+              )}
 
               {/* Additional Options */}
               <div

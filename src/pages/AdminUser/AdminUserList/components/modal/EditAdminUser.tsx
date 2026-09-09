@@ -1,9 +1,9 @@
 import { Form, Modal, Select, Switch } from "antd";
 import { putAdminUser } from "../../../../../api/services/adminuser";
+import { getRoles } from "../../../../../api/services/access";
 import { useRequest } from "ahooks";
 import { useEffect } from "react";
 import { AdminUser } from "../../../../../types/model/adminuser";
-import { ADMIN_ROLE_OPTIONS } from "../../../../../constants/options";
 
 type EditAdminUserProps = {
   data: AdminUser | undefined;
@@ -17,16 +17,17 @@ export default function EditAdminUser({
   refresh,
 }: EditAdminUserProps) {
   const { runAsync, loading } = useRequest(putAdminUser, { manual: true });
+  const { data: roles = [] } = useRequest(getRoles);
   const [form] = Form.useForm<{
-    role?: number;
     isActive?: boolean;
+    role_code?: string | null;
   }>();
 
   useEffect(() => {
     if (data) {
       form.setFieldsValue({
-        role: data.role,
         isActive: data.is_active,
+        role_code: data.role?.code ?? null,
       });
       return;
     }
@@ -45,8 +46,8 @@ export default function EditAdminUser({
           await runAsync({
             id: String(data.id),
             data: {
-              role: values.role,
               isActive: values.isActive,
+              role_code: values.role_code ?? null,
             },
           });
           refresh();
@@ -60,12 +61,15 @@ export default function EditAdminUser({
       }}
     >
       <Form form={form} layout="vertical">
-        <Form.Item
-          label="Role"
-          name="role"
-          rules={[{ required: true, message: "Role tidak boleh kosong" }]}
-        >
-          <Select style={{ width: "100%" }} options={ADMIN_ROLE_OPTIONS} />
+        <Form.Item label="Role" name="role_code">
+          <Select
+            allowClear
+            placeholder="Belum memiliki role"
+            options={roles.map((role) => ({
+              value: role.code,
+              label: role.name,
+            }))}
+          />
         </Form.Item>
         <Form.Item label="Status Akun" name="isActive" valuePropName="checked">
           <Switch checkedChildren="Aktif" unCheckedChildren="Nonaktif" />

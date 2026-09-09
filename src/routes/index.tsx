@@ -1,35 +1,27 @@
-import { createBrowserRouter } from "react-router-dom";
-import { Navigate } from "react-router-dom";
-import { ReactNode, Suspense, lazy } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import { Skeleton } from "antd";
+import AppLayout from "../components/base";
 import {
   useIsAuthenticated,
   useIsInitialized,
-  useHasPermission,
-  useUser,
+  usePermissions,
 } from "../stores/authStore";
-import {
-  canAccessCertificates,
-  canManageCertificateTemplates,
-} from "../utils/certificate-permissions";
 
-import AppLayout from "../components/base";
-
-// Lazy load pages
 const LoginPage = lazy(() => import("../pages/LoginPage"));
+const DashboardPage = lazy(() => import("../pages/Dashboard"));
 const MainMember = lazy(() => import("../pages/Member/MemberList"));
 const MainMemberDetail = lazy(() => import("../pages/Member/MemberDetail"));
 const MainActivity = lazy(() => import("../pages/Activity/ActivityList"));
-const MainUniversity = lazy(() => import("../pages/University"));
-const MainProvince = lazy(() => import("../pages/Province"));
 const ActivityDetail = lazy(() => import("../pages/Activity/ActivityDetail"));
 const ActivityParticipants = lazy(
   () => import("../pages/Activity/ActivityParticipants"),
 );
-const DashboardPage = lazy(() => import("../pages/Dashboard"));
 const RegistrantDetail = lazy(
   () => import("../pages/Activity/RegistrantDetail"),
 );
+const MainUniversity = lazy(() => import("../pages/University"));
+const MainProvince = lazy(() => import("../pages/Province"));
 const RuangCurhatList = lazy(
   () => import("../pages/RuangCurhat/RuangCurhatList"),
 );
@@ -60,442 +52,219 @@ const CertificateDesigner = lazy(
   () => import("../pages/DigitalCertificate/CertificateDesigner"),
 );
 const CertificatePreview = lazy(() => import("../pages/CertificatePreview"));
+const ForbiddenPage = lazy(() => import("../pages/Forbidden"));
+const MyRequestsPage = lazy(() => import("../pages/AccessRequests/MyRequests"));
+const RequestDetailPage = lazy(
+  () => import("../pages/AccessRequests/RequestDetail"),
+);
+const ReviewInboxPage = lazy(
+  () => import("../pages/AccessRequests/ReviewInbox"),
+);
+const ReviewDetailPage = lazy(
+  () => import("../pages/AccessRequests/ReviewDetail"),
+);
+const RbacRolesPage = lazy(() => import("../pages/Rbac/Roles"));
 
-// Loading Component
 const Loading = () => (
-  <div style={{ padding: "12px", backgroundColor: "white" }}>
-    <Skeleton active paragraph={{ rows: 2 }} title={{ width: "30%" }} />
-    <div style={{ marginTop: "12px" }}>
-      <Skeleton active paragraph={{ rows: 8 }} title={false} />
-    </div>
+  <div style={{ padding: 12, backgroundColor: "white" }}>
+    <Skeleton active paragraph={{ rows: 8 }} title={{ width: "30%" }} />
   </div>
 );
 
-// Wrapper for lazy loaded components
-const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
+const Page = ({ children }: { children: ReactNode }) => (
   <Suspense fallback={<Loading />}>{children}</Suspense>
 );
 
-const AuthUser = ({ element }: { element: ReactNode }) => {
-  const isAuthenticated = useIsAuthenticated();
-  const isInitialized = useIsInitialized();
-
-  // Wait for initialization to prevent infinite loops
-  if (!isInitialized) {
-    return <Loading />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{element}</>;
+const Authenticated = ({ element }: { element: ReactNode }) => {
+  const initialized = useIsInitialized();
+  const authenticated = useIsAuthenticated();
+  if (!initialized) return <Loading />;
+  return authenticated ? <>{element}</> : <Navigate to="/login" replace />;
 };
 
-const RoleUser = ({
+const Authorized = ({
   element,
   permission,
 }: {
   element: ReactNode;
   permission: string;
 }) => {
-  const isAuthenticated = useIsAuthenticated();
-  const isInitialized = useIsInitialized();
-  const hasPermission = useHasPermission();
-
-  // Wait for initialization to prevent infinite loops
-  if (!isInitialized) {
-    return <Loading />;
-  }
-
-  if (!isAuthenticated || !hasPermission(permission)) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{element}</>;
+  const initialized = useIsInitialized();
+  const authenticated = useIsAuthenticated();
+  const permissions = usePermissions();
+  if (!initialized) return <Loading />;
+  if (!authenticated) return <Navigate to="/login" replace />;
+  return permissions.includes(permission) ? (
+    <>{element}</>
+  ) : (
+    <Navigate to="/forbidden" replace />
+  );
 };
 
-const CertificateRoleUser = ({
-  element,
-  manageOnly = false,
-}: {
-  element: ReactNode;
-  manageOnly?: boolean;
-}) => {
-  const isAuthenticated = useIsAuthenticated();
-  const isInitialized = useIsInitialized();
-  const hasPermission = useHasPermission();
-  const user = useUser();
-
-  if (!isInitialized) return <Loading />;
-
-  const allowed = manageOnly
-    ? canManageCertificateTemplates(user?.role)
-    : canAccessCertificates(user?.role);
-
-  if (!isAuthenticated || !hasPermission("kegiatan") || !allowed) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{element}</>;
+const DefaultLanding = () => {
+  const permissions = usePermissions();
+  return (
+    <Navigate
+      to={
+        permissions.includes("dashboard.read") ? "/dashboard" : "/my-requests"
+      }
+      replace
+    />
+  );
 };
 
-const routes = createBrowserRouter(
-  [
-    {
-      path: "/digital-certificate/:id/edit",
-      element: (
-        <CertificateRoleUser
-          manageOnly
-          element={
-            <SuspenseWrapper>
-              <CertificateDesigner />
-            </SuspenseWrapper>
-          }
-        />
-      ),
-    },
-    {
-      path: "/certificate-preview/:id",
-      element: (
-        <CertificateRoleUser
-          element={
-            <SuspenseWrapper>
-              <CertificatePreview />
-            </SuspenseWrapper>
-          }
-        />
-      ),
-    },
-    {
-      path: "/login",
-      element: (
-        <SuspenseWrapper>
-          <LoginPage />
-        </SuspenseWrapper>
-      ),
-    },
-    {
-      path: "/",
-      element: <AuthUser element={<AppLayout />} />,
-      children: [
-        {
-          path: "/",
-          element: (
-            <SuspenseWrapper>
-              <DashboardPage />
-            </SuspenseWrapper>
-          ),
-        },
-        {
-          path: "dashboard",
-          element: (
-            <SuspenseWrapper>
-              <DashboardPage />
-            </SuspenseWrapper>
-          ),
-        },
-        {
-          path: "member",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <MainMember />
-                </SuspenseWrapper>
-              }
-              permission="anggota"
-            />
-          ),
-        },
-        {
-          path: "member/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <MainMemberDetail />
-                </SuspenseWrapper>
-              }
-              permission="anggota"
-            />
-          ),
-        },
-        {
-          path: "activity",
-          element: (
-            <SuspenseWrapper>
-              <MainActivity />
-            </SuspenseWrapper>
-          ),
-        },
-        {
-          path: "activity/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <ActivityDetail />
-                </SuspenseWrapper>
-              }
-              permission="kegiatan"
-            />
-          ),
-        },
-        {
-          path: "activity/:id/participants",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <ActivityParticipants />
-                </SuspenseWrapper>
-              }
-              permission="kegiatan"
-            />
-          ),
-        },
-        {
-          path: "activity/:id/participants/:participantId",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <RegistrantDetail />
-                </SuspenseWrapper>
-              }
-              permission="kegiatan"
-            />
-          ),
-        },
-        {
-          path: "activity/:activityId/form/:formId/edit",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <CustomFormEdit />
-                </SuspenseWrapper>
-              }
-              permission="kegiatan"
-            />
-          ),
-        },
-        {
-          path: "registrant/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <RegistrantDetail />
-                </SuspenseWrapper>
-              }
-              permission="kegiatan"
-            />
-          ),
-        },
-        {
-          path: "universities",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <MainUniversity />
-                </SuspenseWrapper>
-              }
-              permission="pusatdata"
-            />
-          ),
-        },
-        {
-          path: "province",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <MainProvince />
-                </SuspenseWrapper>
-              }
-              permission="pusatdata"
-            />
-          ),
-        },
-        {
-          path: "ruang-curhat",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <RuangCurhatList />
-                </SuspenseWrapper>
-              }
-              permission="ruangcurhat"
-            />
-          ),
-        },
-        {
-          path: "ruang-curhat/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <RuangCurhatDetail />
-                </SuspenseWrapper>
-              }
-              permission="ruangcurhat"
-            />
-          ),
-        },
-        {
-          path: "/admin-users",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <AdminUserList />
-                </SuspenseWrapper>
-              }
-              permission="akunadmin"
-            />
-          ),
-        },
-        {
-          path: "/achievement",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <AchievementList />
-                </SuspenseWrapper>
-              }
-              permission="leaderboard"
-            />
-          ),
-        },
-        {
-          path: "/achievement/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <AchievementDetail />
-                </SuspenseWrapper>
-              }
-              permission="leaderboard"
-            />
-          ),
-        },
-        {
-          path: "/monthly-leaderboard",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <MonthlyLeaderboard />
-                </SuspenseWrapper>
-              }
-              permission="leaderboard"
-            />
-          ),
-        },
-        {
-          path: "/lifetime-leaderboard",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <LifetimeLeaderboard />
-                </SuspenseWrapper>
-              }
-              permission="leaderboard"
-            />
-          ),
-        },
-        {
-          path: "/club",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <ClubList />
-                </SuspenseWrapper>
-              }
-              permission="club"
-            />
-          ),
-        },
-        {
-          path: "/club/:id",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <ClubDetail />
-                </SuspenseWrapper>
-              }
-              permission="club"
-            />
-          ),
-        },
-        {
-          path: "/club/:clubId/form/:formId/edit",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <CustomFormEdit />
-                </SuspenseWrapper>
-              }
-              permission="club"
-            />
-          ),
-        },
-        {
-          path: "/custom-form",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <CustomFormList />
-                </SuspenseWrapper>
-              }
-              permission="formkustom"
-            />
-          ),
-        },
-        {
-          path: "/custom-form/:formId/edit",
-          element: (
-            <RoleUser
-              element={
-                <SuspenseWrapper>
-                  <CustomFormEdit />
-                </SuspenseWrapper>
-              }
-              permission="formkustom"
-            />
-          ),
-        },
-        {
-          path: "/digital-certificate",
-          element: (
-            <CertificateRoleUser
-              element={
-                <SuspenseWrapper>
-                  <DigitalCertificate />
-                </SuspenseWrapper>
-              }
-            />
-          ),
-        },
-      ],
-    },
-  ],
-  {
-    future: {
-      v7_relativeSplatPath: true,
-    },
-  },
+const guarded = (component: ReactNode, permission: string) => (
+  <Authorized permission={permission} element={<Page>{component}</Page>} />
 );
+
+const routes = createBrowserRouter([
+  {
+    path: "/login",
+    element: (
+      <Page>
+        <LoginPage />
+      </Page>
+    ),
+  },
+  {
+    path: "/digital-certificate/:id/edit",
+    element: guarded(<CertificateDesigner />, "certificate.template.manage"),
+  },
+  {
+    path: "/certificate-preview/:id",
+    element: guarded(<CertificatePreview />, "certificate.read"),
+  },
+  {
+    path: "/",
+    element: <Authenticated element={<AppLayout />} />,
+    children: [
+      { index: true, element: <DefaultLanding /> },
+      {
+        path: "forbidden",
+        element: (
+          <Page>
+            <ForbiddenPage />
+          </Page>
+        ),
+      },
+      {
+        path: "dashboard",
+        element: guarded(<DashboardPage />, "dashboard.read"),
+      },
+      {
+        path: "my-requests",
+        element: (
+          <Page>
+            <MyRequestsPage />
+          </Page>
+        ),
+      },
+      {
+        path: "my-requests/:id",
+        element: (
+          <Page>
+            <RequestDetailPage />
+          </Page>
+        ),
+      },
+      {
+        path: "ticket-review",
+        element: guarded(<ReviewInboxPage />, "tickets.review"),
+      },
+      {
+        path: "ticket-review/:id",
+        element: guarded(<ReviewDetailPage />, "tickets.review"),
+      },
+      { path: "rbac/roles", element: guarded(<RbacRolesPage />, "rbac.read") },
+      {
+        path: "admin-users",
+        element: guarded(<AdminUserList />, "admin_users.read"),
+      },
+      { path: "member", element: guarded(<MainMember />, "members.read") },
+      {
+        path: "member/:id",
+        element: guarded(<MainMemberDetail />, "members.read"),
+      },
+      {
+        path: "activity",
+        element: guarded(<MainActivity />, "activities.read"),
+      },
+      {
+        path: "activity/:id",
+        element: guarded(<ActivityDetail />, "activities.read"),
+      },
+      {
+        path: "activity/:id/participants",
+        element: guarded(
+          <ActivityParticipants />,
+          "activity_registrations.read",
+        ),
+      },
+      {
+        path: "activity/:id/participants/:participantId",
+        element: guarded(<RegistrantDetail />, "activity_registrations.read"),
+      },
+      {
+        path: "registrant/:id",
+        element: guarded(<RegistrantDetail />, "activity_registrations.read"),
+      },
+      {
+        path: "activity/:activityId/form/:formId/edit",
+        element: guarded(<CustomFormEdit />, "custom_forms.manage"),
+      },
+      {
+        path: "universities",
+        element: guarded(<MainUniversity />, "reference_data.manage"),
+      },
+      {
+        path: "province",
+        element: guarded(<MainProvince />, "reference_data.manage"),
+      },
+      {
+        path: "ruang-curhat",
+        element: guarded(<RuangCurhatList />, "counseling.read"),
+      },
+      {
+        path: "ruang-curhat/:id",
+        element: guarded(<RuangCurhatDetail />, "counseling.read"),
+      },
+      {
+        path: "achievement",
+        element: guarded(<AchievementList />, "achievements.read"),
+      },
+      {
+        path: "achievement/:id",
+        element: guarded(<AchievementDetail />, "achievements.read"),
+      },
+      {
+        path: "monthly-leaderboard",
+        element: guarded(<MonthlyLeaderboard />, "leaderboards.read"),
+      },
+      {
+        path: "lifetime-leaderboard",
+        element: guarded(<LifetimeLeaderboard />, "leaderboards.read"),
+      },
+      { path: "club", element: guarded(<ClubList />, "clubs.read") },
+      { path: "club/:id", element: guarded(<ClubDetail />, "clubs.read") },
+      {
+        path: "club/:clubId/form/:formId/edit",
+        element: guarded(<CustomFormEdit />, "custom_forms.manage"),
+      },
+      {
+        path: "custom-form",
+        element: guarded(<CustomFormList />, "custom_forms.read"),
+      },
+      {
+        path: "custom-form/:formId/edit",
+        element: guarded(<CustomFormEdit />, "custom_forms.manage"),
+      },
+      {
+        path: "digital-certificate",
+        element: guarded(<DigitalCertificate />, "certificate.read"),
+      },
+      { path: "*", element: <Navigate to="/forbidden" replace /> },
+    ],
+  },
+]);
 
 export default routes;

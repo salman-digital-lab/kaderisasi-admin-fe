@@ -47,7 +47,7 @@ import {
   getCertificateTemplateStatus,
   isCertificateTemplateReady,
 } from "../utils/certificate-readiness";
-import { useUser } from "../../../stores/authStore";
+import { usePermissions } from "../../../stores/authStore";
 import { canManageCertificateTemplates } from "../../../utils/certificate-permissions";
 
 const { Text, Title } = Typography;
@@ -265,8 +265,8 @@ const buildStarterTemplate = (
 
 const CertificateList: React.FC = () => {
   const navigate = useNavigate();
-  const user = useUser();
-  const canManage = canManageCertificateTemplates(user?.role);
+  const permissions = usePermissions();
+  const canManage = canManageCertificateTemplates(permissions);
   const [form] = Form.useForm<CreateTemplateFormValues>();
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
