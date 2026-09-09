@@ -1,21 +1,3 @@
-import React, { useCallback, useState, useEffect } from "react";
-import {
-  Card,
-  Input,
-  Select,
-  Slider,
-  ColorPicker,
-  Upload,
-  Button,
-  InputNumber,
-  Typography,
-  Space,
-  Divider,
-  Segmented,
-  message,
-  Alert,
-  Switch,
-} from "antd";
 import {
   AlignCenterOutlined,
   AlignLeftOutlined,
@@ -30,12 +12,30 @@ import {
   VerticalAlignMiddleOutlined,
   VerticalAlignTopOutlined,
 } from "@ant-design/icons";
-import { CertificateElement } from "../types";
-import { VARIABLE_OPTIONS, DEFAULT_FONT_FAMILIES } from "../constants";
-import { getValidatedUploadFile } from "../utils/readUploadFile";
-import { getCertificateAssetUrl } from "../utils/certificate-content";
-import { getBoundedGeometryValue } from "../CertificateDesigner/geometry";
+import {
+  Alert,
+  Button,
+  Card,
+  ColorPicker,
+  Divider,
+  Input,
+  InputNumber,
+  Segmented,
+  Select,
+  Slider,
+  Space,
+  Switch,
+  Typography,
+  Upload,
+  message,
+} from "antd";
+import React, { useCallback, useEffect, useState } from "react";
 import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
+import { getBoundedGeometryValue } from "../CertificateDesigner/geometry";
+import { DEFAULT_FONT_FAMILIES, VARIABLE_OPTIONS } from "../constants";
+import { CertificateElement } from "../types";
+import { getCertificateAssetUrl } from "../utils/certificate-content";
+import { getValidatedUploadFile } from "../utils/readUploadFile";
 
 const { Text } = Typography;
 
@@ -208,6 +208,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     onToggleLock,
     onDelete,
   }) => {
+    const [geometryOpen, setGeometryOpen] = useState(false);
     // ── Callbacks ───────────────────────────────────────────────────────
 
     const handleImageUpload = useCallback(
@@ -404,94 +405,114 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           style={{ minWidth: 0, margin: 0, padding: 0, border: 0 }}
         >
           <Space direction="vertical" style={{ width: "100%" }} size="small">
-            <Divider titlePlacement="start" plain style={{ margin: "2px 0" }}>
-              Geometry
-            </Divider>
-            <PropertySection label="Nama Layer">
-              <Input
-                size="small"
-                value={element.name}
-                placeholder="Nama layer"
-                aria-label="Nama layer"
-                onChange={(e) => updateField("name", e.target.value, true)}
-                onBlur={() => onUpdateComplete("name")}
-                onPressEnter={(event) => event.currentTarget.blur()}
-              />
-            </PropertySection>
-
-            {/* Position */}
-            <PropertySection label="Posisi">
-              <div style={{ display: "flex", gap: 8 }}>
-                <BoundedNumberInput
-                  label="X"
-                  value={Math.round(element.x)}
-                  min={0}
-                  max={Math.max(0, (canvasWidth ?? 5000) - element.width)}
-                  onChange={(v) => updateField("x", v)}
-                />
-                <BoundedNumberInput
-                  label="Y"
-                  value={Math.round(element.y)}
-                  min={0}
-                  max={Math.max(0, (canvasHeight ?? 5000) - element.height)}
-                  onChange={(v) => updateField("y", v)}
-                />
-              </div>
-            </PropertySection>
-
-            {/* Size */}
-            <PropertySection label="Ukuran">
-              <div style={{ display: "flex", gap: 8 }}>
-                <BoundedNumberInput
-                  label="Lebar"
-                  value={Math.round(element.width)}
-                  min={1}
-                  max={Math.max(1, (canvasWidth ?? 5000) - element.x)}
-                  onChange={(v) => updateField("width", v)}
-                />
-                <BoundedNumberInput
-                  label="Tinggi"
-                  value={Math.round(element.height)}
-                  min={1}
-                  max={Math.max(1, (canvasHeight ?? 5000) - element.y)}
-                  onChange={(v) => updateField("height", v)}
-                />
-              </div>
-            </PropertySection>
-            <PropertySection label="Ratakan ke kanvas">
-              <Space.Compact block>
-                <Button
-                  icon={<AlignLeftOutlined />}
-                  aria-label="Rata kiri kanvas"
-                  onClick={() => onAlign?.("left")}
-                />
-                <Button
-                  icon={<AlignCenterOutlined />}
-                  aria-label="Rata tengah horizontal"
-                  onClick={() => onAlign?.("center")}
-                />
-                <Button
-                  icon={<AlignRightOutlined />}
-                  aria-label="Rata kanan kanvas"
-                  onClick={() => onAlign?.("right")}
-                />
-                <Button
-                  icon={<VerticalAlignTopOutlined />}
-                  aria-label="Rata atas kanvas"
-                  onClick={() => onAlign?.("top")}
-                />
-                <Button
-                  icon={<VerticalAlignMiddleOutlined />}
-                  aria-label="Rata tengah vertikal"
-                  onClick={() => onAlign?.("middle")}
-                />
-                <Button
-                  icon={<VerticalAlignBottomOutlined />}
-                  aria-label="Rata bawah kanvas"
-                  onClick={() => onAlign?.("bottom")}
-                />
-              </Space.Compact>
-            </PropertySection>
+            <details
+              onToggle={(event) => setGeometryOpen(event.currentTarget.open)}
+              style={{ width: "100%" }}
+            >
+              <summary style={{ cursor: "pointer", padding: "8px 0" }}>
+                Posisi, ukuran, dan layer
+              </summary>
+              {geometryOpen && (
+                <Space orientation="vertical" style={{ width: "100%" }}>
+                  {" "}
+                  <Divider
+                    titlePlacement="start"
+                    plain
+                    style={{ margin: "2px 0" }}
+                  >
+                    Geometry
+                  </Divider>
+                  <PropertySection label="Nama Layer">
+                    <Input
+                      size="small"
+                      value={element.name}
+                      placeholder="Nama layer"
+                      aria-label="Nama layer"
+                      onChange={(e) =>
+                        updateField("name", e.target.value, true)
+                      }
+                      onBlur={() => onUpdateComplete("name")}
+                      onPressEnter={(event) => event.currentTarget.blur()}
+                    />
+                  </PropertySection>
+                  {/* Position */}
+                  <PropertySection label="Posisi">
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <BoundedNumberInput
+                        label="X"
+                        value={Math.round(element.x)}
+                        min={0}
+                        max={Math.max(0, (canvasWidth ?? 5000) - element.width)}
+                        onChange={(v) => updateField("x", v)}
+                      />
+                      <BoundedNumberInput
+                        label="Y"
+                        value={Math.round(element.y)}
+                        min={0}
+                        max={Math.max(
+                          0,
+                          (canvasHeight ?? 5000) - element.height,
+                        )}
+                        onChange={(v) => updateField("y", v)}
+                      />
+                    </div>
+                  </PropertySection>
+                  {/* Size */}
+                  <PropertySection label="Ukuran">
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <BoundedNumberInput
+                        label="Lebar"
+                        value={Math.round(element.width)}
+                        min={1}
+                        max={Math.max(1, (canvasWidth ?? 5000) - element.x)}
+                        onChange={(v) => updateField("width", v)}
+                      />
+                      <BoundedNumberInput
+                        label="Tinggi"
+                        value={Math.round(element.height)}
+                        min={1}
+                        max={Math.max(1, (canvasHeight ?? 5000) - element.y)}
+                        onChange={(v) => updateField("height", v)}
+                      />
+                    </div>
+                  </PropertySection>
+                  <PropertySection label="Ratakan ke kanvas">
+                    <Space.Compact block>
+                      <Button
+                        icon={<AlignLeftOutlined />}
+                        aria-label="Rata kiri kanvas"
+                        onClick={() => onAlign?.("left")}
+                      />
+                      <Button
+                        icon={<AlignCenterOutlined />}
+                        aria-label="Rata tengah horizontal"
+                        onClick={() => onAlign?.("center")}
+                      />
+                      <Button
+                        icon={<AlignRightOutlined />}
+                        aria-label="Rata kanan kanvas"
+                        onClick={() => onAlign?.("right")}
+                      />
+                      <Button
+                        icon={<VerticalAlignTopOutlined />}
+                        aria-label="Rata atas kanvas"
+                        onClick={() => onAlign?.("top")}
+                      />
+                      <Button
+                        icon={<VerticalAlignMiddleOutlined />}
+                        aria-label="Rata tengah vertikal"
+                        onClick={() => onAlign?.("middle")}
+                      />
+                      <Button
+                        icon={<VerticalAlignBottomOutlined />}
+                        aria-label="Rata bawah kanvas"
+                        onClick={() => onAlign?.("bottom")}
+                      />
+                    </Space.Compact>
+                  </PropertySection>
+                </Space>
+              )}
+            </details>
 
             {/* Variable Selection */}
             {element.type === "variable-text" && (

@@ -1,6 +1,6 @@
-import { lazy, Suspense, type ReactNode } from "react";
-import { Navigate, createBrowserRouter } from "react-router-dom";
 import { Skeleton } from "antd";
+import { lazy, Suspense, type ReactNode } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import AppLayout from "../components/base";
 import {
   useIsAuthenticated,
@@ -47,6 +47,9 @@ const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
 const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
 const ClubList = lazy(() => import("../pages/Club/ClubList"));
 const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
+const ActivityCertificates = lazy(
+  () => import("../pages/Activity/ActivityCertificates"),
+);
 const DigitalCertificate = lazy(() => import("../pages/DigitalCertificate"));
 const CertificateDesigner = lazy(
   () => import("../pages/DigitalCertificate/CertificateDesigner"),
@@ -257,6 +260,10 @@ const routes = createBrowserRouter([
       {
         path: "custom-form/:formId/edit",
         element: guarded(<CustomFormEdit />, "custom_forms.manage"),
+      },
+      {
+        path: "activity/:id/certificates",
+        element: guarded(<ActivityCertificates />, "certificate.read"),
       },
       {
         path: "digital-certificate",

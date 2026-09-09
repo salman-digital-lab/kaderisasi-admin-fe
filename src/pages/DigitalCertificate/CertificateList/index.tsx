@@ -1,54 +1,61 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
-  Card,
-  Table,
-  Button,
-  Input,
-  Space,
-  Tag,
-  Typography,
-  Popconfirm,
-  message,
-  Tooltip,
-  Modal,
-  Form,
-  Select,
-  Alert,
-} from "antd";
-import {
-  PlusOutlined,
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
+  CheckCircleOutlined,
   CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  InboxOutlined,
+  PlusOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
-  CheckCircleOutlined,
-  InboxOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  Card,
+  Collapse,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Radio,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
 import type { TableProps } from "antd/es/table/InternalTable";
 import dayjs from "dayjs";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  getCertificateTemplates,
   createCertificateTemplate,
   deleteCertificateTemplate,
+  getCertificateTemplates,
   updateCertificateTemplateLifecycle,
 } from "../../../api/services/certificateTemplate";
+import { duplicateTemplate } from "../../../api/services/certificateWorkflow";
+import { usePermissions } from "../../../stores/authStore";
+import type { Pagination } from "../../../types/services/base";
 import type {
   CertificateTemplate,
-  CertificateTemplateData,
   CertificateTemplateStatus,
 } from "../../../types/services/certificateTemplate";
-import type { Pagination } from "../../../types/services/base";
+import { canManageCertificateTemplates } from "../../../utils/certificate-permissions";
 import { TemplateThumbnail } from "../components";
 import {
   getCertificateReadiness,
   getCertificateTemplateStatus,
   isCertificateTemplateReady,
 } from "../utils/certificate-readiness";
-import { usePermissions } from "../../../stores/authStore";
-import { canManageCertificateTemplates } from "../../../utils/certificate-permissions";
+import {
+  buildStarterTemplate,
+  CANVAS_PRESETS,
+  STARTER_LAYOUTS,
+} from "../utils/starter-templates";
 
 const { Text, Title } = Typography;
 
@@ -64,30 +71,6 @@ interface CreateTemplateFormValues {
   layout: string;
 }
 
-const CANVAS_PRESETS = [
-  { label: "A4 Landscape", value: "a4-landscape", width: 800, height: 566 },
-  { label: "A4 Portrait", value: "a4-portrait", width: 566, height: 800 },
-  {
-    label: "Letter Landscape",
-    value: "letter-landscape",
-    width: 792,
-    height: 612,
-  },
-  {
-    label: "Letter Portrait",
-    value: "letter-portrait",
-    width: 612,
-    height: 792,
-  },
-];
-
-const STARTER_LAYOUTS = [
-  { label: "Kosong", value: "blank" },
-  { label: "Sertifikat Basic", value: "basic" },
-  { label: "Penghargaan", value: "award" },
-  { label: "Partisipasi", value: "participation" },
-];
-
 const STATUS_OPTIONS: Array<{
   label: string;
   value: CertificateTemplateStatus;
@@ -97,181 +80,24 @@ const STATUS_OPTIONS: Array<{
   { label: "Diarsipkan", value: "archived" },
 ];
 
-const createTextElement = (
-  id: string,
-  content: string,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  fontSize: number,
-  options?: Partial<CertificateTemplateData["elements"][number]>,
-): CertificateTemplateData["elements"][number] => ({
-  id,
-  type: "static-text",
-  name: content,
-  content,
-  x,
-  y,
-  width,
-  height,
-  fontSize,
-  fontFamily: "serif",
-  color: "#1f2937",
-  textAlign: "center",
-  verticalAlign: "middle",
-  fontWeight: "normal",
-  fontStyle: "normal",
-  textDecoration: "none",
-  lineHeight: 1.2,
-  letterSpacing: 0,
-  opacity: 100,
-  rotation: 0,
-  borderRadius: 0,
-  objectFit: "contain",
-  visible: true,
-  locked: false,
-  ...options,
-});
-
-const createVariableElement = (
-  id: string,
-  variable: string,
-  name: string,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  fontSize: number,
-  options?: Partial<CertificateTemplateData["elements"][number]>,
-): CertificateTemplateData["elements"][number] => ({
-  ...createTextElement(id, variable, x, y, width, height, fontSize, options),
-  type: "variable-text",
-  name,
-  variable,
-  content: undefined,
-});
-
-const buildStarterTemplate = (
-  presetValue: string,
-  layout: string,
-): CertificateTemplateData => {
-  const preset =
-    CANVAS_PRESETS.find((item) => item.value === presetValue) ||
-    CANVAS_PRESETS[0];
-  const width = preset.width;
-  const height = preset.height;
-  const centerX = Math.round(width * 0.15);
-  const contentWidth = Math.round(width * 0.7);
-
-  if (layout === "blank") {
-    return {
-      backgroundUrl: null,
-      elements: [],
-      canvasWidth: width,
-      canvasHeight: height,
-    };
-  }
-
-  const elements: CertificateTemplateData["elements"] = [
-    createTextElement(
-      "starter-title",
-      layout === "award" ? "PENGHARGAAN" : "SERTIFIKAT",
-      centerX,
-      Math.round(height * 0.16),
-      contentWidth,
-      48,
-      36,
-      { fontWeight: "bold", letterSpacing: 2 },
-    ),
-    createTextElement(
-      "starter-subtitle",
-      layout === "participation"
-        ? "Diberikan sebagai apresiasi atas partisipasi"
-        : "Diberikan kepada",
-      centerX,
-      Math.round(height * 0.31),
-      contentWidth,
-      34,
-      18,
-    ),
-    createVariableElement(
-      "starter-name",
-      "{{name}}",
-      "Nama Peserta",
-      centerX,
-      Math.round(height * 0.39),
-      contentWidth,
-      62,
-      32,
-      { fontWeight: "bold", color: "#0f766e" },
-    ),
-    createTextElement(
-      "starter-body",
-      layout === "award"
-        ? "Atas pencapaian dan kontribusi terbaik dalam kegiatan"
-        : "Telah mengikuti kegiatan",
-      centerX,
-      Math.round(height * 0.53),
-      contentWidth,
-      40,
-      16,
-    ),
-    createVariableElement(
-      "starter-activity",
-      "{{activity_name}}",
-      "Nama Kegiatan",
-      centerX,
-      Math.round(height * 0.61),
-      contentWidth,
-      42,
-      20,
-      { fontWeight: "bold" },
-    ),
-    createVariableElement(
-      "starter-date",
-      "{{activity_date}}",
-      "Tanggal Kegiatan",
-      Math.round(width * 0.12),
-      Math.round(height * 0.78),
-      Math.round(width * 0.28),
-      32,
-      14,
-    ),
-    {
-      id: "starter-signature",
-      type: "signature",
-      name: "Tanda Tangan",
-      x: Math.round(width * 0.65),
-      y: Math.round(height * 0.72),
-      width: Math.round(width * 0.2),
-      height: Math.round(height * 0.13),
-      opacity: 100,
-      rotation: 0,
-      borderRadius: 0,
-      objectFit: "contain",
-      visible: true,
-      locked: false,
-    },
-  ];
-
-  return {
-    backgroundUrl: null,
-    elements,
-    canvasWidth: width,
-    canvasHeight: height,
-  };
-};
-
 const CertificateList: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+  const safeReturnTo =
+    returnTo && /^\/activity\/[1-9][0-9]*\/certificates$/.test(returnTo)
+      ? returnTo
+      : null;
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const permissions = usePermissions();
   const canManage = canManageCertificateTemplates(permissions);
   const [form] = Form.useForm<CreateTemplateFormValues>();
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [mutatingId, setMutatingId] = useState<number | null>(null);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(
+    searchParams.get("create") === "1",
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -279,6 +105,7 @@ const CertificateList: React.FC = () => {
     CertificateTemplateStatus | undefined
   >();
   const requestIdRef = useRef(0);
+  const fetchController = useRef<AbortController | null>(null);
   const [data, setData] = useState<{
     meta: Pagination;
     data: CertificateTemplate[];
@@ -290,28 +117,45 @@ const CertificateList: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     const requestId = ++requestIdRef.current;
+    fetchController.current?.abort();
+    const controller = new AbortController();
+    fetchController.current = controller;
     setLoading(true);
     setLoadError(null);
     try {
-      const result = await getCertificateTemplates({
-        page: String(parameter.page),
-        per_page: String(parameter.per_page),
-        search: appliedSearch || undefined,
-        status: statusFilter,
-      });
-      if (requestId === requestIdRef.current) setData(result);
+      const result = await getCertificateTemplates(
+        {
+          page: String(parameter.page),
+          per_page: String(parameter.per_page),
+          search: appliedSearch || undefined,
+          status: statusFilter,
+        },
+        controller.signal,
+      );
+      if (requestId === requestIdRef.current && !controller.signal.aborted)
+        setData(result);
     } catch {
-      if (requestId === requestIdRef.current) {
+      if (requestId === requestIdRef.current && !controller.signal.aborted) {
         setLoadError("Template gagal dimuat. Periksa koneksi lalu coba lagi.");
       }
     } finally {
-      if (requestId === requestIdRef.current) setLoading(false);
+      if (requestId === requestIdRef.current && !controller.signal.aborted)
+        setLoading(false);
     }
   }, [appliedSearch, parameter.page, parameter.per_page, statusFilter]);
 
   useEffect(() => {
     fetchData();
+    return () => fetchController.current?.abort();
   }, [fetchData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAppliedSearch(searchInput.trim());
+      setParameter((current) => ({ ...current, page: 1 }));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const handleCreate = async (values: CreateTemplateFormValues) => {
     setCreating(true);
@@ -326,7 +170,9 @@ const CertificateList: React.FC = () => {
       });
       if (template) {
         message.success("Template berhasil dibuat");
-        navigate(`/digital-certificate/${template.id}/edit`);
+        navigate(
+          `/digital-certificate/${template.id}/edit${safeReturnTo ? `?returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
+        );
       }
     } catch {
       // Error handled by handleError
@@ -351,19 +197,17 @@ const CertificateList: React.FC = () => {
   const handleDuplicate = async (record: CertificateTemplate) => {
     setMutatingId(record.id);
     try {
-      const template = await createCertificateTemplate({
-        name: `${record.name} (Salinan)`,
-        description: record.description,
-        templateData: record.template_data,
-        isActive: false,
-        status: "draft",
-      });
+      const template = await duplicateTemplate(record.id);
       if (template) {
         message.success("Template berhasil diduplikat");
-        await fetchData();
+        navigate(
+          `/digital-certificate/${template.id}/edit${safeReturnTo ? `?returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
+        );
       }
     } catch {
-      // Error handled by handleError
+      message.error(
+        "Template tidak dapat disalin. Periksa aset dan coba lagi.",
+      );
     } finally {
       setMutatingId(null);
     }
@@ -427,11 +271,13 @@ const CertificateList: React.FC = () => {
     {
       title: "Nama Template",
       dataIndex: "name",
+      width: 240,
       render: (value: string) => <Text strong>{value}</Text>,
     },
     {
       title: "Deskripsi",
       dataIndex: "description",
+      width: 200,
       render: (value: string | null) => value || "-",
       ellipsis: true,
     },
@@ -562,9 +408,9 @@ const CertificateList: React.FC = () => {
                 size="small"
                 disabled={isMutating}
                 style={{ minHeight: 44 }}
-                onClick={() => handleLifecycleChange(record, "draft")}
+                onClick={() => handleDuplicate(record)}
               >
-                Jadikan draf
+                Edit salinan
               </Button>
             )}
             <Popconfirm
@@ -634,7 +480,7 @@ const CertificateList: React.FC = () => {
               onClick={() => setCreateModalOpen(true)}
               loading={creating}
             >
-              Buat Template
+              Buat desain
             </Button>
           )}
         </div>
@@ -742,7 +588,7 @@ const CertificateList: React.FC = () => {
             per_page: pagination.pageSize || 10,
           }))
         }
-        scroll={{ x: 800 }}
+        scroll={{ x: 1200 }}
         size="small"
         bordered
         locale={{ emptyText: "Belum ada template pada filter ini" }}
@@ -750,14 +596,14 @@ const CertificateList: React.FC = () => {
 
       {canManage && (
         <Modal
-          title="Buat Template Sertifikat"
+          title="Buat desain sertifikat"
           open={createModalOpen}
           onCancel={() => {
             setCreateModalOpen(false);
             form.resetFields();
           }}
           onOk={() => form.submit()}
-          okText="Buat Template"
+          okText="Buat desain"
           cancelText="Batal"
           confirmLoading={creating}
           destroyOnHidden
@@ -783,15 +629,51 @@ const CertificateList: React.FC = () => {
             >
               <Input placeholder="Nama template" />
             </Form.Item>
-            <Form.Item name="description" label="Deskripsi">
-              <Input.TextArea rows={2} placeholder="Deskripsi opsional" />
+            <Form.Item name="layout" label="Pilih desain awal">
+              <Radio.Group
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 12,
+                }}
+              >
+                {STARTER_LAYOUTS.map((layout) => (
+                  <Radio.Button
+                    key={layout.value}
+                    value={layout.value}
+                    style={{ height: "auto", padding: 8, whiteSpace: "normal" }}
+                  >
+                    <TemplateThumbnail
+                      width={150}
+                      templateData={buildStarterTemplate(
+                        "a4-landscape",
+                        layout.value,
+                      )}
+                    />
+                    <span>{layout.label}</span>
+                  </Radio.Button>
+                ))}
+              </Radio.Group>
             </Form.Item>
-            <Form.Item name="preset" label="Ukuran Kanvas">
-              <Select options={CANVAS_PRESETS} />
-            </Form.Item>
-            <Form.Item name="layout" label="Starter Layout">
-              <Select options={STARTER_LAYOUTS} />
-            </Form.Item>
+            <Collapse
+              onChange={(keys) => setAdvancedOpen(keys.length > 0)}
+              items={[
+                {
+                  key: "settings",
+                  label: "Pengaturan tambahan",
+                  children: advancedOpen ? (
+                    <>
+                      <Form.Item name="description" label="Deskripsi">
+                        <Input.TextArea rows={2} />
+                      </Form.Item>
+                      <Form.Item name="preset" label="Ukuran dokumen">
+                        <Select options={CANVAS_PRESETS} />
+                      </Form.Item>
+                    </>
+                  ) : null,
+                },
+              ]}
+            />
           </Form>
         </Modal>
       )}

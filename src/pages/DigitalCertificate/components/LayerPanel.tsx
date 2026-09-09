@@ -68,167 +68,175 @@ const SortableLayer: React.FC<
     index: number;
     selected: boolean;
   }
-> = ({
-  element,
-  index,
-  selected,
-  onSelect,
-  onRename,
-  onToggleVisibility,
-  onToggleLock,
-  onMoveForward,
-  onMoveBackward,
-  onDuplicate,
-  onDelete,
-}) => {
-  const [renaming, setRenaming] = useState(false);
-  const [draftName, setDraftName] = useState("");
-  const rowRef = useRef<HTMLLIElement | null>(null);
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: element.id });
-  const name = getName(element, index);
-  useEffect(() => {
-    if (selected) rowRef.current?.scrollIntoView({ block: "nearest" });
-  }, [selected]);
-  const beginRename = (): void => {
-    setDraftName(name);
-    setRenaming(true);
-  };
-  const commitRename = (): void => {
-    if (!renaming) return;
-    onRename(element.id, draftName);
-    setRenaming(false);
-  };
-  const menuItems: MenuProps["items"] = [
-    {
-      key: "forward",
-      label: "Naikkan",
-      onClick: () => onMoveForward(element.id),
-    },
-    {
-      key: "backward",
-      label: "Turunkan",
-      onClick: () => onMoveBackward(element.id),
-    },
-    {
-      key: "duplicate",
-      icon: <CopyOutlined />,
-      label: "Duplikat",
-      onClick: () => onDuplicate(element.id),
-    },
-    { type: "divider" },
-    {
-      key: "delete",
-      danger: true,
-      icon: <DeleteOutlined />,
-      label: "Hapus",
-      onClick: () => onDelete(element.id),
-    },
-  ];
+> = React.memo(
+  ({
+    element,
+    index,
+    selected,
+    onSelect,
+    onRename,
+    onToggleVisibility,
+    onToggleLock,
+    onMoveForward,
+    onMoveBackward,
+    onDuplicate,
+    onDelete,
+  }) => {
+    const [renaming, setRenaming] = useState(false);
+    const [draftName, setDraftName] = useState("");
+    const rowRef = useRef<HTMLLIElement | null>(null);
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: element.id });
+    const name = getName(element, index);
+    useEffect(() => {
+      if (selected) rowRef.current?.scrollIntoView({ block: "nearest" });
+    }, [selected]);
+    const beginRename = (): void => {
+      setDraftName(name);
+      setRenaming(true);
+    };
+    const commitRename = (): void => {
+      if (!renaming) return;
+      onRename(element.id, draftName);
+      setRenaming(false);
+    };
+    const menuItems: MenuProps["items"] = [
+      {
+        key: "forward",
+        label: "Naikkan",
+        onClick: () => onMoveForward(element.id),
+      },
+      {
+        key: "backward",
+        label: "Turunkan",
+        onClick: () => onMoveBackward(element.id),
+      },
+      {
+        key: "duplicate",
+        icon: <CopyOutlined />,
+        label: "Duplikat",
+        onClick: () => onDuplicate(element.id),
+      },
+      { type: "divider" },
+      {
+        key: "delete",
+        danger: true,
+        icon: <DeleteOutlined />,
+        label: "Hapus",
+        onClick: () => onDelete(element.id),
+      },
+    ];
 
-  return (
-    <li
-      ref={(node) => {
-        setNodeRef(node);
-        rowRef.current = node;
-      }}
-      className={`${styles.layerRow} ${selected ? styles.layerRowSelected : ""}`}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.55 : 1,
-      }}
-    >
-      <Tooltip title="Geser untuk mengubah urutan. Gunakan Space lalu tombol panah dengan keyboard.">
-        <Button
-          type="text"
-          className={styles.layerDragHandle}
-          icon={<HolderOutlined />}
-          aria-label={`Ubah urutan ${name}`}
-          {...attributes}
-          {...listeners}
-        />
-      </Tooltip>
-      <div className={styles.layerMain}>
-        {renaming ? (
-          <Input
-            autoFocus
-            size="small"
-            value={draftName}
-            aria-label={`Nama ${name}`}
-            onChange={(event) => setDraftName(event.target.value)}
-            onClick={(event) => event.stopPropagation()}
-            onBlur={commitRename}
-            onPressEnter={(event) => event.currentTarget.blur()}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                setRenaming(false);
-                event.currentTarget.blur();
-              }
-            }}
+    return (
+      <li
+        ref={(node) => {
+          setNodeRef(node);
+          rowRef.current = node;
+        }}
+        className={`${styles.layerRow} ${selected ? styles.layerRowSelected : ""}`}
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition,
+          opacity: isDragging ? 0.55 : 1,
+        }}
+      >
+        <Tooltip title="Geser untuk mengubah urutan. Gunakan Space lalu tombol panah dengan keyboard.">
+          <Button
+            type="text"
+            className={styles.layerDragHandle}
+            icon={<HolderOutlined />}
+            aria-label={`Ubah urutan ${name}`}
+            {...attributes}
+            {...listeners}
           />
-        ) : (
-          <button
-            type="button"
-            className={styles.layerSelectButton}
-            aria-pressed={selected}
-            onClick={() => onSelect(element.id)}
-            onDoubleClick={beginRename}
-            onKeyDown={(event) => {
-              if (selected && (event.key === "F2" || event.key === "Enter")) {
-                event.preventDefault();
-                beginRename();
-              }
-            }}
-          >
-            <span className={styles.layerTypeIcon} aria-hidden="true">
-              {TYPE_ICONS[element.type]}
-            </span>
-            <span className={styles.layerLabel}>
-              <Text ellipsis>{name}</Text>
-              {element.type === "variable-text" ? (
-                <Text type="secondary" ellipsis>
-                  {element.variable}
-                </Text>
-              ) : null}
-            </span>
-          </button>
-        )}
-      </div>
-      <Button
-        type="text"
-        icon={
-          element.visible === false ? <EyeInvisibleOutlined /> : <EyeOutlined />
-        }
-        aria-label={
-          element.visible === false
-            ? `Tampilkan ${name}`
-            : `Sembunyikan ${name}`
-        }
-        onClick={() => onToggleVisibility(element.id)}
-      />
-      <Button
-        type="text"
-        icon={element.locked ? <LockOutlined /> : <UnlockOutlined />}
-        aria-label={element.locked ? `Buka kunci ${name}` : `Kunci ${name}`}
-        onClick={() => onToggleLock(element.id)}
-      />
-      <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+        </Tooltip>
+        <div className={styles.layerMain}>
+          {renaming ? (
+            <Input
+              autoFocus
+              size="small"
+              value={draftName}
+              aria-label={`Nama ${name}`}
+              onChange={(event) => setDraftName(event.target.value)}
+              onClick={(event) => event.stopPropagation()}
+              onBlur={commitRename}
+              onPressEnter={(event) => event.currentTarget.blur()}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  setRenaming(false);
+                  event.currentTarget.blur();
+                }
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              className={styles.layerSelectButton}
+              aria-pressed={selected}
+              onClick={() => onSelect(element.id)}
+              onDoubleClick={beginRename}
+              onKeyDown={(event) => {
+                if (selected && (event.key === "F2" || event.key === "Enter")) {
+                  event.preventDefault();
+                  beginRename();
+                }
+              }}
+            >
+              <span className={styles.layerTypeIcon} aria-hidden="true">
+                {TYPE_ICONS[element.type]}
+              </span>
+              <span className={styles.layerLabel}>
+                <Text ellipsis>{name}</Text>
+                {element.type === "variable-text" ? (
+                  <Text type="secondary" ellipsis>
+                    {element.variable}
+                  </Text>
+                ) : null}
+              </span>
+            </button>
+          )}
+        </div>
         <Button
           type="text"
-          icon={<MoreOutlined />}
-          aria-label={`Tindakan lain untuk ${name}`}
+          icon={
+            element.visible === false ? (
+              <EyeInvisibleOutlined />
+            ) : (
+              <EyeOutlined />
+            )
+          }
+          aria-label={
+            element.visible === false
+              ? `Tampilkan ${name}`
+              : `Sembunyikan ${name}`
+          }
+          onClick={() => onToggleVisibility(element.id)}
         />
-      </Dropdown>
-    </li>
-  );
-};
+        <Button
+          type="text"
+          icon={element.locked ? <LockOutlined /> : <UnlockOutlined />}
+          aria-label={element.locked ? `Buka kunci ${name}` : `Kunci ${name}`}
+          onClick={() => onToggleLock(element.id)}
+        />
+        <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+          <Button
+            type="text"
+            icon={<MoreOutlined />}
+            aria-label={`Tindakan lain untuk ${name}`}
+          />
+        </Dropdown>
+      </li>
+    );
+  },
+);
+
+SortableLayer.displayName = "SortableLayer";
 
 export const LayerPanel: React.FC<LayerPanelProps> = React.memo((props) => {
   const { elements, selectedElementId, onReorder } = props;
@@ -271,14 +279,19 @@ export const LayerPanel: React.FC<LayerPanelProps> = React.memo((props) => {
               className={styles.layerList}
               aria-label="Daftar layer sertifikat"
             >
-              {ordered.map((element) => {
-                const index = elements.findIndex(
-                  (item) => item.id === element.id,
-                );
+              {ordered.map((element, reversedIndex) => {
+                const index = elements.length - 1 - reversedIndex;
                 return (
                   <SortableLayer
                     key={element.id}
-                    {...props}
+                    onSelect={props.onSelect}
+                    onRename={props.onRename}
+                    onToggleVisibility={props.onToggleVisibility}
+                    onToggleLock={props.onToggleLock}
+                    onMoveForward={props.onMoveForward}
+                    onMoveBackward={props.onMoveBackward}
+                    onDuplicate={props.onDuplicate}
+                    onDelete={props.onDelete}
                     element={element}
                     index={index}
                     selected={element.id === selectedElementId}

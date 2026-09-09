@@ -1,33 +1,33 @@
+import { isAxiosError, isCancel } from "axios";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  GetCertificateTemplatesReq,
-  GetCertificateTemplatesResp,
-  GetCertificateTemplateResp,
+  CertificatePayload,
+  CertificateTemplate,
+  CertificateTemplateData,
+  CertificateTemplateStatus,
   CreateCertificateTemplateReq,
   CreateCertificateTemplateResp,
-  UpdateCertificateTemplateReq,
-  UpdateCertificateTemplateResp,
   DeleteCertificateTemplateResp,
   GenerateCertificatesReq,
   GenerateCertificatesResp,
   GenerateSingleCertificateReq,
   GenerateSingleCertificateResp,
+  GetCertificateTemplateResp,
+  GetCertificateTemplatesReq,
+  GetCertificateTemplatesResp,
+  GetIssuedCertificatesReq,
   GetIssuedCertificatesResp,
   IssueBulkCertificatesReq,
   IssueBulkCertificatesResp,
   IssueCertificateResp,
+  IssuedCertificate,
   RevokeCertificateReq,
   RevokeCertificateResp,
-  CertificatePayload,
-  GetIssuedCertificatesReq,
-  IssuedCertificate,
-  CertificateTemplateStatus,
-  CertificateTemplate,
-  CertificateTemplateData,
+  UpdateCertificateTemplateReq,
+  UpdateCertificateTemplateResp,
 } from "../../types/services/certificateTemplate";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
-import { isAxiosError } from "axios";
 
 const isUnsupportedEndpoint = (error: unknown): boolean =>
   isAxiosError(error) &&
@@ -86,31 +86,37 @@ function normalizeCertificateTemplateData(
 
 export const getCertificateTemplates = async (
   props: GetCertificateTemplatesReq,
+  signal?: AbortSignal,
 ) => {
   try {
     const searchParams = removeEmptyValueFromObj(props);
     const urlSearch = new URLSearchParams(searchParams).toString();
     const res = await axios.get<GetCertificateTemplatesResp>(
       "/certificate-templates?" + urlSearch,
+      { signal },
     );
     return {
       ...res.data.data,
       data: res.data.data.data.map(normalizeCertificateTemplate),
     };
   } catch (error) {
-    handleError(error);
+    if (!isCancel(error)) handleError(error);
     throw error;
   }
 };
 
-export const getCertificateTemplate = async (id: number) => {
+export const getCertificateTemplate = async (
+  id: number,
+  signal?: AbortSignal,
+) => {
   try {
     const res = await axios.get<GetCertificateTemplateResp>(
       "/certificate-templates/" + id,
+      { signal },
     );
     return normalizeCertificateTemplate(res.data.data);
   } catch (error) {
-    handleError(error);
+    if (!isCancel(error)) handleError(error);
     throw error;
   }
 };
@@ -256,43 +262,32 @@ export const getIssuedCertificates = async (
       typeof activityOrRequest === "number"
         ? { activity_id: activityOrRequest }
         : activityOrRequest || {};
-    const fetchPage = async (page: number) => {
-      const queryParams = new URLSearchParams();
-      if (request.activity_id) {
-        queryParams.set("activity_id", String(request.activity_id));
-      }
-      queryParams.set("page", String(page));
-      queryParams.set(
-        "per_page",
-        String(Math.min(request.per_page || 100, 100)),
-      );
-      if (request.status) queryParams.set("status", request.status);
-
-      const res = await axios.get<GetIssuedCertificatesResp>(
-        `/certificates?${queryParams.toString()}`,
-      );
-      return res.data.data;
-    };
-
-    const firstPage = await fetchPage(request.page || 1);
-    if (Array.isArray(firstPage) || request.page) {
-      return Array.isArray(firstPage) ? firstPage : firstPage.data;
-    }
-
-    const remainingPages = Array.from(
-      { length: Math.max(firstPage.meta.last_page - 1, 0) },
-      (_, index) => index + 2,
+    const ids = request.registration_ids;
+    if (ids && !ids.length) return [];
+    const groups = ids
+      ? Array.from({ length: Math.ceil(ids.length / 100) }, (_, index) =>
+          ids.slice(index * 100, (index + 1) * 100),
+        )
+      : [undefined];
+    const pages = await Promise.all(
+      groups.map(async (group) => {
+        const res = await axios.get<GetIssuedCertificatesResp>(
+          "/certificates",
+          {
+            params: {
+              activity_id: request.activity_id,
+              page: request.page || 1,
+              per_page: group ? 100 : request.per_page || 20,
+              registration_ids: group,
+            },
+          },
+        );
+        return Array.isArray(res.data.data)
+          ? res.data.data
+          : res.data.data.data;
+      }),
     );
-    const remainingResults = await Promise.all(
-      remainingPages.map((page) => fetchPage(page)),
-    );
-
-    return [
-      ...firstPage.data,
-      ...remainingResults.flatMap((page) =>
-        Array.isArray(page) ? page : page.data,
-      ),
-    ];
+    return pages.flat();
   } catch (error) {
     handleError(error);
     throw error;

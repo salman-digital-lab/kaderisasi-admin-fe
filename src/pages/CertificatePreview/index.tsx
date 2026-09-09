@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
 import {
   Alert,
   Button,
   Card,
-  QRCode,
   Result,
   Skeleton,
   Space,
@@ -11,13 +10,12 @@ import {
   Typography,
   message,
 } from "antd";
-import { DownloadOutlined, LeftOutlined } from "@ant-design/icons";
-import { useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { getIssuedCertificate } from "../../api/services/certificateTemplate";
 import type { CertificatePayload } from "../../types/services/certificateTemplate";
-import type { CertificateElement } from "../DigitalCertificate/types";
+import { CertificateArtwork } from "../DigitalCertificate/components/CertificateArtwork";
 import {
-  getCertificateAssetUrl,
   getCertificateVerificationUrl,
   resolveCertificateText,
 } from "../DigitalCertificate/utils/certificate-content";
@@ -25,120 +23,8 @@ import { saveCertificatePdf } from "../DigitalCertificate/utils/certificatePdf";
 
 const { Text, Title } = Typography;
 
-const getJustifyContent = (
-  align?: CertificateElement["textAlign"],
-): React.CSSProperties["justifyContent"] => {
-  if (align === "left") return "flex-start";
-  if (align === "right") return "flex-end";
-  return "center";
-};
-
-const getAlignItems = (
-  align?: CertificateElement["verticalAlign"],
-): React.CSSProperties["alignItems"] => {
-  if (align === "top") return "flex-start";
-  if (align === "bottom") return "flex-end";
-  return "center";
-};
-
-const CertificateElementView: React.FC<{
-  element: CertificateElement;
-  data: CertificatePayload;
-  verificationUrl: string | null;
-}> = ({ element, data, verificationUrl }) => {
-  if (element.visible === false) return null;
-
-  const isText =
-    element.type === "static-text" || element.type === "variable-text";
-  const textStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    alignItems: getAlignItems(element.verticalAlign),
-    justifyContent: getJustifyContent(element.textAlign),
-    fontSize: element.fontSize || 16,
-    fontFamily: element.fontFamily || "sans-serif",
-    fontWeight: element.fontWeight || "normal",
-    fontStyle: element.fontStyle || "normal",
-    textDecoration: element.textDecoration || "none",
-    lineHeight: element.lineHeight || 1.2,
-    letterSpacing: element.letterSpacing || 0,
-    color: element.color || "#000000",
-    textAlign: element.textAlign || "center",
-    wordBreak: "break-word",
-    whiteSpace: "pre-wrap",
-  };
-
-  const renderContent = (): React.ReactNode => {
-    if (isText) {
-      return (
-        <div style={textStyle}>
-          {resolveCertificateText(
-            element,
-            data.participant,
-            data.certificate?.certificate_code,
-          )}
-        </div>
-      );
-    }
-
-    if (element.type === "qr-code") {
-      return verificationUrl ? (
-        <QRCode
-          type="svg"
-          bordered={false}
-          value={verificationUrl}
-          size={Math.max(24, Math.min(element.width, element.height) - 8)}
-          style={{ width: "100%", height: "100%" }}
-        />
-      ) : (
-        <div style={{ fontSize: 12, color: "#cf1322", textAlign: "center" }}>
-          URL verifikasi belum dikonfigurasi
-        </div>
-      );
-    }
-
-    const imageUrl = getCertificateAssetUrl(element.imageUrl);
-    return imageUrl ? (
-      <img
-        src={imageUrl}
-        alt={element.type === "signature" ? "Tanda tangan" : "Aset sertifikat"}
-        crossOrigin="anonymous"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: element.objectFit || "contain",
-          borderRadius: element.borderRadius || 0,
-        }}
-      />
-    ) : null;
-  };
-
-  return (
-    <div
-      data-certificate-text-element={isText ? "true" : undefined}
-      style={{
-        position: "absolute",
-        left: element.x,
-        top: element.y,
-        width: element.width,
-        ...(isText
-          ? { minHeight: element.height }
-          : { height: element.height }),
-        padding: 4,
-        boxSizing: "border-box",
-        opacity: (element.opacity ?? 100) / 100,
-        transform: `rotate(${element.rotation || 0}deg)`,
-        transformOrigin: "center center",
-        overflow: "hidden",
-      }}
-    >
-      {renderContent()}
-    </div>
-  );
-};
-
 const CertificatePreview: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const certificateId = Number(id);
   const [data, setData] = useState<CertificatePayload | null>(null);
@@ -146,9 +32,9 @@ const CertificatePreview: React.FC = () => {
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
-  const [scale, setScale] = useState(1);
-  const viewportRef = useRef<HTMLDivElement>(null);
   const certificateRef = useRef<HTMLDivElement>(null);
+  const downloadingRef = useRef(false);
+  const [downloadStage, setDownloadStage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -179,19 +65,6 @@ const CertificatePreview: React.FC = () => {
   }, [certificateId, reloadToken]);
 
   const templateData = data?.template.template_data;
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport || !templateData) return;
-
-    const updateScale = (): void => {
-      setScale(Math.min(1, viewport.clientWidth / templateData.canvasWidth));
-    };
-    updateScale();
-    const observer = new ResizeObserver(updateScale);
-    observer.observe(viewport);
-    return () => observer.disconnect();
-  }, [templateData]);
-
   const verificationUrl = useMemo(
     () => getCertificateVerificationUrl(data?.certificate?.certificate_code),
     [data?.certificate?.certificate_code],
@@ -205,6 +78,7 @@ const CertificatePreview: React.FC = () => {
 
   const handleDownload = useCallback(async (): Promise<void> => {
     if (
+      downloadingRef.current ||
       !data ||
       !templateData ||
       !certificateRef.current ||
@@ -214,15 +88,17 @@ const CertificatePreview: React.FC = () => {
       return;
     }
 
+    downloadingRef.current = true;
     setDownloading(true);
-    const source = certificateRef.current.cloneNode(true) as HTMLDivElement;
-    source.style.transform = "none";
-    source.style.position = "fixed";
-    source.style.left = "-99999px";
-    source.style.top = "0";
-    document.body.appendChild(source);
+    setDownloadStage("Memeriksa sertifikat…");
 
     try {
+      const authorized = await getIssuedCertificate(certificateId);
+      if (authorized.certificate?.revoked_at) {
+        setData(authorized);
+        message.error("Sertifikat telah dicabut dan tidak dapat diunduh.");
+        return;
+      }
       const participantName =
         data.participant.guest_name || data.participant.name;
       const safeName = participantName
@@ -231,23 +107,32 @@ const CertificatePreview: React.FC = () => {
         .replace(/^-|-$/g, "")
         .toLowerCase();
       await saveCertificatePdf({
-        template: templateData,
-        sourceElement: source,
+        template: authorized.template.template_data,
+        onProgress: setDownloadStage,
+        sourceElement: certificateRef.current,
         filename: `sertifikat-${safeName || data.certificate?.certificate_code || "peserta"}.pdf`,
         resolveText: (element) =>
           resolveCertificateText(
             element,
-            data.participant,
-            data.certificate?.certificate_code,
+            authorized.participant,
+            authorized.certificate?.certificate_code,
           ),
       });
     } catch {
       message.error("PDF sertifikat tidak dapat diunduh.");
     } finally {
-      document.body.removeChild(source);
+      downloadingRef.current = false;
       setDownloading(false);
+      setDownloadStage("");
     }
-  }, [data, hasVerificationQr, revoked, templateData, verificationUrl]);
+  }, [
+    certificateId,
+    data,
+    hasVerificationQr,
+    revoked,
+    templateData,
+    verificationUrl,
+  ]);
 
   if (loading) {
     return (
@@ -274,9 +159,15 @@ const CertificatePreview: React.FC = () => {
           <Button
             key="close"
             icon={<LeftOutlined />}
-            onClick={() => window.close()}
+            onClick={() =>
+              navigate(
+                data?.activity.id
+                  ? `/activity/${data.activity.id}/certificates`
+                  : "/activity",
+              )
+            }
           >
-            Tutup
+            Kembali
           </Button>,
         ]}
       />
@@ -284,9 +175,6 @@ const CertificatePreview: React.FC = () => {
   }
 
   const participantName = data.participant.guest_name || data.participant.name;
-  const backgroundUrl =
-    getCertificateAssetUrl(data.template.background_image) ||
-    getCertificateAssetUrl(templateData.backgroundUrl);
 
   return (
     <main
@@ -298,6 +186,7 @@ const CertificatePreview: React.FC = () => {
     >
       <div style={{ width: "100%", maxWidth: 960, margin: "0 auto" }}>
         <Card style={{ marginBottom: 16 }}>
+          <span role="status">{downloadStage}</span>
           <Space direction="vertical" size={12} style={{ width: "100%" }}>
             <div
               style={{
@@ -358,70 +247,20 @@ const CertificatePreview: React.FC = () => {
           </Space>
         </Card>
 
-        <div
-          ref={viewportRef}
-          style={{ width: "100%", overflow: "hidden" }}
-          aria-label="Preview visual sertifikat"
-        >
-          <div
-            style={{
-              position: "relative",
-              width: templateData.canvasWidth * scale,
-              height: templateData.canvasHeight * scale,
-              margin: "0 auto",
-            }}
-          >
-            <div
-              ref={certificateRef}
-              data-certificate-canvas="true"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: templateData.canvasWidth,
-                height: templateData.canvasHeight,
-                transform: `scale(${scale})`,
-                transformOrigin: "0 0",
-                backgroundColor: "#ffffff",
-                backgroundImage: backgroundUrl
-                  ? `url(${backgroundUrl})`
-                  : undefined,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.18)",
-                overflow: "hidden",
-              }}
-            >
-              {templateData.elements.map((element) => (
-                <CertificateElementView
-                  key={element.id}
-                  element={element}
-                  data={data}
-                  verificationUrl={verificationUrl}
-                />
-              ))}
-              {revoked && (
-                <div
-                  aria-hidden="true"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 999,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "rgba(207, 19, 34, 0.28)",
-                    fontSize: Math.max(64, templateData.canvasWidth / 8),
-                    fontWeight: 800,
-                    transform: "rotate(-24deg)",
-                    pointerEvents: "none",
-                  }}
-                >
-                  DICABUT
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <CertificateArtwork
+          ref={certificateRef}
+          template={templateData}
+          backgroundImage={data.template.background_image}
+          resolveText={(element) =>
+            resolveCertificateText(
+              element,
+              data.participant,
+              data.certificate?.certificate_code,
+            )
+          }
+          verificationUrl={verificationUrl}
+          revoked={revoked}
+        />
       </div>
     </main>
   );

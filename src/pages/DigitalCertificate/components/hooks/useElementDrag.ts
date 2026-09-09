@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { CertificateElement } from "../../types";
 
 interface DragState {
@@ -47,6 +47,7 @@ export function useElementDrag({
 }: UseElementDragOptions) {
   const dragRef = useRef<DragState | null>(null);
   const rafRef = useRef<number | null>(null);
+  const pendingFrameRef = useRef<(() => void) | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const optionsRef = useRef({
     zoom,
@@ -105,7 +106,7 @@ export function useElementDrag({
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
-      rafRef.current = requestAnimationFrame(() => {
+      pendingFrameRef.current = () => {
         if (!dragRef.current) return;
 
         const {
@@ -161,12 +162,19 @@ export function useElementDrag({
         });
 
         updateDomPosition(dragRef.current.elementId, newX, newY);
+      };
+      rafRef.current = requestAnimationFrame(() => {
+        pendingFrameRef.current?.();
+        pendingFrameRef.current = null;
+        rafRef.current = null;
       });
     },
     [updateDomPosition],
   );
 
   const handlePointerUp = useCallback(() => {
+    pendingFrameRef.current?.();
+    pendingFrameRef.current = null;
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -221,6 +229,7 @@ export function useElementDrag({
   );
 
   const cleanup = useCallback(() => {
+    pendingFrameRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (dragRef.current) {
       const drag = dragRef.current;

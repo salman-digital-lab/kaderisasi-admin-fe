@@ -1,6 +1,6 @@
-import { useRef, useState, useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
+import { ELEMENT_MIN_HEIGHT, ELEMENT_MIN_WIDTH } from "../../constants";
 import { CertificateElement } from "../../types";
-import { ELEMENT_MIN_WIDTH, ELEMENT_MIN_HEIGHT } from "../../constants";
 import type { ResizeHandle } from "../DraggableElement";
 
 interface ResizeState {
@@ -110,6 +110,7 @@ export function useElementResize({
 }: UseElementResizeOptions) {
   const resizeRef = useRef<ResizeState | null>(null);
   const rafRef = useRef<number | null>(null);
+  const pendingFrameRef = useRef<(() => void) | null>(null);
   const [isResizing, setIsResizing] = useState(false);
   const optionsRef = useRef({
     zoom,
@@ -160,7 +161,7 @@ export function useElementResize({
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
-      rafRef.current = requestAnimationFrame(() => {
+      pendingFrameRef.current = () => {
         const r = resizeRef.current;
         if (!r) return;
         const {
@@ -202,12 +203,19 @@ export function useElementResize({
           x: result.x,
           y: result.y,
         });
+      };
+      rafRef.current = requestAnimationFrame(() => {
+        pendingFrameRef.current?.();
+        pendingFrameRef.current = null;
+        rafRef.current = null;
       });
     },
     [updateDomSize],
   );
 
   const handlePointerUp = useCallback(() => {
+    pendingFrameRef.current?.();
+    pendingFrameRef.current = null;
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -268,6 +276,7 @@ export function useElementResize({
   );
 
   const cleanup = useCallback(() => {
+    pendingFrameRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (resizeRef.current) {
       const r = resizeRef.current;

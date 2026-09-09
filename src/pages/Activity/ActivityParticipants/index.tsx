@@ -1,54 +1,47 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  Table,
-  Button,
-  Space,
-  Skeleton,
-  message,
-  Input,
-  Select,
-  Tag,
-  Tooltip,
-  Card,
-  Alert,
-  List,
-  Modal,
-  Typography,
-} from "antd";
 import {
   CopyOutlined,
   DownloadOutlined,
   EyeOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SearchOutlined,
   SafetyCertificateOutlined,
-  SendOutlined,
+  SearchOutlined,
   StopOutlined,
 } from "@ant-design/icons";
-import { useParams } from "react-router-dom";
 import { useRequest, useToggle } from "ahooks";
-import dayjs from "dayjs";
+import {
+  Alert,
+  Button,
+  Card,
+  Input,
+  Modal,
+  Select,
+  Skeleton,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+  message,
+} from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
+import dayjs from "dayjs";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-  getRegistrants,
   getActivity,
   getExportRegistrants,
+  getRegistrants,
 } from "../../../api/services/activity";
 import {
-  getCertificateTemplate,
   getIssuedCertificates,
-  issueBulkCertificates,
-  issueSingleCertificate,
   revokeCertificate,
 } from "../../../api/services/certificateTemplate";
-import type {
-  IssuedCertificate,
-  IssueBulkCertificatesResult,
-} from "../../../types/services/certificateTemplate";
 import type { Registrant } from "../../../types/model/activity";
+import type { IssuedCertificate } from "../../../types/services/certificateTemplate";
 
+import { getCustomFormByFeature } from "../../../api/services/customForm";
 import {
   ALL_COLUMNS,
   ColumnConfig,
@@ -56,24 +49,17 @@ import {
   loadColumnPreferences,
   saveColumnPreferences,
 } from "./constants/columns";
-import { getCustomFormByFeature } from "../../../api/services/customForm";
 
-import ColumnManager from "./components/ColumnManager";
-import StatusBulkActions from "./components/StatusBulkActions";
-import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../constants/options";
 import { usePermissions } from "../../../stores/authStore";
 import {
   canAccessCertificates,
-  canIssueCertificates,
   canRevokeCertificates,
 } from "../../../utils/certificate-permissions";
 import { getCertificateVerificationUrl } from "../../DigitalCertificate/utils/certificate-content";
-import {
-  getCertificateReadiness,
-  getCertificateTemplateStatus,
-  isCertificateTemplateReady,
-} from "../../DigitalCertificate/utils/certificate-readiness";
+import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
+import ColumnManager from "./components/ColumnManager";
+import StatusBulkActions from "./components/StatusBulkActions";
 
 interface FilterValues {
   search?: string;
@@ -88,17 +74,16 @@ const cardStyle = {
 };
 
 const { Text } = Typography;
-const MAX_BULK_CERTIFICATES = 100;
 const TOUCH_ACTION_STYLE: React.CSSProperties = {
   minWidth: 44,
   minHeight: 44,
 };
 
 const ActivityParticipants = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const permissions = usePermissions();
   const canAccessCertificateFeature = canAccessCertificates(permissions);
-  const canIssue = canIssueCertificates(permissions);
   const canRevoke = canRevokeCertificates(permissions);
 
   // Modal states
@@ -106,16 +91,8 @@ const ActivityParticipants = () => {
 
   // Table state
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [certificateSelectionMode, setCertificateSelectionMode] =
-    useState(false);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [isExporting, setIsExporting] = useState(false);
-  const [generatingCertificate, setGeneratingCertificate] = useState<
-    number | null
-  >(null);
-  const [bulkIssuing, setBulkIssuing] = useState(false);
-  const [bulkResult, setBulkResult] =
-    useState<IssueBulkCertificatesResult | null>(null);
   const [revokingCertificate, setRevokingCertificate] = useState<number | null>(
     null,
   );
@@ -141,38 +118,6 @@ const ActivityParticipants = () => {
       cacheKey: `activity-${id}`,
     },
   );
-  const assignedTemplateId =
-    activity?.additional_config?.certificate_template_id;
-  const {
-    data: assignedTemplate,
-    loading: assignedTemplateLoading,
-    run: fetchAssignedTemplate,
-  } = useRequest(() => getCertificateTemplate(Number(assignedTemplateId)), {
-    ready: canAccessCertificateFeature && Boolean(assignedTemplateId),
-    refreshDeps: [assignedTemplateId, canAccessCertificateFeature],
-  });
-
-  const assignedTemplateReady = useMemo(() => {
-    if (!assignedTemplate) return false;
-    return (
-      getCertificateTemplateStatus(assignedTemplate) === "published" &&
-      (assignedTemplate.readiness?.ready ?? true) &&
-      isCertificateTemplateReady(
-        getCertificateReadiness(
-          assignedTemplate.template_data,
-          assignedTemplate.background_image,
-        ),
-      )
-    );
-  }, [assignedTemplate]);
-  const certificateIssuanceAvailable = canIssue && assignedTemplateReady;
-
-  useEffect(() => {
-    if (certificateIssuanceAvailable || !certificateSelectionMode) return;
-    setCertificateSelectionMode(false);
-    setSelectedRowKeys([]);
-  }, [certificateIssuanceAvailable, certificateSelectionMode]);
-
   // Fetch custom form to determine which profile columns to show
   const { data: customForm, loading: customFormLoading } = useRequest(
     () => getCustomFormByFeature("activity_registration", id!),
@@ -235,15 +180,15 @@ const ActivityParticipants = () => {
     },
   );
 
-  const {
-    data: issuedCertificates,
-    loading: certificatesLoading,
-    run: fetchIssuedCertificates,
-  } = useRequest(
-    () => getIssuedCertificates({ activity_id: Number(id), per_page: 500 }),
+  const { data: issuedCertificates, run: fetchIssuedCertificates } = useRequest(
+    () =>
+      getIssuedCertificates({
+        activity_id: Number(id),
+        registration_ids: (participantsData?.data || []).map((row) => row.id),
+      }),
     {
-      ready: !!id,
-      refreshDeps: [id],
+      ready: canAccessCertificateFeature && Boolean(participantsData),
+      refreshDeps: [id, participantsData],
     },
   );
 
@@ -317,14 +262,8 @@ const ActivityParticipants = () => {
   const handleRefresh = useCallback(() => {
     fetchParticipants();
     fetchIssuedCertificates();
-    if (assignedTemplateId) fetchAssignedTemplate();
     setSelectedRowKeys([]);
-  }, [
-    assignedTemplateId,
-    fetchAssignedTemplate,
-    fetchIssuedCertificates,
-    fetchParticipants,
-  ]);
+  }, [fetchIssuedCertificates, fetchParticipants]);
 
   const openCertificatePreview = useCallback((certificateId: number) => {
     const previewWindow = window.open(
@@ -333,37 +272,6 @@ const ActivityParticipants = () => {
     );
     if (previewWindow) previewWindow.opener = null;
   }, []);
-
-  const handleIssueCertificate = useCallback(
-    async (registrationId: number) => {
-      if (!certificateIssuanceAvailable) return;
-      const previewWindow = window.open("", "_blank");
-      if (previewWindow) {
-        previewWindow.opener = null;
-        previewWindow.document.body.textContent =
-          "Menyiapkan preview sertifikat…";
-      }
-
-      setGeneratingCertificate(registrationId);
-      try {
-        const data = await issueSingleCertificate({
-          registration_id: registrationId,
-        });
-        fetchIssuedCertificates();
-        if (data.certificate?.id && previewWindow) {
-          previewWindow.location.href = `/certificate-preview/${data.certificate.id}`;
-        } else if (previewWindow) {
-          previewWindow.close();
-        }
-        message.success("Sertifikat peserta siap dilihat");
-      } catch {
-        if (previewWindow && !previewWindow.closed) previewWindow.close();
-      } finally {
-        setGeneratingCertificate(null);
-      }
-    },
-    [certificateIssuanceAvailable, fetchIssuedCertificates],
-  );
 
   const handleViewCertificate = useCallback(
     (issued: IssuedCertificate) => {
@@ -408,122 +316,6 @@ const ActivityParticipants = () => {
       setRevokingCertificate(null);
     }
   }, [canRevoke, fetchIssuedCertificates, revokeReason, revokeTarget]);
-
-  const selectedCertificateSummary = useMemo(() => {
-    const selectedIds = new Set(selectedRowKeys.map(Number));
-    const selectedRows = (participantsData?.data || []).filter((participant) =>
-      selectedIds.has(participant.id),
-    );
-    const alreadyIssued = selectedRows.filter((participant) =>
-      issuedByRegistrationId.has(participant.id),
-    );
-    const ineligible = selectedRows.filter(
-      (participant) =>
-        participant.status !== "LULUS KEGIATAN" &&
-        !issuedByRegistrationId.has(participant.id),
-    );
-    const eligibleIds = selectedRows
-      .filter(
-        (participant) =>
-          participant.status === "LULUS KEGIATAN" &&
-          !issuedByRegistrationId.has(participant.id),
-      )
-      .map((participant) => participant.id);
-
-    return { eligibleIds, alreadyIssued, ineligible };
-  }, [issuedByRegistrationId, participantsData?.data, selectedRowKeys]);
-
-  const bulkResultDetails = useMemo(() => {
-    if (!bulkResult) return [];
-    const created = bulkResult.created || bulkResult.issued || [];
-    return [
-      ...created.map((certificate) => ({
-        key: `created-${certificate.certificate?.id || certificate.participant.registration_id}`,
-        status: "Dibuat",
-        color: "green",
-        registrationId: certificate.participant.registration_id,
-        reason: certificate.certificate?.certificate_code,
-      })),
-      ...bulkResult.already_issued.map((certificate) => ({
-        key: `existing-${certificate.certificate?.id || certificate.participant.registration_id}`,
-        status: "Sudah terbit",
-        color: "blue",
-        registrationId: certificate.participant.registration_id,
-        reason: certificate.certificate?.certificate_code,
-      })),
-      ...(bulkResult.skipped || []).map((item) => ({
-        key: `skipped-${item.registration_id}`,
-        status: "Dilewati",
-        color: "gold",
-        registrationId: item.registration_id,
-        reason: item.reason,
-      })),
-      ...bulkResult.failed.map((item) => ({
-        key: `failed-${item.registration_id}`,
-        status: "Gagal",
-        color: "red",
-        registrationId: item.registration_id,
-        reason: item.reason,
-      })),
-    ];
-  }, [bulkResult]);
-
-  const handleIssueBulk = useCallback(() => {
-    const registrationIds = selectedCertificateSummary.eligibleIds.slice(
-      0,
-      MAX_BULK_CERTIFICATES,
-    );
-    if (!certificateIssuanceAvailable || registrationIds.length === 0) return;
-
-    Modal.confirm({
-      title: "Terbitkan sertifikat massal?",
-      content: (
-        <Space direction="vertical" size={4} style={{ marginTop: 8 }}>
-          <Text>{registrationIds.length} peserta memenuhi syarat.</Text>
-          {selectedCertificateSummary.alreadyIssued.length > 0 && (
-            <Text type="secondary">
-              {selectedCertificateSummary.alreadyIssued.length} sudah memiliki
-              sertifikat dan tidak dikirim ulang.
-            </Text>
-          )}
-          {selectedCertificateSummary.ineligible.length > 0 && (
-            <Text type="secondary">
-              {selectedCertificateSummary.ineligible.length} belum berstatus
-              LULUS KEGIATAN dan dilewati.
-            </Text>
-          )}
-          {selectedCertificateSummary.eligibleIds.length >
-            MAX_BULK_CERTIFICATES && (
-            <Text type="warning">
-              Maksimal {MAX_BULK_CERTIFICATES} sertifikat per permintaan;
-              pilihan sisanya tetap dipilih untuk batch berikutnya.
-            </Text>
-          )}
-        </Space>
-      ),
-      okText: `Terbitkan ${registrationIds.length}`,
-      cancelText: "Batal",
-      onOk: async () => {
-        setBulkIssuing(true);
-        try {
-          const result = await issueBulkCertificates({
-            registration_ids: registrationIds,
-          });
-          setBulkResult(result);
-          setSelectedRowKeys(
-            selectedCertificateSummary.eligibleIds.slice(MAX_BULK_CERTIFICATES),
-          );
-          fetchIssuedCertificates();
-        } finally {
-          setBulkIssuing(false);
-        }
-      },
-    });
-  }, [
-    certificateIssuanceAvailable,
-    fetchIssuedCertificates,
-    selectedCertificateSummary,
-  ]);
 
   // Handle export
   const handleExport = useCallback(async () => {
@@ -653,30 +445,13 @@ const ActivityParticipants = () => {
             return <Tag color="gold">Belum memenuhi syarat</Tag>;
           }
 
-          if (!certificateIssuanceAvailable) {
-            return <Tag color="red">Penerbitan tidak tersedia</Tag>;
-          }
-
           return (
-            <Tooltip title="Terbitkan Sertifikat">
-              <Button
-                type="text"
-                icon={<SafetyCertificateOutlined />}
-                style={TOUCH_ACTION_STYLE}
-                aria-label="Terbitkan sertifikat"
-                loading={generatingCertificate === record.id}
-                onClick={() =>
-                  Modal.confirm({
-                    title: "Terbitkan sertifikat?",
-                    content:
-                      "Snapshot template dan data peserta akan dikunci untuk sertifikat ini.",
-                    okText: "Terbitkan",
-                    cancelText: "Batal",
-                    onOk: () => handleIssueCertificate(record.id),
-                  })
-                }
-              />
-            </Tooltip>
+            <Button
+              type="link"
+              onClick={() => navigate(`/activity/${id}/certificates`)}
+            >
+              Kelola sertifikat
+            </Button>
           );
         },
       });
@@ -689,12 +464,10 @@ const ActivityParticipants = () => {
     sortOrder,
     handleSort,
     activity,
+    id,
     canAccessCertificateFeature,
-    certificateIssuanceAvailable,
     canRevoke,
-    generatingCertificate,
     handleCopyVerificationLink,
-    handleIssueCertificate,
     handleViewCertificate,
     issuedByRegistrationId,
     revokingCertificate,
@@ -723,22 +496,6 @@ const ActivityParticipants = () => {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
     preserveSelectedRowKeys: false,
-    getCheckboxProps: (record: ParticipantRow) => {
-      if (!certificateSelectionMode) return {};
-      const alreadyIssued = issuedByRegistrationId.has(record.id);
-      const statusEligible = record.status === "LULUS KEGIATAN";
-      const reason = alreadyIssued
-        ? "Sertifikat sudah pernah diterbitkan"
-        : !statusEligible
-          ? "Peserta belum berstatus LULUS KEGIATAN"
-          : undefined;
-      return {
-        disabled: Boolean(reason),
-        title: reason,
-        "aria-label":
-          reason || `Pilih ${record.name} untuk penerbitan sertifikat`,
-      };
-    },
   };
 
   if (activityLoading || customFormLoading) {
@@ -791,47 +548,6 @@ const ActivityParticipants = () => {
         />
       </Modal>
 
-      <Modal
-        title="Hasil penerbitan sertifikat"
-        open={Boolean(bulkResult)}
-        footer={
-          <Button type="primary" onClick={() => setBulkResult(null)}>
-            Selesai
-          </Button>
-        }
-        onCancel={() => setBulkResult(null)}
-        width={640}
-      >
-        {bulkResult && (
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
-            <Space wrap>
-              <Tag color="green">{bulkResult.total_created} dibuat</Tag>
-              <Tag color="blue">
-                {bulkResult.total_already_issued} sudah terbit
-              </Tag>
-              <Tag color="gold">{bulkResult.total_skipped} dilewati</Tag>
-              <Tag color="red">{bulkResult.total_failed} gagal</Tag>
-            </Space>
-            <List
-              size="small"
-              bordered
-              dataSource={bulkResultDetails}
-              locale={{ emptyText: "Tidak ada detail hasil." }}
-              renderItem={(item) => (
-                <List.Item>
-                  <Space>
-                    <Tag color={item.color}>{item.status}</Tag>
-                    <Text>Registrasi #{item.registrationId}</Text>
-                    {item.reason && <Text type="secondary">{item.reason}</Text>}
-                  </Space>
-                </List.Item>
-              )}
-              style={{ maxHeight: 360, overflow: "auto" }}
-            />
-          </Space>
-        )}
-      </Modal>
-
       {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
@@ -873,47 +589,23 @@ const ActivityParticipants = () => {
               </Tag>
             )}
 
-            {!certificateSelectionMode && (
+            {
               <StatusBulkActions
                 selectedRowKeys={selectedRowKeys}
                 activityId={id || ""}
                 customSelectionStatus={customSelectionStatus}
                 onSuccess={handleRefresh}
               />
-            )}
+            }
 
-            {certificateIssuanceAvailable && assignedTemplateId && (
+            {canAccessCertificateFeature && (
               <Button
-                type={certificateSelectionMode ? "primary" : "default"}
                 icon={<SafetyCertificateOutlined />}
-                onClick={() => {
-                  setCertificateSelectionMode((current) => !current);
-                  setSelectedRowKeys([]);
-                }}
+                onClick={() => navigate(`/activity/${id}/certificates`)}
               >
-                {certificateSelectionMode
-                  ? "Selesai pilih sertifikat"
-                  : "Pilih untuk sertifikat"}
+                Kelola sertifikat
               </Button>
             )}
-
-            {certificateSelectionMode &&
-              certificateIssuanceAvailable &&
-              assignedTemplateId &&
-              selectedCertificateSummary.eligibleIds.length > 0 && (
-                <Button
-                  icon={<SendOutlined />}
-                  onClick={handleIssueBulk}
-                  loading={bulkIssuing}
-                >
-                  Terbitkan{" "}
-                  {Math.min(
-                    selectedCertificateSummary.eligibleIds.length,
-                    MAX_BULK_CERTIFICATES,
-                  )}{" "}
-                  Sertifikat
-                </Button>
-              )}
 
             <Tooltip title="Export Data">
               <Button
@@ -949,51 +641,6 @@ const ActivityParticipants = () => {
         </div>
       </Card>
 
-      {canIssue && !assignedTemplateId && (
-        <Alert
-          type="warning"
-          showIcon
-          title="Template sertifikat belum dipilih"
-          description="Pilih template yang sudah dipublikasikan di detail kegiatan sebelum menerbitkan sertifikat."
-          style={{ marginTop: 12 }}
-        />
-      )}
-
-      {canIssue && assignedTemplateId && (
-        <Alert
-          type={
-            assignedTemplateLoading
-              ? "info"
-              : assignedTemplateReady
-                ? "success"
-                : "error"
-          }
-          showIcon
-          title={
-            assignedTemplateLoading
-              ? "Memeriksa template sertifikat"
-              : assignedTemplateReady
-                ? `Template siap: ${assignedTemplate?.name}`
-                : "Template yang dipilih belum dapat digunakan"
-          }
-          description={
-            assignedTemplateLoading
-              ? "Memeriksa kesiapan template…"
-              : assignedTemplate
-                ? `Status template: ${getCertificateTemplateStatus(assignedTemplate)}. Publikasikan dan perbaiki semua masalah kesiapan sebelum menerbitkan.`
-                : "Template tidak dapat dimuat. Coba muat ulang sebelum menerbitkan."
-          }
-          action={
-            !assignedTemplateReady ? (
-              <Button size="small" onClick={fetchAssignedTemplate}>
-                Periksa ulang
-              </Button>
-            ) : undefined
-          }
-          style={{ marginTop: 12 }}
-        />
-      )}
-
       {/* Participants Table */}
       <div style={{ marginTop: 12 }}>
         <Table
@@ -1003,7 +650,7 @@ const ActivityParticipants = () => {
             ...item,
             activity_id: Number(id),
           }))}
-          loading={participantsLoading || certificatesLoading}
+          loading={participantsLoading}
           rowSelection={rowSelection}
           pagination={{
             current: participantsData?.meta?.current_page || pagination.page,

@@ -222,6 +222,7 @@ export interface GetIssuedCertificatesResp {
 }
 
 export interface GetIssuedCertificatesReq {
+  registration_ids?: number[];
   activity_id?: number;
   page?: number;
   per_page?: number;

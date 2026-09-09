@@ -1,56 +1,41 @@
 import {
-  Button,
-  Space,
-  Row,
-  Col,
-  Skeleton,
-  Tag,
-  Typography,
-  Card,
-  Form,
-  Switch,
-  DatePicker,
-  Alert,
-  notification,
-  Divider,
-  Select,
-} from "antd";
-import {
-  TeamOutlined,
+  ArrowRightOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  TrophyOutlined,
   CloseCircleOutlined,
-  ArrowRightOutlined,
-  SaveOutlined,
   SafetyCertificateOutlined,
+  SaveOutlined,
+  TeamOutlined,
+  TrophyOutlined,
 } from "@ant-design/icons";
-import { useCallback, memo, ReactNode, useState } from "react";
 import { useRequest, useToggle } from "ahooks";
-import { useParams, useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  notification,
+  Row,
+  Skeleton,
+  Space,
+  Switch,
+  Tag,
+  Typography,
+} from "antd";
 import dayjs from "dayjs";
+import { memo, ReactNode, useCallback, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   getActivity,
   getRegistrantStatistics,
   putActivity,
 } from "../../../../api/services/activity";
-import {
-  getCertificateTemplate,
-  getCertificateTemplates,
-} from "../../../../api/services/certificateTemplate";
-import type { Activity } from "../../../../types/model/activity";
-import type { CertificateTemplate } from "../../../../types/services/certificateTemplate";
 import { usePermissions } from "../../../../stores/authStore";
-import {
-  canAccessCertificates,
-  canManageCertificateTemplates,
-} from "../../../../utils/certificate-permissions";
-import {
-  getCertificateReadiness,
-  getCertificateTemplateStatus,
-  isCertificateTemplateReady,
-} from "../../../DigitalCertificate/utils/certificate-readiness";
+import { canAccessCertificates } from "../../../../utils/certificate-permissions";
 
 import MembersListModal from "./Modal/MembersListModal";
 
@@ -91,89 +76,29 @@ const RegistrantList = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
   const canAccessCertificateFeature = canAccessCertificates(permissions);
-  const canManageCertificates = canManageCertificateTemplates(permissions);
 
   const [modalState, { toggle: toggleModal }] = useToggle();
   const [form] = Form.useForm();
   const [statusSettingsChanged, setStatusSettingsChanged] = useState(false);
-  const [certificateChanged, setCertificateChanged] = useState(false);
-  const [templates, setTemplates] = useState<CertificateTemplate[]>([]);
-  const [templatesLoading, setTemplatesLoading] = useState(false);
-  const [templatesError, setTemplatesError] = useState<string | null>(null);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
-    null,
-  );
-  const [originalTemplateId, setOriginalTemplateId] = useState<number | null>(
-    null,
-  );
-  const [savingCertificate, setSavingCertificate] = useState(false);
   const statusIsVisible = Form.useWatch("status_is_visible", form);
   const statusVisibleAt = Form.useWatch("status_visible_at", form);
 
   // Fetch activity details
-  const {
-    data: activityData,
-    loading: activityLoading,
-    refresh: refreshActivity,
-  } = useRequest(() => getActivity(Number(id)), {
-    onSuccess: (data) => {
-      form.setFieldsValue({
-        status_is_visible:
-          data?.additional_config?.status_visibility?.is_visible ?? true,
-        status_visible_at: data?.additional_config?.status_visibility
-          ?.visible_at
-          ? dayjs(data.additional_config.status_visibility.visible_at)
-          : undefined,
-      });
-      loadTemplates(data);
+  const { data: activityData, loading: activityLoading } = useRequest(
+    () => getActivity(Number(id)),
+    {
+      onSuccess: (data) => {
+        form.setFieldsValue({
+          status_is_visible:
+            data?.additional_config?.status_visibility?.is_visible ?? true,
+          status_visible_at: data?.additional_config?.status_visibility
+            ?.visible_at
+            ? dayjs(data.additional_config.status_visibility.visible_at)
+            : undefined,
+        });
+      },
     },
-  });
-
-  // Load certificate templates
-  const loadTemplates = async (
-    currentActivityData?: Activity,
-  ): Promise<void> => {
-    setTemplatesLoading(true);
-    setTemplatesError(null);
-    try {
-      const data = await getCertificateTemplates({
-        page: "1",
-        per_page: "100",
-      });
-      if (data?.data) {
-        const activityConfig = currentActivityData?.additional_config;
-        const templateId = activityConfig?.certificate_template_id || null;
-        let availableTemplates = data.data;
-        if (
-          templateId &&
-          !availableTemplates.some((template) => template.id === templateId)
-        ) {
-          try {
-            const assignedTemplate = await getCertificateTemplate(templateId);
-            availableTemplates = [...availableTemplates, assignedTemplate];
-          } catch {
-            setTemplatesError(
-              "Template yang sedang terpasang tidak dapat dimuat. Pilihan tidak diubah.",
-            );
-          }
-        }
-        setTemplates(
-          availableTemplates.filter(
-            (template) =>
-              getCertificateTemplateStatus(template) === "published" ||
-              template.id === templateId,
-          ),
-        );
-        setSelectedTemplateId(templateId);
-        setOriginalTemplateId(templateId);
-        setCertificateChanged(false);
-      }
-    } catch {
-      setTemplatesError("Daftar template sertifikat tidak dapat dimuat.");
-    } finally {
-      setTemplatesLoading(false);
-    }
-  };
+  );
 
   // Save status visibility settings
   const { loading: saveLoading, runAsync: saveSettings } = useRequest(
@@ -355,149 +280,18 @@ const RegistrantList = () => {
         </Card>
       </Form>
 
-      {/* Certificate Template Settings */}
       {canAccessCertificateFeature && (
-        <Card
-          variant="outlined"
-          style={{ borderRadius: 0, marginBottom: 24 }}
-          styles={{ body: { padding: "24px" } }}
-        >
-          <Row
-            justify="space-between"
-            align="middle"
-            style={{ marginBottom: 16 }}
+        <Card style={{ marginBottom: 24 }} title="Sertifikat kegiatan">
+          <Typography.Paragraph>
+            Pilih desain, tinjau peserta yang lulus, dan terbitkan sertifikat
+            dari satu halaman.
+          </Typography.Paragraph>
+          <Button
+            icon={<SafetyCertificateOutlined />}
+            onClick={() => navigate(`/activity/${id}/certificates`)}
           >
-            <Space align="center">
-              <SafetyCertificateOutlined
-                style={{ fontSize: 20, color: "#1890ff" }}
-              />
-              <Typography.Title level={5} style={{ margin: 0 }}>
-                Template Sertifikat
-              </Typography.Title>
-            </Space>
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              loading={savingCertificate}
-              disabled={
-                !canManageCertificates || !activityData || !certificateChanged
-              }
-              onClick={async () => {
-                if (!activityData) return;
-
-                setSavingCertificate(true);
-                try {
-                  const currentConfig = activityData.additional_config || {};
-                  const updatedActivity = await putActivity(Number(id), {
-                    additional_config: {
-                      ...currentConfig,
-                      certificate_template_id: selectedTemplateId || undefined,
-                    },
-                  });
-                  if (!updatedActivity) {
-                    throw new Error("CERTIFICATE_TEMPLATE_UPDATE_FAILED");
-                  }
-                  notification.success({
-                    message: "Berhasil",
-                    description: "Template sertifikat berhasil disimpan",
-                  });
-                  setOriginalTemplateId(selectedTemplateId);
-                  setCertificateChanged(false);
-                  refreshActivity();
-                } catch {
-                  notification.error({
-                    message: "Gagal",
-                    description: "Gagal menyimpan template sertifikat",
-                  });
-                } finally {
-                  setSavingCertificate(false);
-                }
-              }}
-              size="small"
-            >
-              Simpan
-            </Button>
-          </Row>
-          <Divider style={{ margin: "0 0 16px 0" }} />
-          <div style={{ marginBottom: 24 }}>
-            <Typography.Text strong>
-              Pilih template sertifikat untuk kegiatan ini
-            </Typography.Text>
-            <Typography.Paragraph type="secondary" style={{ marginBottom: 8 }}>
-              Template ini digunakan untuk peserta berstatus LULUS KEGIATAN.
-            </Typography.Paragraph>
-            <Select
-              placeholder="Pilih template sertifikat"
-              allowClear
-              aria-label="Template sertifikat kegiatan"
-              style={{ width: "100%" }}
-              value={selectedTemplateId}
-              disabled={!canManageCertificates}
-              onChange={(value) => {
-                setSelectedTemplateId(value);
-                setCertificateChanged(value !== originalTemplateId);
-              }}
-              options={templates.map((template) => {
-                const status = getCertificateTemplateStatus(template);
-                const ready =
-                  (template.readiness?.ready ?? true) &&
-                  isCertificateTemplateReady(
-                    getCertificateReadiness(
-                      template.template_data,
-                      template.background_image,
-                    ),
-                  );
-                return {
-                  value: template.id,
-                  label: `${template.name}${status !== "published" ? " (tidak lagi dipublikasikan)" : !ready ? " (belum siap)" : ""}`,
-                  disabled: status !== "published" || !ready,
-                };
-              })}
-              loading={templatesLoading}
-            />
-          </div>
-          {templatesError && (
-            <Alert
-              message="Template tidak dapat dimuat"
-              description={templatesError}
-              action={
-                <Button
-                  size="small"
-                  onClick={() => loadTemplates(activityData)}
-                >
-                  Coba lagi
-                </Button>
-              }
-              type="error"
-              showIcon
-              style={{ marginBottom: 12 }}
-            />
-          )}
-          {!canManageCertificates && (
-            <Alert
-              message="Template hanya dapat diubah oleh Super Admin atau Admin"
-              type="info"
-              showIcon
-              style={{ marginBottom: 12 }}
-            />
-          )}
-          {!templatesLoading && !templatesError && templates.length === 0 && (
-            <Alert
-              message="Tidak ada template sertifikat"
-              description="Silakan buat template sertifikat terlebih dahulu di halaman Digital Certificate"
-              type="warning"
-              showIcon
-            />
-          )}
-          {canManageCertificates && (
-            <Button
-              type="link"
-              style={{ paddingInline: 0 }}
-              onClick={() => navigate("/digital-certificate")}
-            >
-              Kelola template sertifikat
-            </Button>
-          )}
+            Kelola sertifikat
+          </Button>
         </Card>
       )}
 

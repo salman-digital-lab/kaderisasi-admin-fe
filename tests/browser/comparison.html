@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Certificate responsive comparison</title>
+    <style>
+      body {
+        margin: 16px;
+        font: 16px system-ui;
+        background: #ececec;
+      }
+      .pair {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      iframe {
+        border: 1px solid #ddd;
+        background: white;
+      }
+      .desktop {
+        width: 648px;
+        height: 450px;
+        overflow: hidden;
+      }
+      .desktop iframe {
+        width: 1440px;
+        height: 1000px;
+        transform: scale(0.45);
+        transform-origin: top left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Library and certificate workspace</h1>
+    <h2>390 px</h2>
+    <div class="pair">
+      <iframe
+        title="Library at 390 px"
+        width="390"
+        height="844"
+        src="./dist/tests/browser/certificate.html?mode=library"
+      ></iframe>
+      <iframe
+        title="Workspace at 390 px"
+        width="390"
+        height="844"
+        src="./dist/tests/browser/certificate.html"
+      ></iframe>
+    </div>
+    <h2>1440 px (scaled for comparison)</h2>
+    <div class="pair">
+      <div class="desktop">
+        <iframe
+          title="Library at 1440 px"
+          src="./dist/tests/browser/certificate.html?mode=library"
+        ></iframe>
+      </div>
+      <div class="desktop">
+        <iframe
+          title="Workspace at 1440 px"
+          src="./dist/tests/browser/certificate.html"
+        ></iframe>
+      </div>
+    </div>
+  </body>
+</html>

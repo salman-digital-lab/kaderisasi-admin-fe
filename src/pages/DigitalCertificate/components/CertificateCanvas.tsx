@@ -1,3 +1,5 @@
+import { SettingOutlined } from "@ant-design/icons";
+import { Button, Divider, Popover, Space, Switch, Typography } from "antd";
 import React, {
   useCallback,
   useEffect,
@@ -5,12 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button, Divider, Popover, Space, Switch, Typography } from "antd";
-import { SettingOutlined } from "@ant-design/icons";
-import { getCertificateAssetUrl } from "../utils/certificate-content";
-import type { CertificateElement, CertificateTemplate } from "../types";
-import { DraggableElement } from "./DraggableElement";
-import { useCanvasPan, useElementDrag, useElementResize } from "./hooks";
+import styles from "../CertificateDesigner/CertificateDesigner.module.css";
 import type {
   EditorTool,
   ViewportPoint,
@@ -26,7 +23,10 @@ import {
   screenToCanvas,
   zoomAtPoint,
 } from "../CertificateDesigner/viewport-math";
-import styles from "../CertificateDesigner/CertificateDesigner.module.css";
+import type { CertificateElement, CertificateTemplate } from "../types";
+import { getCertificateAssetUrl } from "../utils/certificate-content";
+import { DraggableElement } from "./DraggableElement";
+import { useCanvasPan, useElementDrag, useElementResize } from "./hooks";
 
 interface CertificateCanvasProps {
   template: CertificateTemplate;
@@ -471,6 +471,24 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       },
       [],
     );
+    const elementsRef = useRef(template.elements);
+    elementsRef.current = template.elements;
+    const handleElementSelect = useCallback(
+      (id: string): void => {
+        if (effectiveTool !== "select") return;
+        onSelectElement(id);
+        const element = elementsRef.current.find((item) => item.id === id);
+        setAnnouncement(
+          `${element?.name || element?.type || "Elemen"} dipilih`,
+        );
+      },
+      [effectiveTool, onSelectElement],
+    );
+    const handleContentChange = useCallback(
+      (id: string, content: string): void => onUpdateElement(id, { content }),
+      [onUpdateElement],
+    );
+
     const visibleElements = useMemo(
       () => template.elements.filter((element) => element.visible !== false),
       [template.elements],
@@ -607,17 +625,12 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
                 key={element.id}
                 element={element}
                 isSelected={element.id === selectedElementId}
-                onSelect={(id) => {
-                  if (effectiveTool === "select") {
-                    onSelectElement(id);
-                    setAnnouncement(`${element.name || element.type} dipilih`);
-                  }
-                }}
+                onSelect={handleElementSelect}
                 onDragStart={startDrag}
                 onResizeStart={startResize}
                 onContentChange={
                   element.type === "static-text"
-                    ? (id, content) => onUpdateElement(id, { content })
+                    ? handleContentChange
                     : undefined
                 }
                 onNodeChange={registerElementNode}

@@ -1,11 +1,15 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
 import {
+  AppstoreOutlined,
+  ArrowLeftOutlined,
+  CheckCircleOutlined,
+  CloudSyncOutlined,
+  ControlOutlined,
+  FilePdfOutlined,
+  RedoOutlined,
+  UndoOutlined,
+} from "@ant-design/icons";
+import {
+  Alert,
   Button,
   Drawer,
   Input,
@@ -13,30 +17,43 @@ import {
   Modal,
   Space,
   Spin,
-  Tag,
-  Typography,
-  Alert,
   Splitter,
+  Tag,
   Tooltip,
+  Typography,
 } from "antd";
-import {
-  ArrowLeftOutlined,
-  FilePdfOutlined,
-  CheckCircleOutlined,
-  AppstoreOutlined,
-  ControlOutlined,
-  UndoOutlined,
-  RedoOutlined,
-  CloudSyncOutlined,
-} from "@ant-design/icons";
 import { isAxiosError } from "axios";
-import { useParams, useNavigate, useBlocker } from "react-router-dom";
+import React, {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
+  useBlocker,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import {
+  getCertificateTemplate,
+  updateCertificateTemplate,
+  updateCertificateTemplateLifecycle,
+  uploadCertificateAsset,
+} from "../../../api/services/certificateTemplate";
+import { duplicateTemplate } from "../../../api/services/certificateWorkflow";
+import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import type { CertificateTemplateStatus } from "../../../types/services/certificateTemplate";
+import {
+  CanvasSettingsModal,
   CertificateCanvas,
   LayerPanel,
   PropertyPanel,
-  CanvasSettingsModal,
 } from "../components";
+import { CertificateArtwork } from "../components/CertificateArtwork";
 import { useCertificateDesigner } from "../hooks";
 import type {
   CertificateElement,
@@ -44,15 +61,11 @@ import type {
   ElementType,
 } from "../types";
 import {
-  getCertificateTemplate,
-  updateCertificateTemplate,
-  uploadCertificateAsset,
-  updateCertificateTemplateLifecycle,
-} from "../../../api/services/certificateTemplate";
-import { usePdfPreview } from "./hooks/usePdfPreview";
-import styles from "./CertificateDesigner.module.css";
-import { useMediaQuery } from "../../../hooks/useMediaQuery";
-import type { CertificateTemplateStatus } from "../../../types/services/certificateTemplate";
+  CERTIFICATE_SAMPLE_CODE,
+  getCertificateVerificationUrl,
+  resolveCertificateSampleText,
+} from "../utils/certificate-content";
+import type { CertificateReadinessIssue } from "../utils/certificate-readiness";
 import {
   getCertificateReadiness,
   getCertificateReadinessAction,
@@ -60,9 +73,14 @@ import {
   isCertificateTemplateReady,
   mapBackendReadinessErrors,
 } from "../utils/certificate-readiness";
-import type { CertificateReadinessIssue } from "../utils/certificate-readiness";
-import { ToolRail } from "./ToolRail";
+import styles from "./CertificateDesigner.module.css";
 import { ReadinessChecklist } from "./ReadinessChecklist";
+import { ToolRail } from "./ToolRail";
+import {
+  AUTOSAVE_STATUS_LABELS,
+  CertificateAutosaveController,
+  type AutosaveState,
+} from "./autosave-controller";
 import {
   clearRecoverySnapshot,
   DEFAULT_EDITOR_PREFERENCES,
@@ -76,11 +94,9 @@ import {
   type ViewportPoint,
 } from "./editor-state";
 import { getCentredElementPosition } from "./viewport-math";
-import {
-  AUTOSAVE_STATUS_LABELS,
-  CertificateAutosaveController,
-  type AutosaveState,
-} from "./autosave-controller";
+const CertificatePreviewModal = lazy(
+  () => import("../components/CertificatePreviewModal"),
+);
 
 const { Text } = Typography;
 
@@ -93,9 +109,17 @@ interface EditorSaveSnapshot {
   template: CertificateTemplate;
 }
 
-const CertificateDesigner: React.FC = () => {
+const CertificateDesignerEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+  const safeReturnTo =
+    returnTo && /^\/activity\/[1-9][0-9]*\/certificates$/.test(returnTo)
+      ? returnTo
+      : null;
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [copying, setCopying] = useState(false);
   const templateId = Number(id);
   const pageRef = useRef<HTMLElement>(null);
 
@@ -173,8 +197,6 @@ const CertificateDesigner: React.FC = () => {
 
   const isCompactLayout = useMediaQuery("(max-width: 1279px)");
   const isMobileLayout = useMediaQuery("(max-width: 767px)");
-
-  const { generatePdf, generating } = usePdfPreview();
 
   const metadataSnapshot = useMemo(
     () =>
@@ -310,7 +332,7 @@ const CertificateDesigner: React.FC = () => {
         );
 
         const recovery = readRecoverySnapshot(templateId);
-        if (recovery) {
+        if (recovery && getCertificateTemplateStatus(data) === "draft") {
           const conflict = hasRecoveryConflict(
             recovery,
             String(nextServerVersion),
@@ -398,8 +420,7 @@ const CertificateDesigner: React.FC = () => {
   }, [frontendReadinessIssues, serverIssues]);
   const templateReady = isCertificateTemplateReady(readinessIssues);
   const autosaveAllowed =
-    Boolean(templateName.trim()) &&
-    (templateStatus !== "published" || templateReady);
+    Boolean(templateName.trim()) && templateStatus === "draft";
 
   useEffect(() => {
     if (loading || !savedMetadata) return;
@@ -457,6 +478,7 @@ const CertificateDesigner: React.FC = () => {
               setServerVersion(nextVersion);
               autosaveRef.current?.setServerVersion(nextVersion);
               message.success("Template berhasil dipublikasikan");
+              if (safeReturnTo) navigate(safeReturnTo);
               resolve();
             } catch (error) {
               reject(error);
@@ -798,8 +820,8 @@ const CertificateDesigner: React.FC = () => {
       );
       return;
     }
-    generatePdf(template);
-  }, [generatePdf, readinessIssues, template]);
+    setPreviewOpen(true);
+  }, [readinessIssues]);
 
   const handleMoveLayerForward = useCallback(
     (elementId: string) => updateElementOrder(elementId, "forward"),
@@ -858,6 +880,31 @@ const CertificateDesigner: React.FC = () => {
     () => setCanvasSettingsVisible(false),
     [],
   );
+  const canvasPreferenceHandlers = useMemo(
+    () => ({
+      onSnapToGridChange: (value: boolean) =>
+        setPreferences((current) => ({
+          ...current,
+          canvas: { ...current.canvas, snapToGrid: value },
+        })),
+      onShowGridChange: (value: boolean) =>
+        setPreferences((current) => ({
+          ...current,
+          canvas: { ...current.canvas, showGrid: value },
+        })),
+      onShowGuidesChange: (value: boolean) =>
+        setPreferences((current) => ({
+          ...current,
+          canvas: { ...current.canvas, showGuides: value },
+        })),
+      onSnapToGuidesChange: (value: boolean) =>
+        setPreferences((current) => ({
+          ...current,
+          canvas: { ...current.canvas, snapToGuides: value },
+        })),
+    }),
+    [setPreferences],
+  );
   const layerPanel = (
     <LayerPanel
       elements={template.elements}
@@ -874,66 +921,71 @@ const CertificateDesigner: React.FC = () => {
     />
   );
 
-  const propertyPanel = (
-    <PropertyPanel
-      element={selectedElement}
-      onUpdate={handleUpdateSelected}
-      onUpdateComplete={handleUpdateSelectedComplete}
-      onAssetUpload={handleAssetUpload}
-      assetUploading={uploadingAsset}
-      templateDescription={templateDescription}
-      canvasWidth={template.canvasWidth}
-      canvasHeight={template.canvasHeight}
-      snapToGrid={snapToGrid}
-      showGrid={showGrid}
-      showGuides={showGuides}
-      snapToGuides={snapToGuides}
-      onTemplateDescriptionChange={setTemplateDescription}
-      onSnapToGridChange={(value) =>
-        setPreferences((current) => ({
-          ...current,
-          canvas: { ...current.canvas, snapToGrid: value },
-        }))
-      }
-      onShowGridChange={(value) =>
-        setPreferences((current) => ({
-          ...current,
-          canvas: { ...current.canvas, showGrid: value },
-        }))
-      }
-      onShowGuidesChange={(value) =>
-        setPreferences((current) => ({
-          ...current,
-          canvas: { ...current.canvas, showGuides: value },
-        }))
-      }
-      onSnapToGuidesChange={(value) =>
-        setPreferences((current) => ({
-          ...current,
-          canvas: { ...current.canvas, snapToGuides: value },
-        }))
-      }
-      onOpenCanvasSettings={handleOpenCanvasSettings}
-      onBackgroundUpload={handleBackgroundUpload}
-      backgroundUrl={backgroundImagePath || template.backgroundUrl}
-      onBackgroundRemove={() => {
-        setBackgroundImagePath(null);
-        setBackgroundUrl(null);
-      }}
-      onAlign={(alignment) => {
-        if (selectedElementId) alignElement(selectedElementId, alignment);
-      }}
-      onDuplicate={() => {
-        if (selectedElementId) duplicateElement(selectedElementId);
-      }}
-      onToggleVisibility={() => {
-        if (selectedElementId) toggleElementVisibility(selectedElementId);
-      }}
-      onToggleLock={() => {
-        if (selectedElementId) toggleElementLock(selectedElementId);
-      }}
-      onDelete={handleDeleteSelected}
-    />
+  const propertyPanel = useMemo(
+    () => (
+      <PropertyPanel
+        element={selectedElement}
+        onUpdate={handleUpdateSelected}
+        onUpdateComplete={handleUpdateSelectedComplete}
+        onAssetUpload={handleAssetUpload}
+        assetUploading={uploadingAsset}
+        templateDescription={templateDescription}
+        canvasWidth={template.canvasWidth}
+        canvasHeight={template.canvasHeight}
+        snapToGrid={snapToGrid}
+        showGrid={showGrid}
+        showGuides={showGuides}
+        snapToGuides={snapToGuides}
+        onTemplateDescriptionChange={setTemplateDescription}
+        {...canvasPreferenceHandlers}
+        onOpenCanvasSettings={handleOpenCanvasSettings}
+        onBackgroundUpload={handleBackgroundUpload}
+        backgroundUrl={backgroundImagePath || template.backgroundUrl}
+        onBackgroundRemove={() => {
+          setBackgroundImagePath(null);
+          setBackgroundUrl(null);
+        }}
+        onAlign={(alignment) => {
+          if (selectedElementId) alignElement(selectedElementId, alignment);
+        }}
+        onDuplicate={() => {
+          if (selectedElementId) duplicateElement(selectedElementId);
+        }}
+        onToggleVisibility={() => {
+          if (selectedElementId) toggleElementVisibility(selectedElementId);
+        }}
+        onToggleLock={() => {
+          if (selectedElementId) toggleElementLock(selectedElementId);
+        }}
+        onDelete={handleDeleteSelected}
+      />
+    ),
+    [
+      selectedElement,
+      handleUpdateSelected,
+      handleUpdateSelectedComplete,
+      handleAssetUpload,
+      uploadingAsset,
+      templateDescription,
+      template.canvasWidth,
+      template.canvasHeight,
+      snapToGrid,
+      showGrid,
+      showGuides,
+      snapToGuides,
+      canvasPreferenceHandlers,
+      handleOpenCanvasSettings,
+      handleBackgroundUpload,
+      backgroundImagePath,
+      template.backgroundUrl,
+      setBackgroundUrl,
+      selectedElementId,
+      alignElement,
+      duplicateElement,
+      toggleElementVisibility,
+      toggleElementLock,
+      handleDeleteSelected,
+    ],
   );
 
   const handleReadinessAction = (issue: CertificateReadinessIssue): void => {
@@ -1028,6 +1080,72 @@ const CertificateDesigner: React.FC = () => {
     );
   }
 
+  if (templateStatus !== "draft") {
+    return (
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
+        <Space wrap style={{ marginBottom: 16 }}>
+          <Button
+            onClick={() => navigate(safeReturnTo || "/digital-certificate")}
+          >
+            Kembali
+          </Button>
+          <Typography.Title level={1} style={{ margin: 0, fontSize: 24 }}>
+            {templateName}
+          </Typography.Title>
+          <Tag>
+            {templateStatus === "published" ? "Dipublikasikan" : "Diarsipkan"}
+          </Tag>
+          <Button
+            type="primary"
+            loading={copying}
+            onClick={async () => {
+              setCopying(true);
+              try {
+                const copy = await duplicateTemplate(templateId);
+                navigate(
+                  `/digital-certificate/${copy.id}/edit${safeReturnTo ? `?returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
+                );
+              } catch {
+                message.error(
+                  "Desain tidak dapat disalin. Periksa aset lalu coba lagi.",
+                );
+              } finally {
+                setCopying(false);
+              }
+            }}
+          >
+            Edit salinan
+          </Button>
+          <Button onClick={() => setPreviewOpen(true)}>Pratinjau</Button>
+        </Space>
+        <Alert
+          type="info"
+          showIcon
+          title="Desain ini tersimpan sebagai versi terbit"
+          description="Buat salinan untuk mengedit. Setelah dipublikasikan, pilih salinan tersebut dari kegiatan yang akan menggunakannya."
+          style={{ marginBottom: 16 }}
+        />
+        <CertificateArtwork
+          template={template}
+          backgroundImage={backgroundImagePath}
+          resolveText={resolveCertificateSampleText}
+          verificationUrl={getCertificateVerificationUrl(
+            CERTIFICATE_SAMPLE_CODE,
+          )}
+        />
+        {previewOpen && (
+          <Suspense fallback={<Spin />}>
+            <CertificatePreviewModal
+              template={template}
+              backgroundImage={backgroundImagePath}
+              onClose={() => setPreviewOpen(false)}
+            />
+          </Suspense>
+        )}
+      </main>
+    );
+  }
+
   const saveStatus = AUTOSAVE_STATUS_LABELS[autosaveState.status];
   const saveStatusColor =
     autosaveState.status === "saved"
@@ -1041,6 +1159,15 @@ const CertificateDesigner: React.FC = () => {
 
   return (
     <main ref={pageRef} className={styles.page}>
+      {previewOpen && (
+        <Suspense fallback={<Spin />}>
+          <CertificatePreviewModal
+            template={template}
+            backgroundImage={backgroundImagePath}
+            onClose={() => setPreviewOpen(false)}
+          />
+        </Suspense>
+      )}
       <header className={styles.topBar}>
         <Button
           icon={<ArrowLeftOutlined />}
@@ -1068,28 +1195,8 @@ const CertificateDesigner: React.FC = () => {
               Coba lagi
             </Button>
           ) : null}
-          <Tag
-            color={
-              templateStatus === "published"
-                ? "green"
-                : templateStatus === "archived"
-                  ? "default"
-                  : "gold"
-            }
-          >
-            {templateStatus === "published"
-              ? "Dipublikasikan"
-              : templateStatus === "archived"
-                ? "Diarsipkan"
-                : "Draf"}
-          </Tag>
+          <Tag color="gold">Draf</Tag>
         </div>
-        {templateStatus === "published" ? (
-          <Text className={styles.publishedNote} type="secondary">
-            Perubahan tersimpan berlaku untuk sertifikat berikutnya; snapshot
-            terbit tetap sama.
-          </Text>
-        ) : null}
         <div className={styles.topActions}>
           <Tooltip title="Urungkan (Ctrl/Cmd+Z)">
             <Button
@@ -1134,18 +1241,17 @@ const CertificateDesigner: React.FC = () => {
             onIssueAction={handleReadinessAction}
             isIssueActionable={isReadinessActionable}
           />
-          <Tooltip title="Dibuka di tab baru dari perubahan lokal saat ini dan data contoh.">
+          <Tooltip title="Lihat desain dan coba nama peserta sebelum menerbitkan.">
             <Button
               className={styles.previewAction}
               icon={<FilePdfOutlined />}
               onClick={handlePreviewPdf}
-              loading={generating}
-              aria-label="Preview PDF dari perubahan lokal dan data contoh"
+              aria-label="Pratinjau dari perubahan lokal dan data contoh"
             >
-              Preview PDF
+              Pratinjau
             </Button>
           </Tooltip>
-          {templateStatus !== "published" ? (
+          {
             <Button
               icon={<CheckCircleOutlined />}
               onClick={() => void handlePublish()}
@@ -1159,7 +1265,7 @@ const CertificateDesigner: React.FC = () => {
             >
               Publikasikan
             </Button>
-          ) : null}
+          }
         </div>
       </header>
 
@@ -1214,9 +1320,8 @@ const CertificateDesigner: React.FC = () => {
               type="primary"
               icon={<FilePdfOutlined />}
               onClick={handlePreviewPdf}
-              loading={generating}
             >
-              Preview PDF
+              Pratinjau
             </Button>
           </Space>
         </section>
@@ -1251,30 +1356,7 @@ const CertificateDesigner: React.FC = () => {
               showGrid={showGrid}
               showGuides={showGuides}
               snapToGuides={snapToGuides}
-              onSnapToGridChange={(value) =>
-                setPreferences((current) => ({
-                  ...current,
-                  canvas: { ...current.canvas, snapToGrid: value },
-                }))
-              }
-              onShowGridChange={(value) =>
-                setPreferences((current) => ({
-                  ...current,
-                  canvas: { ...current.canvas, showGrid: value },
-                }))
-              }
-              onShowGuidesChange={(value) =>
-                setPreferences((current) => ({
-                  ...current,
-                  canvas: { ...current.canvas, showGuides: value },
-                }))
-              }
-              onSnapToGuidesChange={(value) =>
-                setPreferences((current) => ({
-                  ...current,
-                  canvas: { ...current.canvas, snapToGuides: value },
-                }))
-              }
+              {...canvasPreferenceHandlers}
             />
           ) : (
             <Splitter
@@ -1332,30 +1414,7 @@ const CertificateDesigner: React.FC = () => {
                   showGrid={showGrid}
                   showGuides={showGuides}
                   snapToGuides={snapToGuides}
-                  onSnapToGridChange={(value) =>
-                    setPreferences((current) => ({
-                      ...current,
-                      canvas: { ...current.canvas, snapToGrid: value },
-                    }))
-                  }
-                  onShowGridChange={(value) =>
-                    setPreferences((current) => ({
-                      ...current,
-                      canvas: { ...current.canvas, showGrid: value },
-                    }))
-                  }
-                  onShowGuidesChange={(value) =>
-                    setPreferences((current) => ({
-                      ...current,
-                      canvas: { ...current.canvas, showGuides: value },
-                    }))
-                  }
-                  onSnapToGuidesChange={(value) =>
-                    setPreferences((current) => ({
-                      ...current,
-                      canvas: { ...current.canvas, snapToGuides: value },
-                    }))
-                  }
+                  {...canvasPreferenceHandlers}
                 />
               </Splitter.Panel>
               <Splitter.Panel
@@ -1432,6 +1491,11 @@ const CertificateDesigner: React.FC = () => {
       />
     </main>
   );
+};
+
+const CertificateDesigner: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  return <CertificateDesignerEditor key={id} />;
 };
 
 export default CertificateDesigner;
