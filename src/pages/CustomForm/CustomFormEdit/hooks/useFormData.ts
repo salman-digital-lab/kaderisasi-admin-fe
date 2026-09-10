@@ -26,6 +26,16 @@ export const useFormData = () => {
   );
   const [profileFieldRequiredOverrides, setProfileFieldRequiredOverrides] =
     useState<Record<string, boolean>>({});
+  const schemaFingerprint = JSON.stringify([
+    selectedBasicFields,
+    customFieldSections,
+    profileFieldRequiredOverrides,
+  ]);
+  const [savedSchema, setSavedSchema] = useState<string>();
+  useEffect(() => {
+    if (initialData && savedSchema === undefined)
+      setSavedSchema(schemaFingerprint);
+  }, [initialData, savedSchema, schemaFingerprint]);
 
   // Active tab state with URL sync
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -110,7 +120,7 @@ export const useFormData = () => {
     },
   );
 
-  const { loading: updateLoading, run: updateForm } = useRequest(
+  const { loading: updateLoading, runAsync: updateForm } = useRequest(
     async (values: {
       formName: string;
       formDescription: string;
@@ -194,5 +204,7 @@ export const useFormData = () => {
     fetchLoading,
     updateLoading,
     updateForm,
+    schemaDirty: savedSchema !== undefined && savedSchema !== schemaFingerprint,
+    markSchemaSaved: () => setSavedSchema(schemaFingerprint),
   };
 };

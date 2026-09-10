@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   PlusOutlined,
   HolderOutlined,
@@ -45,6 +45,7 @@ import {
   putReorderActivityImages,
 } from "../../../../api/services/activity";
 import { useRequest } from "ahooks";
+import { actionError } from "../../../../utils/action-error";
 import {
   getImageUploadError,
   IMAGE_UPLOAD_ACCEPT,
@@ -259,7 +260,11 @@ const SortableImageItem = ({
   );
 };
 
-const ImageList = () => {
+const ImageList = ({
+  onBusyChange,
+}: {
+  onBusyChange?: (busy: boolean) => void;
+}) => {
   const { id } = useParams<{ id: string }>();
 
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -269,6 +274,10 @@ const ImageList = () => {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
   const busy = uploading || reordering || Boolean(removingId);
+  useEffect(() => {
+    onBusyChange?.(busy);
+    return () => onBusyChange?.(false);
+  }, [busy, onBusyChange]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -310,10 +319,10 @@ const ImageList = () => {
         message: "Berhasil",
         description: "Gambar berhasil dihapus",
       });
-    } catch {
+    } catch (error) {
       notification.error({
         message: "Gagal",
-        description: "Gagal menghapus gambar",
+        description: actionError(error, "Gagal menghapus gambar. Coba lagi."),
       });
     } finally {
       setRemovingId(null);

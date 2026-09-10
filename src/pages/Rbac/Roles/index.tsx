@@ -4,6 +4,7 @@ import { Alert, Card, Space, Tag, Typography } from "antd";
 import { getRoles } from "../../../api/services/access";
 import type { RbacRole } from "../../../types/model/access";
 import type { ReactElement } from "react";
+import RoleSummary from "../../AccessRequests/components/RoleSummary";
 
 export default function RbacRolesPage(): ReactElement {
   const { data: roles = [], loading, error } = useRequest(getRoles);
@@ -15,7 +16,7 @@ export default function RbacRolesPage(): ReactElement {
         title={
           <div style={{ whiteSpace: "normal", paddingBlock: 8 }}>
             <Typography.Title level={4} style={{ margin: 0 }}>
-              Role & Permission
+              Peran & Akses
             </Typography.Title>
             <Typography.Text type="secondary">
               Lihat akses setiap role. Penetapan role dilakukan melalui Akun
@@ -32,16 +33,10 @@ export default function RbacRolesPage(): ReactElement {
           rowKey="code"
           loading={loading}
           dataSource={roles}
-          scroll={{ x: 1050 }}
+          scroll={{ x: 700 }}
           pagination={false}
           expandable={{
-            expandedRowRender: (role) => (
-              <Space wrap>
-                {role.permissions.map((permission) => (
-                  <Tag key={permission}>{permission}</Tag>
-                ))}
-              </Space>
-            ),
+            expandedRowRender: (role) => <RoleSummary role={role} />,
           }}
           columns={[
             {
@@ -50,7 +45,6 @@ export default function RbacRolesPage(): ReactElement {
               render: (_, role) => (
                 <Space orientation="vertical" size={0}>
                   <Typography.Text strong>{role.name}</Typography.Text>
-                  <Typography.Text code>{role.code}</Typography.Text>
                 </Space>
               ),
             },
@@ -65,10 +59,6 @@ export default function RbacRolesPage(): ReactElement {
                     : "Penetapan Super Admin"}
                 </Tag>
               ),
-            },
-            {
-              title: "Permission",
-              render: (_, role) => role.permissions.length,
             },
           ]}
         />

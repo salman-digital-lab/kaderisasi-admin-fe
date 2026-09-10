@@ -10,7 +10,7 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-const sessionClient = axios.create({
+export const sessionClient = axios.create({
   baseURL,
   timeout: 10000,
   withCredentials: true,

@@ -46,6 +46,17 @@ export default function TicketDetails({
         <Descriptions.Item label="Nomor Tiket" span={2}>
           <Typography.Text copyable>{ticket.number}</Typography.Text>
         </Descriptions.Item>
+        {ticket.resolved_at && (
+          <Descriptions.Item label="Ditinjau pada" span={2}>
+            {dayjs(ticket.resolved_at).format("DD MMM YYYY, HH:mm")}
+            {ticket.reviewer_name ? ` oleh ${ticket.reviewer_name}` : ""}
+          </Descriptions.Item>
+        )}
+        {ticket.cancelled_at && (
+          <Descriptions.Item label="Dibatalkan pada" span={2}>
+            {dayjs(ticket.cancelled_at).format("DD MMM YYYY, HH:mm")}
+          </Descriptions.Item>
+        )}
         <Descriptions.Item label="Alasan Pengajuan" span={2}>
           <span style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
             {ticket.reason}

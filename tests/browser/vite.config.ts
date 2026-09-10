@@ -11,6 +11,7 @@ export default mergeConfig(
           "tests/browser/certificate.html",
           "tests/browser/approval.html",
           "tests/browser/responsive.html",
+          "tests/browser/workflows.html",
         ],
       },
     },

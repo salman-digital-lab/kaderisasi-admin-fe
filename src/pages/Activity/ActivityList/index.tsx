@@ -1,7 +1,9 @@
 import { ResponsiveFilters } from "../../../components/common/Responsive/ResponsiveFilters";
 import { useState } from "react";
 import { Space, Button, Input, Select, Tooltip, Card } from "antd";
-import { useRequest, useToggle } from "ahooks";
+import { useRequest } from "ahooks";
+import { useNavigate } from "react-router-dom";
+import { usePermissions } from "../../../stores/authStore";
 import {
   PlusOutlined,
   SearchOutlined,
@@ -16,7 +18,6 @@ import {
 } from "../../../constants/options";
 
 import ActivityTable from "./components/ActivityTable";
-import ActivityForm from "./components/ActivityForm";
 import { FilterType } from "./constants/type";
 import {
   ACTIVITY_CATEGORY_ENUM,
@@ -30,7 +31,8 @@ const cardStyle = {
 };
 
 const MainActivity = () => {
-  const [isFormOpen, { toggle: toggleForm }] = useToggle(false);
+  const navigate = useNavigate();
+  const permissions = usePermissions();
 
   // State for filter parameters
   const [parameters, setParameters] = useState<FilterType>({
@@ -179,9 +181,15 @@ const MainActivity = () => {
 
           {/* Right: Actions */}
           <Space size={8} wrap>
-            <Button type="primary" icon={<PlusOutlined />} onClick={toggleForm}>
-              Tambah
-            </Button>
+            {permissions.includes("activities.manage") && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => navigate("/activity/new")}
+              >
+                Buat Kegiatan
+              </Button>
+            )}
 
             <Tooltip placement="left" title="Refresh Data">
               <Button
@@ -204,8 +212,6 @@ const MainActivity = () => {
           setParameter={setParameters}
         />
       </div>
-
-      <ActivityForm open={isFormOpen} onClose={toggleForm} refresh={refresh} />
     </div>
   );
 };

@@ -20,6 +20,7 @@ const { Text } = Typography;
 const { TextArea } = Input;
 
 interface BasicInfoTabProps {
+  onChange?: () => void;
   form: FormInstance;
   initialData: CustomForm;
   onSave: (values: {
@@ -38,6 +39,7 @@ export const BasicInfoTab = ({
   form,
   initialData,
   onSave,
+  onChange,
 }: BasicInfoTabProps) => {
   const initialFeatureType = initialData.feature_type;
   const [featureType, setFeatureType] = useState<
@@ -82,6 +84,7 @@ export const BasicInfoTab = ({
       form={form}
       layout="vertical"
       onFinish={onSave}
+      onValuesChange={onChange}
       initialValues={{
         formName: initialData.form_name,
         formDescription: initialData.form_description || "",

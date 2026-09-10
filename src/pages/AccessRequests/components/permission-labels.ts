@@ -11,6 +11,8 @@ export const permissionLabels: Record<string, string> = {
   "members.credentials.manage": "Mengubah email dan kata sandi anggota",
   "activities.read": "Melihat kegiatan",
   "activities.manage": "Mengelola kegiatan",
+  "activities.publish": "Menayangkan kegiatan atau mengembalikannya ke draf",
+  "activities.registration.manage": "Membuka dan menutup pendaftaran kegiatan",
   "activity_registrations.read": "Melihat pendaftaran kegiatan",
   "activity_registrations.manage": "Mengelola pendaftaran kegiatan",
   "activity_registrations.export": "Mengekspor data pendaftaran kegiatan",

@@ -18,9 +18,14 @@ export type AccessTicket = {
   role_name: string;
   created_at: string;
   updated_at: string | null;
+  resolved_at?: string | null;
+  cancelled_at?: string | null;
+  reviewer_name?: string | null;
 };
 
 export type RbacRole = AccessTarget & {
+  capabilities: string[];
+  limitation: string;
   is_requestable: boolean;
   permissions: string[];
 };

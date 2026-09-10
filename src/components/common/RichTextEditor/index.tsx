@@ -29,6 +29,7 @@ interface RichTextEditorProps {
   minHeight?: string;
   maxHeight?: string;
   disabled?: boolean;
+  ariaLabel?: string;
 }
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
@@ -38,6 +39,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   minHeight = "200px",
   maxHeight = "400px",
   disabled = false,
+  ariaLabel = "Editor teks",
 }) => {
   const editor = useEditor({
     extensions: [
@@ -58,6 +60,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     ],
     content: value,
     editable: !disabled,
+    editorProps: { attributes: { "aria-label": ariaLabel } },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       onChange?.(html);
@@ -67,9 +70,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Update editor content when value prop changes
   React.useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value);
+      editor.commands.setContent(value, { emitUpdate: false });
     }
   }, [value, editor]);
+  React.useEffect(() => {
+    editor?.setEditable(!disabled, false);
+  }, [disabled, editor]);
 
   const setLink = useCallback(() => {
     if (!editor) return;

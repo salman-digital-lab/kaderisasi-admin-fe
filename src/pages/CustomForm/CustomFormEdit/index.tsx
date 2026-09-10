@@ -1,5 +1,7 @@
 import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
-import React from "react";
+import React, { useState } from "react";
+import { flushSync } from "react-dom";
+import UnsavedChangesGuard from "../../../components/common/UnsavedChangesGuard";
 import { PageHeader } from "../../../components/common/Responsive/PageHeader";
 import { Form, Button, Space, Typography, Spin, Tabs } from "antd";
 import {
@@ -7,7 +9,7 @@ import {
   SaveOutlined,
   FormOutlined,
 } from "@ant-design/icons";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import {
   BasicInfoTab,
@@ -28,8 +30,14 @@ const { Text } = Typography;
 
 const CustomFormEdit: React.FC = () => {
   const [form] = Form.useForm();
+  const [basicDirty, setBasicDirty] = useState(false);
   const navigate = useNavigate();
-  const { clubId } = useParams<{ clubId?: string }>();
+  const { clubId, activityId } = useParams<{
+    clubId?: string;
+    activityId?: string;
+  }>();
+  const [searchParams] = useSearchParams();
+  const returnToSetup = !!activityId && searchParams.get("setup") === "1";
 
   // Fetch and manage form data
   const {
@@ -45,6 +53,8 @@ const CustomFormEdit: React.FC = () => {
     fetchLoading,
     updateLoading,
     updateForm,
+    schemaDirty,
+    markSchemaSaved,
   } = useFormData();
 
   // Manage field operations (add, edit, delete, move, etc.)
@@ -80,6 +90,11 @@ const CustomFormEdit: React.FC = () => {
     try {
       const values = await validateFieldsAndFocus(form);
       await updateForm(values);
+      flushSync(() => {
+        setBasicDirty(false);
+        markSchemaSaved();
+      });
+      if (returnToSetup) navigate(`/activity/${activityId}/setup?step=2`);
     } catch (error) {
       handleTabChange("basic");
       requestAnimationFrame(() => {
@@ -133,7 +148,8 @@ const CustomFormEdit: React.FC = () => {
         <BasicInfoTab
           form={form}
           initialData={initialData}
-          onSave={updateForm}
+          onSave={() => void handleSave()}
+          onChange={() => setBasicDirty(true)}
         />
       ),
     },
@@ -169,6 +185,7 @@ const CustomFormEdit: React.FC = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+      <UnsavedChangesGuard dirty={basicDirty || schemaDirty} />
       {/* Form Card */}
       {/* Form Container */}
       <div style={{ background: "#fff", padding: "16px", borderRadius: "8px" }}>
@@ -191,6 +208,20 @@ const CustomFormEdit: React.FC = () => {
               gap: "12px",
             }}
           >
+            {activityId && (
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() =>
+                  navigate(
+                    returnToSetup
+                      ? `/activity/${activityId}/setup?step=2`
+                      : `/activity/${activityId}?tab=7`,
+                  )
+                }
+              >
+                Kembali ke kegiatan
+              </Button>
+            )}
             {clubId && (
               <Button
                 icon={<ArrowLeftOutlined />}

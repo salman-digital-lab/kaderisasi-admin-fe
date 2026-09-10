@@ -11,6 +11,7 @@ import {
   notification,
   Card,
   Tooltip,
+  Alert,
 } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
@@ -19,17 +20,18 @@ import { useState } from "react";
 import dayjs from "dayjs";
 
 import {
-  getCustomFormByFeature,
+  getCustomForms,
   getUnattachedForms,
   attachFormToActivity,
   createCustomForm,
+  toggleCustomFormActive,
 } from "../../../../api/services/customForm";
 import type { CustomForm } from "../../../../types/model/customForm";
 import { getActivity } from "../../../../api/services/activity";
 
 const { Title, Text } = Typography;
 
-const CustomFormSelection = () => {
+const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,11 +53,16 @@ const CustomFormSelection = () => {
   const {
     data: currentForm,
     loading: currentFormLoading,
+    error: currentFormError,
     refresh: refreshCurrentForm,
   } = useRequest(
     () => {
       if (!id) return Promise.resolve(undefined);
-      return getCustomFormByFeature("activity_registration", id);
+      return getCustomForms({
+        feature_type: "activity_registration",
+        feature_id: id,
+        per_page: "100",
+      }).then((result) => result?.data[0]);
     },
     {
       refreshDeps: [id],
@@ -73,7 +80,11 @@ const CustomFormSelection = () => {
   );
 
   // Attach form action
-  const { loading: attachLoading, runAsync: runAttach } = useRequest(
+  const {
+    loading: attachLoading,
+    error: attachError,
+    run: runAttach,
+  } = useRequest(
     (formId: number, activityId: number) =>
       attachFormToActivity(formId, activityId),
     {
@@ -91,45 +102,63 @@ const CustomFormSelection = () => {
   );
 
   // Create and attach form action
-  const { loading: createAndAttachLoading, runAsync: runCreateAndAttach } =
-    useRequest(
-      async () => {
-        if (!activityData || !id) return;
+  const {
+    loading: createAndAttachLoading,
+    error: createError,
+    run: runCreateAndAttach,
+  } = useRequest(
+    async () => {
+      if (!activityData || !id) return;
 
-        const newForm = await createCustomForm({
-          formName: activityData.name,
-          formDescription: `Form pendaftaran untuk kegiatan ${activityData.name}`,
-          featureType: "activity_registration",
-          featureId: Number(id),
-          isActive: true,
-          formSchema: {
-            fields: [],
-          },
-        });
+      const newForm = await createCustomForm({
+        formName: `Pendaftaran ${activityData.name}`.slice(0, 100),
+        formDescription: `Form pendaftaran untuk kegiatan ${activityData.name}`,
+        featureType: "activity_registration",
+        featureId: Number(id),
+        isActive: false,
+        formSchema: {
+          fields: [],
+        },
+      });
 
-        if (!newForm?.id) {
-          throw new Error("Failed to create form");
-        }
+      if (!newForm?.id) {
+        throw new Error("Failed to create form");
+      }
 
-        refreshCurrentForm();
-        setIsModalOpen(false);
-        notification.success({
-          message: "Berhasil",
-          description: "Form berhasil dibuat",
-        });
-        return newForm;
-      },
-      {
-        manual: true,
-      },
-    );
+      refreshCurrentForm();
+      setIsModalOpen(false);
+      navigate(
+        `/activity/${id}/form/${newForm.id}/edit${setup ? "?setup=1" : ""}`,
+      );
+      notification.success({
+        message: "Berhasil",
+        description: "Form berhasil dibuat",
+      });
+      return newForm;
+    },
+    {
+      manual: true,
+    },
+  );
 
-  const handleAttachForm = async () => {
+  const handleAttachForm = (): void => {
     if (!selectedFormId || !id) return;
-    await runAttach(selectedFormId, Number(id));
+    runAttach(selectedFormId, Number(id));
   };
 
   const unattachedForms = unattachedFormsData?.data || [];
+
+  if (currentFormError && !currentFormLoading) {
+    return (
+      <Alert
+        type="error"
+        showIcon
+        title="Formulir pendaftaran belum berhasil dimuat"
+        description="Coba muat ulang untuk melihat formulir kegiatan ini."
+        action={<Button onClick={refreshCurrentForm}>Coba lagi</Button>}
+      />
+    );
+  }
 
   return (
     <Skeleton loading={currentFormLoading}>
@@ -199,9 +228,13 @@ const CustomFormSelection = () => {
                       aria-label="Edit Form & Pertanyaan"
                       icon={<EditOutlined />}
                       onClick={() =>
-                        navigate(`/activity/${id}/form/${currentForm.id}/edit`)
+                        navigate(
+                          `/activity/${id}/form/${currentForm.id}/edit${setup ? "?setup=1" : ""}`,
+                        )
                       }
-                    />
+                    >
+                      Ubah formulir
+                    </Button>
                   </Tooltip>
                 </Space>
               }
@@ -230,6 +263,27 @@ const CustomFormSelection = () => {
                   </div>
                 </div>
 
+                {!currentForm.is_active && (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        await toggleCustomFormActive(currentForm.id);
+                        refreshCurrentForm();
+                      } catch {
+                        notification.error({
+                          title:
+                            "Formulir belum berhasil diaktifkan. Coba lagi.",
+                        });
+                      }
+                    }}
+                  >
+                    Aktifkan formulir yang sudah siap
+                  </Button>
+                )}
+                <Text>
+                  Formulir aktif diperlukan sebelum pendaftaran dibuka.
+                  Mengaktifkan formulir tidak membuka pendaftaran kegiatan.
+                </Text>
                 <Divider style={{ margin: "8px 0" }} />
 
                 <div
@@ -282,6 +336,13 @@ const CustomFormSelection = () => {
           width={500}
         >
           <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+            {(attachError || createError) && (
+              <Alert
+                type="error"
+                showIcon
+                title="Formulir belum berhasil disimpan. Coba lagi."
+              />
+            )}
             <div
               style={{
                 background: "#f5f5f5",

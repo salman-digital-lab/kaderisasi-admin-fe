@@ -39,6 +39,8 @@ import {
 import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
 import { usePermissions } from "../../../../stores/authStore";
 import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
+import { Link } from "react-router-dom";
+import PublicationHelp from "../../ActivitySetup/PublicationHelp";
 
 const { Title } = Typography;
 
@@ -71,11 +73,13 @@ const ActivityDetail = () => {
   const { loading: editLoading, runAsync } = useRequest(putActivity, {
     manual: true,
   });
-  const { data: clubsData } = useRequest(() =>
-    getClubs({
-      page: "1",
-      per_page: "100",
-    }),
+  const { data: clubsData } = useRequest(
+    () =>
+      getClubs({
+        page: "1",
+        per_page: "100",
+      }),
+    { ready: permissions.includes("clubs.read") },
   );
 
   const clubOptions =
@@ -85,41 +89,6 @@ const ActivityDetail = () => {
     })) || [];
 
   const [description, setDescription] = useState("");
-
-  const { loading: publishLoading, runAsync: runPublishToggle } = useRequest(
-    (newStatus: boolean) =>
-      putActivity(Number(id), { is_published: newStatus ? 1 : 0 }),
-    {
-      manual: true,
-      onSuccess: (_, [newStatus]) => {
-        form.setFieldValue("is_published", newStatus);
-        notification.success({
-          message: "Berhasil",
-          description: newStatus
-            ? "Kegiatan berhasil ditayangkan."
-            : "Kegiatan berhasil dikembalikan ke draf.",
-        });
-      },
-    },
-  );
-
-  const { loading: registrationLoading, runAsync: runRegistrationToggle } =
-    useRequest(
-      (newStatus: boolean) =>
-        putActivity(Number(id), { is_registration_open: newStatus }),
-      {
-        manual: true,
-        onSuccess: (_, [newStatus]) => {
-          form.setFieldValue("is_registration_open", newStatus);
-          notification.success({
-            message: "Berhasil",
-            description: newStatus
-              ? "Pendaftaran kegiatan berhasil dibuka."
-              : "Pendaftaran kegiatan berhasil ditutup.",
-          });
-        },
-      },
-    );
 
   const { data: activityData, loading } = useRequest(
     () => getActivity(Number(id)),
@@ -165,14 +134,16 @@ const ActivityDetail = () => {
           layout="vertical"
           onFinish={async (value) => {
             await runAsync(Number(id), {
-              ...value,
+              name: value.name,
+              minimum_level: value.minimum_level,
+              activity_type: value.activity_type,
+              activity_category: value.activity_category,
+              badge: value.badge,
               club_id: value.club_id ?? null,
-              is_published: value.is_published ? 1 : 0,
-              is_registration_open: value.is_registration_open,
-              registration_start: value.registration_date[0]
+              registration_start: value.registration_date?.[0]
                 ? value.registration_date[0].format("YYYY-MM-DD")
                 : undefined,
-              registration_end: value.registration_date[1]
+              registration_end: value.registration_date?.[1]
                 ? value.registration_date[1].format("YYYY-MM-DD")
                 : undefined,
               activity_start:
@@ -223,26 +194,13 @@ const ActivityDetail = () => {
 
             <Space>
               {permissions.includes("activities.manage") && (
-                <Space size={8}>
-                  <Button
-                    type={isRegistrationOpen ? "default" : "primary"}
-                    danger={isRegistrationOpen}
-                    loading={registrationLoading}
-                    onClick={() => runRegistrationToggle(!isRegistrationOpen)}
-                  >
-                    {isRegistrationOpen
-                      ? "Tutup Pendaftaran"
-                      : "Buka Pendaftaran"}
+                <Link to={`/activity/${id}/setup?step=3`}>
+                  <Button>
+                    {permissions.includes("activities.publish")
+                      ? "Periksa penayangan & pendaftaran"
+                      : "Lanjutkan persiapan kegiatan"}
                   </Button>
-                  <Button
-                    type={isPublished ? "default" : "primary"}
-                    danger={isPublished}
-                    loading={publishLoading}
-                    onClick={() => runPublishToggle(!isPublished)}
-                  >
-                    {isPublished ? "Kembalikan ke Draf" : "Tampilkan di Web"}
-                  </Button>
-                </Space>
+                </Link>
               )}
               <Button
                 form="detail-activity"
@@ -250,7 +208,9 @@ const ActivityDetail = () => {
                 type="primary"
                 icon={<SaveOutlined />}
                 loading={editLoading}
-                disabled={!isChanged}
+                disabled={
+                  !isChanged || !permissions.includes("activities.manage")
+                }
               >
                 Simpan
               </Button>
@@ -525,6 +485,10 @@ const ActivityDetail = () => {
             ]}
           />
         </Form>
+        {permissions.includes("activities.manage") &&
+          !permissions.includes("activities.publish") && (
+            <PublicationHelp id={Number(id)} name={activityData?.name ?? ""} />
+          )}
       </div>
     </Skeleton>
   );

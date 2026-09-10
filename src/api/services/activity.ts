@@ -47,6 +47,7 @@ export const putActivity = async (id: number, data: putActivityReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 

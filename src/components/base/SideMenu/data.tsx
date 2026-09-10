@@ -37,7 +37,7 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
     children: [
       {
         key: "/my-requests",
-        label: <Link to="/my-requests">Permintaan Saya</Link>,
+        label: <Link to="/my-requests">Akses Saya</Link>,
       },
       ...(permissions.includes("tickets.review")
         ? [

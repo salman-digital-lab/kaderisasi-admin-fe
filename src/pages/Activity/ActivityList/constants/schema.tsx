@@ -8,6 +8,7 @@ import {
   renderActivityType,
 } from "../../../../constants/render";
 import { Activity } from "../../../../types/model/activity";
+import { hasPermission } from "../../../../stores/authStore";
 
 const { Text } = Typography;
 
@@ -33,16 +34,25 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
           {name}
         </Text>
         <Tooltip title="Edit aktivitas">
-          <Link to={`/activity/${record.id}`}>
+          <Link
+            to={`/activity/${record.id}${!record.is_published && hasPermission("activities.manage") ? "/setup" : ""}`}
+          >
             <Button
               size="small"
               icon={<EditOutlined />}
+              aria-label={
+                !record.is_published
+                  ? "Lanjutkan persiapan kegiatan"
+                  : "Buka detail kegiatan"
+              }
               style={{
                 display: "flex",
                 alignItems: "center",
                 borderRadius: "4px",
               }}
-            />
+            >
+              {!record.is_published ? "Lanjutkan draf" : "Detail"}
+            </Button>
           </Link>
         </Tooltip>
       </Space>

@@ -22,6 +22,7 @@ export const getCustomForms = async (props: GetCustomFormsReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 

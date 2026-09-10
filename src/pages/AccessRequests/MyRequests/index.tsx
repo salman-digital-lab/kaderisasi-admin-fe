@@ -1,91 +1,117 @@
-import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import { useState } from "react";
+import { useEffect, type ReactElement } from "react";
 import { useRequest } from "ahooks";
-import { Button, Card, Typography } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Alert, Button, Skeleton, Typography } from "antd";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import { getMyRequests } from "../../../api/services/access";
-import RequestAccessModal from "../components/RequestAccessModal";
-import type { AccessTicket } from "../../../types/model/access";
+import { refreshSessionProfile } from "../../../api/axios";
+import { useRole } from "../../../stores/authStore";
+import { ResponsiveTable } from "../../../components/common/Responsive/ResponsiveTable";
 import TicketStatus from "../components/TicketStatus";
+import type { AccessTicket } from "../../../types/model/access";
+import "../../../styles/guided-workflows.css";
 
-export default function MyRequestsPage() {
-  const [open, setOpen] = useState(false);
-  const { data = [], loading, refresh } = useRequest(getMyRequests);
-
+export default function MyRequestsPage(): ReactElement {
+  const role = useRole();
+  const {
+    data = [],
+    loading,
+    error,
+    refresh,
+  } = useRequest(getMyRequests, {
+    refreshOnWindowFocus: true,
+    onSuccess: () => {
+      void refreshSessionProfile().catch(() => undefined);
+    },
+  });
+  const pending = data.filter((ticket) => ticket.status === "open");
+  useEffect(() => {
+    if (!pending.length) return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") refresh();
+    }, 30000);
+    return () => window.clearInterval(timer);
+  }, [pending.length, refresh]);
   return (
-    <div className="access-ticket-page" style={{ padding: 12 }}>
-      <Card
-        className="access-ticket-list-header"
-        size="small"
-        title={
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            Permintaan Saya
-          </Typography.Title>
-        }
-        extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setOpen(true)}
-          >
-            Ajukan Akses
-          </Button>
-        }
-        styles={{
-          header: { padding: 0, minHeight: 32 },
-          body: { display: "none" },
-        }}
-      />
-      <div style={{ marginTop: 12 }}>
-        <Table<AccessTicket>
-          listId="pages/AccessRequests/MyRequests/index:1"
-          rowKey="id"
-          size="small"
-          bordered
-          pagination={{
-            defaultPageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            pageSizeOptions: ["10", "20", "50", "100"],
-            showTotal: (total, range) =>
-              `Menampilkan ${range[0]}-${range[1]} dari ${total} permintaan`,
-          }}
-          loading={loading}
-          dataSource={data}
-          scroll={{ x: 760 }}
-          columns={[
-            {
-              title: "Nomor",
-              dataIndex: "number",
-              render: (value, row) => (
-                <Link to={`/my-requests/${row.id}`}>{value}</Link>
-              ),
-            },
-            {
-              title: "Peran yang Diminta",
-              render: (_, row) => row.role_name,
-            },
-            {
-              title: "Status",
-              render: (_, row) => <TicketStatus ticket={row} />,
-            },
-            {
-              title: "Dibuat",
-              dataIndex: "created_at",
-              render: (value: string) =>
-                dayjs(value).format("DD MMM YYYY HH:mm"),
-            },
-          ]}
-        />
+    <main className="guided-page">
+      <div className="guided-intro">
+        <Typography.Title level={2}>Akses Saya</Typography.Title>
+        <p>
+          {role
+            ? `Peran Anda saat ini: ${role.name}.`
+            : "Akun Anda sudah siap. Ajukan akses sesuai tugas agar Anda dapat mulai bekerja."}
+        </p>
       </div>
-
-      <RequestAccessModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onCreated={refresh}
-      />
-    </div>
+      <div className="guided-actions" style={{ marginBottom: 24 }}>
+        <Link to="/my-requests/new">
+          <Button type="primary">
+            {role ? "Ajukan perubahan peran" : "Ajukan akses"}
+          </Button>
+        </Link>
+        <Button onClick={refresh} loading={loading}>
+          Perbarui status
+        </Button>
+      </div>
+      {error && (
+        <Alert
+          type="error"
+          showIcon
+          title="Status pengajuan belum berhasil dimuat"
+          action={<Button onClick={refresh}>Coba lagi</Button>}
+        />
+      )}
+      <Skeleton loading={loading && !data.length}>
+        {pending.map((ticket) => (
+          <section className="guided-section" key={ticket.id}>
+            <Typography.Title level={3}>{ticket.role_name}</Typography.Title>
+            <TicketStatus ticket={ticket} />
+            <p>
+              Pengajuan terkirim. Super Admin akan meninjaunya. Anda dapat
+              kembali ke halaman ini untuk memeriksa hasilnya.
+            </p>
+            <Link to={`/my-requests/${ticket.id}`}>Lihat pengajuan</Link>
+          </section>
+        ))}
+        {!data.length && !error && (
+          <section className="guided-section">
+            <Typography.Title level={3}>Belum ada pengajuan</Typography.Title>
+            <p>
+              Pilih tugas yang ingin Anda kerjakan. Kami akan menunjukkan peran
+              dan kemampuan yang sesuai sebelum Anda mengirim pengajuan.
+            </p>
+          </section>
+        )}
+        {!!data.length && (
+          <>
+            <Typography.Title level={3}>Riwayat pengajuan</Typography.Title>
+            <ResponsiveTable<AccessTicket>
+              listId="pages/AccessRequests/MyRequests/index:1"
+              rowKey="id"
+              dataSource={data}
+              pagination={{ pageSize: 10 }}
+              columns={[
+                {
+                  title: "Peran",
+                  render: (_, ticket) => (
+                    <Link to={`/my-requests/${ticket.id}`}>
+                      {ticket.role_name}
+                    </Link>
+                  ),
+                },
+                {
+                  title: "Status",
+                  render: (_, ticket) => <TicketStatus ticket={ticket} />,
+                },
+                {
+                  title: "Diajukan",
+                  render: (_, ticket) =>
+                    dayjs(ticket.created_at).format("DD MMM YYYY, HH:mm"),
+                },
+              ]}
+            />
+          </>
+        )}
+      </Skeleton>
+    </main>
   );
 }

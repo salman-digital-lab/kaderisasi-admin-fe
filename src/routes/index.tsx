@@ -69,6 +69,8 @@ const ReviewDetailPage = lazy(
   () => import("../pages/AccessRequests/ReviewDetail"),
 );
 const RbacRolesPage = lazy(() => import("../pages/Rbac/Roles"));
+const NewRequestPage = lazy(() => import("../pages/AccessRequests/NewRequest"));
+const ActivitySetup = lazy(() => import("../pages/Activity/ActivitySetup"));
 
 const Loading = () => (
   <div style={{ padding: 12, backgroundColor: "white" }}>
@@ -165,6 +167,14 @@ const routes = createBrowserRouter([
         ),
       },
       {
+        path: "my-requests/new",
+        element: (
+          <Page>
+            <NewRequestPage />
+          </Page>
+        ),
+      },
+      {
         path: "my-requests/:id",
         element: (
           <Page>
@@ -193,6 +203,14 @@ const routes = createBrowserRouter([
       {
         path: "activity",
         element: guarded(<MainActivity />, "activities.read"),
+      },
+      {
+        path: "activity/new",
+        element: guarded(<ActivitySetup />, "activities.manage"),
+      },
+      {
+        path: "activity/:id/setup",
+        element: guarded(<ActivitySetup />, "activities.manage"),
       },
       {
         path: "activity/:id",

@@ -121,6 +121,14 @@ export function renderNotification(code: string) {
     // Activity Messages
     case "ACTIVITY_NOT_FOUND":
       return "Kegiatan tidak ditemukan";
+    case "ACTIVITY_DESCRIPTION_REQUIRED":
+      return "Deskripsi wajib diisi untuk kegiatan yang tayang.";
+    case "ACTIVITY_POSTER_REQUIRED":
+      return "Unggah poster pengganti sebelum menghapus poster terakhir pada kegiatan yang tayang.";
+    case "INVALID_ACTIVITY_FORM_SCHEMA":
+      return "Lengkapi dan simpan formulir sebelum mengaktifkannya.";
+    case "ACTIVITY_ALREADY_HAS_FORM":
+      return "Kegiatan sudah memiliki formulir. Muat ulang untuk membukanya.";
     case "UPLOAD_IMAGE_SUCCESS":
       return "Gambar berhasil diupload";
     case "DELETE_IMAGE_SUCCESS":
@@ -240,7 +248,7 @@ export function renderNotification(code: string) {
     case "FORM_DETACHED_FROM_CLUB_SUCCESS":
       return "Formulir berhasil dilepas dari klub";
     case "CLOSE_REGISTRATION_BEFORE_FORM_CHANGE":
-      return "Tutup pendaftaran klub sebelum mengubah, menonaktifkan, melepas, atau menghapus formulir";
+      return "Pendaftaran masih dibuka. Hubungi pengelola yang berwenang sebelum menonaktifkan, melepas, atau menghapus formulir.";
 
     default:
       return code;
