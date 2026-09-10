@@ -17,6 +17,11 @@ import type { CertificateElement } from "../../src/pages/DigitalCertificate/type
 const query = new URLSearchParams(location.search);
 const isEditor = query.get("mode") === "editor";
 const design = buildStarterTemplate("a4-landscape", "basic");
+// This fixture retains the legacy direct-issuance path; approval has its own lab.
+if (!isEditor)
+  design.elements = design.elements.filter(
+    (element) => element.variable !== "{{approval}}",
+  );
 if (isEditor)
   design.elements = [
     ...design.elements,
@@ -238,7 +243,9 @@ axios.defaults.adapter = async (config) => {
       data: [template],
       meta: { total: 1, current_page: 1, per_page: 12 },
     };
-  } else if (url.startsWith("/activities/")) data = activity;
+  } else if (url === "/certificates/approvals")
+    data = { data: [], meta: { total: 0, current_page: 1, per_page: 20 } };
+  else if (url.startsWith("/activities/")) data = activity;
   else throw new Error(`Fixture blocks unhandled request: ${url}`);
   return { status: 200, statusText: "OK", headers: {}, config, data: { data } };
 };

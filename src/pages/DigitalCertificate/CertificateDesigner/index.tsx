@@ -562,7 +562,10 @@ const CertificateDesignerEditor: React.FC = () => {
 
   const handleVariableSelect = useCallback(
     (variable: string) => {
-      const size = { width: 200, height: 40 };
+      const size =
+        variable === "{{approval}}"
+          ? { width: Math.min(320, template.canvasWidth), height: 120 }
+          : { width: 200, height: 40 };
       addElement("variable-text", {
         variable,
         ...size,
@@ -753,30 +756,6 @@ const CertificateDesignerEditor: React.FC = () => {
       if (!uploaded) return;
       const size = { width: 200, height: 150 };
       addElement("image", {
-        imageUrl: uploaded.url,
-        ...size,
-        ...getCentredElementPosition(
-          size,
-          viewportCentreRef.current,
-          template.canvasWidth,
-          template.canvasHeight,
-        ),
-      });
-    },
-    [
-      addElement,
-      handleAssetUpload,
-      template.canvasHeight,
-      template.canvasWidth,
-    ],
-  );
-
-  const handleSignatureUpload = useCallback(
-    async (file: File): Promise<void> => {
-      const uploaded = await handleAssetUpload(file);
-      if (!uploaded) return;
-      const size = { width: 200, height: 100 };
-      addElement("signature", {
         imageUrl: uploaded.url,
         ...size,
         ...getCentredElementPosition(
@@ -1400,7 +1379,6 @@ const CertificateDesignerEditor: React.FC = () => {
               handleAddElement(nextTool as ElementType)
             }
             onImageUpload={handleImageUpload}
-            onSignatureUpload={handleSignatureUpload}
           />
         )}
         <Splitter
@@ -1609,10 +1587,6 @@ const CertificateDesignerEditor: React.FC = () => {
             }}
             onImageUpload={async (file) => {
               await handleImageUpload(file);
-              setActiveDrawer(null);
-            }}
-            onSignatureUpload={async (file) => {
-              await handleSignatureUpload(file);
               setActiveDrawer(null);
             }}
           />

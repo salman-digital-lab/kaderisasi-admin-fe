@@ -116,6 +116,7 @@ const CertificatePreview: React.FC = () => {
             element,
             authorized.participant,
             authorized.certificate?.certificate_code,
+            authorized.certificate?.approval,
           ),
       });
     } catch {
@@ -256,6 +257,7 @@ const CertificatePreview: React.FC = () => {
               element,
               data.participant,
               data.certificate?.certificate_code,
+              data.certificate?.approval,
             )
           }
           verificationUrl={verificationUrl}

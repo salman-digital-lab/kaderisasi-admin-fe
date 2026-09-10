@@ -1,4 +1,7 @@
-import type { CertificateParticipant } from "../../../types/services/certificateTemplate";
+import type {
+  CertificateApproval,
+  CertificateParticipant,
+} from "../../../types/services/certificateTemplate";
 import type { CertificateElement } from "../types";
 
 export const CERTIFICATE_SAMPLE_PARTICIPANT: CertificateParticipant = {
@@ -64,10 +67,22 @@ export function resolveCertificateText(
   element: CertificateElement,
   participant: CertificateParticipant,
   certificateCode?: string | null,
+  approval?: CertificateApproval,
 ): string {
   if (element.type === "static-text") return element.content || "";
 
   switch (element.variable) {
+    case "{{approval}}": {
+      if (!approval)
+        return "Menunggu persetujuan\n[Nama penandatangan]\n[Jabatan]\n[Tanggal persetujuan]";
+      const date = new Date(approval.approved_at).toLocaleDateString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      return `Disetujui secara elektronik oleh\n${approval.signer_name}\n${approval.signer_title}\n${date}`;
+    }
     case "{{name}}":
       return participant.guest_name || participant.name;
     case "{{activity_name}}":

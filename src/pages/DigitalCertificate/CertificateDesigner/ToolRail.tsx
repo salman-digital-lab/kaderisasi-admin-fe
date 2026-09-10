@@ -22,7 +22,6 @@ interface ToolRailProps {
   onToolChange: (tool: EditorTool) => void;
   onAddElement: (tool: EditorTool) => void;
   onImageUpload: (file: File) => Promise<void>;
-  onSignatureUpload: (file: File) => Promise<void>;
   variableChooserOpen: boolean;
   onVariableChooserOpenChange: (open: boolean) => void;
   onVariableSelect: (variable: string) => void;
@@ -70,7 +69,6 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
     onToolChange,
     onAddElement,
     onImageUpload,
-    onSignatureUpload,
     variableChooserOpen,
     onVariableChooserOpenChange,
     onVariableSelect,
@@ -153,27 +151,16 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
           </Button>
         </Tooltip>
       </Upload>
-      <Upload
-        accept={IMAGE_UPLOAD_ACCEPT}
-        showUploadList={false}
-        beforeUpload={() => false}
-        disabled={uploading}
-        onChange={(info) => {
-          const file = getValidatedUploadFile(info, message.error);
-          if (file) void onSignatureUpload(file);
-        }}
-      >
-        <Tooltip title="Tanda tangan" placement="right">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            loading={uploading}
-            aria-label="Unggah dan tambahkan tanda tangan"
-          >
-            {presentation === "panel" ? "Tanda tangan" : null}
-          </Button>
-        </Tooltip>
-      </Upload>
+      <Tooltip title="Persetujuan elektronik" placement="right">
+        <Button
+          type="text"
+          icon={<EditOutlined />}
+          onClick={() => onVariableSelect("{{approval}}")}
+          aria-label="Tambahkan persetujuan elektronik"
+        >
+          {presentation === "panel" ? "Persetujuan elektronik" : null}
+        </Button>
+      </Tooltip>
     </nav>
   ),
 );

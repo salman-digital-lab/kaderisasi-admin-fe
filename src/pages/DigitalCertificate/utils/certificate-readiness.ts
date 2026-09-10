@@ -110,6 +110,39 @@ export function getCertificateReadiness(
     .map((element) => element.variable)
     .filter((variable): variable is string => Boolean(variable));
 
+  if (variables.includes("{{approval}}")) {
+    const visible = (
+      element: CertificateTemplateData["elements"][number],
+    ): boolean => element.visible !== false && (element.opacity ?? 100) > 0;
+    if (
+      !template.elements.some(
+        (element) =>
+          element.type === "qr-code" &&
+          visible(element) &&
+          element.width >= 80 &&
+          element.height >= 80,
+      )
+    ) {
+      issues.push({
+        code: "APPROVAL_QR_REQUIRED",
+        message:
+          "Persetujuan elektronik memerlukan QR verifikasi terlihat berukuran minimal 80 × 80.",
+        severity: "error",
+      });
+    }
+    if (
+      !template.elements.some(
+        (element) => element.variable === "{{approval}}" && visible(element),
+      )
+    ) {
+      issues.push({
+        code: "APPROVAL_BLOCK_REQUIRED",
+        message: "Tampilkan blok persetujuan elektronik.",
+        severity: "error",
+      });
+    }
+  }
+
   if (variables.some((variable) => PRIVATE_VARIABLES.has(variable))) {
     issues.push({
       code: "PRIVATE_VARIABLE",

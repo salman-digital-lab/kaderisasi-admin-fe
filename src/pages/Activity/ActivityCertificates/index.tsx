@@ -53,6 +53,8 @@ import {
 import { runCertificateBatches } from "./batch-runner";
 import { formatRegistrationTime } from "../../../utils/registration-time";
 import styles from "./index.module.css";
+import { ApprovalRequestForm } from "./ApprovalRequestForm";
+import { CertificateApprovals } from "../../DigitalCertificate/components/CertificateApprovals";
 
 const LABELS = {
   eligible_not_issued: "Siap diterbitkan",
@@ -258,6 +260,10 @@ export default function ActivityCertificates(): React.ReactElement {
 
   const ready =
     template?.status === "published" && template.readiness?.ready === true;
+  const requiresApproval = plan?.preview?.template.template_data.elements.some(
+    (element) =>
+      element.type === "variable-text" && element.variable === "{{approval}}",
+  );
   async function saveTemplate(): Promise<void> {
     if (!ready || !selectedTemplateId) return;
     setBusy(true);
@@ -663,6 +669,18 @@ export default function ActivityCertificates(): React.ReactElement {
                 )}
               />
             )}
+            {requiresApproval && !hasRun && canIssue && (
+              <ApprovalRequestForm
+                plan={plan}
+                onSubmitted={() => {
+                  message.success(
+                    "Permintaan tersimpan. Menunggu persetujuan penandatangan.",
+                  );
+                  setStep(1);
+                  setRefresh((value) => value + 1);
+                }}
+              />
+            )}
             {hasRun && (
               <>
                 <Typography.Text>
@@ -772,7 +790,7 @@ export default function ActivityCertificates(): React.ReactElement {
               Tinjau {count} sertifikat
             </Button>
           )}
-          {step === 2 && !hasRun && (
+          {step === 2 && !hasRun && !requiresApproval && (
             <Button
               type="primary"
               disabled={
@@ -813,6 +831,11 @@ export default function ActivityCertificates(): React.ReactElement {
           )}
         </div>
       </Card>
+      <CertificateApprovals
+        activityId={activityId}
+        refreshKey={refresh}
+        onChanged={() => setRefresh((value) => value + 1)}
+      />
     </main>
   );
 }

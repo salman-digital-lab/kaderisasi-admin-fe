@@ -9,6 +9,7 @@ export default mergeConfig(
       rollupOptions: {
         input: [
           "tests/browser/certificate.html",
+          "tests/browser/approval.html",
           "tests/browser/responsive.html",
         ],
       },

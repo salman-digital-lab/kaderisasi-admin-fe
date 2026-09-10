@@ -30,5 +30,6 @@ export const permissionLabels: Record<string, string> = {
   "certificate.template.manage": "Mengelola templat sertifikat",
   "certificate.read": "Melihat sertifikat",
   "certificate.issue": "Menerbitkan sertifikat",
+  "certificate.approve": "Menyetujui sertifikat sebagai penandatangan",
   "certificate.revoke": "Mencabut sertifikat",
 };

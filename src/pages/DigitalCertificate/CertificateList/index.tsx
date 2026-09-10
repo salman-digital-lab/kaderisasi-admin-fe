@@ -46,6 +46,7 @@ import type {
 } from "../../../types/services/certificateTemplate";
 import { canManageCertificateTemplates } from "../../../utils/certificate-permissions";
 import { TemplateThumbnail } from "../components";
+import { CertificateApprovals } from "../components/CertificateApprovals";
 import {
   getCertificateReadiness,
   getCertificateTemplateStatus,
@@ -487,6 +488,7 @@ const CertificateList: React.FC = () => {
       </Card>
 
       {/* Filter */}
+      <CertificateApprovals />
       <Card
         variant="outlined"
         style={{ borderRadius: 0, marginBottom: 0 }}

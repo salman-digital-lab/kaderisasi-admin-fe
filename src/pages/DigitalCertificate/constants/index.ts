@@ -1,4 +1,5 @@
 export const VARIABLE_OPTIONS = [
+  { label: "Persetujuan elektronik", value: "{{approval}}" },
   { label: "Nama Peserta / Tamu", value: "{{name}}" },
   { label: "Nama Kegiatan", value: "{{activity_name}}" },
   { label: "Tanggal", value: "{{activity_date}}" },

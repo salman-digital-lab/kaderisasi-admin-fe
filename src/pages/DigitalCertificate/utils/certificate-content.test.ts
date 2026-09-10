@@ -34,6 +34,22 @@ afterEach(() => {
 });
 
 describe("certificate content resolver", () => {
+  it("renders approval evidence in Jakarta time without inventing a signature", () => {
+    const element = variableElement("{{approval}}");
+    expect(resolveCertificateText(element, participant)).toContain(
+      "Menunggu persetujuan",
+    );
+    expect(
+      resolveCertificateText(element, participant, "CERT-001", {
+        signer_name: "Penandatangan Uji",
+        signer_title: "Ketua kegiatan",
+        approved_at: "2026-09-09T18:00:00.000Z",
+      }),
+    ).toBe(
+      "Disetujui secara elektronik oleh\nPenandatangan Uji\nKetua kegiatan\n10 September 2026",
+    );
+  });
+
   it("uses the guest name and public allowlisted fields", () => {
     expect(
       resolveCertificateText(variableElement("{{name}}"), participant),

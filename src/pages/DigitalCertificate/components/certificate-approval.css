@@ -1,0 +1,12 @@
+.certificate-approval .ant-btn-primary:not(:disabled) {
+  background: var(--ant-color-primary);
+}
+
+/* Override the global button gradient so its hover state remains readable. */
+.certificate-approval .ant-btn-primary:not(:disabled):hover {
+  background: var(--ant-color-primary-hover) !important;
+}
+
+.certificate-approval .ant-btn-primary:not(:disabled):active {
+  background: var(--ant-color-primary-active) !important;
+}

@@ -2,6 +2,12 @@ import { Pagination } from "./base";
 
 export type CertificateTemplateStatus = "draft" | "published" | "archived";
 
+export interface CertificateApproval {
+  signer_name: string;
+  signer_title: string;
+  approved_at: string;
+}
+
 export interface CertificateTemplateElement {
   id: string;
   type: "static-text" | "variable-text" | "image" | "qr-code" | "signature";
@@ -177,6 +183,7 @@ export interface CertificatePayload {
   template: CertificateTemplateSnapshot;
   participant: CertificateParticipant;
   certificate?: {
+    approval?: CertificateApproval;
     id: number;
     certificate_code: string;
     registration_id: number;
