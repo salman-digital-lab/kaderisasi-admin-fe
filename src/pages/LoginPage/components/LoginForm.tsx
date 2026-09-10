@@ -163,7 +163,7 @@ const LoginForm = () => {
       <Row justify="center" align="middle" style={containerStyle}>
         <Col xs={24} sm={20} md={16} lg={12} xl={10} xxl={8}>
           <Card className="login-card">
-            <div style={formStyle}>
+            <div style={formStyle} className="login-form-content">
               {/* Logo and Branding Section */}
               <div style={logoContainerStyle} className="logo-container">
                 <div style={{ marginBottom: "16px" }}>
@@ -195,6 +195,7 @@ const LoginForm = () => {
 
               {/* Login Form */}
               <Form
+                scrollToFirstError={{ focus: true }}
                 form={form}
                 name="loginForm"
                 onFinish={onFinish}
@@ -211,6 +212,8 @@ const LoginForm = () => {
                   ]}
                 >
                   <Input
+                    autoComplete="username"
+                    inputMode="email"
                     prefix={
                       <UserOutlined
                         style={{ color: token.colorTextTertiary }}

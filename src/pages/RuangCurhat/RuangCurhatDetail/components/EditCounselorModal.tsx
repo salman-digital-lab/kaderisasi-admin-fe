@@ -1,6 +1,7 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Modal, Select } from "antd";
+import { Select } from "antd";
 import { useRequest } from "ahooks";
 
 import { getAdminUsers } from "../../../../api/services/adminuser";

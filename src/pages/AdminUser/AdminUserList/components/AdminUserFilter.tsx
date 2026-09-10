@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import React, { useState } from "react";
 import { Input, Button, Card, Space, Tooltip } from "antd";
 import {
@@ -49,18 +50,29 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         }}
       >
         {/* Left: Filters */}
-        <Space size={12} wrap>
-          <Input.Search
-            placeholder="Cari email"
-            allowClear
-            style={{ width: 280 }}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onSearch={handleSearch}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
-        </Space>
+        <ResponsiveFilters
+          onApply={handleSearch}
+          values={[searchInput]}
+          onReset={() => {
+            setSearchInput("");
+            setParameter((prev) => ({ ...prev, page: 1, name: "" }));
+          }}
+        >
+          {({ apply }) => (
+            <Space size={12} wrap>
+              <Input.Search
+                placeholder="Cari email"
+                allowClear
+                style={{ width: 280 }}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onSearch={apply}
+                onPressEnter={apply}
+                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              />
+            </Space>
+          )}
+        </ResponsiveFilters>
 
         {/* Right: Actions */}
         <Space size={8} wrap>

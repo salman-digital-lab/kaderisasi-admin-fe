@@ -1,13 +1,14 @@
+import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import {
   Button,
   Card,
-  Descriptions,
   DescriptionsProps,
   Space,
   Tag,
   Dropdown,
   MenuProps,
-  Modal,
   InputNumber,
   Form,
   Input,
@@ -230,7 +231,7 @@ const AchievementDetail = () => {
           form.resetFields();
         }}
         onOk={() => {
-          form.validateFields().then((values) => {
+          validateFieldsAndFocus(form).then((values) => {
             Modal.confirm({
               title: "Konfirmasi Persetujuan",
               content: (
@@ -256,7 +257,11 @@ const AchievementDetail = () => {
           });
         }}
       >
-        <Form form={form} layout="vertical">
+        <Form
+          scrollToFirstError={{ focus: true }}
+          form={form}
+          layout="vertical"
+        >
           <Form.Item
             name="score"
             label="Skor"
@@ -282,7 +287,7 @@ const AchievementDetail = () => {
           rejectForm.resetFields();
         }}
         onOk={() => {
-          rejectForm.validateFields().then((values) => {
+          validateFieldsAndFocus(rejectForm).then((values) => {
             Modal.confirm({
               title: "Konfirmasi Penolakan",
               content: "Apakah Anda yakin ingin menolak prestasi ini?",
@@ -297,7 +302,11 @@ const AchievementDetail = () => {
           });
         }}
       >
-        <Form form={rejectForm} layout="vertical">
+        <Form
+          scrollToFirstError={{ focus: true }}
+          form={rejectForm}
+          layout="vertical"
+        >
           <Form.Item
             name="remark"
             label="Alasan Penolakan"

@@ -1,4 +1,6 @@
-import { Form, Modal, Select, Switch } from "antd";
+import { validateFieldsAndFocus } from "../../../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../../../components/common/Responsive/ResponsiveDialog";
+import { Form, Select, Switch } from "antd";
 import { putAdminUser } from "../../../../../api/services/adminuser";
 import { getRoles } from "../../../../../api/services/access";
 import { useRequest } from "ahooks";
@@ -42,7 +44,7 @@ export default function EditAdminUser({
       confirmLoading={loading}
       onOk={async () => {
         if (data) {
-          const values = await form.validateFields();
+          const values = await validateFieldsAndFocus(form);
           await runAsync({
             id: String(data.id),
             data: {
@@ -60,7 +62,7 @@ export default function EditAdminUser({
         setData(undefined);
       }}
     >
-      <Form form={form} layout="vertical">
+      <Form scrollToFirstError={{ focus: true }} form={form} layout="vertical">
         <Form.Item label="Role" name="role_code">
           <Select
             allowClear

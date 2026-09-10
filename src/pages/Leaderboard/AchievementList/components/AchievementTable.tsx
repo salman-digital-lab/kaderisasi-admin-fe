@@ -1,4 +1,5 @@
-import { Table } from "antd";
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
+
 import type { TableProps } from "antd";
 import type { Achievement } from "../../../../types/model/achievements";
 import type { Pagination } from "../../../../types/services/base";
@@ -49,6 +50,7 @@ export default function AchievementTable({
 
   return (
     <Table
+      listId="pages/Leaderboard/AchievementList/components/AchievementTable:1"
       rowKey="id"
       columns={TABLE_SCHEMA(parameters.sort_by, parameters.sort_order)}
       dataSource={data?.data}

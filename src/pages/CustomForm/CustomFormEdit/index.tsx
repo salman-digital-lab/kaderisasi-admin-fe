@@ -1,4 +1,6 @@
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
 import React from "react";
+import { PageHeader } from "../../../components/common/Responsive/PageHeader";
 import { Form, Button, Space, Typography, Spin, Tabs } from "antd";
 import {
   ArrowLeftOutlined,
@@ -76,9 +78,16 @@ const CustomFormEdit: React.FC = () => {
   // Handle save button click
   const handleSave = async () => {
     try {
-      const values = await form.validateFields();
+      const values = await validateFieldsAndFocus(form);
       await updateForm(values);
     } catch (error) {
+      handleTabChange("basic");
+      requestAnimationFrame(() => {
+        const first = form
+          .getFieldsError()
+          .find((field) => field.errors.length);
+        if (first) form.scrollToField(first.name, { focus: true });
+      });
       console.error("Validation failed:", error);
     }
   };
@@ -118,6 +127,7 @@ const CustomFormEdit: React.FC = () => {
   const tabItems = [
     {
       key: "basic",
+      forceRender: true,
       label: "Informasi Dasar",
       children: (
         <BasicInfoTab
@@ -163,6 +173,7 @@ const CustomFormEdit: React.FC = () => {
       {/* Form Container */}
       <div style={{ background: "#fff", padding: "16px", borderRadius: "8px" }}>
         <div
+          className="form-builder-toolbar"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -188,12 +199,18 @@ const CustomFormEdit: React.FC = () => {
                 Kembali ke Pendaftaran Klub
               </Button>
             )}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <FormOutlined style={{ color: "#1890ff", fontSize: "20px" }} />
-              <Text strong style={{ fontSize: "16px" }}>
-                Ubah Form Kustom - {initialData.form_name}
-              </Text>
-            </div>
+            <PageHeader
+              title={
+                <>
+                  <FormOutlined
+                    style={{ color: "#1890ff", fontSize: "20px" }}
+                  />
+                  <Text strong style={{ fontSize: "16px" }}>
+                    Ubah Form Kustom - {initialData.form_name}
+                  </Text>
+                </>
+              }
+            />
           </div>
           <Button
             type="primary"

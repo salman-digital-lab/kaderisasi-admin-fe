@@ -1,8 +1,8 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useState } from "react";
 import {
   Button,
   Dropdown,
-  Modal,
   Select,
   Input,
   Alert,

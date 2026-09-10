@@ -71,5 +71,5 @@ export function useCanvasPan({ offset, setOffset }: UseCanvasPanOptions) {
     document.removeEventListener("pointercancel", handlePanUp);
   }, [handlePanMove, handlePanUp]);
 
-  return { isPanning, startPan, cleanup };
+  return { isPanning, startPan, cleanup, stop: handlePanUp };
 }

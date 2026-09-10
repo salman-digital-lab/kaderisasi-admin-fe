@@ -1,5 +1,7 @@
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { useRequest } from "ahooks";
-import { Form, Input, Modal, Select } from "antd";
+import { Form, Input, Select } from "antd";
 import { createMember } from "../../../api/services/member";
 import { GENDER_OPTION } from "../../../constants/options";
 
@@ -27,7 +29,7 @@ export default function CreateMemberModal({
       cancelText="Batal"
       width={640}
       onOk={async () => {
-        const data = await form.validateFields();
+        const data = await validateFieldsAndFocus(form);
         const result = await runAsync(data);
         if (result) {
           form.resetFields();
@@ -40,7 +42,7 @@ export default function CreateMemberModal({
         setIsOpen(false);
       }}
     >
-      <Form layout="vertical" form={form}>
+      <Form scrollToFirstError={{ focus: true }} layout="vertical" form={form}>
         <Form.Item
           label="Nama Lengkap"
           name="name"

@@ -9,7 +9,17 @@ import { getReviewTickets } from "../../../api/services/access";
 const { Sider } = Layout;
 const { Text } = Typography;
 
-const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
+interface SideMenuProps extends SidebarProps {
+  navigationOnly?: boolean;
+  onNavigate?: () => void;
+}
+
+const SideMenu = ({
+  collapsed,
+  onCollapse,
+  navigationOnly = false,
+  onNavigate,
+}: SideMenuProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const permissions = usePermissions();
@@ -93,25 +103,8 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
     return [];
   };
 
-  return (
-    <Sider
-      trigger={null}
-      collapsible
-      collapsed={collapsed}
-      onCollapse={onCollapse}
-      width={220}
-      collapsedWidth={64}
-      theme="light"
-      style={{
-        overflow: "auto",
-        height: "100vh",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        borderRight: "1px solid #f0f0f0",
-      }}
-    >
+  const content = (
+    <>
       {/* Logo Section */}
       <div
         style={{
@@ -177,11 +170,36 @@ const SideMenu = ({ collapsed, onCollapse }: SidebarProps) => {
         selectedKeys={getSelectedKeys()}
         defaultOpenKeys={getOpenKeys()}
         items={memoizedMenuItems}
+        onClick={onNavigate}
         style={{
           border: "none",
           fontSize: "13px",
         }}
       />
+    </>
+  );
+  return navigationOnly ? (
+    content
+  ) : (
+    <Sider
+      trigger={null}
+      collapsible
+      collapsed={collapsed}
+      onCollapse={onCollapse}
+      width={220}
+      collapsedWidth={64}
+      theme="light"
+      style={{
+        overflow: "auto",
+        height: "100vh",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        borderRight: "1px solid #f0f0f0",
+      }}
+    >
+      {content}
     </Sider>
   );
 };

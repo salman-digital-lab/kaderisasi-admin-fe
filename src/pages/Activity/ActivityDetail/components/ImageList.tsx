@@ -4,6 +4,8 @@ import {
   HolderOutlined,
   DeleteOutlined,
   EyeOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
 } from "@ant-design/icons";
 import {
   DndContext,
@@ -65,12 +67,20 @@ const SortableImageItem = ({
   onPreview,
   onRemove,
   isRemoving,
+  onMove,
+  first,
+  last,
+  busy,
 }: {
   item: ImageItem;
   index: number;
   onPreview: (url: string) => void;
   onRemove: (item: ImageItem) => void;
   isRemoving: string | null;
+  onMove: (direction: -1 | 1) => void;
+  first: boolean;
+  last: boolean;
+  busy: boolean;
 }) => {
   const {
     attributes,
@@ -79,7 +89,7 @@ const SortableImageItem = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.uid });
+  } = useSortable({ id: item.uid, disabled: busy });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -150,6 +160,8 @@ const SortableImageItem = ({
             {/* Drag handle */}
             <button
               type="button"
+              className="activity-image-drag-handle"
+              disabled={busy}
               {...attributes}
               {...listeners}
               aria-label={`Ubah urutan gambar ${index + 1}`}
@@ -213,6 +225,7 @@ const SortableImageItem = ({
                       />
                     }
                     aria-label={`Hapus gambar ${index + 1}`}
+                    disabled={busy}
                     style={{ padding: 2, minWidth: 24, height: 24 }}
                   />
                 </Popconfirm>
@@ -220,6 +233,27 @@ const SortableImageItem = ({
             </div>
           </>
         )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          marginTop: 8,
+          justifyContent: "center",
+        }}
+      >
+        <Button
+          icon={<ArrowUpOutlined />}
+          aria-label={`Majukan gambar ${index + 1}`}
+          disabled={first || busy}
+          onClick={() => onMove(-1)}
+        />
+        <Button
+          icon={<ArrowDownOutlined />}
+          aria-label={`Mundurkan gambar ${index + 1}`}
+          disabled={last || busy}
+          onClick={() => onMove(1)}
+        />
       </div>
     </div>
   );
@@ -233,6 +267,8 @@ const ImageList = () => {
   const [fileList, setFileList] = useState<ImageItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const busy = uploading || reordering || Boolean(removingId);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -284,14 +320,16 @@ const ImageList = () => {
     }
   };
 
-  const handleDragEnd = useCallback(
-    async (event: DragEndEvent) => {
-      const { active, over } = event;
-
-      if (over && active.id !== over.id) {
-        const oldIndex = fileList.findIndex((item) => item.uid === active.id);
-        const newIndex = fileList.findIndex((item) => item.uid === over.id);
-
+  const moveImage = useCallback(
+    async (oldIndex: number, newIndex: number): Promise<void> => {
+      if (
+        !busy &&
+        oldIndex >= 0 &&
+        newIndex >= 0 &&
+        newIndex < fileList.length &&
+        oldIndex !== newIndex
+      ) {
+        setReordering(true);
         const newFileList = arrayMove(fileList, oldIndex, newIndex);
         setFileList(newFileList);
 
@@ -311,11 +349,22 @@ const ImageList = () => {
             message: "Gagal",
             description: "Gagal mengubah urutan gambar",
           });
+        } finally {
+          setReordering(false);
         }
       }
     },
-    [fileList, id],
+    [fileList, id, busy],
   );
+
+  const handleDragEnd = (event: DragEndEvent): void => {
+    const { active, over } = event;
+    if (over)
+      void moveImage(
+        fileList.findIndex((item) => item.uid === active.id),
+        fileList.findIndex((item) => item.uid === over.id),
+      );
+  };
 
   const handleUpload: UploadProps["beforeUpload"] = async (file) => {
     const error = getImageUploadError(file, IMAGE_UPLOAD_POLICIES.activity);
@@ -366,7 +415,7 @@ const ImageList = () => {
             Galeri Gambar
           </Title>
           <Text type="secondary" style={{ fontSize: 13 }}>
-            Seret gambar untuk mengatur urutan. Gambar pertama akan menjadi
+            Gunakan tombol urutan atau seret gambar. Gambar pertama akan menjadi
             gambar utama.
           </Text>
         </div>
@@ -399,6 +448,12 @@ const ImageList = () => {
                   onPreview={handlePreview}
                   onRemove={handleRemove}
                   isRemoving={removingId}
+                  onMove={(direction) =>
+                    void moveImage(index, index + direction)
+                  }
+                  first={index === 0}
+                  last={index === fileList.length - 1}
+                  busy={busy}
                 />
               ))}
 
@@ -408,12 +463,12 @@ const ImageList = () => {
                   showUploadList={false}
                   beforeUpload={handleUpload}
                   accept={IMAGE_UPLOAD_ACCEPT}
-                  disabled={uploading}
+                  disabled={busy}
                 >
                   <button
                     type="button"
                     aria-label="Tambah gambar aktivitas"
-                    disabled={uploading}
+                    disabled={busy}
                     style={{
                       width: 128,
                       height: 128,

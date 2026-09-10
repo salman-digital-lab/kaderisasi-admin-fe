@@ -206,6 +206,7 @@ const RegistrantList = () => {
 
       {/* Status Visibility Settings */}
       <Form
+        scrollToFirstError={{ focus: true }}
         form={form}
         layout="vertical"
         onValuesChange={() => setStatusSettingsChanged(true)}

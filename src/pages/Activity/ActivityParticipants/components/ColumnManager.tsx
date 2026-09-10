@@ -1,15 +1,10 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useState } from "react";
-import {
-  Modal,
-  Checkbox,
-  Button,
-  Space,
-  Typography,
-  Divider,
-  message,
-} from "antd";
+import { Checkbox, Button, Space, Typography, Divider, message } from "antd";
 import {
   DragOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
   ReloadOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
@@ -37,9 +32,18 @@ const { Text } = Typography;
 interface SortableItemProps {
   column: ColumnConfig;
   onToggleVisible: (key: string) => void;
+  onMove: (direction: -1 | 1) => void;
+  first: boolean;
+  last: boolean;
 }
 
-const SortableItem = ({ column, onToggleVisible }: SortableItemProps) => {
+const SortableItem = ({
+  column,
+  onToggleVisible,
+  onMove,
+  first,
+  last,
+}: SortableItemProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: column.key });
 
@@ -53,6 +57,8 @@ const SortableItem = ({ column, onToggleVisible }: SortableItemProps) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    flexWrap: "wrap" as const,
+    gap: 8,
     border: "1px solid #e8e8e8",
   };
 
@@ -73,6 +79,20 @@ const SortableItem = ({ column, onToggleVisible }: SortableItemProps) => {
         >
           {column.title}
         </Checkbox>
+      </Space>
+      <Space size={4}>
+        <Button
+          icon={<ArrowUpOutlined />}
+          aria-label={`Naikkan kolom ${column.title}`}
+          disabled={first}
+          onClick={() => onMove(-1)}
+        />
+        <Button
+          icon={<ArrowDownOutlined />}
+          aria-label={`Turunkan kolom ${column.title}`}
+          disabled={last}
+          onClick={() => onMove(1)}
+        />
       </Space>
       {column.fixed === "left" && (
         <Text type="secondary" style={{ fontSize: 12 }}>
@@ -194,11 +214,18 @@ const ColumnManager = ({
               items={localColumns.map((c) => c.key)}
               strategy={verticalListSortingStrategy}
             >
-              {localColumns.map((column) => (
+              {localColumns.map((column, index) => (
                 <SortableItem
                   key={column.key}
                   column={column}
                   onToggleVisible={handleToggleVisible}
+                  first={index === 0}
+                  last={index === localColumns.length - 1}
+                  onMove={(direction) =>
+                    setLocalColumns((current) =>
+                      arrayMove(current, index, index + direction),
+                    )
+                  }
                 />
               ))}
             </SortableContext>

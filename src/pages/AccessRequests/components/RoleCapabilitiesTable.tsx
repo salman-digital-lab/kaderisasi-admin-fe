@@ -1,4 +1,5 @@
-import { Table, Space, Tag } from "antd";
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
+import { Space, Tag } from "antd";
 import type { ReactElement } from "react";
 import { permissionLabels } from "./permission-labels";
 
@@ -32,6 +33,7 @@ export default function RoleCapabilitiesTable({
   }
   return (
     <Table
+      listId="pages/AccessRequests/components/RoleCapabilitiesTable:1"
       size="small"
       bordered
       pagination={false}

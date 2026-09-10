@@ -114,12 +114,14 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
               size="small"
             />
           ) : (
-            <span
+            <Button
+              type="text"
+              aria-label="Ubah nama grup"
               onClick={() => setIsEditingTitle(true)}
               style={{ cursor: "pointer" }}
             >
               {titleValue}
-            </span>
+            </Button>
           )}
           <Badge count={customFields.length} showZero />
         </Space>
@@ -129,6 +131,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
         <Space size="small">
           <Tooltip title="Pindah Ke Atas">
             <Button
+              aria-label="Pindah Ke Atas"
               type="text"
               size="small"
               icon={<ArrowUpOutlined />}
@@ -138,6 +141,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
           </Tooltip>
           <Tooltip title="Pindah Ke Bawah">
             <Button
+              aria-label="Pindah Ke Bawah"
               type="text"
               size="small"
               icon={<ArrowDownOutlined />}
@@ -147,6 +151,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
           </Tooltip>
           <Tooltip title="Hapus Grup">
             <Button
+              aria-label="Hapus Grup"
               type="text"
               size="small"
               danger
@@ -172,6 +177,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
             return (
               <Card key={field.key} size="small">
                 <div
+                  className="form-builder-field-row"
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -179,7 +185,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                   }}
                 >
                   {/* Field Info */}
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <Space>
                       <Avatar
                         size="small"
@@ -209,6 +215,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                   <Space size="small">
                     <Tooltip title="Pindah Ke Atas">
                       <Button
+                        aria-label="Pindah Ke Atas"
                         type="text"
                         size="small"
                         icon={<ArrowUpOutlined />}
@@ -218,6 +225,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Pindah Ke Bawah">
                       <Button
+                        aria-label="Pindah Ke Bawah"
                         type="text"
                         size="small"
                         icon={<ArrowDownOutlined />}
@@ -227,6 +235,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Duplikat">
                       <Button
+                        aria-label="Duplikat"
                         type="text"
                         size="small"
                         icon={<CopyOutlined />}
@@ -235,6 +244,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Edit">
                       <Button
+                        aria-label="Edit"
                         type="text"
                         size="small"
                         icon={<EditOutlined />}
@@ -243,6 +253,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Hapus">
                       <Button
+                        aria-label="Hapus"
                         type="text"
                         size="small"
                         danger

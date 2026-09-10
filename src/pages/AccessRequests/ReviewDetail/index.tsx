@@ -1,3 +1,5 @@
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { useState } from "react";
 import { useRequest } from "ahooks";
 import {
@@ -5,7 +7,6 @@ import {
   Button,
   Form,
   Input,
-  Modal,
   Skeleton,
   Space,
   Typography,
@@ -57,7 +58,7 @@ export default function ReviewDetailPage(): ReactElement {
     let reason = "";
     if (decision === "rejected") {
       try {
-        reason = (await form.validateFields()).reason.trim();
+        reason = (await validateFieldsAndFocus(form)).reason.trim();
       } catch {
         return;
       }
@@ -203,7 +204,12 @@ export default function ReviewDetailPage(): ReactElement {
             menggantikan peran sebelumnya.
           </Typography.Paragraph>
         ) : (
-          <Form form={form} layout="vertical" disabled={saving}>
+          <Form
+            scrollToFirstError={{ focus: true }}
+            form={form}
+            layout="vertical"
+            disabled={saving}
+          >
             <Form.Item
               name="reason"
               label="Alasan Penolakan"

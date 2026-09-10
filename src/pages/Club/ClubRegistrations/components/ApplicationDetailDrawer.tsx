@@ -1,12 +1,5 @@
-import {
-  Button,
-  Descriptions,
-  Drawer,
-  Empty,
-  Space,
-  Tag,
-  Typography,
-} from "antd";
+import { ResponsiveDescriptions as Descriptions } from "../../../../components/common/Responsive/ResponsiveDescriptions";
+import { Button, Drawer, Empty, Space, Tag, Typography } from "antd";
 import type { DescriptionsProps } from "antd";
 import dayjs from "dayjs";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";

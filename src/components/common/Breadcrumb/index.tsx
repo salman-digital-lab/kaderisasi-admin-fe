@@ -1,6 +1,6 @@
 import { Breadcrumb as AntBreadcrumb } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useAdminViewport } from "../../../hooks/useAdminViewport";
 
 interface BreadcrumbItem {
   path: string;
@@ -44,6 +44,10 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
     },
   ],
   "/club": [{ path: "/club", title: "Daftar Klub" }],
+  "/rbac/roles": [{ path: "/rbac/roles", title: "Role & Permission" }],
+  "/digital-certificate": [
+    { path: "/digital-certificate", title: "Template Sertifikat" },
+  ],
   "/custom-form": [{ path: "/custom-form", title: "Daftar Form Kustom" }],
 };
 
@@ -180,18 +184,7 @@ const getDynamicBreadcrumbs = (
 const Breadcrumb: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Handle responsive behavior
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const { drawerNavigation: isMobile } = useAdminViewport();
 
   // Get breadcrumbs for current path
   const getBreadcrumbs = (): BreadcrumbItem[] => {
@@ -214,7 +207,7 @@ const Breadcrumb: React.FC = () => {
   };
 
   // On mobile, show only the last 2 items
-  const displayBreadcrumbs = isMobile ? breadcrumbs.slice(-2) : breadcrumbs;
+  const displayBreadcrumbs = isMobile ? breadcrumbs.slice(-1) : breadcrumbs;
 
   const items = displayBreadcrumbs.map((crumb, index) => {
     const isLast = index === displayBreadcrumbs.length - 1;
@@ -254,7 +247,9 @@ const Breadcrumb: React.FC = () => {
       items={items}
       style={{
         margin: 0,
-        fontSize: isMobile ? "12px" : "13px",
+        fontSize: "13px",
+        minWidth: 0,
+        overflowWrap: "anywhere",
       }}
       separator=">"
     />

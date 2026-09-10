@@ -1,3 +1,6 @@
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -6,10 +9,8 @@ import {
   Form,
   Input,
   InputNumber,
-  Modal,
   Space,
   Switch,
-  Table,
   Tag,
   Tooltip,
   Typography,
@@ -127,7 +128,7 @@ const ClubMembersPage = () => {
   const handleSaveRole = async () => {
     if (!clubId || !selectedMember) return;
 
-    const values = await form.validateFields();
+    const values = await validateFieldsAndFocus(form);
     setSavingRole(true);
     try {
       const payload = {
@@ -203,6 +204,7 @@ const ClubMembersPage = () => {
                 </Tag>
                 <Tooltip title="Edit peran">
                   <Button
+                    aria-label="Edit peran"
                     size="small"
                     icon={<EditOutlined />}
                     onClick={() => openEditRole(record, role)}
@@ -210,6 +212,7 @@ const ClubMembersPage = () => {
                 </Tooltip>
                 <Tooltip title="Hapus peran">
                   <Button
+                    aria-label="Hapus peran"
                     size="small"
                     danger
                     icon={<DeleteOutlined />}
@@ -274,6 +277,7 @@ const ClubMembersPage = () => {
       </Space>
 
       <Table
+        listId="pages/Club/ClubMembers/index:1"
         rowKey="id"
         dataSource={members}
         columns={columns}
@@ -303,7 +307,11 @@ const ClubMembersPage = () => {
         okText="Simpan"
         cancelText="Batal"
       >
-        <Form form={form} layout="vertical">
+        <Form
+          scrollToFirstError={{ focus: true }}
+          form={form}
+          layout="vertical"
+        >
           <Form.Item
             label="Anggota"
             help={selectedMember ? getMemberName(selectedMember) : undefined}

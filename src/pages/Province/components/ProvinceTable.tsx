@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import React from "react";
-import { Table, Empty, Alert, Button } from "antd";
+import { Empty, Alert, Button } from "antd";
 import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 import { TABLE_SCHEMA } from "../constants/schema";
@@ -66,6 +67,7 @@ const ProvinceTable = ({
 
   return (
     <Table
+      listId="pages/Province/components/ProvinceTable:1"
       rowKey="id"
       columns={TABLE_SCHEMA(openModal)}
       dataSource={data?.data}

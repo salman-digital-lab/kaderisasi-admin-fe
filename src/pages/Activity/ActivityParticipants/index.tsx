@@ -1,3 +1,7 @@
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
+import { ResponsiveFilters } from "../../../components/common/Responsive/ResponsiveFilters";
+import { useAdminViewport } from "../../../hooks/useAdminViewport";
 import {
   CopyOutlined,
   DownloadOutlined,
@@ -15,11 +19,9 @@ import {
   Card,
   Grid,
   Input,
-  Modal,
   Select,
   Skeleton,
   Space,
-  Table,
   Tag,
   Tooltip,
   Typography,
@@ -81,6 +83,7 @@ const TOUCH_ACTION_STYLE: React.CSSProperties = {
 };
 
 const ActivityParticipants = () => {
+  const { compact } = useAdminViewport();
   const screens = Grid.useBreakpoint();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -112,6 +115,7 @@ const ActivityParticipants = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filters, setFilters] = useState<FilterValues>({});
   const [searchInput, setSearchInput] = useState("");
+  const [statusInput, setStatusInput] = useState<string>();
 
   // Fetch activity details
   const { data: activity, loading: activityLoading } = useRequest(
@@ -222,10 +226,14 @@ const ActivityParticipants = () => {
 
   // Handle search
   const handleSearch = useCallback(() => {
-    setFilters((prev) => ({ ...prev, search: searchInput || undefined }));
+    setFilters((prev) => ({
+      ...prev,
+      search: searchInput || undefined,
+      status: statusInput,
+    }));
     setPagination((prev) => ({ ...prev, page: 1 }));
     setSelectedRowKeys([]);
-  }, [searchInput]);
+  }, [searchInput, statusInput]);
 
   // Handle status filter
   const handleStatusFilter = useCallback((value: string | undefined) => {
@@ -552,26 +560,47 @@ const ActivityParticipants = () => {
           }}
         >
           {/* Left: Search & Filter */}
-          <Space size={12} wrap>
-            <Input.Search
-              placeholder="Cari nama atau email..."
-              allowClear
-              style={{ width: 240 }}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onSearch={handleSearch}
-              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            />
+          <ResponsiveFilters
+            onApply={handleSearch}
+            activeCount={
+              [filters.search, filters.status].filter(Boolean).length
+            }
+            onReset={() => {
+              setSearchInput("");
+              setStatusInput(undefined);
+              setFilters({});
+              setPagination((prev) => ({ ...prev, page: 1 }));
+              setSelectedRowKeys([]);
+            }}
+          >
+            {({ apply }) => (
+              <Space size={12} wrap>
+                <Input.Search
+                  placeholder="Cari nama atau email..."
+                  allowClear
+                  style={{ width: 240 }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onSearch={apply}
+                  aria-label="Cari peserta berdasarkan nama atau email"
+                  prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                />
 
-            <Select
-              placeholder="Semua Status"
-              allowClear
-              style={{ width: 160 }}
-              options={statusOptions}
-              onChange={handleStatusFilter}
-              value={filters.status}
-            />
-          </Space>
+                <Select
+                  placeholder="Semua Status"
+                  allowClear
+                  style={{ width: 160 }}
+                  options={statusOptions}
+                  onChange={(value) => {
+                    setStatusInput(value);
+                    if (!compact) handleStatusFilter(value);
+                  }}
+                  value={statusInput}
+                  aria-label="Status peserta"
+                />
+              </Space>
+            )}
+          </ResponsiveFilters>
 
           {/* Right: Actions */}
           <Space size={8} wrap>
@@ -601,6 +630,7 @@ const ActivityParticipants = () => {
 
             <Tooltip title="Export Data">
               <Button
+                aria-label="Export Data"
                 icon={<DownloadOutlined />}
                 onClick={handleExport}
                 loading={isExporting}
@@ -620,6 +650,7 @@ const ActivityParticipants = () => {
                 icon={<ReloadOutlined />}
                 onClick={handleRefresh}
                 loading={participantsLoading}
+                aria-label="Muat ulang peserta"
               />
             </Tooltip>
 
@@ -636,6 +667,7 @@ const ActivityParticipants = () => {
       {/* Participants Table */}
       <div style={{ marginTop: 12 }}>
         <Table
+          listId="pages/Activity/ActivityParticipants/index:1"
           rowKey="id"
           columns={tableColumns}
           dataSource={participantsData?.data?.map((item: ParticipantRow) => ({

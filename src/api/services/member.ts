@@ -27,6 +27,7 @@ export const getProfiles = async (props: getProfilesReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 

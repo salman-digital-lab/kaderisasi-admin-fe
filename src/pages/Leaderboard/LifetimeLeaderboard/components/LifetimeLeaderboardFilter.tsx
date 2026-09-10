@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import { Input, Card, Button, Space, Tooltip } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useState } from "react";
@@ -49,31 +50,43 @@ export default function LifetimeLeaderboardFilter({
         }}
       >
         {/* Left: Filters */}
-        <Space size={12} wrap>
-          <Input
-            placeholder="Cari nama"
-            allowClear
-            style={{ width: 200 }}
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
+        <ResponsiveFilters
+          onApply={handleSearch}
+          values={[nameInput, emailInput]}
+          onReset={() => {
+            setNameInput("");
+            setEmailInput("");
+            setParameter((prev) => ({ ...prev, page: 1, name: "", email: "" }));
+          }}
+        >
+          {({ apply }) => (
+            <Space size={12} wrap>
+              <Input
+                placeholder="Cari nama"
+                allowClear
+                style={{ width: 200 }}
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onPressEnter={apply}
+                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              />
 
-          <Input
-            placeholder="Cari email"
-            allowClear
-            style={{ width: 220 }}
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-          />
+              <Input
+                placeholder="Cari email"
+                allowClear
+                style={{ width: 220 }}
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+              />
 
-          <Button
-            icon={<SearchOutlined />}
-            type="primary"
-            onClick={handleSearch}
-          />
-        </Space>
+              <Button
+                icon={<SearchOutlined />}
+                type="primary"
+                onClick={apply}
+              />
+            </Space>
+          )}
+        </ResponsiveFilters>
 
         {/* Right: Actions */}
         <Space size={8} wrap>

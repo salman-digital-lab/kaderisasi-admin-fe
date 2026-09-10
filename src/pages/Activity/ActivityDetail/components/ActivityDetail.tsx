@@ -159,6 +159,7 @@ const ActivityDetail = () => {
     <Skeleton loading={loading}>
       <div>
         <Form
+          scrollToFirstError={{ focus: true }}
           form={form}
           id="detail-activity"
           layout="vertical"

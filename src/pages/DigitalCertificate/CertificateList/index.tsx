@@ -1,3 +1,5 @@
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import {
   CheckCircleOutlined,
   CopyOutlined,
@@ -17,12 +19,10 @@ import {
   Form,
   Input,
   message,
-  Modal,
   Popconfirm,
   Radio,
   Select,
   Space,
-  Table,
   Tag,
   Tooltip,
   Typography,
@@ -567,6 +567,7 @@ const CertificateList: React.FC = () => {
 
       {/* Table */}
       <Table
+        listId="pages/DigitalCertificate/CertificateList/index:1"
         rowKey="id"
         columns={columns}
         dataSource={data?.data}
@@ -609,6 +610,7 @@ const CertificateList: React.FC = () => {
           destroyOnHidden
         >
           <Form
+            scrollToFirstError={{ focus: true }}
             form={form}
             preserve={false}
             layout="vertical"
@@ -631,6 +633,7 @@ const CertificateList: React.FC = () => {
             </Form.Item>
             <Form.Item name="layout" label="Pilih desain awal">
               <Radio.Group
+                className="certificate-starter-grid"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",

@@ -1,3 +1,4 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -5,7 +6,6 @@ import {
   Card,
   Divider,
   Empty,
-  Modal,
   Select,
   Space,
   Tag,

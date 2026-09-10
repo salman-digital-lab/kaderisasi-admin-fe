@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsive admin comparison</title>
+    <style>
+      body {
+        margin: 16px;
+        font: 16px system-ui;
+        background: #ececec;
+      }
+      .pair {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+      iframe {
+        border: 1px solid #ddd;
+        background: white;
+      }
+      .desktop {
+        width: 648px;
+        height: 450px;
+        overflow: hidden;
+      }
+      .desktop iframe {
+        width: 1440px;
+        height: 1000px;
+        transform: scale(0.45);
+        transform-origin: top left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Anggota dan klub — komponen bersama</h1>
+    <h2>390 px</h2>
+    <div class="pair">
+      <iframe
+        title="Anggota pada 390 px"
+        width="390"
+        height="844"
+        src="./responsive.html"
+      ></iframe>
+      <iframe
+        title="Klub pada 390 px"
+        width="390"
+        height="844"
+        src="./responsive.html?mode=club"
+      ></iframe>
+    </div>
+    <h2>1440 px (diperkecil untuk perbandingan)</h2>
+    <div class="pair">
+      <div class="desktop">
+        <iframe title="Anggota pada 1440 px" src="./responsive.html"></iframe>
+      </div>
+      <div class="desktop">
+        <iframe
+          title="Klub pada 1440 px"
+          src="./responsive.html?mode=club"
+        ></iframe>
+      </div>
+    </div>
+  </body>
+</html>

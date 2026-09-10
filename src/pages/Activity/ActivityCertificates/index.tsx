@@ -1,3 +1,4 @@
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import {
   ArrowLeftOutlined,
   PlusOutlined,
@@ -14,7 +15,6 @@ import {
   Progress,
   Radio,
   Steps,
-  Table,
   Tag,
   Typography,
   message,
@@ -105,6 +105,7 @@ export default function ActivityCertificates(): React.ReactElement {
   const [results, setResults] = useState<IssuanceResult[]>([]);
   const [remaining, setRemaining] = useState<number[]>([]);
   const [runMessage, setRunMessage] = useState("");
+  const [reviewRequired, setReviewRequired] = useState(false);
   const [hasRun, setHasRun] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
@@ -113,6 +114,7 @@ export default function ActivityCertificates(): React.ReactElement {
     previousStep.current = step;
   }, [step]);
   const stopRef = useRef(false);
+  const interruptionVersion = useRef(0);
   const aliveRef = useRef(true);
   const runningRef = useRef(false);
   const blocker = useBlocker(running);
@@ -121,6 +123,33 @@ export default function ActivityCertificates(): React.ReactElement {
     return () => {
       aliveRef.current = false;
       stopRef.current = true;
+    };
+  }, []);
+  useEffect(() => {
+    const handleVisibility = (): void => {
+      if (document.hidden) {
+        stopRef.current = true;
+        interruptionVersion.current += 1;
+        setReviewRequired(true);
+      } else {
+        setRefresh((value) => value + 1);
+      }
+    };
+    const handlePageHide = (): void => {
+      stopRef.current = true;
+      interruptionVersion.current += 1;
+      setReviewRequired(true);
+    };
+    const handlePageShow = (event: PageTransitionEvent): void => {
+      if (event.persisted) setRefresh((value) => value + 1);
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("pageshow", handlePageShow);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
   useBeforeUnload(
@@ -246,12 +275,16 @@ export default function ActivityCertificates(): React.ReactElement {
     }
   }
   async function review(ids?: number[], retry = false): Promise<void> {
+    const versionAtReview = interruptionVersion.current;
     setBusy(true);
     setError("");
     try {
       const next = await prepareIssuance(
         activityId,
         ids ?? (selection === "selected" ? selectedIds : undefined),
+      );
+      setReviewRequired(
+        document.hidden || versionAtReview !== interruptionVersion.current,
       );
       setPlan(next);
       setRemaining([]);
@@ -270,7 +303,13 @@ export default function ActivityCertificates(): React.ReactElement {
     }
   }
   async function issue(): Promise<void> {
-    if (!plan?.registration_ids.length || runningRef.current) return;
+    if (
+      !plan?.registration_ids.length ||
+      runningRef.current ||
+      reviewRequired ||
+      document.hidden
+    )
+      return;
     runningRef.current = true;
     stopRef.current = false;
     setRunning(true);
@@ -279,7 +318,7 @@ export default function ActivityCertificates(): React.ReactElement {
     try {
       const outcome = await runCertificateBatches(plan, {
         issue: (ids) => issueCertificateBatch(plan, ids),
-        shouldStop: () => stopRef.current,
+        shouldStop: () => stopRef.current || document.hidden,
         onResult: (items) => {
           if (aliveRef.current)
             setResults((current) => [
@@ -560,6 +599,7 @@ export default function ActivityCertificates(): React.ReactElement {
             />
             <Typography.Text>{count} peserta dipilih</Typography.Text>
             <Table
+              listId="pages/Activity/ActivityCertificates/index:1"
               rowKey="registration_id"
               columns={columns}
               dataSource={recipients?.data}
@@ -653,6 +693,7 @@ export default function ActivityCertificates(): React.ReactElement {
                     : runMessage}
                 </span>
                 <Table
+                  listId="pages/Activity/ActivityCertificates/index:2"
                   rowKey="registration_id"
                   dataSource={results}
                   pagination={{ pageSize: 20 }}
@@ -734,11 +775,21 @@ export default function ActivityCertificates(): React.ReactElement {
           {step === 2 && !hasRun && (
             <Button
               type="primary"
-              disabled={!canIssue || !plan?.registration_ids.length}
+              disabled={
+                !canIssue || !plan?.registration_ids.length || reviewRequired
+              }
               loading={running}
               onClick={issue}
             >
               Terbitkan {plan?.registration_ids.length} sertifikat
+            </Button>
+          )}
+          {step === 2 && !hasRun && reviewRequired && (
+            <Button
+              loading={busy}
+              onClick={() => review(plan?.registration_ids)}
+            >
+              Tinjau ulang setelah kembali
             </Button>
           )}
           {running && (

@@ -1,12 +1,5 @@
-import {
-  Descriptions,
-  DescriptionsProps,
-  Image,
-  Flex,
-  Typography,
-  Divider,
-  Tag,
-} from "antd";
+import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
+import { DescriptionsProps, Image, Flex, Typography, Divider, Tag } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import type { ReactNode } from "react";

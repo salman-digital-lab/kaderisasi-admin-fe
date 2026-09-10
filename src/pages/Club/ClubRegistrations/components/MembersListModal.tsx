@@ -1,5 +1,7 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import { useDebounce, useRequest } from "ahooks";
-import { Input, message, Modal, Space, Table, Typography } from "antd";
+import { Input, message, Space, Typography } from "antd";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import type { Key } from "antd/es/table/interface";
@@ -110,6 +112,7 @@ const MembersListModal = ({
             aria-label="Cari anggota berdasarkan nama atau email"
           />
           <Table
+            listId="pages/Club/ClubRegistrations/components/MembersListModal:1"
             rowKey="id"
             columns={[
               {

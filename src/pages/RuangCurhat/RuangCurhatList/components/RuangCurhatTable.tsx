@@ -1,5 +1,5 @@
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import React from "react";
-import { Table } from "antd";
 
 import { Pagination } from "../../../../types/services/base";
 import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
@@ -27,6 +27,7 @@ interface DataTypeProps {
 const RuangCurhatTable = ({ data, loading, setParameter }: DataTypeProps) => {
   return (
     <Table
+      listId="pages/RuangCurhat/RuangCurhatList/components/RuangCurhatTable:1"
       rowKey="id"
       columns={TABLE_SCHEMA}
       dataSource={data?.data}

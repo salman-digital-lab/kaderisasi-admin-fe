@@ -80,6 +80,7 @@ const ClubDetail = ({ club, onUpdated }: ClubDetailProps) => {
       </Space>
 
       <Form
+        scrollToFirstError={{ focus: true }}
         form={form}
         id="detail-club"
         layout="vertical"

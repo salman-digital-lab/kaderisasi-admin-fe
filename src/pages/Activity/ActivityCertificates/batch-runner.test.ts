@@ -109,3 +109,37 @@ describe("certificate batches", () => {
     expect(results[100].state).toBe("created");
   });
 });
+
+it("latches an interruption during an active request even if the page returns before it completes", async () => {
+  let stopped = false;
+  let finish: (result: BatchResult) => void = () => {};
+  const issue = vi.fn(
+    (ids: number[]) =>
+      new Promise<BatchResult>((resolve) => {
+        finish = resolve;
+        expect(ids).toHaveLength(100);
+      }),
+  );
+  const completed = vi.fn();
+  const work = runCertificateBatches(plan(1000), {
+    issue,
+    shouldStop: () => stopped,
+    onResult: completed,
+  });
+  stopped = true; // visibilitychange/pagehide latch; returning does not clear it
+  finish(batch(plan(100).registration_ids));
+  const outcome = await work;
+  expect(issue).toHaveBeenCalledTimes(1);
+  expect(completed.mock.calls[0][0]).toHaveLength(100);
+  expect(outcome.remaining).toEqual(plan(1000).registration_ids.slice(100));
+});
+it("does not begin any request when the page is already hidden or unmounted", async () => {
+  const issue = vi.fn();
+  const outcome = await runCertificateBatches(plan(1000), {
+    issue,
+    shouldStop: () => true,
+    onResult: vi.fn(),
+  });
+  expect(issue).not.toHaveBeenCalled();
+  expect(outcome.remaining).toEqual(plan(1000).registration_ids);
+});

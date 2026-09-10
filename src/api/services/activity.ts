@@ -62,6 +62,7 @@ export const putRemoveActivityImage = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 
@@ -77,6 +78,7 @@ export const putReorderActivityImages = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 

@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import React, { useState } from "react";
 import { Button, Card, Space, Select, Input, Tooltip } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -59,50 +60,71 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         }}
       >
         {/* Left: Filters */}
-        <Space size={12} wrap>
-          <Select
-            placeholder="Status"
-            allowClear
-            style={{ width: 140 }}
-            value={statusValue}
-            onChange={setStatusValue}
-            options={PROBLEM_STATUS_OPTIONS}
-          />
+        <ResponsiveFilters
+          onApply={handleSearch}
+          values={[nameInput, statusValue, genderValue, adminNameInput]}
+          onReset={() => {
+            setNameInput("");
+            setStatusValue(undefined);
+            setGenderValue(undefined);
+            setAdminNameInput("");
+            setParameter((prev) => ({
+              ...prev,
+              page: 1,
+              name: undefined,
+              status: undefined,
+              gender: undefined,
+              admin_display_name: undefined,
+            }));
+          }}
+        >
+          {({ apply }) => (
+            <Space size={12} wrap>
+              <Select
+                placeholder="Status"
+                allowClear
+                style={{ width: 140 }}
+                value={statusValue}
+                onChange={setStatusValue}
+                options={PROBLEM_STATUS_OPTIONS}
+              />
 
-          <Input
-            placeholder="Nama pendaftar"
-            allowClear
-            style={{ width: 180 }}
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
+              <Input
+                placeholder="Nama pendaftar"
+                allowClear
+                style={{ width: 180 }}
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onPressEnter={apply}
+                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              />
 
-          <Select
-            placeholder="Jenis Kelamin"
-            allowClear
-            style={{ width: 140 }}
-            value={genderValue}
-            onChange={setGenderValue}
-            options={GENDER_OPTION}
-          />
+              <Select
+                placeholder="Jenis Kelamin"
+                allowClear
+                style={{ width: 140 }}
+                value={genderValue}
+                onChange={setGenderValue}
+                options={GENDER_OPTION}
+              />
 
-          <Input
-            placeholder="Nama konselor"
-            allowClear
-            style={{ width: 160 }}
-            value={adminNameInput}
-            onPressEnter={handleSearch}
-            onChange={(e) => setAdminNameInput(e.target.value)}
-          />
+              <Input
+                placeholder="Nama konselor"
+                allowClear
+                style={{ width: 160 }}
+                value={adminNameInput}
+                onPressEnter={apply}
+                onChange={(e) => setAdminNameInput(e.target.value)}
+              />
 
-          <Button
-            icon={<SearchOutlined />}
-            type="primary"
-            onClick={handleSearch}
-          />
-        </Space>
+              <Button
+                icon={<SearchOutlined />}
+                type="primary"
+                onClick={apply}
+              />
+            </Space>
+          )}
+        </ResponsiveFilters>
 
         {/* Right: Actions */}
         <Space size={8} wrap>

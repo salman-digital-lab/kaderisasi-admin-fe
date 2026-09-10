@@ -16,6 +16,7 @@ import { VariableTextChooser } from "../components/VariableTextChooser";
 import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 
 interface ToolRailProps {
+  presentation?: "rail" | "panel";
   tool: EditorTool;
   uploading: boolean;
   onToolChange: (tool: EditorTool) => void;
@@ -63,6 +64,7 @@ const tools: Array<{
 
 export const ToolRail: React.FC<ToolRailProps> = React.memo(
   ({
+    presentation = "rail",
     tool,
     uploading,
     onToolChange,
@@ -73,7 +75,10 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
     onVariableChooserOpenChange,
     onVariableSelect,
   }) => (
-    <nav className={styles.toolRail} aria-label="Alat editor">
+    <nav
+      className={`${styles.toolRail} ${presentation === "panel" ? styles.toolPanel : ""}`}
+      aria-label="Alat editor"
+    >
       {tools.map((item, index) => (
         <React.Fragment key={item.tool}>
           {index === 2 ? <div className={styles.toolDivider} /> : null}
@@ -82,7 +87,8 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
               open={variableChooserOpen}
               onOpenChange={onVariableChooserOpenChange}
               trigger="click"
-              placement="rightTop"
+              placement={presentation === "panel" ? "top" : "rightTop"}
+              zIndex={1200}
               content={
                 <VariableTextChooser
                   onSelect={(variable) => {
@@ -98,7 +104,9 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
                   icon={item.icon}
                   aria-label={item.label}
                   aria-expanded={variableChooserOpen}
-                />
+                >
+                  {presentation === "panel" ? item.label : null}
+                </Button>
               </Tooltip>
             </Popover>
           ) : (
@@ -117,7 +125,9 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
                     ? onAddElement(item.tool)
                     : onToolChange(item.tool)
                 }
-              />
+              >
+                {presentation === "panel" ? item.label : null}
+              </Button>
             </Tooltip>
           )}
         </React.Fragment>
@@ -138,7 +148,9 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
             icon={<FileImageOutlined />}
             loading={uploading}
             aria-label="Unggah dan tambahkan gambar"
-          />
+          >
+            {presentation === "panel" ? "Gambar" : null}
+          </Button>
         </Tooltip>
       </Upload>
       <Upload
@@ -157,7 +169,9 @@ export const ToolRail: React.FC<ToolRailProps> = React.memo(
             icon={<EditOutlined />}
             loading={uploading}
             aria-label="Unggah dan tambahkan tanda tangan"
-          />
+          >
+            {presentation === "panel" ? "Tanda tangan" : null}
+          </Button>
         </Tooltip>
       </Upload>
     </nav>

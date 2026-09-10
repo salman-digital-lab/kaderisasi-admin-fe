@@ -1,4 +1,5 @@
-import { Alert, Form, Input, Modal, Select, Typography } from "antd";
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
+import { Alert, Form, Input, Select, Typography } from "antd";
 import { useRequest } from "ahooks";
 import { useNavigate } from "react-router-dom";
 
@@ -66,6 +67,7 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
         style={{ marginBottom: 16 }}
       />
       <Form
+        scrollToFirstError={{ focus: true }}
         form={form}
         layout="vertical"
         initialValues={{ club_type: "UNIT" }}

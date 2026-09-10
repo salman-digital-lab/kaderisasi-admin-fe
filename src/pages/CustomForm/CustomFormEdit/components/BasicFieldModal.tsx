@@ -1,7 +1,7 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import React from "react";
 import {
   Alert,
-  Modal,
   Space,
   Tabs,
   Row,

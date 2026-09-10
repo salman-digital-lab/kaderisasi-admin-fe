@@ -1,6 +1,7 @@
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Button, Input, Space, Table, Tag, Typography } from "antd";
+import { Button, Input, Space, Tag, Typography } from "antd";
 import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useRequest } from "ahooks";
@@ -108,6 +109,7 @@ const ClubActivitiesPage = () => {
       </Space>
 
       <Table
+        listId="pages/Club/ClubActivities/index:1"
         rowKey="id"
         dataSource={data?.data || []}
         columns={columns}

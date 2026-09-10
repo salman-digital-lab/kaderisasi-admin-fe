@@ -1,4 +1,5 @@
-import { Modal, Input } from "antd";
+import { ResponsiveDialog as Modal } from "../../../../../components/common/Responsive/ResponsiveDialog";
+import { Input } from "antd";
 import { putAdminUserPassword } from "../../../../../api/services/adminuser";
 import { useRequest } from "ahooks";
 import { useState } from "react";

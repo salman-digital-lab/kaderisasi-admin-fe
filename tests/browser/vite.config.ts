@@ -6,7 +6,12 @@ export default mergeConfig(
     base: "./",
     build: {
       outDir: "tests/browser/dist",
-      rollupOptions: { input: "tests/browser/certificate.html" },
+      rollupOptions: {
+        input: [
+          "tests/browser/certificate.html",
+          "tests/browser/responsive.html",
+        ],
+      },
     },
   }),
 );

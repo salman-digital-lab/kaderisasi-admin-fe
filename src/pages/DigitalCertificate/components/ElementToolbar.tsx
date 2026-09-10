@@ -166,14 +166,22 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           disabled={uploadingBackground}
         >
           <Tooltip title="Upload Background">
-            <Button icon={<PictureOutlined />} loading={uploadingBackground}>
+            <Button
+              aria-label="Upload Background"
+              icon={<PictureOutlined />}
+              loading={uploadingBackground}
+            >
               Background
             </Button>
           </Tooltip>
         </Upload>
 
         <Tooltip title="Ukuran Kanvas">
-          <Button icon={<ExpandOutlined />} onClick={onOpenCanvasSettings}>
+          <Button
+            aria-label="Ukuran Kanvas"
+            icon={<ExpandOutlined />}
+            onClick={onOpenCanvasSettings}
+          >
             Ukuran
           </Button>
         </Tooltip>
@@ -184,6 +192,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         <Space.Compact>
           <Tooltip title="Tambah Teks Statis">
             <Button
+              aria-label="Tambah Teks Statis"
               icon={<FontSizeOutlined />}
               onClick={() => onAddElement("static-text")}
             >
@@ -192,6 +201,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           </Tooltip>
           <Tooltip title="Tambah Teks Variabel">
             <Button
+              aria-label="Tambah Teks Variabel"
               icon={<FieldStringOutlined />}
               onClick={() => onAddElement("variable-text")}
             >
@@ -204,6 +214,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         <Space.Compact>
           <Tooltip title="Tambah QR verifikasi unik">
             <Button
+              aria-label="Tambah QR verifikasi unik"
               icon={<QrcodeOutlined />}
               onClick={() => onAddElement("qr-code")}
             >
@@ -212,6 +223,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           </Tooltip>
           <Tooltip title="Tambah Tanda Tangan">
             <Button
+              aria-label="Tambah Tanda Tangan"
               icon={<EditOutlined />}
               onClick={() => onAddElement("signature")}
             >
@@ -228,7 +240,11 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           disabled={uploadingAsset}
         >
           <Tooltip title="Tambah Gambar (Logo, dll)">
-            <Button icon={<FileImageOutlined />} loading={uploadingAsset}>
+            <Button
+              aria-label="Tambah Gambar (Logo, dll)"
+              icon={<FileImageOutlined />}
+              loading={uploadingAsset}
+            >
               Gambar
             </Button>
           </Tooltip>

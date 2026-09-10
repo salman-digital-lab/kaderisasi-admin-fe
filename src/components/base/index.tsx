@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useAdminViewport } from "../../hooks/useAdminViewport";
+import { useEffect, useRef, useState } from "react";
 import {
   LogoutOutlined,
   MenuFoldOutlined,
@@ -9,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import {
   Layout,
+  Drawer,
   Button,
   theme,
   Typography,
@@ -20,7 +22,7 @@ import {
   Badge,
 } from "antd";
 import SideMenu from "./SideMenu";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { logout } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { useUser, useClearAuth } from "../../stores/authStore";
@@ -39,7 +41,10 @@ const items: MenuProps["items"] = [
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const { compact: isMobile, drawerNavigation } = useAdminViewport();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
 
   const user = useUser();
   const clearAuth = useClearAuth();
@@ -47,20 +52,9 @@ const AppLayout = () => {
 
   const displayName = user?.display_name || "Admin";
 
-  // Handle responsive behavior
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
-      if (mobile && !collapsed) {
-        setCollapsed(true);
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [collapsed]);
+    setMobileMenuOpen(false);
+  }, [location.pathname, location.search, drawerNavigation]);
 
   const handleMenuClick: MenuProps["onClick"] = async (e) => {
     if (e.key === "1") {
@@ -91,31 +85,38 @@ const AppLayout = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <SideMenu collapsed={collapsed} onCollapse={handleCollapse} />
+      {drawerNavigation ? (
+        <Drawer
+          title="BMKA Admin"
+          placement="left"
+          width="min(320px, 90vw)"
+          open={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+          afterOpenChange={(open) => {
+            if (!open) menuButtonRef.current?.focus();
+          }}
+          rootClassName="admin-navigation-drawer"
+        >
+          <SideMenu
+            collapsed={false}
+            onCollapse={handleCollapse}
+            navigationOnly
+            onNavigate={() => setMobileMenuOpen(false)}
+          />
+        </Drawer>
+      ) : (
+        <SideMenu collapsed={collapsed} onCollapse={handleCollapse} />
+      )}
       <Layout
         style={{
-          marginLeft: isMobile ? 0 : collapsed ? 64 : 220,
+          marginLeft: drawerNavigation ? 0 : collapsed ? 64 : 220,
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           position: "relative",
+          minWidth: 0,
         }}
       >
-        {/* Mobile overlay */}
-        {isMobile && !collapsed && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.45)",
-              zIndex: 999,
-            }}
-            onClick={() => setCollapsed(true)}
-          />
-        )}
-
         <Header
+          className="admin-header"
           style={{
             position: "sticky",
             top: 0,
@@ -132,11 +133,20 @@ const AppLayout = () => {
             align="center"
             style={{ height: "48px" }}
           >
-            <Flex align="center" gap={16}>
+            <Flex align="center" gap={8} style={{ minWidth: 0, flex: 1 }}>
               <Button
+                ref={menuButtonRef}
+                aria-label={
+                  drawerNavigation ? "Buka navigasi" : "Ubah lebar navigasi"
+                }
+                aria-expanded={drawerNavigation ? mobileMenuOpen : !collapsed}
                 type="text"
                 icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
+                onClick={() =>
+                  drawerNavigation
+                    ? setMobileMenuOpen(true)
+                    : setCollapsed(!collapsed)
+                }
                 style={{
                   fontSize: "16px",
                   width: 32,
@@ -204,6 +214,7 @@ const AppLayout = () => {
                     transition: "all 0.2s",
                     border: "1px solid transparent",
                   }}
+                  aria-label={`Menu akun ${displayName}`}
                   className="header-profile-btn"
                 >
                   <Avatar
@@ -258,6 +269,7 @@ const AppLayout = () => {
           style={{
             minHeight: "calc(100vh - 48px)",
             overflow: "auto",
+            minWidth: 0,
             backgroundColor: "white",
           }}
         >

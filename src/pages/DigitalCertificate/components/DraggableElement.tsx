@@ -13,6 +13,7 @@ import {
 export type ResizeHandle = "nw" | "ne" | "sw" | "se";
 
 interface DraggableElementProps {
+  compactControls?: boolean;
   element: CertificateElement;
   isSelected: boolean;
   onSelect: (id: string) => void;
@@ -158,6 +159,7 @@ const ImageContent: React.FC<{
 
 export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
   ({
+    compactControls = false,
     element,
     isSelected,
     onSelect,
@@ -169,6 +171,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
     onEditComplete,
     zoom = 1,
   }) => {
+    const hitSize = compactControls ? 44 : HANDLE_SIZE;
     const [isEditing, setIsEditing] = React.useState(false);
     const nodeRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -416,18 +419,17 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
               style={{
                 position: "absolute",
                 ...(key === "nw" || key === "ne"
-                  ? { top: -HANDLE_SIZE / (2 * zoom) }
-                  : { bottom: -HANDLE_SIZE / (2 * zoom) }),
+                  ? { top: -hitSize / (2 * zoom) }
+                  : { bottom: -hitSize / (2 * zoom) }),
                 ...(key === "nw" || key === "sw"
-                  ? { left: -HANDLE_SIZE / (2 * zoom) }
-                  : { right: -HANDLE_SIZE / (2 * zoom) }),
-                width: HANDLE_SIZE,
-                height: HANDLE_SIZE,
-                backgroundColor: "#1890ff",
+                  ? { left: -hitSize / (2 * zoom) }
+                  : { right: -hitSize / (2 * zoom) }),
+                width: hitSize / zoom,
+                height: hitSize / zoom,
+                background: `radial-gradient(circle, #1890ff ${HANDLE_SIZE / (2 * zoom)}px, transparent ${HANDLE_SIZE / (2 * zoom)}px)`,
                 borderRadius: "50%",
                 cursor,
                 zIndex: 10,
-                transform: `scale(${1 / zoom})`,
                 transformOrigin: "center",
               }}
               onPointerDown={(e) => {

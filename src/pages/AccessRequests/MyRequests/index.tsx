@@ -1,6 +1,7 @@
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useState } from "react";
 import { useRequest } from "ahooks";
-import { Button, Card, Table, Typography } from "antd";
+import { Button, Card, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
@@ -39,6 +40,7 @@ export default function MyRequestsPage() {
       />
       <div style={{ marginTop: 12 }}>
         <Table<AccessTicket>
+          listId="pages/AccessRequests/MyRequests/index:1"
           rowKey="id"
           size="small"
           bordered

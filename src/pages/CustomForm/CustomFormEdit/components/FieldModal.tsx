@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
+import React, { useEffect, useRef } from "react";
 import {
-  Modal,
   Form,
   Input,
   Select,
@@ -35,21 +35,25 @@ export const FieldModal: React.FC<FieldModalProps> = ({
 }) => {
   const [form] = Form.useForm();
 
-  // Reset form values when editingField changes
+  const editingFieldRef = useRef(editingField);
+  editingFieldRef.current = editingField;
+  const fieldType = Form.useWatch("type", form) || editingField?.type;
+
+  // Initialize once per question; type changes must retain pending labels and options.
   useEffect(() => {
     if (visible) {
       // Always reset form first to clear previous values
       form.resetFields();
 
-      if (editingField) {
+      if (editingFieldRef.current) {
         // Then set the new values
         form.setFieldsValue({
-          ...editingField,
-          options: editingField.options || [],
+          ...editingFieldRef.current,
+          options: editingFieldRef.current.options || [],
         });
       }
     }
-  }, [editingField, visible, form]);
+  }, [editingField?.key, visible, form]);
 
   const handleFieldTypeChange = (value: string) => {
     onFieldTypeChange?.(value);
@@ -81,7 +85,12 @@ export const FieldModal: React.FC<FieldModalProps> = ({
       width={800}
       destroyOnHidden
     >
-      <Form form={form} layout="vertical" onFinish={onSave}>
+      <Form
+        scrollToFirstError={{ focus: true }}
+        form={form}
+        layout="vertical"
+        onFinish={onSave}
+      >
         {/* Basic Settings Section */}
         <div style={{ marginBottom: 24 }}>
           <Form.Item
@@ -152,7 +161,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         </div>
 
         {/* Options Section - Only shown for fields that need options */}
-        {editingField?.type && hasOptionsField(editingField.type) && (
+        {fieldType && hasOptionsField(fieldType) && (
           <div
             style={{
               backgroundColor: "#f5f5f5",
@@ -238,6 +247,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                           type="text"
                           danger
                           icon={<DeleteOutlined />}
+                          aria-label={`Hapus opsi ${name + 1}`}
                           onClick={() => remove(name)}
                           title="Hapus opsi"
                         />

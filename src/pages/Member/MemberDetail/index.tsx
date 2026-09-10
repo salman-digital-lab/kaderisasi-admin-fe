@@ -1,10 +1,11 @@
+import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import {
   Form,
   Input,
   Col,
   Row,
   Button,
-  Descriptions,
   Space,
   Flex,
   Skeleton,
@@ -12,7 +13,6 @@ import {
   Select,
   Divider,
   Image,
-  Table,
   DatePicker,
   Tag,
   Card,
@@ -206,7 +206,12 @@ const MemberDetailPage = () => {
     <div style={{ padding: 12 }}>
       <Card style={{ borderRadius: 0, boxShadow: "none" }}>
         {/* Account info + picture */}
-        <Flex gap={24} wrap="wrap" align="flex-start">
+        <Flex
+          className="member-identity"
+          gap={24}
+          wrap="wrap"
+          align="flex-start"
+        >
           <Image
             width={160}
             height={160}
@@ -296,6 +301,7 @@ const MemberDetailPage = () => {
         </Flex>
 
         <Form
+          scrollToFirstError={{ focus: true }}
           id="profile"
           layout="vertical"
           form={form}
@@ -717,6 +723,7 @@ const MemberDetailPage = () => {
         {/* Activity history */}
         <Divider>Kegiatan yang Diikuti</Divider>
         <Table
+          listId="pages/Member/MemberDetail/index:1"
           dataSource={myActivities}
           columns={[
             {

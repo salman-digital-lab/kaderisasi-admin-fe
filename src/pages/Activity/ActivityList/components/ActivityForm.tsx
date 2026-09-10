@@ -1,3 +1,4 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import {
   Alert,
   Col,
@@ -5,7 +6,6 @@ import {
   Divider,
   Form,
   Input,
-  Modal,
   notification,
   Row,
   Select,
@@ -78,6 +78,7 @@ const ActivityForm = ({ open, onClose, refresh }: ActivityFormProps) => {
         centered
       >
         <Form
+          scrollToFirstError={{ focus: true }}
           id="add-activity-form"
           layout="vertical"
           form={form}

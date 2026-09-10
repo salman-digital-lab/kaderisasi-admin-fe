@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useRequest } from "ahooks";
-import { Alert, Card, Space, Table, Tag, Typography } from "antd";
+import { Alert, Card, Space, Tag, Typography } from "antd";
 import { getRoles } from "../../../api/services/access";
 import type { RbacRole } from "../../../types/model/access";
 import type { ReactElement } from "react";
@@ -27,6 +28,7 @@ export default function RbacRolesPage(): ReactElement {
           <Alert type="error" title="Daftar role gagal dimuat" showIcon />
         )}
         <Table<RbacRole>
+          listId="pages/Rbac/Roles/index:1"
           rowKey="code"
           loading={loading}
           dataSource={roles}

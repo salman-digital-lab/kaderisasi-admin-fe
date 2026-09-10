@@ -1,13 +1,6 @@
-import {
-  Input,
-  Card,
-  Button,
-  Space,
-  Select,
-  Modal,
-  message,
-  Tooltip,
-} from "antd";
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
+import { Input, Card, Button, Space, Select, message, Tooltip } from "antd";
 import {
   SearchOutlined,
   PlusOutlined,
@@ -117,60 +110,81 @@ const CustomFormFilter = ({
           }}
         >
           {/* Left: Filters */}
-          <Space size={12} wrap>
-            <Input.Search
-              placeholder="Cari nama form"
-              allowClear
-              style={{ width: 200 }}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onSearch={handleSearch}
-              onPressEnter={handleSearch}
-              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            />
+          <ResponsiveFilters
+            onApply={handleSearch}
+            values={[searchInput, featureType, featureId, isActive]}
+            onReset={() => {
+              setSearchInput("");
+              setFeatureType(undefined);
+              setFeatureId("");
+              setIsActive(undefined);
+              setParameter((prev) => ({
+                ...prev,
+                page: 1,
+                search: "",
+                feature_type: undefined,
+                feature_id: "",
+                is_active: undefined,
+              }));
+            }}
+          >
+            {({ apply }) => (
+              <Space size={12} wrap>
+                <Input.Search
+                  placeholder="Cari nama form"
+                  allowClear
+                  style={{ width: 200 }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onSearch={apply}
+                  onPressEnter={apply}
+                  prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                />
 
-            <Select
-              placeholder="Tipe Fitur"
-              allowClear
-              style={{ width: 180 }}
-              value={featureType}
-              onChange={setFeatureType}
-              options={[
-                {
-                  label: "Pendaftaran Aktivitas",
-                  value: "activity_registration",
-                },
-              ]}
-            />
+                <Select
+                  placeholder="Tipe Fitur"
+                  allowClear
+                  style={{ width: 180 }}
+                  value={featureType}
+                  onChange={setFeatureType}
+                  options={[
+                    {
+                      label: "Pendaftaran Aktivitas",
+                      value: "activity_registration",
+                    },
+                  ]}
+                />
 
-            <Input
-              placeholder="ID Fitur"
-              allowClear
-              style={{ width: 120 }}
-              value={featureId}
-              onChange={(e) => setFeatureId(e.target.value)}
-            />
+                <Input
+                  placeholder="ID Fitur"
+                  allowClear
+                  style={{ width: 120 }}
+                  value={featureId}
+                  onChange={(e) => setFeatureId(e.target.value)}
+                />
 
-            <Select
-              placeholder="Status"
-              allowClear
-              style={{ width: 120 }}
-              value={isActive}
-              onChange={setIsActive}
-              options={[
-                { label: "Aktif", value: true },
-                { label: "Tidak Aktif", value: false },
-              ]}
-            />
+                <Select
+                  placeholder="Status"
+                  allowClear
+                  style={{ width: 120 }}
+                  value={isActive}
+                  onChange={setIsActive}
+                  options={[
+                    { label: "Aktif", value: true },
+                    { label: "Tidak Aktif", value: false },
+                  ]}
+                />
 
-            <Button
-              icon={<SearchOutlined />}
-              type="primary"
-              onClick={handleSearch}
-            >
-              Cari
-            </Button>
-          </Space>
+                <Button
+                  icon={<SearchOutlined />}
+                  type="primary"
+                  onClick={apply}
+                >
+                  Cari
+                </Button>
+              </Space>
+            )}
+          </ResponsiveFilters>
 
           {/* Right: Actions */}
           <Space size={8} wrap>
@@ -198,6 +212,7 @@ const CustomFormFilter = ({
         destroyOnClose
       >
         <Form
+          scrollToFirstError={{ focus: true }}
           form={createForm}
           layout="vertical"
           onFinish={handleCreate}

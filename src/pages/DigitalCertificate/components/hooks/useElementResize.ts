@@ -112,6 +112,8 @@ export function useElementResize({
   const rafRef = useRef<number | null>(null);
   const pendingFrameRef = useRef<(() => void) | null>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const cancelRef = useRef<() => void>(() => {});
+  const handlePointerCancel = useCallback(() => cancelRef.current(), []);
   const optionsRef = useRef({
     zoom,
     canvasWidth,
@@ -238,8 +240,8 @@ export function useElementResize({
     setIsResizing(false);
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
-    document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove]);
+    document.removeEventListener("pointercancel", handlePointerCancel);
+  }, [handlePointerMove, handlePointerCancel]);
 
   const startResize = useCallback(
     (
@@ -270,9 +272,9 @@ export function useElementResize({
       setIsResizing(true);
       document.addEventListener("pointermove", handlePointerMove);
       document.addEventListener("pointerup", handlePointerUp);
-      document.addEventListener("pointercancel", handlePointerUp);
+      document.addEventListener("pointercancel", handlePointerCancel);
     },
-    [handlePointerMove, handlePointerUp],
+    [handlePointerMove, handlePointerUp, handlePointerCancel],
   );
 
   const cleanup = useCallback(() => {
@@ -300,8 +302,10 @@ export function useElementResize({
     setIsResizing(false);
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
-    document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, handlePointerUp, updateDomSize]);
+    document.removeEventListener("pointercancel", handlePointerCancel);
+  }, [handlePointerMove, handlePointerUp, updateDomSize, handlePointerCancel]);
+
+  cancelRef.current = cleanup;
 
   return { isResizing, startResize, cleanup };
 }

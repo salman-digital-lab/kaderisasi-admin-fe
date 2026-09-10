@@ -1,3 +1,5 @@
+import type { PropertyInputState } from "../components/PropertyPanel";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import {
   AppstoreOutlined,
   ArrowLeftOutlined,
@@ -7,14 +9,18 @@ import {
   FilePdfOutlined,
   RedoOutlined,
   UndoOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SelectOutlined,
+  DragOutlined,
 } from "@ant-design/icons";
 import {
   Alert,
   Button,
+  Dropdown,
   Drawer,
   Input,
   message,
-  Modal,
   Space,
   Spin,
   Splitter,
@@ -45,7 +51,8 @@ import {
   uploadCertificateAsset,
 } from "../../../api/services/certificateTemplate";
 import { duplicateTemplate } from "../../../api/services/certificateWorkflow";
-import { useMediaQuery } from "../../../hooks/useMediaQuery";
+import { useAdminViewport } from "../../../hooks/useAdminViewport";
+import type { CanvasViewportSnapshot } from "../components/CertificateCanvas";
 import type { CertificateTemplateStatus } from "../../../types/services/certificateTemplate";
 import {
   CanvasSettingsModal,
@@ -97,8 +104,6 @@ import { getCentredElementPosition } from "./viewport-math";
 const CertificatePreviewModal = lazy(
   () => import("../components/CertificatePreviewModal"),
 );
-
-const { Text } = Typography;
 
 interface EditorSaveSnapshot {
   revision: number;
@@ -183,7 +188,7 @@ const CertificateDesignerEditor: React.FC = () => {
     [],
   );
   const [activeDrawer, setActiveDrawer] = useState<
-    "layers" | "inspector" | null
+    "layers" | "inspector" | "add" | "settings" | null
   >(null);
   const [tool, setTool] = useState<EditorTool>("select");
   const [editElementId, setEditElementId] = useState<string | null>(null);
@@ -195,8 +200,13 @@ const CertificateDesignerEditor: React.FC = () => {
   }, []);
   const handleEditComplete = useCallback(() => setEditElementId(null), []);
 
-  const isCompactLayout = useMediaQuery("(max-width: 1279px)");
-  const isMobileLayout = useMediaQuery("(max-width: 767px)");
+  const { compact: isMobileLayout, wideEditor, landscape } = useAdminViewport();
+  const isCompactLayout = !wideEditor || isMobileLayout;
+  const propertyInputState = useRef<PropertyInputState>({
+    geometryOpen: false,
+    numbers: new Map(),
+  });
+  const viewportSnapshot = useRef<CanvasViewportSnapshot | null>(null);
 
   const metadataSnapshot = useMemo(
     () =>
@@ -924,6 +934,7 @@ const CertificateDesignerEditor: React.FC = () => {
   const propertyPanel = useMemo(
     () => (
       <PropertyPanel
+        inputState={propertyInputState}
         element={selectedElement}
         onUpdate={handleUpdateSelected}
         onUpdateComplete={handleUpdateSelectedComplete}
@@ -991,6 +1002,7 @@ const CertificateDesignerEditor: React.FC = () => {
   const handleReadinessAction = (issue: CertificateReadinessIssue): void => {
     const action = getCertificateReadinessAction(issue.code);
     if (action === "open-variable-chooser") {
+      if (isMobileLayout) setActiveDrawer("add");
       setVariableChooserOpen(true);
       return;
     }
@@ -1158,7 +1170,10 @@ const CertificateDesignerEditor: React.FC = () => {
           : "red";
 
   return (
-    <main ref={pageRef} className={styles.page}>
+    <main
+      ref={pageRef}
+      className={`${styles.page} ${isMobileLayout ? styles.phonePage : ""}`}
+    >
       {previewOpen && (
         <Suspense fallback={<Spin />}>
           <CertificatePreviewModal
@@ -1168,106 +1183,175 @@ const CertificateDesignerEditor: React.FC = () => {
           />
         </Suspense>
       )}
-      <header className={styles.topBar}>
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={handleBack}
-          aria-label="Kembali ke daftar template"
-        />
-        <Input
-          className={styles.templateName}
-          value={templateName}
-          onChange={(event) => setTemplateName(event.target.value)}
-          placeholder="Nama template"
-          aria-label="Nama template"
-          variant="borderless"
-        />
-        <div className={styles.statusGroup} aria-live="polite">
-          <Tag color={saveStatusColor} icon={<CloudSyncOutlined />}>
-            {saveStatus}
-          </Tag>
-          {autosaveState.status === "error" ? (
-            <Button
-              type="link"
-              size="small"
-              onClick={() => autosaveRef.current?.retry()}
-            >
-              Coba lagi
-            </Button>
-          ) : null}
-          <Tag color="gold">Draf</Tag>
-        </div>
-        <div className={styles.topActions}>
-          <Tooltip title="Urungkan (Ctrl/Cmd+Z)">
-            <Button
-              icon={<UndoOutlined />}
-              disabled={!canUndo}
-              onClick={undo}
-              aria-label="Urungkan"
-              aria-keyshortcuts="Control+Z Meta+Z"
-            />
-          </Tooltip>
-          <Tooltip title="Ulangi (Ctrl/Cmd+Shift+Z)">
-            <Button
-              icon={<RedoOutlined />}
-              disabled={!canRedo}
-              onClick={redo}
-              aria-label="Ulangi"
-              aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z"
-            />
-          </Tooltip>
-          {isCompactLayout && !isMobileLayout ? (
-            <>
-              <Button
-                icon={<AppstoreOutlined />}
-                onClick={() =>
-                  setActiveDrawer(activeDrawer === "layers" ? null : "layers")
-                }
-                aria-label="Buka Layers"
-              />
-              <Button
-                icon={<ControlOutlined />}
-                onClick={() =>
-                  setActiveDrawer(
-                    activeDrawer === "inspector" ? null : "inspector",
-                  )
-                }
-                aria-label="Buka Inspector"
-              />
-            </>
-          ) : null}
-          <ReadinessChecklist
-            issues={readinessIssues}
-            onIssueAction={handleReadinessAction}
-            isIssueActionable={isReadinessActionable}
+      {isMobileLayout ? (
+        <header className={styles.mobileTopBar}>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={handleBack}
+            aria-label="Kembali ke daftar template"
           />
-          <Tooltip title="Lihat desain dan coba nama peserta sebelum menerbitkan.">
-            <Button
-              className={styles.previewAction}
-              icon={<FilePdfOutlined />}
-              onClick={handlePreviewPdf}
-              aria-label="Pratinjau dari perubahan lokal dan data contoh"
-            >
-              Pratinjau
-            </Button>
-          </Tooltip>
-          {
-            <Button
-              icon={<CheckCircleOutlined />}
-              onClick={() => void handlePublish()}
-              loading={publishing}
-              disabled={
-                !templateReady ||
-                autosaveState.status === "saving" ||
-                uploadingAsset ||
-                uploadingBackground
-              }
-            >
-              Publikasikan
-            </Button>
-          }
-        </div>
-      </header>
+          <span role="status" className={styles.mobileSaveStatus}>
+            {saveStatus}
+          </span>
+          <Button
+            icon={<UndoOutlined />}
+            disabled={!canUndo}
+            onClick={undo}
+            aria-label="Urungkan"
+          />
+          <Button
+            icon={<RedoOutlined />}
+            disabled={!canRedo}
+            onClick={redo}
+            aria-label="Ulangi"
+          />
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                {
+                  key: "save",
+                  label: "Simpan",
+                  onClick: () => {
+                    void handleSave();
+                  },
+                },
+                {
+                  key: "preview",
+                  label: "Pratinjau",
+                  onClick: handlePreviewPdf,
+                },
+                {
+                  key: "publish",
+                  label: "Publikasikan",
+                  disabled:
+                    !templateReady ||
+                    publishing ||
+                    autosaveState.status === "saving" ||
+                    uploadingAsset ||
+                    uploadingBackground,
+                  onClick: () => {
+                    void handlePublish();
+                  },
+                },
+                {
+                  key: "settings",
+                  label: "Pengaturan dokumen",
+                  onClick: () => setActiveDrawer("settings"),
+                },
+                {
+                  key: "canvas",
+                  label: "Ukuran kanvas",
+                  onClick: () => setCanvasSettingsVisible(true),
+                },
+              ],
+            }}
+          >
+            <Button icon={<MoreOutlined />} aria-label="Tindakan dokumen" />
+          </Dropdown>
+        </header>
+      ) : (
+        <header className={styles.topBar}>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={handleBack}
+            aria-label="Kembali ke daftar template"
+          />
+          <Input
+            className={styles.templateName}
+            value={templateName}
+            onChange={(event) => setTemplateName(event.target.value)}
+            placeholder="Nama template"
+            aria-label="Nama template"
+            variant="borderless"
+          />
+          <div className={styles.statusGroup} aria-live="polite">
+            <Tag color={saveStatusColor} icon={<CloudSyncOutlined />}>
+              {saveStatus}
+            </Tag>
+            {autosaveState.status === "error" ? (
+              <Button
+                type="link"
+                size="small"
+                onClick={() => autosaveRef.current?.retry()}
+              >
+                Coba lagi
+              </Button>
+            ) : null}
+            <Tag color="gold">Draf</Tag>
+          </div>
+          <div className={styles.topActions}>
+            <Tooltip title="Urungkan (Ctrl/Cmd+Z)">
+              <Button
+                icon={<UndoOutlined />}
+                disabled={!canUndo}
+                onClick={undo}
+                aria-label="Urungkan"
+                aria-keyshortcuts="Control+Z Meta+Z"
+              />
+            </Tooltip>
+            <Tooltip title="Ulangi (Ctrl/Cmd+Shift+Z)">
+              <Button
+                icon={<RedoOutlined />}
+                disabled={!canRedo}
+                onClick={redo}
+                aria-label="Ulangi"
+                aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z"
+              />
+            </Tooltip>
+            {isCompactLayout && !isMobileLayout ? (
+              <>
+                <Button
+                  icon={<AppstoreOutlined />}
+                  onClick={() =>
+                    setActiveDrawer(activeDrawer === "layers" ? null : "layers")
+                  }
+                  aria-label="Buka Layers"
+                />
+                <Button
+                  icon={<ControlOutlined />}
+                  onClick={() =>
+                    setActiveDrawer(
+                      activeDrawer === "inspector" ? null : "inspector",
+                    )
+                  }
+                  aria-label="Buka Inspector"
+                />
+              </>
+            ) : null}
+            <ReadinessChecklist
+              issues={readinessIssues}
+              onIssueAction={handleReadinessAction}
+              isIssueActionable={isReadinessActionable}
+            />
+            <Tooltip title="Lihat desain dan coba nama peserta sebelum menerbitkan.">
+              <Button
+                className={styles.previewAction}
+                icon={<FilePdfOutlined />}
+                onClick={handlePreviewPdf}
+                aria-label="Pratinjau dari perubahan lokal dan data contoh"
+              >
+                Pratinjau
+              </Button>
+            </Tooltip>
+            {
+              <Button
+                icon={<CheckCircleOutlined />}
+                onClick={() => void handlePublish()}
+                loading={publishing}
+                disabled={
+                  !templateReady ||
+                  autosaveState.status === "saving" ||
+                  uploadingAsset ||
+                  uploadingBackground
+                }
+              >
+                Publikasikan
+              </Button>
+            }
+          </div>
+        </header>
+      )}
 
       {autosaveState.status === "conflict" ? (
         <Alert
@@ -1303,30 +1387,8 @@ const CertificateDesignerEditor: React.FC = () => {
         />
       ) : null}
 
-      {isMobileLayout ? (
-        <section className={styles.mobileGuidance}>
-          <Typography.Title level={3}>
-            Editor sertifikat membutuhkan layar tablet atau desktop
-          </Typography.Title>
-          <Text type="secondary">
-            Gunakan layar dengan lebar minimal 768 px untuk mengedit. Preview
-            tetap tersedia dari perangkat ini.
-          </Text>
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
-              Kembali
-            </Button>
-            <Button
-              type="primary"
-              icon={<FilePdfOutlined />}
-              onClick={handlePreviewPdf}
-            >
-              Pratinjau
-            </Button>
-          </Space>
-        </section>
-      ) : (
-        <div className={styles.editorBody}>
+      <div className={styles.editorBody}>
+        {!isMobileLayout && (
           <ToolRail
             tool={tool}
             uploading={uploadingAsset}
@@ -1340,8 +1402,51 @@ const CertificateDesignerEditor: React.FC = () => {
             onImageUpload={handleImageUpload}
             onSignatureUpload={handleSignatureUpload}
           />
-          {isCompactLayout ? (
+        )}
+        <Splitter
+          className={styles.workspace}
+          onCollapse={(collapsed) =>
+            !isCompactLayout &&
+            setPreferences((current) => ({
+              ...current,
+              layersCollapsed: collapsed[0] ?? false,
+              inspectorCollapsed: collapsed[2] ?? false,
+            }))
+          }
+          onResize={(sizes) => {
+            if (isCompactLayout) return;
+            const layersWidth =
+              typeof sizes[0] === "number" ? sizes[0] : preferences.layersWidth;
+            const inspectorWidth =
+              typeof sizes[2] === "number"
+                ? sizes[2]
+                : preferences.inspectorWidth;
+            setPreferences((current) => ({
+              ...current,
+              layersWidth: layersWidth > 0 ? layersWidth : current.layersWidth,
+              inspectorWidth:
+                inspectorWidth > 0 ? inspectorWidth : current.inspectorWidth,
+              layersCollapsed: layersWidth === 0,
+              inspectorCollapsed: inspectorWidth === 0,
+            }));
+          }}
+        >
+          <Splitter.Panel
+            size={
+              isCompactLayout || preferences.layersCollapsed
+                ? 0
+                : preferences.layersWidth
+            }
+            min={isCompactLayout ? 0 : 200}
+            resizable={!isCompactLayout}
+            max={360}
+            collapsible={!isCompactLayout}
+          >
+            {!isCompactLayout && layerPanel}
+          </Splitter.Panel>
+          <Splitter.Panel min={isCompactLayout ? 0 : 400}>
             <CertificateCanvas
+              viewportSnapshot={viewportSnapshot}
               template={template}
               selectedElementId={selectedElementId}
               tool={tool}
@@ -1358,92 +1463,188 @@ const CertificateDesignerEditor: React.FC = () => {
               snapToGuides={snapToGuides}
               {...canvasPreferenceHandlers}
             />
-          ) : (
-            <Splitter
-              className={styles.workspace}
-              onCollapse={(collapsed) =>
-                setPreferences((current) => ({
-                  ...current,
-                  layersCollapsed: collapsed[0] ?? false,
-                  inspectorCollapsed: collapsed[2] ?? false,
-                }))
-              }
-              onResize={(sizes) => {
-                const layersWidth =
-                  typeof sizes[0] === "number"
-                    ? sizes[0]
-                    : preferences.layersWidth;
-                const inspectorWidth =
-                  typeof sizes[2] === "number"
-                    ? sizes[2]
-                    : preferences.inspectorWidth;
-                setPreferences((current) => ({
-                  ...current,
-                  layersWidth:
-                    layersWidth > 0 ? layersWidth : current.layersWidth,
-                  inspectorWidth:
-                    inspectorWidth > 0
-                      ? inspectorWidth
-                      : current.inspectorWidth,
-                  layersCollapsed: layersWidth === 0,
-                  inspectorCollapsed: inspectorWidth === 0,
-                }));
-              }}
+          </Splitter.Panel>
+          <Splitter.Panel
+            size={
+              isCompactLayout || preferences.inspectorCollapsed
+                ? 0
+                : preferences.inspectorWidth
+            }
+            min={isCompactLayout ? 0 : 280}
+            resizable={!isCompactLayout}
+            max={420}
+            collapsible={!isCompactLayout}
+          >
+            {!isCompactLayout && propertyPanel}
+          </Splitter.Panel>
+        </Splitter>
+      </div>
+      {isMobileLayout && (
+        <>
+          <div className={styles.mobileReadiness}>
+            <ReadinessChecklist
+              issues={readinessIssues}
+              onIssueAction={handleReadinessAction}
+              isIssueActionable={isReadinessActionable}
+            />
+            {autosaveState.status === "error" && (
+              <Button onClick={() => autosaveRef.current?.retry()}>
+                Coba simpan lagi
+              </Button>
+            )}
+          </div>
+          <nav className={styles.mobileToolbar} aria-label="Alat editor">
+            <Button
+              icon={<SelectOutlined />}
+              type={tool === "select" ? "primary" : "text"}
+              aria-pressed={tool === "select"}
+              onClick={() => setTool("select")}
             >
-              <Splitter.Panel
-                size={preferences.layersCollapsed ? 0 : preferences.layersWidth}
-                min={200}
-                max={360}
-                collapsible
-              >
-                {layerPanel}
-              </Splitter.Panel>
-              <Splitter.Panel min={400}>
-                <CertificateCanvas
-                  template={template}
-                  selectedElementId={selectedElementId}
-                  tool={tool}
-                  onToolChange={setTool}
-                  onViewportCentreChange={handleViewportCentreChange}
-                  editElementId={editElementId}
-                  onEditComplete={handleEditComplete}
-                  onSelectElement={selectElement}
-                  onMoveElement={moveElement}
-                  onUpdateElement={updateElement}
-                  snapToGrid={snapToGrid}
-                  showGrid={showGrid}
-                  showGuides={showGuides}
-                  snapToGuides={snapToGuides}
-                  {...canvasPreferenceHandlers}
-                />
-              </Splitter.Panel>
-              <Splitter.Panel
-                size={
-                  preferences.inspectorCollapsed
-                    ? 0
-                    : preferences.inspectorWidth
-                }
-                min={280}
-                max={420}
-                collapsible
-              >
-                {propertyPanel}
-              </Splitter.Panel>
-            </Splitter>
-          )}
-        </div>
+              Pilih
+            </Button>
+            <Button
+              icon={<DragOutlined />}
+              type={tool === "hand" ? "primary" : "text"}
+              aria-pressed={tool === "hand"}
+              onClick={() => setTool("hand")}
+            >
+              Geser
+            </Button>
+            <Button
+              icon={<PlusOutlined />}
+              onClick={() => setActiveDrawer("add")}
+            >
+              Tambah
+            </Button>
+            <Button
+              icon={<AppstoreOutlined />}
+              onClick={() => setActiveDrawer("layers")}
+            >
+              Layers
+            </Button>
+            <Button
+              icon={<ControlOutlined />}
+              onClick={() => setActiveDrawer("inspector")}
+            >
+              Properti
+            </Button>
+          </nav>
+        </>
       )}
 
       <Drawer
-        title={activeDrawer === "layers" ? "Layers" : "Inspector"}
+        title={
+          activeDrawer === "layers"
+            ? "Layers"
+            : activeDrawer === "add"
+              ? "Tambah elemen"
+              : activeDrawer === "settings"
+                ? "Pengaturan dokumen"
+                : "Properti"
+        }
         open={isCompactLayout && activeDrawer !== null}
-        placement={activeDrawer === "layers" ? "left" : "right"}
-        width={activeDrawer === "layers" ? 320 : 380}
-        mask={false}
+        placement={
+          isMobileLayout && !landscape
+            ? "bottom"
+            : activeDrawer === "layers"
+              ? "left"
+              : "right"
+        }
+        width={
+          isMobileLayout
+            ? "min(380px, 100vw)"
+            : activeDrawer === "layers"
+              ? 320
+              : 380
+        }
+        height={
+          isMobileLayout
+            ? activeDrawer === "inspector" || activeDrawer === "settings"
+              ? "var(--admin-viewport-height, 100dvh)"
+              : "65dvh"
+            : undefined
+        }
+        rootClassName={isMobileLayout ? "certificate-mobile-panel" : undefined}
+        zIndex={1100}
+        mask={isMobileLayout}
         onClose={() => setActiveDrawer(null)}
         styles={{ body: { padding: 0 } }}
+        footer={
+          isMobileLayout ? (
+            <Space
+              wrap
+              style={{ width: "100%", justifyContent: "space-between" }}
+            >
+              <span role="status">{saveStatus}</span>
+              {autosaveState.status === "error" && (
+                <Button onClick={() => autosaveRef.current?.retry()}>
+                  Coba simpan lagi
+                </Button>
+              )}
+              <Button onClick={() => setActiveDrawer(null)}>Selesai</Button>
+            </Space>
+          ) : undefined
+        }
       >
-        {activeDrawer === "layers" ? layerPanel : propertyPanel}
+        {!isCompactLayout ? null : activeDrawer === "layers" ? (
+          layerPanel
+        ) : activeDrawer === "add" ? (
+          <ToolRail
+            presentation="panel"
+            tool={tool}
+            uploading={uploadingAsset}
+            onToolChange={(next) => {
+              setTool(next);
+              setActiveDrawer(null);
+            }}
+            variableChooserOpen={variableChooserOpen}
+            onVariableChooserOpenChange={setVariableChooserOpen}
+            onVariableSelect={(variable) => {
+              handleVariableSelect(variable);
+              setActiveDrawer(null);
+            }}
+            onAddElement={(next) => {
+              handleAddElement(next as ElementType);
+              setActiveDrawer(null);
+            }}
+            onImageUpload={async (file) => {
+              await handleImageUpload(file);
+              setActiveDrawer(null);
+            }}
+            onSignatureUpload={async (file) => {
+              await handleSignatureUpload(file);
+              setActiveDrawer(null);
+            }}
+          />
+        ) : activeDrawer === "settings" ? (
+          <Space direction="vertical" style={{ padding: 16, width: "100%" }}>
+            <label htmlFor="mobile-template-name">Nama template</label>
+            <Input
+              id="mobile-template-name"
+              value={templateName}
+              onChange={(event) => setTemplateName(event.target.value)}
+            />
+            <label htmlFor="mobile-template-description">Deskripsi</label>
+            <Input.TextArea
+              id="mobile-template-description"
+              value={templateDescription}
+              onChange={(event) => setTemplateDescription(event.target.value)}
+            />
+            <Button onClick={() => setCanvasSettingsVisible(true)}>
+              Ukuran kanvas
+            </Button>
+            <Button
+              onClick={() => {
+                selectElement(null);
+                setActiveDrawer("inspector");
+              }}
+            >
+              Latar belakang & tampilan
+            </Button>
+          </Space>
+        ) : (
+          propertyPanel
+        )}
       </Drawer>
 
       <Modal

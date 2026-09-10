@@ -1,3 +1,4 @@
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { useRequest } from "ahooks";
 import {
   Alert,
@@ -5,7 +6,6 @@ import {
   Card,
   Form,
   Input,
-  Modal,
   Select,
   Typography,
   message,
@@ -101,7 +101,13 @@ export default function RequestAccessModal({
           style={{ marginBottom: 16 }}
         />
       ) : null}
-      <Form form={form} layout="vertical" onFinish={submit} disabled={creating}>
+      <Form
+        scrollToFirstError={{ focus: true }}
+        form={form}
+        layout="vertical"
+        onFinish={submit}
+        disabled={creating}
+      >
         <Form.Item
           name="role_code"
           label="1. Pilih Peran"

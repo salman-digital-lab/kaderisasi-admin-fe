@@ -49,6 +49,8 @@ export function useElementDrag({
   const rafRef = useRef<number | null>(null);
   const pendingFrameRef = useRef<(() => void) | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const cancelRef = useRef<() => void>(() => {});
+  const handlePointerCancel = useCallback(() => cancelRef.current(), []);
   const optionsRef = useRef({
     zoom,
     toolMode,
@@ -199,8 +201,8 @@ export function useElementDrag({
     optionsRef.current.onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
-    document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove]);
+    document.removeEventListener("pointercancel", handlePointerCancel);
+  }, [handlePointerMove, handlePointerCancel]);
 
   const startDrag = useCallback(
     (element: CertificateElement, e: React.PointerEvent) => {
@@ -223,9 +225,9 @@ export function useElementDrag({
       e.currentTarget.setPointerCapture(e.pointerId);
       document.addEventListener("pointermove", handlePointerMove);
       document.addEventListener("pointerup", handlePointerUp);
-      document.addEventListener("pointercancel", handlePointerUp);
+      document.addEventListener("pointercancel", handlePointerCancel);
     },
-    [handlePointerMove, handlePointerUp],
+    [handlePointerMove, handlePointerUp, handlePointerCancel],
   );
 
   const cleanup = useCallback(() => {
@@ -245,8 +247,15 @@ export function useElementDrag({
     optionsRef.current.onGuidesChange({ vertical: false, horizontal: false });
     document.removeEventListener("pointermove", handlePointerMove);
     document.removeEventListener("pointerup", handlePointerUp);
-    document.removeEventListener("pointercancel", handlePointerUp);
-  }, [handlePointerMove, handlePointerUp, updateDomPosition]);
+    document.removeEventListener("pointercancel", handlePointerCancel);
+  }, [
+    handlePointerMove,
+    handlePointerUp,
+    updateDomPosition,
+    handlePointerCancel,
+  ]);
+
+  cancelRef.current = cleanup;
 
   return { isDragging, startDrag, cleanup };
 }

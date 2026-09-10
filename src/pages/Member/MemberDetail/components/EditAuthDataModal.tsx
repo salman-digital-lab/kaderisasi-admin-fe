@@ -1,5 +1,7 @@
+import { validateFieldsAndFocus } from "../../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useRequest } from "ahooks";
-import { Form, Input, Modal } from "antd";
+import { Form, Input } from "antd";
 import { putProfileAuth } from "../../../../api/services/member";
 
 type EditAuthDataModalProps = {
@@ -30,7 +32,7 @@ export default function EditAuthDataModal({
       okText="Ubah"
       cancelText="Batal"
       onOk={async () => {
-        const data = await form.validateFields();
+        const data = await validateFieldsAndFocus(form);
         if (data) {
           await runAsync(id, data);
           form.resetFields();
@@ -43,7 +45,7 @@ export default function EditAuthDataModal({
         setIsOpen(false);
       }}
     >
-      <Form layout="vertical" form={form}>
+      <Form scrollToFirstError={{ focus: true }} layout="vertical" form={form}>
         <Form.Item
           label="Email"
           name="email"

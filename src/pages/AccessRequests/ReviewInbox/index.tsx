@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useRequest } from "ahooks";
-import { Card, Segmented, Table, Typography } from "antd";
+import { Card, Segmented, Typography } from "antd";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "dayjs";
@@ -42,6 +43,7 @@ export default function ReviewInboxPage() {
       />
       <div style={{ marginTop: 12 }}>
         <Table<AccessTicket>
+          listId="pages/AccessRequests/ReviewInbox/index:1"
           rowKey="id"
           size="small"
           bordered

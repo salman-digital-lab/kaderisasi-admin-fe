@@ -238,6 +238,7 @@
 }
 
 .certificateCanvas {
+  overflow-wrap: normal;
   position: relative;
   overflow: hidden;
   box-shadow: 0 8px 28px rgb(0 0 0 / 18%);
@@ -378,6 +379,88 @@
   text-align: center;
 }
 
+.phonePage {
+  bottom: auto;
+  top: var(--admin-viewport-top, 0px);
+  height: var(--admin-viewport-height, 100dvh);
+}
+
+.mobileTopBar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.mobileSaveStatus {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.mobileToolbar {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 4px 4px max(4px, env(safe-area-inset-bottom, 0px));
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.mobileToolbar :global(.ant-btn) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+.mobileReadiness {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.phonePage .canvasHint {
+  display: none;
+}
+.phonePage .zoomControls {
+  left: 8px;
+  bottom: 8px;
+}
+.phonePage .conflictBanner {
+  max-height: 35%;
+  overflow-y: auto;
+}
+
+:global(.certificate-mobile-panel) .toolRail {
+  width: 100%;
+  min-width: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+}
+:global(.certificate-mobile-panel) .toolDivider {
+  display: none;
+}
+:global(.certificate-mobile-panel) .panel {
+  overflow: visible;
+}
+:global(.certificate-mobile-panel) .variableChooser {
+  width: min(340px, calc(100vw - 32px));
+}
+:global(.certificate-mobile-panel) :global(.ant-drawer-content-wrapper) {
+  max-height: var(--admin-viewport-height, 100dvh);
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -447,4 +530,17 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+.toolPanel :global(.ant-btn) {
+  width: auto;
+  min-width: 120px;
+  padding-inline: 12px;
+  justify-content: flex-start;
+}
+.phonePage .layerSelectButton {
+  min-height: 44px;
+}
+.variableChooser {
+  max-width: calc(100vw - 32px);
 }

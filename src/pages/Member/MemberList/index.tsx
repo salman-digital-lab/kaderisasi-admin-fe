@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../components/common/Responsive/ResponsiveFilters";
 import { useState } from "react";
 import { Space, Button, Input, Tooltip, Card } from "antd";
 import { useRequest } from "ahooks";
@@ -11,8 +12,10 @@ import { getProfiles } from "../../../api/services/member";
 
 import MemberTable from "./components/MemberTable";
 import CreateMemberModal from "./CreateMemberModal";
+import { usePermissions } from "../../../stores/authStore";
 
 const MemberListPage = () => {
+  const canManage = usePermissions().includes("members.manage");
   const [parameters, setParameters] = useState({
     page: 1,
     per_page: 10,
@@ -74,59 +77,89 @@ const MemberListPage = () => {
             gap: 12,
           }}
         >
-          <Space size={12} wrap>
-            <Input
-              placeholder="Cari nama atau email"
-              allowClear
-              style={{ width: 240 }}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onPressEnter={handleSearch}
-            />
-            <Input
-              placeholder="ID Anggota"
-              allowClear
-              style={{ width: 160 }}
-              value={memberIdInput}
-              onChange={(e) => setMemberIdInput(e.target.value)}
-              onPressEnter={handleSearch}
-            />
-            <Input
-              placeholder="Cari lencana"
-              allowClear
-              style={{ width: 160 }}
-              value={badgeInput}
-              onChange={(e) => setBadgeInput(e.target.value)}
-              onPressEnter={handleSearch}
-            />
-            <Input
-              placeholder="Cari institusi pendidikan"
-              allowClear
-              style={{ width: 200 }}
-              value={educationInstitutionInput}
-              onChange={(e) => setEducationInstitutionInput(e.target.value)}
-              onPressEnter={handleSearch}
-            />
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              onClick={handleSearch}
-            />
-          </Space>
+          <ResponsiveFilters
+            onApply={handleSearch}
+            values={[
+              searchInput,
+              badgeInput,
+              memberIdInput,
+              educationInstitutionInput,
+            ]}
+            onReset={() => {
+              setSearchInput("");
+              setBadgeInput("");
+              setMemberIdInput("");
+              setEducationInstitutionInput("");
+              setParameters((prev) => ({
+                ...prev,
+                page: 1,
+                search: "",
+                badge: "",
+                member_id: "",
+                education_institution: "",
+              }));
+            }}
+          >
+            {({ apply }) => (
+              <Space size={12} wrap>
+                <Input
+                  placeholder="Cari nama atau email"
+                  allowClear
+                  style={{ width: 240 }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onPressEnter={apply}
+                />
+                <Input
+                  placeholder="ID Anggota"
+                  allowClear
+                  style={{ width: 160 }}
+                  value={memberIdInput}
+                  onChange={(e) => setMemberIdInput(e.target.value)}
+                  onPressEnter={apply}
+                />
+                <Input
+                  placeholder="Cari lencana"
+                  allowClear
+                  style={{ width: 160 }}
+                  value={badgeInput}
+                  onChange={(e) => setBadgeInput(e.target.value)}
+                  onPressEnter={apply}
+                />
+                <Input
+                  placeholder="Cari institusi pendidikan"
+                  allowClear
+                  style={{ width: 200 }}
+                  value={educationInstitutionInput}
+                  onChange={(e) => setEducationInstitutionInput(e.target.value)}
+                  onPressEnter={apply}
+                />
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  onClick={apply}
+                  aria-label="Terapkan pencarian anggota"
+                />
+              </Space>
+            )}
+          </ResponsiveFilters>
 
           <Space size={8} wrap>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setIsCreateOpen(true)}
-            >
-              Tambah Anggota
-            </Button>
+            {canManage && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                Tambah Anggota
+              </Button>
+            )}
             <Tooltip placement="left" title="Refresh Data">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}
+                aria-label="Muat ulang anggota"
               />
             </Tooltip>
           </Space>
@@ -143,11 +176,13 @@ const MemberListPage = () => {
         />
       </div>
 
-      <CreateMemberModal
-        isOpen={isCreateOpen}
-        setIsOpen={setIsCreateOpen}
-        refresh={refresh}
-      />
+      {canManage && (
+        <CreateMemberModal
+          isOpen={isCreateOpen}
+          setIsOpen={setIsCreateOpen}
+          refresh={refresh}
+        />
+      )}
     </div>
   );
 };

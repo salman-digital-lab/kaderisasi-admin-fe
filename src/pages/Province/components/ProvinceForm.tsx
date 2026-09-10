@@ -1,4 +1,5 @@
-import { Button, Col, Form, Input, Modal, Row } from "antd";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
+import { Button, Col, Form, Input, Row } from "antd";
 import { useRequest } from "ahooks";
 
 import { addProvince, updateProvince } from "../../../api/services/province";
@@ -75,6 +76,7 @@ const ProvinceForm = ({ open, onClose, initialValues }: ProvinceFormProps) => {
       ]}
     >
       <Form
+        scrollToFirstError={{ focus: true }}
         id="submit-form"
         layout="vertical"
         form={form}

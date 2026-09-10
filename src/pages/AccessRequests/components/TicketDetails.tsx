@@ -1,4 +1,5 @@
-import { Alert, Descriptions, Typography } from "antd";
+import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
+import { Alert, Typography } from "antd";
 import dayjs from "dayjs";
 import type { ReactElement } from "react";
 import type { AccessTicket } from "../../../types/model/access";

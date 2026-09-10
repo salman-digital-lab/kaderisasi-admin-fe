@@ -1,7 +1,7 @@
+import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
 import { useRequest, useToggle } from "ahooks";
 import {
   Button,
-  Descriptions,
   DescriptionsProps,
   Dropdown,
   Flex,

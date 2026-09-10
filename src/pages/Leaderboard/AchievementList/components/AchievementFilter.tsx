@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import React, { useState } from "react";
 import { Button, Card, Space, Select, Input, Tooltip, message } from "antd";
 import {
@@ -91,41 +92,60 @@ const AchievementFilter = ({
         }}
       >
         {/* Left: Filters */}
-        <Space size={12} wrap>
-          <Input
-            placeholder="Cari nama"
-            allowClear
-            style={{ width: 200 }}
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
+        <ResponsiveFilters
+          onApply={handleSearch}
+          values={[nameInput, typeValue, statusValue]}
+          onReset={() => {
+            setNameInput("");
+            setTypeValue(undefined);
+            setStatusValue(undefined);
+            setParameter((prev) => ({
+              ...prev,
+              page: 1,
+              name: undefined,
+              type: undefined,
+              status: undefined,
+            }));
+          }}
+        >
+          {({ apply }) => (
+            <Space size={12} wrap>
+              <Input
+                placeholder="Cari nama"
+                allowClear
+                style={{ width: 200 }}
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onPressEnter={apply}
+                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              />
 
-          <Select
-            placeholder="Kategori"
-            allowClear
-            style={{ width: 150 }}
-            value={typeValue}
-            onChange={setTypeValue}
-            options={ACHIEVEMENT_TYPE_OPTIONS}
-          />
+              <Select
+                placeholder="Kategori"
+                allowClear
+                style={{ width: 150 }}
+                value={typeValue}
+                onChange={setTypeValue}
+                options={ACHIEVEMENT_TYPE_OPTIONS}
+              />
 
-          <Select
-            placeholder="Status"
-            allowClear
-            style={{ width: 150 }}
-            value={statusValue}
-            onChange={setStatusValue}
-            options={ACHIEVEMENT_STATUS_OPTIONS}
-          />
+              <Select
+                placeholder="Status"
+                allowClear
+                style={{ width: 150 }}
+                value={statusValue}
+                onChange={setStatusValue}
+                options={ACHIEVEMENT_STATUS_OPTIONS}
+              />
 
-          <Button
-            icon={<SearchOutlined />}
-            type="primary"
-            onClick={handleSearch}
-          />
-        </Space>
+              <Button
+                icon={<SearchOutlined />}
+                type="primary"
+                onClick={apply}
+              />
+            </Space>
+          )}
+        </ResponsiveFilters>
 
         {/* Right: Actions */}
         <Space size={8} wrap>

@@ -1,4 +1,5 @@
-import { Table } from "antd";
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
+
 import { LifetimeLeaderboardType } from "../../../../types/services/leaderboard";
 import { Pagination } from "../../../../types/services/base";
 import { TABLE_SCHEMA } from "../constants/schema";
@@ -26,6 +27,7 @@ export default function LifetimeLeaderboardTable({
 }: LifetimeLeaderboardTableProps) {
   return (
     <Table
+      listId="pages/Leaderboard/LifetimeLeaderboard/components/LifetimeLeaderboardTable:1"
       rowKey="id"
       columns={TABLE_SCHEMA}
       dataSource={data?.data?.map((item, index) => ({

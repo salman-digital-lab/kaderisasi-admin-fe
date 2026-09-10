@@ -1,9 +1,9 @@
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import { useState } from "react";
 import {
   Upload,
   Button,
   Space,
-  Table,
   Image,
   Typography,
   Popconfirm,
@@ -405,6 +405,7 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
             Daftar Media ({mediaItems.length})
           </Title>
           <Table
+            listId="pages/Club/ClubDetail/components/MediaList:1"
             rowKey="tableKey"
             dataSource={mediaItems}
             columns={columns}

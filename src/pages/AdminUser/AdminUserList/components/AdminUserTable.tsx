@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 
 import { TABLE_SCHEMA } from "../constants/schema";
 import EditAdminUser from "./modal/EditAdminUser";
@@ -43,6 +43,7 @@ const AdminUserTable = ({
       />
       <EditPasswordAdminUser data={passwordRow} setData={setPasswordRow} />
       <Table
+        listId="pages/AdminUser/AdminUserList/components/AdminUserTable:1"
         rowKey="id"
         columns={TABLE_SCHEMA(setEditedRow, setPasswordRow)}
         dataSource={data?.data}

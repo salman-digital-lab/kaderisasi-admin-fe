@@ -26,7 +26,7 @@
 .footer {
   position: sticky;
   bottom: 0;
-  padding: 16px 0 0;
+  padding: 16px 0 env(safe-area-inset-bottom, 0px);
   margin-top: 16px;
   background: var(--ant-color-bg-container, white);
   border-top: 1px solid #f0f0f0;
@@ -38,7 +38,7 @@
 .status {
   min-height: 24px;
 }
-@media (max-width: 767px) {
+@media (width < 768px), (pointer: coarse) and (height <= 500px) {
   .templateGrid {
     grid-template-columns: 1fr;
   }

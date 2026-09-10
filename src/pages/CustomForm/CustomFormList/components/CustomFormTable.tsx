@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import React from "react";
-import { Table, Button, Popconfirm, message } from "antd";
+import { Button, Popconfirm, message } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -73,6 +74,7 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
 
   return (
     <Table
+      listId="pages/CustomForm/CustomFormList/components/CustomFormTable:1"
       rowKey="id"
       columns={enhancedSchema}
       dataSource={data?.data}

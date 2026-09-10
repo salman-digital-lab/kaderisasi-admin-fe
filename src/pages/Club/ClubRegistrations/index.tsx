@@ -1,10 +1,11 @@
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
+import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Table,
   Button,
   Tag,
-  Modal,
   Form,
   Select,
   Input,
@@ -216,7 +217,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     if (!selectedRegistration) return;
 
     try {
-      const values = await registrationForm.validateFields();
+      const values = await validateFieldsAndFocus(registrationForm);
       setSavingRegistration(true);
       await updateClubRegistration(
         selectedRegistration.id,
@@ -270,7 +271,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
   const handleSaveRole = async () => {
     if (!clubId || !roleRegistration) return;
 
-    const values = await roleForm.validateFields();
+    const values = await validateFieldsAndFocus(roleForm);
     setSavingRole(true);
     try {
       const payload = {
@@ -532,6 +533,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         />
 
         <Form
+          scrollToFirstError={{ focus: true }}
           layout="vertical"
           form={filterForm}
           initialValues={{ status: "PENDING" }}
@@ -597,6 +599,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         </Form>
 
         <Table
+          listId="pages/Club/ClubRegistrations/index:1"
           dataSource={registrations}
           columns={columns}
           loading={loading}
@@ -646,7 +649,11 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         width={600}
         destroyOnHidden
       >
-        <Form form={registrationForm} layout="vertical">
+        <Form
+          scrollToFirstError={{ focus: true }}
+          form={registrationForm}
+          layout="vertical"
+        >
           <Form.Item
             name="status"
             label="Status"
@@ -669,7 +676,11 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         okText="Simpan"
         cancelText="Batal"
       >
-        <Form form={roleForm} layout="vertical">
+        <Form
+          scrollToFirstError={{ focus: true }}
+          form={roleForm}
+          layout="vertical"
+        >
           <Form.Item label="Anggota">
             <Input
               value={roleRegistration ? getMemberName(roleRegistration) : ""}

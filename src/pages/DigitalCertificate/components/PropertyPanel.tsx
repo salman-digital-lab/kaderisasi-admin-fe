@@ -41,7 +41,13 @@ const { Text } = Typography;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+export interface PropertyInputState {
+  geometryOpen: boolean;
+  numbers: Map<string, { source: number; value: number | null }>;
+}
+
 interface PropertyPanelProps {
+  inputState: React.RefObject<PropertyInputState>;
   element: CertificateElement | null;
   onUpdate: (
     updates: Partial<CertificateElement>,
@@ -77,58 +83,88 @@ interface PropertyPanelProps {
 
 // ─── Reusable sub-components ────────────────────────────────────────────────
 
-/** A number input that only commits on blur or Enter for performance. */
+/** Valid geometry stays in the shared document; incomplete input survives panel changes. */
 const BoundedNumberInput: React.FC<{
   value: number;
   min: number;
   max: number;
   onChange: (value: number) => void;
+  onComplete: () => void;
   label: string;
-}> = React.memo(({ value, min, max, onChange, label }) => {
-  const [localValue, setLocalValue] = useState<number | null>(value);
+  draftKey: string;
+  inputState: React.RefObject<PropertyInputState>;
+}> = React.memo(
+  ({ value, min, max, onChange, onComplete, label, draftKey, inputState }) => {
+    const readValue = (): number | null => {
+      const draft = inputState.current.numbers.get(draftKey);
+      return draft?.source === value ? draft.value : value;
+    };
+    const [localValue, setLocalValue] = useState<number | null>(readValue);
 
-  useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
+    useEffect(() => {
+      setLocalValue(readValue());
+    }, [value, draftKey]);
 
-  const handleBlur = useCallback(() => {
-    if (localValue === null || !Number.isFinite(localValue)) {
-      setLocalValue(value);
-      return;
-    }
-    const bounded = getBoundedGeometryValue(localValue, value, min, max);
-    setLocalValue(bounded);
-    if (bounded !== value) onChange(bounded);
-  }, [localValue, max, min, value, onChange]);
+    const handleBlur = useCallback(() => {
+      inputState.current.numbers.delete(draftKey);
+      if (localValue === null || !Number.isFinite(localValue)) {
+        setLocalValue(value);
+        onComplete();
+        return;
+      }
+      const bounded = getBoundedGeometryValue(localValue, value, min, max);
+      setLocalValue(bounded);
+      if (bounded !== value) onChange(bounded);
+      onComplete();
+    }, [
+      localValue,
+      max,
+      min,
+      value,
+      onChange,
+      onComplete,
+      draftKey,
+      inputState,
+    ]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") (e.currentTarget as HTMLElement).blur();
-    },
-    [localValue, onChange],
-  );
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") (e.currentTarget as HTMLElement).blur();
+      },
+      [localValue, onChange],
+    );
 
-  return (
-    <div style={{ flex: 1 }}>
-      <Text style={{ fontSize: 11 }}>{label}</Text>
-      <InputNumber
-        size="small"
-        min={min}
-        max={max}
-        value={localValue}
-        onChange={(next) =>
-          setLocalValue(
-            typeof next === "number" && Number.isFinite(next) ? next : null,
-          )
-        }
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        aria-label={label}
-        style={{ width: "100%" }}
-      />
-    </div>
-  );
-});
+    return (
+      <div style={{ flex: 1 }}>
+        <Text style={{ fontSize: 11 }}>{label}</Text>
+        <InputNumber
+          size="small"
+          min={min}
+          max={max}
+          value={localValue}
+          onChange={(next) => {
+            const number =
+              typeof next === "number" && Number.isFinite(next) ? next : null;
+            setLocalValue(number);
+            if (number !== null && number >= min && number <= max) {
+              inputState.current.numbers.delete(draftKey);
+              if (number !== value) onChange(number);
+            } else {
+              inputState.current.numbers.set(draftKey, {
+                source: value,
+                value: number,
+              });
+            }
+          }}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          aria-label={label}
+          style={{ width: "100%" }}
+        />
+      </div>
+    );
+  },
+);
 
 BoundedNumberInput.displayName = "BoundedNumberInput";
 
@@ -159,7 +195,7 @@ const SliderNumber: React.FC<{
       min={min}
       max={max}
       value={value}
-      aria-label={label}
+      ariaLabelForHandle={label}
       onChange={onChange}
       onChangeComplete={onComplete}
     />
@@ -181,6 +217,7 @@ const SliderNumber: React.FC<{
 
 export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
   ({
+    inputState,
     element,
     onUpdate,
     onUpdateComplete,
@@ -208,7 +245,9 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     onToggleLock,
     onDelete,
   }) => {
-    const [geometryOpen, setGeometryOpen] = useState(false);
+    const [geometryOpen, setGeometryOpen] = useState(
+      inputState.current.geometryOpen,
+    );
     // ── Callbacks ───────────────────────────────────────────────────────
 
     const handleImageUpload = useCallback(
@@ -406,7 +445,11 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
         >
           <Space direction="vertical" style={{ width: "100%" }} size="small">
             <details
-              onToggle={(event) => setGeometryOpen(event.currentTarget.open)}
+              open={geometryOpen}
+              onToggle={(event) => {
+                inputState.current.geometryOpen = event.currentTarget.open;
+                setGeometryOpen(event.currentTarget.open);
+              }}
               style={{ width: "100%" }}
             >
               <summary style={{ cursor: "pointer", padding: "8px 0" }}>
@@ -439,13 +482,18 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   <PropertySection label="Posisi">
                     <div style={{ display: "flex", gap: 8 }}>
                       <BoundedNumberInput
+                        draftKey={`${element.id}:X`}
+                        inputState={inputState}
                         label="X"
                         value={Math.round(element.x)}
                         min={0}
                         max={Math.max(0, (canvasWidth ?? 5000) - element.width)}
-                        onChange={(v) => updateField("x", v)}
+                        onChange={(v) => updateField("x", v, true)}
+                        onComplete={() => onUpdateComplete("x")}
                       />
                       <BoundedNumberInput
+                        draftKey={`${element.id}:Y`}
+                        inputState={inputState}
                         label="Y"
                         value={Math.round(element.y)}
                         min={0}
@@ -453,7 +501,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                           0,
                           (canvasHeight ?? 5000) - element.height,
                         )}
-                        onChange={(v) => updateField("y", v)}
+                        onChange={(v) => updateField("y", v, true)}
+                        onComplete={() => onUpdateComplete("y")}
                       />
                     </div>
                   </PropertySection>
@@ -461,18 +510,24 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   <PropertySection label="Ukuran">
                     <div style={{ display: "flex", gap: 8 }}>
                       <BoundedNumberInput
+                        draftKey={`${element.id}:Lebar`}
+                        inputState={inputState}
                         label="Lebar"
                         value={Math.round(element.width)}
                         min={1}
                         max={Math.max(1, (canvasWidth ?? 5000) - element.x)}
-                        onChange={(v) => updateField("width", v)}
+                        onChange={(v) => updateField("width", v, true)}
+                        onComplete={() => onUpdateComplete("width")}
                       />
                       <BoundedNumberInput
+                        draftKey={`${element.id}:Tinggi`}
+                        inputState={inputState}
                         label="Tinggi"
                         value={Math.round(element.height)}
                         min={1}
                         max={Math.max(1, (canvasHeight ?? 5000) - element.y)}
-                        onChange={(v) => updateField("height", v)}
+                        onChange={(v) => updateField("height", v, true)}
+                        onComplete={() => onUpdateComplete("height")}
                       />
                     </div>
                   </PropertySection>

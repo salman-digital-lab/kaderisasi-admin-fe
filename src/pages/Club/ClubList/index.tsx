@@ -42,6 +42,7 @@ const ClubList = () => {
         kegiatan, dan pendaftaran opsional.
       </Typography.Paragraph>
       <ClubFilter
+        parameters={parameters}
         setParameter={setParameters}
         refresh={refresh}
         loading={loading}

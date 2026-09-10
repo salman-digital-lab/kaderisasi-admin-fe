@@ -1,5 +1,7 @@
+import { ResponsiveEnvironment } from "./components/common/Responsive/ResponsiveEnvironment";
 import "antd/dist/reset.css";
 import "./styles/global.css";
+import "./styles/responsive.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
@@ -35,6 +37,7 @@ notification.config({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ConfigProvider theme={customTheme} locale={idID}>
+      <ResponsiveEnvironment />
       <App />
     </ConfigProvider>
   </React.StrictMode>,

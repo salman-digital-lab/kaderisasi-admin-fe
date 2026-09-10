@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../components/common/Responsive/ResponsiveFilters";
 import { useState } from "react";
 import { Space, Button, Input, Select, Tooltip, Card } from "antd";
 import { useRequest, useToggle } from "ahooks";
@@ -109,51 +110,72 @@ const MainActivity = () => {
           }}
         >
           {/* Left: Filters */}
-          <Space size={12} wrap>
-            <Input
-              placeholder="Cari nama aktivitas"
-              allowClear
-              style={{ width: 240 }}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onPressEnter={handleSearch}
-            />
+          <ResponsiveFilters
+            onApply={handleSearch}
+            values={[searchInput, typeInput, categoryInput, clubInput]}
+            onReset={() => {
+              setSearchInput("");
+              setTypeInput(undefined);
+              setCategoryInput(undefined);
+              setClubInput(undefined);
+              setParameters((prev) => ({
+                ...prev,
+                page: 1,
+                name: "",
+                activity_type: undefined,
+                activity_category: undefined,
+                club_id: undefined,
+              }));
+            }}
+          >
+            {({ apply }) => (
+              <Space size={12} wrap>
+                <Input
+                  placeholder="Cari nama aktivitas"
+                  allowClear
+                  style={{ width: 240 }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onPressEnter={apply}
+                />
 
-            <Select
-              placeholder="Semua Tipe"
-              allowClear
-              style={{ width: 150 }}
-              options={ACTIVITY_TYPE_OPTIONS}
-              onChange={setTypeInput}
-              value={typeInput}
-            />
+                <Select
+                  placeholder="Semua Tipe"
+                  allowClear
+                  style={{ width: 150 }}
+                  options={ACTIVITY_TYPE_OPTIONS}
+                  onChange={setTypeInput}
+                  value={typeInput}
+                />
 
-            <Select
-              placeholder="Semua Kategori"
-              allowClear
-              style={{ width: 160 }}
-              options={ACTIVITY_CATEGORY_OPTIONS}
-              onChange={setCategoryInput}
-              value={categoryInput}
-            />
+                <Select
+                  placeholder="Semua Kategori"
+                  allowClear
+                  style={{ width: 160 }}
+                  options={ACTIVITY_CATEGORY_OPTIONS}
+                  onChange={setCategoryInput}
+                  value={categoryInput}
+                />
 
-            <Select
-              placeholder="Semua Klub"
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              style={{ width: 180 }}
-              options={clubOptions}
-              onChange={setClubInput}
-              value={clubInput}
-            />
+                <Select
+                  placeholder="Semua Klub"
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  style={{ width: 180 }}
+                  options={clubOptions}
+                  onChange={setClubInput}
+                  value={clubInput}
+                />
 
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              onClick={handleSearch}
-            />
-          </Space>
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  onClick={apply}
+                />
+              </Space>
+            )}
+          </ResponsiveFilters>
 
           {/* Right: Actions */}
           <Space size={8} wrap>

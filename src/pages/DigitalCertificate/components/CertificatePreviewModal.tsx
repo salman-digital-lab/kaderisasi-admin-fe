@@ -1,4 +1,5 @@
-import { Alert, Button, Input, Modal, Space, Typography, message } from "antd";
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
+import { Alert, Button, Input, Space, Typography, message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import type { CertificateElement, CertificateTemplate } from "../types";
 import {

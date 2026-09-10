@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import { useState } from "react";
-import { Button, Flex, notification, Table, Typography, Skeleton } from "antd";
+import { Button, Flex, notification, Typography, Skeleton } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import { SaveOutlined } from "@ant-design/icons";
@@ -87,6 +88,7 @@ const MandatoryData = () => {
         </Flex>
         <Title level={3}>Keperluan Data Diri Peserta</Title>
         <Table
+          listId="pages/Activity/ActivityDetail/components/MandatoryData:1"
           rowKey="fieldname"
           columns={MANDATORY_DATA_TABLE_COLUMNS(setToggleData)}
           dataSource={PROFILE_DATA.map((val, idx) => {

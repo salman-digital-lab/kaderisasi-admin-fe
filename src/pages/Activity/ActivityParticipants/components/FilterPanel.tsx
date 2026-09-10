@@ -1,3 +1,5 @@
+import { useAdminViewport } from "../../../../hooks/useAdminViewport";
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import { useState } from "react";
 import {
   Form,
@@ -40,6 +42,7 @@ const FilterPanel = ({
   loading,
 }: FilterPanelProps) => {
   const [form] = Form.useForm<FilterValues>();
+  const { compact } = useAdminViewport();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   // Fetch universities for dropdown
@@ -103,139 +106,149 @@ const FilterPanel = ({
   };
 
   return (
-    <Collapse
-      defaultActiveKey={[]}
-      style={{ marginBottom: 16 }}
-      items={[
-        {
-          key: "1",
-          label: (
-            <span>
-              <FilterOutlined style={{ marginRight: 8 }} />
-              Filter & Pencarian
-              {activeFilters.length > 0 && (
-                <Tag color="blue" style={{ marginLeft: 12 }}>
-                  {activeFilters.length} filter aktif
-                </Tag>
-              )}
-            </span>
-          ),
-          children: (
-            <>
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                size="middle"
-              >
-                <Row gutter={[12, 0]}>
-                  <Col xs={24} sm={12} md={8} lg={6}>
-                    <Form.Item label="Cari" name="search">
-                      <Input placeholder="Cari nama atau email..." allowClear />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12} md={8} lg={6}>
-                    <Form.Item label="Status" name="status">
-                      <Select
-                        placeholder="Pilih status"
-                        allowClear
-                        showSearch
-                        optionFilterProp="label"
-                        options={statusOptions}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12} md={8} lg={6}>
-                    <Form.Item label="Universitas" name="university_id">
-                      <Select
-                        placeholder="Pilih universitas"
-                        allowClear
-                        showSearch
-                        optionFilterProp="label"
-                        options={universities?.data?.map((u) => ({
-                          label: u.name,
-                          value: String(u.id),
-                        }))}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12} md={8} lg={6}>
-                    <Form.Item label="Provinsi" name="province_id">
-                      <Select
-                        placeholder="Pilih provinsi"
-                        allowClear
-                        showSearch
-                        optionFilterProp="label"
-                        options={provinces?.data?.map((p) => ({
-                          label: p.name,
-                          value: String(p.id),
-                        }))}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12} md={8} lg={6}>
-                    <Form.Item label="Angkatan" name="intake_year">
-                      <Select
-                        placeholder="Pilih angkatan"
-                        allowClear
-                        showSearch
-                        options={intakeYearOptions}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Row justify="end">
-                  <Space>
-                    <Button
-                      onClick={handleClear}
-                      icon={<ClearOutlined />}
-                      disabled={activeFilters.length === 0}
-                    >
-                      Hapus Filter
-                    </Button>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      icon={<SearchOutlined />}
-                      loading={loading}
-                    >
-                      Cari
-                    </Button>
-                  </Space>
-                </Row>
-              </Form>
-
-              {activeFilters.length > 0 && (
-                <div
-                  style={{
-                    marginTop: 16,
-                    paddingTop: 16,
-                    borderTop: "1px solid #f0f0f0",
-                  }}
+    <ResponsiveFilters
+      onApply={() => form.submit()}
+      onReset={handleClear}
+      activeCount={activeFilters.length}
+    >
+      <Collapse
+        defaultActiveKey={compact ? ["1"] : []}
+        style={{ marginBottom: 16 }}
+        items={[
+          {
+            key: "1",
+            label: (
+              <span>
+                <FilterOutlined style={{ marginRight: 8 }} />
+                Filter & Pencarian
+                {activeFilters.length > 0 && (
+                  <Tag color="blue" style={{ marginLeft: 12 }}>
+                    {activeFilters.length} filter aktif
+                  </Tag>
+                )}
+              </span>
+            ),
+            children: (
+              <>
+                <Form
+                  scrollToFirstError={{ focus: true }}
+                  form={form}
+                  layout="vertical"
+                  onFinish={handleSubmit}
+                  size="middle"
                 >
-                  <Space size={4} wrap>
-                    <span style={{ color: "#666", marginRight: 8 }}>
-                      Filter aktif:
-                    </span>
-                    {activeFilters.map((key) => (
-                      <Tag
-                        key={key}
-                        closable
-                        onClose={() => handleRemoveFilter(key)}
-                        color="blue"
+                  <Row gutter={[12, 0]}>
+                    <Col xs={24} sm={12} md={8} lg={6}>
+                      <Form.Item label="Cari" name="search">
+                        <Input
+                          placeholder="Cari nama atau email..."
+                          allowClear
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12} md={8} lg={6}>
+                      <Form.Item label="Status" name="status">
+                        <Select
+                          placeholder="Pilih status"
+                          allowClear
+                          showSearch
+                          optionFilterProp="label"
+                          options={statusOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12} md={8} lg={6}>
+                      <Form.Item label="Universitas" name="university_id">
+                        <Select
+                          placeholder="Pilih universitas"
+                          allowClear
+                          showSearch
+                          optionFilterProp="label"
+                          options={universities?.data?.map((u) => ({
+                            label: u.name,
+                            value: String(u.id),
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12} md={8} lg={6}>
+                      <Form.Item label="Provinsi" name="province_id">
+                        <Select
+                          placeholder="Pilih provinsi"
+                          allowClear
+                          showSearch
+                          optionFilterProp="label"
+                          options={provinces?.data?.map((p) => ({
+                            label: p.name,
+                            value: String(p.id),
+                          }))}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12} md={8} lg={6}>
+                      <Form.Item label="Angkatan" name="intake_year">
+                        <Select
+                          placeholder="Pilih angkatan"
+                          allowClear
+                          showSearch
+                          options={intakeYearOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Row justify="end">
+                    <Space>
+                      <Button
+                        onClick={handleClear}
+                        icon={<ClearOutlined />}
+                        disabled={activeFilters.length === 0}
                       >
-                        {filterLabels[key] || key}
-                      </Tag>
-                    ))}
-                  </Space>
-                </div>
-              )}
-            </>
-          ),
-        },
-      ]}
-    />
+                        Hapus Filter
+                      </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        icon={<SearchOutlined />}
+                        loading={loading}
+                      >
+                        Cari
+                      </Button>
+                    </Space>
+                  </Row>
+                </Form>
+
+                {activeFilters.length > 0 && (
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: "1px solid #f0f0f0",
+                    }}
+                  >
+                    <Space size={4} wrap>
+                      <span style={{ color: "#666", marginRight: 8 }}>
+                        Filter aktif:
+                      </span>
+                      {activeFilters.map((key) => (
+                        <Tag
+                          key={key}
+                          closable
+                          onClose={() => handleRemoveFilter(key)}
+                          color="blue"
+                        >
+                          {filterLabels[key] || key}
+                        </Tag>
+                      ))}
+                    </Space>
+                  </div>
+                )}
+              </>
+            ),
+          },
+        ]}
+      />
+    </ResponsiveFilters>
   );
 };
 

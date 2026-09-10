@@ -1,3 +1,4 @@
+import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import { Input, Card, Button, DatePicker, Space, Tooltip } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -55,40 +56,60 @@ export default function MonthlyLeaderboardFilter({
         }}
       >
         {/* Left: Filters */}
-        <Space size={12} wrap>
-          <Input
-            placeholder="Cari nama"
-            allowClear
-            style={{ width: 180 }}
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            onPressEnter={handleSearch}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-          />
+        <ResponsiveFilters
+          onApply={handleSearch}
+          values={[nameInput, emailInput, monthYear]}
+          onReset={() => {
+            setNameInput("");
+            setEmailInput("");
+            setMonthYear(null);
+            setParameter((prev) => ({
+              ...prev,
+              page: 1,
+              name: "",
+              email: "",
+              month: "",
+              year: "",
+            }));
+          }}
+        >
+          {({ apply }) => (
+            <Space size={12} wrap>
+              <Input
+                placeholder="Cari nama"
+                allowClear
+                style={{ width: 180 }}
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onPressEnter={apply}
+                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              />
 
-          <Input
-            placeholder="Cari email"
-            allowClear
-            style={{ width: 200 }}
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-          />
+              <Input
+                placeholder="Cari email"
+                allowClear
+                style={{ width: 200 }}
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+              />
 
-          <DatePicker.MonthPicker
-            placeholder="Pilih bulan dan tahun"
-            style={{ width: 180 }}
-            format="MMMM YYYY"
-            allowClear
-            value={monthYear}
-            onChange={setMonthYear}
-          />
+              <DatePicker.MonthPicker
+                placeholder="Pilih bulan dan tahun"
+                style={{ width: 180 }}
+                format="MMMM YYYY"
+                allowClear
+                value={monthYear}
+                onChange={setMonthYear}
+              />
 
-          <Button
-            icon={<SearchOutlined />}
-            type="primary"
-            onClick={handleSearch}
-          />
-        </Space>
+              <Button
+                icon={<SearchOutlined />}
+                type="primary"
+                onClick={apply}
+              />
+            </Space>
+          )}
+        </ResponsiveFilters>
 
         {/* Right: Actions */}
         <Space size={8} wrap>

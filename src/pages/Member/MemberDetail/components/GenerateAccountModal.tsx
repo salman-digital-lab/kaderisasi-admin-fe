@@ -1,5 +1,7 @@
+import { validateFieldsAndFocus } from "../../../../components/common/Responsive/validate-fields";
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useRequest } from "ahooks";
-import { Form, Input, Modal } from "antd";
+import { Form, Input } from "antd";
 import { generateAccount } from "../../../../api/services/member";
 
 type GenerateAccountModalProps = {
@@ -30,7 +32,7 @@ export default function GenerateAccountModal({
       okText="Buat Akun"
       cancelText="Batal"
       onOk={async () => {
-        const data = await form.validateFields();
+        const data = await validateFieldsAndFocus(form);
         if (data) {
           await runAsync(userId, data);
           form.resetFields();
@@ -43,7 +45,7 @@ export default function GenerateAccountModal({
         setIsOpen(false);
       }}
     >
-      <Form layout="vertical" form={form}>
+      <Form scrollToFirstError={{ focus: true }} layout="vertical" form={form}>
         <Form.Item
           label="Email"
           name="email"

@@ -1,5 +1,6 @@
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { useEffect } from "react";
-import { Button, Col, Form, Input, Modal, Row, Select } from "antd";
+import { Button, Col, Form, Input, Row, Select } from "antd";
 import { addUniversity, putUniversity } from "../../../api/services/university";
 import { getProvinces } from "../../../api/services/province";
 import { useRequest } from "ahooks";
@@ -87,7 +88,12 @@ const UniversityForm = ({
           </Button>,
         ]}
       >
-        <Form layout="vertical" form={form} onFinish={onFinish}>
+        <Form
+          scrollToFirstError={{ focus: true }}
+          layout="vertical"
+          form={form}
+          onFinish={onFinish}
+        >
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item

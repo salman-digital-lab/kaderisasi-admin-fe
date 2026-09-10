@@ -1,6 +1,8 @@
 // Opt-in, network-isolated browser fixture. Never imported by an application route.
 import "antd/dist/reset.css";
 import "../../src/styles/global.css";
+import "../../src/styles/responsive.css";
+import { ResponsiveEnvironment } from "../../src/components/common/Responsive/ResponsiveEnvironment";
 import { ConfigProvider } from "antd";
 import { createRoot } from "react-dom/client";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
@@ -53,6 +55,23 @@ const activity = {
   activity_start: "2026-09-09",
 };
 const issued = new Set<number>();
+// Deterministic page-lifecycle simulation for this isolated fixture only.
+let fixtureHidden = false;
+let interrupted = false;
+if (query.get("interrupt") === "1") {
+  Object.defineProperty(document, "hidden", {
+    configurable: true,
+    get: () => fixtureHidden,
+  });
+  const returnButton = document.createElement("button");
+  returnButton.textContent = "Fixture: kembali ke aplikasi";
+  returnButton.style.cssText = "min-height:44px;padding:8px";
+  returnButton.onclick = () => {
+    fixtureHidden = false;
+    document.dispatchEvent(new Event("visibilitychange"));
+  };
+  document.body.append(returnButton);
+}
 const registrations = Array.from({ length: 1000 }, (_, i) => ({
   registration_id: i + 1,
   name:
@@ -78,6 +97,8 @@ const report = (): void => {
     interactionMs: durations,
     layers: design.elements.length,
     recipients: 1000,
+    issued: issued.size,
+    fixtureHidden,
     pdfDependenciesLoaded: performance
       .getEntriesByType("resource")
       .some((entry) => /html2canvas|jspdf/.test(entry.name)),
@@ -101,11 +122,22 @@ useAuthStore.setState({
 });
 axios.defaults.adapter = async (config) => {
   calls.push(`${config.method} ${config.url}`);
+  if (
+    query.get("interrupt") === "1" &&
+    !interrupted &&
+    config.url?.includes("issue-bulk")
+  ) {
+    interrupted = true;
+    fixtureHidden = true;
+    document.dispatchEvent(new Event("visibilitychange"));
+  }
   report();
   await new Promise((resolve) =>
     setTimeout(resolve, config.url?.includes("issue-bulk") ? 400 : 40),
   );
   const url = config.url || "";
+  if (query.get("failSave") === "1" && config.method === "put")
+    throw new Error("Fixture: save unavailable");
   const params = {
     ...Object.fromEntries(new URLSearchParams(url.split("?")[1])),
     ...config.params,
@@ -178,13 +210,29 @@ axios.defaults.adapter = async (config) => {
         return { registration_id: id, name: registrations[id - 1].name, state };
       }),
     };
-  } else if (url.includes("certificate-templates/900001")) {
+    report();
+  } else if (url.endsWith("/publish") || url.endsWith("/archive")) {
+    template.status = url.endsWith("/publish") ? "published" : "archived";
+    template.is_active = template.status === "published";
+    template.version += 1;
+    data = template;
+  } else if (url.endsWith("/duplicate")) {
+    data = {
+      ...template,
+      id: 900002,
+      status: "draft",
+      is_active: false,
+      version: 1,
+    };
+  } else if (/certificate-templates\/90000[12]/.test(url)) {
     if (config.method === "put")
       Object.assign(template, body, {
         template_data: body.templateData || template.template_data,
         version: template.version + 1,
       });
-    data = template;
+    data = url.includes("900002")
+      ? { ...template, id: 900002, status: "draft", is_active: false }
+      : template;
   } else if (url.startsWith("/certificate-templates")) {
     data = {
       data: [template],
@@ -198,6 +246,7 @@ const router = createMemoryRouter(
   [
     { path: "/activity/:id/certificates", element: <ActivityCertificates /> },
     { path: "/digital-certificate/:id", element: <CertificateDesigner /> },
+    { path: "/digital-certificate/:id/edit", element: <CertificateDesigner /> },
     { path: "/digital-certificate", element: <CertificateList /> },
   ],
   {
@@ -214,6 +263,7 @@ createRoot(document.getElementById("root")!).render(
   <ConfigProvider
     theme={{ token: { colorPrimary: "#1F99CB", borderRadius: 0 } }}
   >
+    <ResponsiveEnvironment />
     <RouterProvider router={router} />
   </ConfigProvider>,
 );

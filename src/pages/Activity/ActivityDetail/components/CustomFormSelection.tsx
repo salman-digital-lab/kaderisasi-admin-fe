@@ -1,8 +1,8 @@
+import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import {
   Typography,
   Button,
   Space,
-  Modal,
   Select,
   Empty,
   Tag,
@@ -196,6 +196,7 @@ const CustomFormSelection = () => {
                   </Tag>
                   <Tooltip title="Edit Form & Pertanyaan">
                     <Button
+                      aria-label="Edit Form & Pertanyaan"
                       icon={<EditOutlined />}
                       onClick={() =>
                         navigate(`/activity/${id}/form/${currentForm.id}/edit`)

@@ -1,5 +1,7 @@
+import { ResponsiveDialog as Modal } from "../../../../../components/common/Responsive/ResponsiveDialog";
+import { ResponsiveTable as Table } from "../../../../../components/common/Responsive/ResponsiveTable";
 import { useRequest } from "ahooks";
-import { Input, Modal, notification, Space, Table } from "antd";
+import { Input, notification, Space } from "antd";
 import { useState } from "react";
 import { Key } from "antd/es/table/interface";
 import { useParams } from "react-router-dom";
@@ -68,6 +70,7 @@ const MembersListModal = ({ open, toggle }: MembersListModalProps) => {
           allowClear
         />
         <Table
+          listId="pages/Activity/ActivityDetail/components/Modal/MembersListModal:1"
           rowKey="id"
           columns={[
             {

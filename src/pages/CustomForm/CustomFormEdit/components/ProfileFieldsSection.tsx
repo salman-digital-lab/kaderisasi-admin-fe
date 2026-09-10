@@ -116,6 +116,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
             return (
               <Card key={fieldKey} size="small">
                 <div
+                  className="form-builder-field-row"
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -123,7 +124,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                   }}
                 >
                   {/* Field Info */}
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <Space>
                       <Avatar
                         size="small"
@@ -142,6 +143,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                             <Space>
                               <Text style={{ fontSize: "12px" }}>Wajib:</Text>
                               <Switch
+                                aria-label={`Wajib diisi: ${template.name}`}
                                 size="small"
                                 checked={getEffectiveRequired(
                                   fieldKey,
@@ -162,6 +164,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                   <Space size="small">
                     <Tooltip title="Pindah Ke Atas">
                       <Button
+                        aria-label="Pindah Ke Atas"
                         type="text"
                         size="small"
                         icon={<ArrowUpOutlined />}
@@ -171,6 +174,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Pindah Ke Bawah">
                       <Button
+                        aria-label="Pindah Ke Bawah"
                         type="text"
                         size="small"
                         icon={<ArrowDownOutlined />}
@@ -180,6 +184,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Hapus">
                       <Button
+                        aria-label="Hapus"
                         type="text"
                         size="small"
                         danger

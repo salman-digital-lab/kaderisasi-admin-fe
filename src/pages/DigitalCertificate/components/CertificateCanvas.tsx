@@ -1,3 +1,5 @@
+import { useAdminViewport } from "../../../hooks/useAdminViewport";
+import { TouchGestures } from "../CertificateDesigner/touch-gestures";
 import { SettingOutlined } from "@ant-design/icons";
 import { Button, Divider, Popover, Space, Switch, Typography } from "antd";
 import React, {
@@ -29,6 +31,7 @@ import { DraggableElement } from "./DraggableElement";
 import { useCanvasPan, useElementDrag, useElementResize } from "./hooks";
 
 interface CertificateCanvasProps {
+  viewportSnapshot?: React.RefObject<CanvasViewportSnapshot | null>;
   template: CertificateTemplate;
   selectedElementId: string | null;
   tool: EditorTool;
@@ -51,8 +54,14 @@ interface CertificateCanvasProps {
 
 const GRID_SIZE = 10;
 
+export interface CanvasViewportSnapshot {
+  viewport: ViewportState;
+  size: ViewportPoint;
+}
+
 export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
   ({
+    viewportSnapshot,
     template,
     selectedElementId,
     tool,
@@ -76,21 +85,22 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     const canvasRef = useRef<HTMLDivElement>(null);
     const elementNodesRef = useRef<Map<string, HTMLDivElement>>(new Map());
     const elementPositionsRef = useRef<Map<string, ViewportPoint>>(new Map());
-    const viewportRef = useRef<ViewportState>({
-      zoom: 1,
-      offset: { x: 0, y: 0 },
-      mode: "fit",
-    });
-    const previousSizeRef = useRef<ViewportPoint>({ x: 0, y: 0 });
+    const viewportRef = useRef<ViewportState>(
+      viewportSnapshot?.current?.viewport ?? {
+        zoom: 1,
+        offset: { x: 0, y: 0 },
+        mode: "fit",
+      },
+    );
+    const previousSizeRef = useRef<ViewportPoint>(
+      viewportSnapshot?.current?.size ?? { x: 0, y: 0 },
+    );
+    const restoringViewport = useRef(Boolean(viewportSnapshot?.current));
     const heldSpaceRef = useRef(false);
     const viewportCentreCallbackRef = useRef(onViewportCentreChange);
     viewportCentreCallbackRef.current = onViewportCentreChange;
-    const pointersRef = useRef<Map<number, ViewportPoint>>(new Map());
-    const pinchRef = useRef<{
-      distance: number;
-      midpoint: ViewportPoint;
-      viewport: ViewportState;
-    } | null>(null);
+    const touchGestures = useRef(new TouchGestures());
+    const { compact } = useAdminViewport();
     const [temporaryHand, setTemporaryHand] = useState(false);
     const [viewport, setViewportState] = useState(viewportRef.current);
     const [activeGuides, setActiveGuides] = useState({
@@ -107,8 +117,14 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
           typeof next === "function" ? next(viewportRef.current) : next;
         viewportRef.current = value;
         setViewportState(value);
+        const node = containerRef.current;
+        if (viewportSnapshot && node)
+          viewportSnapshot.current = {
+            viewport: value,
+            size: { x: node.clientWidth, y: node.clientHeight },
+          };
       },
-      [],
+      [viewportSnapshot],
     );
 
     const reportViewportCentre = useCallback(() => {
@@ -144,6 +160,10 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
     ]);
 
     useEffect(() => {
+      if (restoringViewport.current) {
+        restoringViewport.current = false;
+        return;
+      }
       fit();
     }, [fit]);
 
@@ -243,6 +263,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       isPanning,
       startPan,
       cleanup: cleanupPan,
+      stop: stopPan,
     } = useCanvasPan({
       offset: viewport.offset,
       setOffset: handleViewportOffsetChange,
@@ -265,7 +286,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
           if (isDragging || isResizing || isPanning) {
             cleanupDrag();
             cleanupResize();
-            cleanupPan();
+            stopPan();
           } else {
             onSelectElement(null);
           }
@@ -321,25 +342,26 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
 
     const handlePointerDown = useCallback(
       (event: React.PointerEvent<HTMLDivElement>) => {
+        if (
+          (event.target as HTMLElement).closest(
+            "button, input, textarea, select, [contenteditable=true]",
+          )
+        )
+          return;
         if (event.pointerType === "touch") {
-          pointersRef.current.set(event.pointerId, {
-            x: event.clientX,
-            y: event.clientY,
-          });
-          event.currentTarget.setPointerCapture(event.pointerId);
-          if (pointersRef.current.size === 2) {
+          if (
+            touchGestures.current.down(
+              event.pointerId,
+              { x: event.clientX, y: event.clientY },
+              viewportRef.current,
+            )
+          ) {
+            event.stopPropagation();
+            event.preventDefault();
+            event.currentTarget.setPointerCapture(event.pointerId);
             cleanupDrag();
             cleanupResize();
-            cleanupPan();
-            const [first, second] = [...pointersRef.current.values()];
-            pinchRef.current = {
-              distance: Math.hypot(second.x - first.x, second.y - first.y),
-              midpoint: {
-                x: (first.x + second.x) / 2,
-                y: (first.y + second.y) / 2,
-              },
-              viewport: viewportRef.current,
-            };
+            stopPan();
             return;
           }
         }
@@ -349,54 +371,25 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
         )
           startPan(event);
       },
-      [cleanupDrag, cleanupPan, cleanupResize, effectiveTool, startPan],
+      [cleanupDrag, cleanupResize, effectiveTool, startPan, stopPan],
     );
 
     const handlePointerMove = useCallback(
       (event: React.PointerEvent<HTMLDivElement>) => {
-        if (!pointersRef.current.has(event.pointerId) || !pinchRef.current)
-          return;
-        pointersRef.current.set(event.pointerId, {
-          x: event.clientX,
-          y: event.clientY,
-        });
-        if (pointersRef.current.size < 2) return;
-        const [first, second] = [...pointersRef.current.values()];
-        const distance = Math.hypot(second.x - first.x, second.y - first.y);
-        const midpoint = {
-          x: (first.x + second.x) / 2,
-          y: (first.y + second.y) / 2,
-        };
-        const start = pinchRef.current;
         const rect = event.currentTarget.getBoundingClientRect();
-        const startFocal = {
-          x: start.midpoint.x - rect.left,
-          y: start.midpoint.y - rect.top,
-        };
-        const nextFocal = {
-          x: midpoint.x - rect.left,
-          y: midpoint.y - rect.top,
-        };
-        const zoomed = zoomAtPoint(
-          start.viewport,
-          start.viewport.zoom * (distance / Math.max(1, start.distance)),
-          startFocal,
+        const next = touchGestures.current.move(
+          event.pointerId,
+          { x: event.clientX, y: event.clientY },
+          { x: rect.left, y: rect.top },
         );
-        setViewport({
-          ...zoomed,
-          offset: {
-            x: zoomed.offset.x + nextFocal.x - startFocal.x,
-            y: zoomed.offset.y + nextFocal.y - startFocal.y,
-          },
-        });
+        if (next) setViewport(next);
       },
       [setViewport],
     );
 
     const handlePointerEnd = useCallback(
       (event: React.PointerEvent<HTMLDivElement>) => {
-        pointersRef.current.delete(event.pointerId);
-        if (pointersRef.current.size < 2) pinchRef.current = null;
+        touchGestures.current.end(event.pointerId);
         reportViewportCentre();
       },
       [reportViewportCentre],
@@ -622,6 +615,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             ) : null}
             {visibleElements.map((element) => (
               <DraggableElement
+                compactControls={compact}
                 key={element.id}
                 element={element}
                 isSelected={element.id === selectedElementId}

@@ -78,6 +78,7 @@ export const BasicInfoTab = ({
 
   return (
     <Form
+      scrollToFirstError={{ focus: true }}
       form={form}
       layout="vertical"
       onFinish={onSave}

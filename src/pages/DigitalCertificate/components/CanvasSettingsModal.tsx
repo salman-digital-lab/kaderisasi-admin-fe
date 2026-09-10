@@ -1,5 +1,6 @@
+import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import React, { useState, useEffect } from "react";
-import { Modal, InputNumber, Select, Space, Typography } from "antd";
+import { InputNumber, Select, Space, Typography } from "antd";
 
 const { Text } = Typography;
 

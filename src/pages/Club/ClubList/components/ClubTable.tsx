@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import React from "react";
-import { Button, Empty, Table } from "antd";
+import { Button, Empty } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import { Pagination } from "../../../../types/services/base";
@@ -27,6 +28,7 @@ const ClubTable = ({
 
   return (
     <Table
+      listId="pages/Club/ClubList/components/ClubTable:1"
       rowKey="id"
       columns={tableSchema}
       dataSource={data?.data}

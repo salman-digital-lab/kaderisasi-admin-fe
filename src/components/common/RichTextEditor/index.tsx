@@ -106,6 +106,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Button
               size="small"
               type={editor.isActive("bold") ? "primary" : "default"}
+              aria-label="Tebal"
               icon={<BoldOutlined />}
               onClick={() => editor.chain().focus().toggleBold().run()}
               disabled={disabled}
@@ -113,6 +114,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Button
               size="small"
               type={editor.isActive("italic") ? "primary" : "default"}
+              aria-label="Miring"
               icon={<ItalicOutlined />}
               onClick={() => editor.chain().focus().toggleItalic().run()}
               disabled={disabled}
@@ -120,6 +122,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Button
               size="small"
               type={editor.isActive("underline") ? "primary" : "default"}
+              aria-label="Garis bawah"
               icon={<UnderlineOutlined />}
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               disabled={disabled}
@@ -127,6 +130,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Button
               size="small"
               type={editor.isActive("strike") ? "primary" : "default"}
+              aria-label="Coret"
               icon={<StrikethroughOutlined />}
               onClick={() => editor.chain().focus().toggleStrike().run()}
               disabled={disabled}
@@ -137,6 +141,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Button
               size="small"
               type={editor.isActive("bulletList") ? "primary" : "default"}
+              aria-label="Daftar poin"
               icon={<UnorderedListOutlined />}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               disabled={disabled}
@@ -144,6 +149,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <Button
               size="small"
               type={editor.isActive("orderedList") ? "primary" : "default"}
+              aria-label="Daftar bernomor"
               icon={<OrderedListOutlined />}
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               disabled={disabled}
@@ -156,6 +162,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type={
                 editor.isActive({ textAlign: "left" }) ? "primary" : "default"
               }
+              aria-label="Rata kiri"
               icon={<AlignLeftOutlined />}
               onClick={() => editor.chain().focus().setTextAlign("left").run()}
               disabled={disabled}
@@ -165,6 +172,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type={
                 editor.isActive({ textAlign: "center" }) ? "primary" : "default"
               }
+              aria-label="Rata tengah"
               icon={<AlignCenterOutlined />}
               onClick={() =>
                 editor.chain().focus().setTextAlign("center").run()
@@ -176,6 +184,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type={
                 editor.isActive({ textAlign: "right" }) ? "primary" : "default"
               }
+              aria-label="Rata kanan"
               icon={<AlignRightOutlined />}
               onClick={() => editor.chain().focus().setTextAlign("right").run()}
               disabled={disabled}
@@ -187,6 +196,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               <Button
                 size="small"
                 type={editor.isActive("link") ? "primary" : "default"}
+                aria-label="Ubah tautan"
                 icon={<LinkOutlined />}
                 onClick={setLink}
                 disabled={disabled}
@@ -197,12 +207,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
             <Button
               size="small"
+              aria-label="Batalkan perubahan"
               icon={<UndoOutlined />}
               onClick={() => editor.chain().focus().undo().run()}
               disabled={!editor.can().undo() || disabled}
             />
             <Button
               size="small"
+              aria-label="Ulangi perubahan"
               icon={<RedoOutlined />}
               onClick={() => editor.chain().focus().redo().run()}
               disabled={!editor.can().redo() || disabled}

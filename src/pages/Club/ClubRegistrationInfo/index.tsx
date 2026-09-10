@@ -1,3 +1,4 @@
+import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
 import { useState } from "react";
 import {
   Alert,
@@ -79,7 +80,7 @@ const ClubRegistrationInfo = ({
   const updateRegistrationSettings = async (
     openRegistration: boolean,
   ): Promise<void> => {
-    const values = await scheduleForm.validateFields();
+    const values = await validateFieldsAndFocus(scheduleForm);
     const updated = await putClub(club.id, {
       is_registration_open: openRegistration,
       registration_end_date: serializeClubDate(values.registration_end_date),
@@ -182,6 +183,7 @@ const ClubRegistrationInfo = ({
         }
       >
         <Form
+          scrollToFirstError={{ focus: true }}
           form={descriptionForm}
           layout="vertical"
           initialValues={{ registration_info: registrationInfo }}
@@ -210,6 +212,7 @@ const ClubRegistrationInfo = ({
 
       <Card title="3. Jadwal dan Status Pendaftaran">
         <Form
+          scrollToFirstError={{ focus: true }}
           form={scheduleForm}
           layout="vertical"
           initialValues={{

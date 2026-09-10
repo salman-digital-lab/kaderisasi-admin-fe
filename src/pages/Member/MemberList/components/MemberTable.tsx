@@ -1,5 +1,6 @@
+import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 import React from "react";
-import { Table, Empty, Alert, Button, Tag } from "antd";
+import { Empty, Alert, Button, Tag } from "antd";
 import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 import { Pagination } from "../../../../types/services/base";
@@ -88,6 +89,7 @@ const MemberTable = ({
 
   return (
     <Table
+      listId="pages/Member/MemberList/components/MemberTable:1"
       rowKey="id"
       columns={columnsWithStatus}
       dataSource={data?.data}
