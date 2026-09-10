@@ -146,6 +146,7 @@ const ImageContent: React.FC<{
 }> = ({ imageUrl, alt, placeholderLabel, objectFit, borderRadius }) =>
   imageUrl ? (
     <img
+      crossOrigin="anonymous"
       src={imageUrl}
       alt={alt}
       style={{ ...fullSizeImageStyle, objectFit, borderRadius }}

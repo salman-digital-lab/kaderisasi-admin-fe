@@ -586,23 +586,40 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             style={{
               width: template.canvasWidth,
               height: template.canvasHeight,
-              backgroundImage: backgroundUrl
-                ? `url(${backgroundUrl})`
-                : undefined,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
               backgroundColor: "#fff",
-              ...(showGrid
-                ? {
-                    backgroundImage: `linear-gradient(to right, rgba(0,0,0,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.06) 1px, transparent 1px)${backgroundUrl ? `, url(${backgroundUrl})` : ""}`,
-                    backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px, ${GRID_SIZE}px ${GRID_SIZE}px${backgroundUrl ? ", cover" : ""}`,
-                    backgroundPosition: `0 0, 0 0${backgroundUrl ? ", center" : ""}`,
-                    backgroundRepeat: `repeat, repeat${backgroundUrl ? ", no-repeat" : ""}`,
-                  }
-                : {}),
             }}
             onPointerDown={handleCanvasPointerDown}
           >
+            {backgroundUrl ? (
+              <img
+                crossOrigin="anonymous"
+                src={backgroundUrl}
+                alt=""
+                aria-hidden
+                draggable={false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  pointerEvents: "none",
+                }}
+              />
+            ) : null}
+            {showGrid ? (
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  pointerEvents: "none",
+                  backgroundImage:
+                    "linear-gradient(to right, rgba(0,0,0,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.06) 1px, transparent 1px)",
+                  backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+                }}
+              />
+            ) : null}
             {showGuides || activeGuides.vertical || activeGuides.horizontal ? (
               <>
                 <div

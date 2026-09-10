@@ -341,6 +341,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
             {backgroundUrl ? (
               <div>
                 <img
+                  crossOrigin="anonymous"
                   src={getCertificateAssetUrl(backgroundUrl) || undefined}
                   alt="Preview background sertifikat"
                   style={{
@@ -835,6 +836,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   {element.imageUrl && (
                     <div style={{ marginTop: 8 }}>
                       <img
+                        crossOrigin="anonymous"
                         src={
                           getCertificateAssetUrl(element.imageUrl) || undefined
                         }
