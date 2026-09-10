@@ -17,7 +17,7 @@ import RequestDetail from "../../src/pages/AccessRequests/RequestDetail";
 import ClubList from "../../src/pages/Club/ClubList";
 import type { AccessTicket } from "../../src/types/model/access";
 import type { CustomForm } from "../../src/types/model/customForm";
-import roles from "../../../kaderisasi-admin-be-go/internal/auth/roles.json";
+import roles from "./fixtures/roles.json";
 
 const query = new URLSearchParams(location.search);
 const role = roles.find((item) => item.code === query.get("role"));

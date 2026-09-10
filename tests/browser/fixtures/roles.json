@@ -1,0 +1,188 @@
+[
+  {
+    "code": "super_admin",
+    "name": "Super Admin",
+    "description": "Mengelola akun admin dan seluruh fitur.",
+    "capabilities": [
+      "Mengelola akun dan hak akses admin",
+      "Meninjau pengajuan peran",
+      "Mengakses seluruh fitur"
+    ],
+    "limitation": "Peran ini ditetapkan oleh Super Admin.",
+    "is_requestable": false,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.publish",
+      "activities.read",
+      "activities.registration.manage",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "admin_users.manage",
+      "admin_users.read",
+      "certificate.approve",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.revoke",
+      "certificate.template.manage",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "counseling.manage",
+      "counseling.read",
+      "courses.manage",
+      "courses.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read",
+      "rbac.read",
+      "reference_data.manage",
+      "tickets.review"
+    ]
+  },
+  {
+    "code": "admin",
+    "name": "Admin Operasional",
+    "description": "Mengelola operasional dan sertifikat.",
+    "capabilities": [
+      "Mengelola fitur operasional",
+      "Menayangkan kegiatan dan membuka atau menutup pendaftaran",
+      "Mengelola dan menerbitkan sertifikat"
+    ],
+    "limitation": "Pengelolaan akun dan hak akses admin dilakukan oleh Super Admin.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.publish",
+      "activities.read",
+      "activities.registration.manage",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.approve",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.revoke",
+      "certificate.template.manage",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "counseling.manage",
+      "counseling.read",
+      "courses.manage",
+      "courses.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read",
+      "reference_data.manage"
+    ]
+  },
+  {
+    "code": "activity_manager",
+    "name": "Panitia Kegiatan",
+    "description": "Menyiapkan kegiatan dan mengelola peserta.",
+    "capabilities": [
+      "Membuat dan mengubah kegiatan serta formulir",
+      "Mengelola peserta dan status peserta",
+      "Mengunduh data pendaftaran"
+    ],
+    "limitation": "Tidak dapat menayangkan atau mengembalikan kegiatan ke draf, maupun membuka atau menutup pendaftaran. Minta bantuan Admin Operasional atau Super Admin.",
+    "is_requestable": true,
+    "permissions": [
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.read",
+      "certificate.template.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "members.read"
+    ]
+  },
+  {
+    "code": "club_manager",
+    "name": "Pengelola Komunitas",
+    "description": "Mengelola klub dan kelas pembelajaran.",
+    "capabilities": [
+      "Mengelola klub, anggota, dan pendaftaran klub",
+      "Mengelola kelas dan materi pembelajaran",
+      "Melihat progres peserta kelas"
+    ],
+    "limitation": "Tidak dapat mengubah penayangan atau status pendaftaran kegiatan.",
+    "is_requestable": true,
+    "permissions": [
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "courses.manage",
+      "courses.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "members.read"
+    ]
+  },
+  {
+    "code": "member_manager",
+    "name": "Petugas Anggota",
+    "description": "Mengelola anggota dan memeriksa prestasi.",
+    "capabilities": [
+      "Mengelola profil dan akun anggota",
+      "Mengubah email dan kata sandi anggota",
+      "Memeriksa prestasi dan melihat peringkat"
+    ],
+    "limitation": "Tidak dapat mengubah penayangan atau status pendaftaran kegiatan.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read"
+    ]
+  },
+  {
+    "code": "konselor",
+    "name": "Konselor",
+    "description": "Melayani permintaan Ruang Curhat.",
+    "capabilities": [
+      "Melihat permintaan konseling",
+      "Menanggapi dan memperbarui status konseling"
+    ],
+    "limitation": "Akses terbatas pada layanan Ruang Curhat dan dasbor.",
+    "is_requestable": true,
+    "permissions": [
+      "counseling.manage",
+      "counseling.read",
+      "dashboard.read"
+    ]
+  }
+]
