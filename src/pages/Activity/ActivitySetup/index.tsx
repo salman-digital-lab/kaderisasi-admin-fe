@@ -25,6 +25,7 @@ import {
   getActivityReadiness,
   getSetupActivity,
   saveSetupActivity,
+  setupActivityConfig,
   type SetupReadiness,
 } from "../../../api/services/activity-setup";
 import { getClubs } from "../../../api/services/club";
@@ -131,11 +132,11 @@ export default function ActivitySetup(): ReactElement {
         activity_end: values.activity_date?.[1]?.format("YYYY-MM-DD"),
         registration_start: values.registration_date?.[0]?.format("YYYY-MM-DD"),
         registration_end: values.registration_date?.[1]?.format("YYYY-MM-DD"),
-        additional_config: {
-          allow_guest_registration:
-            values.activity_type === ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY &&
+        additional_config: setupActivityConfig(
+          activity?.additional_config,
+          values.activity_type === ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY &&
             !!values.allow_guest_registration,
-        },
+        ),
       };
       const row = await saveSetupActivity(id, payload);
       flushSync(() => {

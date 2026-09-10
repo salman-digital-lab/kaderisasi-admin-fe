@@ -16,6 +16,18 @@ export type SetupReadiness = {
     can_manage_registration: boolean;
   };
 };
+export function setupActivityConfig(
+  current: Activity["additional_config"] | undefined,
+  allowGuestRegistration: boolean,
+): Activity["additional_config"] {
+  return {
+    ...current,
+    custom_selection_status: current?.custom_selection_status ?? [],
+    mandatory_profile_data: current?.mandatory_profile_data ?? [],
+    additional_questionnaire: current?.additional_questionnaire ?? [],
+    allow_guest_registration: allowGuestRegistration,
+  };
+}
 export async function getSetupActivity(id: number): Promise<Activity> {
   return (await axios.get<{ data: Activity }>(`/activities/${id}`)).data.data;
 }
