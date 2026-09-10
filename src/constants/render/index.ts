@@ -65,6 +65,29 @@ export function renderActivityCategory(level: ACTIVITY_CATEGORY_ENUM) {
 
 export function renderNotification(code: string) {
   switch (code) {
+    case "COURSE_NOT_FOUND":
+      return "Kelas, materi, atau dokumen tidak tersedia.";
+    case "INVALID_COURSE_INPUT":
+    case "INVALID_COURSE_CONTENT":
+      return "Periksa judul, ringkasan, dan deskripsi kelas.";
+    case "INVALID_LESSON_CONTENT":
+      return "Periksa judul dan deskripsi materi.";
+    case "INVALID_MINIMUM_LEVEL":
+      return "Pilih jenjang minimum yang tersedia.";
+    case "INVALID_COURSE_STATUS":
+      return "Pilih status kelas yang tersedia. Kelas baru dimulai sebagai draf.";
+    case "COURSE_REQUIRES_LESSON":
+      return "Tambahkan minimal satu materi sebelum menayangkan kelas. Ubah ke Draf untuk menghapus materi terakhir.";
+    case "COURSE_REQUIRES_VALID_VIDEOS":
+      return "Lengkapi video YouTube pada setiap materi sebelum menayangkan kelas.";
+    case "INVALID_LESSON_ORDER":
+      return "Daftar materi berubah. Muat ulang sebelum mengatur urutan.";
+    case "INVALID_PDF":
+      return "Unggah berkas PDF yang valid dengan ukuran maksimal 20 MB.";
+    case "PDF_REQUIRED":
+      return "Pilih berkas PDF untuk diunggah.";
+    case "COURSE_STORAGE_UNAVAILABLE":
+      return "Penyimpanan dokumen kelas belum tersedia. Hubungi pengelola sistem.";
     // Authentication Messages
     case "LOGIN_SUCCESS":
       return "Anda berhasil masuk";

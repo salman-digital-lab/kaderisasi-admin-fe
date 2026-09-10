@@ -1,4 +1,6 @@
 export const permissionLabels: Record<string, string> = {
+  "courses.read": "Melihat kelas dan progres peserta",
+  "courses.manage": "Mengelola kelas dan materi pembelajaran",
   "dashboard.read": "Melihat ringkasan dasbor",
   "admin_users.read": "Melihat akun admin",
   "admin_users.manage": "Mengelola akun dan akses admin",

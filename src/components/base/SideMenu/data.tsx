@@ -1,5 +1,6 @@
 import {
   DatabaseOutlined,
+  ReadOutlined,
   FileTextOutlined,
   FormOutlined,
   HomeOutlined,
@@ -119,6 +120,12 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
       key: "/club",
       icon: <TeamOutlined />,
       label: <Link to="/club">Klub</Link>,
+    });
+  if (permissions.includes("courses.read"))
+    items.push({
+      key: "/courses",
+      icon: <ReadOutlined />,
+      label: <Link to="/courses">Kelas</Link>,
     });
   if (permissions.includes("certificate.read"))
     items.push({

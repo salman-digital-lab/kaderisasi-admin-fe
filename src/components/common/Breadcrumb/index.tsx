@@ -44,6 +44,7 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
     },
   ],
   "/club": [{ path: "/club", title: "Daftar Klub" }],
+  "/courses": [{ path: "/courses", title: "Daftar Kelas" }],
   "/rbac/roles": [{ path: "/rbac/roles", title: "Role & Permission" }],
   "/digital-certificate": [
     { path: "/digital-certificate", title: "Template Sertifikat" },
@@ -135,6 +136,13 @@ const getDynamicBreadcrumbs = (
     return [
       { path: "/achievement", title: "Daftar Prestasi" },
       { path: "", title: "Detail Prestasi" },
+    ];
+  }
+
+  if (/^\/courses\/\d+$/.test(pathname)) {
+    return [
+      { path: "/courses", title: "Daftar Kelas" },
+      { path: "", title: "Detail Kelas" },
     ];
   }
 
