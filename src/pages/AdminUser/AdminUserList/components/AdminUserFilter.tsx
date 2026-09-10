@@ -1,6 +1,8 @@
 import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import React, { useState } from "react";
-import { Input, Button, Card, Space, Tooltip } from "antd";
+import { Input, Button, Card, Space, Tooltip, Select } from "antd";
+import { useRequest } from "ahooks";
+import { getRoles } from "../../../../api/services/access";
 import {
   PlusOutlined,
   SearchOutlined,
@@ -19,6 +21,8 @@ type FilterProps = {
       page: number;
       per_page: number;
       name: string;
+      role_code: string;
+      is_active: string;
     }>
   >;
   refresh?: () => void;
@@ -28,11 +32,28 @@ type FilterProps = {
 const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [role, setRole] = useState("");
+  const [status, setStatus] = useState("");
+  const { data: roles = [] } = useRequest(getRoles);
+  const reset = (): void => {
+    setSearchInput("");
+    setRole("");
+    setStatus("");
+    setParameter((prev) => ({
+      ...prev,
+      page: 1,
+      name: "",
+      role_code: "",
+      is_active: "",
+    }));
+  };
 
   const handleSearch = () => {
     setParameter((prev) => ({
       ...prev,
       name: searchInput,
+      role_code: role,
+      is_active: status,
       page: 1,
     }));
   };
@@ -52,16 +73,14 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         {/* Left: Filters */}
         <ResponsiveFilters
           onApply={handleSearch}
-          values={[searchInput]}
-          onReset={() => {
-            setSearchInput("");
-            setParameter((prev) => ({ ...prev, page: 1, name: "" }));
-          }}
+          values={[searchInput, role, status]}
+          onReset={reset}
         >
           {({ apply }) => (
             <Space size={12} wrap>
               <Input.Search
-                placeholder="Cari email"
+                placeholder="Cari nama atau email"
+                aria-label="Cari nama atau email"
                 allowClear
                 style={{ width: 280 }}
                 value={searchInput}
@@ -70,6 +89,35 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
                 onPressEnter={apply}
                 prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
               />
+              <Select
+                aria-label="Filter role"
+                placeholder="Semua role"
+                style={{ width: 200 }}
+                allowClear
+                value={role || undefined}
+                onChange={(value) => setRole(value || "")}
+                options={[
+                  { value: "unassigned", label: "Belum memiliki role" },
+                  ...roles.map((item) => ({
+                    value: item.code,
+                    label: item.name,
+                  })),
+                ]}
+              />
+              <Select
+                aria-label="Filter status akun"
+                placeholder="Semua status"
+                style={{ width: 160 }}
+                allowClear
+                value={status || undefined}
+                onChange={(value) => setStatus(value || "")}
+                options={[
+                  { value: "true", label: "Aktif" },
+                  { value: "false", label: "Nonaktif" },
+                ]}
+              />
+              <Button onClick={apply}>Terapkan</Button>
+              <Button onClick={reset}>Reset</Button>
             </Space>
           )}
         </ResponsiveFilters>

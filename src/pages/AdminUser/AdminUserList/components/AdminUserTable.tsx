@@ -20,6 +20,8 @@ interface AdminUserTableProps {
       page: number;
       per_page: number;
       name: string;
+      role_code: string;
+      is_active: string;
     }>
   >;
   refresh: () => void;

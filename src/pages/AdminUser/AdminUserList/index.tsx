@@ -10,6 +10,8 @@ export default function AdminUserList() {
     page: 1,
     per_page: 10,
     name: "",
+    role_code: "",
+    is_active: "",
   });
 
   const { data, loading, refresh } = useRequest(
@@ -18,6 +20,8 @@ export default function AdminUserList() {
         per_page: String(adminUserParam.per_page),
         page: String(adminUserParam.page),
         search: adminUserParam.name,
+        role_code: adminUserParam.role_code,
+        is_active: adminUserParam.is_active,
       }),
     {
       refreshDeps: [adminUserParam],

@@ -32,6 +32,7 @@ const { Header, Content } = Layout;
 const { Text } = Typography;
 
 const items: MenuProps["items"] = [
+  { label: "Profil Saya", key: "profile", icon: <UserOutlined /> },
   {
     label: "Logout",
     key: "1",
@@ -57,6 +58,7 @@ const AppLayout = () => {
   }, [location.pathname, location.search, drawerNavigation]);
 
   const handleMenuClick: MenuProps["onClick"] = async (e) => {
+    if (e.key === "profile") navigate("/profile");
     if (e.key === "1") {
       try {
         await logout();

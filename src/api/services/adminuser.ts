@@ -19,7 +19,9 @@ import {
 
 export const getAdminUsers = async (props: GetAdminUsersReq) => {
   try {
-    const urlSearch = new URLSearchParams(props).toString();
+    const urlSearch = new URLSearchParams(
+      removeEmptyValueFromObj(props),
+    ).toString();
     const res = await axios.get<GetAdminUsersResp>("/admin-users?" + urlSearch);
     return res.data.data;
   } catch (error) {
@@ -68,6 +70,7 @@ export const putAdminUser = async (props: PutAdminUserReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    throw error;
   }
 };
 

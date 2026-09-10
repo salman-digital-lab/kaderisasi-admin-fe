@@ -1,6 +1,6 @@
 import { validateFieldsAndFocus } from "../../../../../components/common/Responsive/validate-fields";
 import { ResponsiveDialog as Modal } from "../../../../../components/common/Responsive/ResponsiveDialog";
-import { Form, Select, Switch } from "antd";
+import { Form, Input, Select, Switch } from "antd";
 import { putAdminUser } from "../../../../../api/services/adminuser";
 import { getRoles } from "../../../../../api/services/access";
 import { useRequest } from "ahooks";
@@ -21,6 +21,7 @@ export default function EditAdminUser({
   const { runAsync, loading } = useRequest(putAdminUser, { manual: true });
   const { data: roles = [] } = useRequest(getRoles);
   const [form] = Form.useForm<{
+    displayName: string;
     isActive?: boolean;
     role_code?: string | null;
   }>();
@@ -28,6 +29,7 @@ export default function EditAdminUser({
   useEffect(() => {
     if (data) {
       form.setFieldsValue({
+        displayName: data.display_name || "",
         isActive: data.is_active,
         role_code: data.role?.code ?? null,
       });
@@ -48,6 +50,7 @@ export default function EditAdminUser({
           await runAsync({
             id: String(data.id),
             data: {
+              displayName: values.displayName.trim(),
               isActive: values.isActive,
               role_code: values.role_code ?? null,
             },
@@ -63,6 +66,16 @@ export default function EditAdminUser({
       }}
     >
       <Form scrollToFirstError={{ focus: true }} form={form} layout="vertical">
+        <Form.Item
+          label="Nama"
+          name="displayName"
+          rules={[
+            { required: true, whitespace: true, message: "Masukkan nama" },
+            { max: 255, message: "Nama maksimal 255 karakter" },
+          ]}
+        >
+          <Input maxLength={255} autoComplete="name" />
+        </Form.Item>
         <Form.Item label="Role" name="role_code">
           <Select
             allowClear

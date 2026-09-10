@@ -9,6 +9,7 @@ import {
 } from "../stores/authStore";
 
 const LoginPage = lazy(() => import("../pages/LoginPage"));
+const ProfilePage = lazy(() => import("../pages/Profile"));
 const DashboardPage = lazy(() => import("../pages/Dashboard"));
 const MainMember = lazy(() => import("../pages/Member/MemberList"));
 const MainMemberDetail = lazy(() => import("../pages/Member/MemberDetail"));
@@ -146,6 +147,14 @@ const routes = createBrowserRouter([
     element: <Authenticated element={<AppLayout />} />,
     children: [
       { index: true, element: <DefaultLanding /> },
+      {
+        path: "profile",
+        element: (
+          <Page>
+            <ProfilePage />
+          </Page>
+        ),
+      },
       {
         path: "forbidden",
         element: (

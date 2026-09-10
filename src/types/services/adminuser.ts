@@ -13,6 +13,8 @@ export type GetAdminUsersReq = {
   per_page: string;
   page: string;
   search: string;
+  role_code?: string;
+  is_active?: string;
 };
 
 export type GetAdminsUserReq = {
@@ -39,6 +41,7 @@ export type PostAdminUserResp = {
 export type PutAdminUserReq = {
   id: string;
   data: {
+    displayName?: string;
     isActive?: boolean;
     role_code?: string | null;
   };
