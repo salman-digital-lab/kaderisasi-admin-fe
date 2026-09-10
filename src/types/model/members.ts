@@ -2,20 +2,8 @@ import { GENDER, USER_LEVEL_ENUM } from "../constants/profile";
 import { Province } from "./province";
 import { University } from "./university";
 
-export type EducationEntry = {
-  degree: "bachelor" | "master" | "doctoral";
-  institution: string;
-  faculty: string;
-  major: string;
-  intake_year: number;
-};
-
-export type WorkEntry = {
-  job_title: string;
-  company: string;
-  start_year?: number;
-  end_year?: number;
-};
+import type { EducationEntry, WorkEntry } from "../../utils/profile-history";
+export type { EducationEntry, WorkEntry } from "../../utils/profile-history";
 
 export type ExtraData = {
   preferred_name?: string;

@@ -5,9 +5,11 @@ import { memo } from "react";
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
 import { Registrant } from "../../../../types/model/activity";
-import type { EducationEntry } from "../../../../types/model/members";
 import { USER_LEVEL_OPTIONS } from "../../../../constants/options";
-import { formatCurrentEducation } from "../../../../utils/education";
+import {
+  currentEducation,
+  formatCurrentEducation,
+} from "../../../../utils/education";
 import { formatRegistrationTime } from "../../../../utils/registration-time";
 
 // Memoized text cell component
@@ -259,12 +261,7 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     sortable: false,
     filterable: false,
     render: (val, record) => {
-      const history = val as EducationEntry[] | undefined;
-      const last =
-        history?.slice(-1)[0] ??
-        (record.guest_data?.["current_education"] as
-          | EducationEntry
-          | undefined);
+      const last = currentEducation(val, record.guest_data ?? undefined);
       return <TextCell text={formatCurrentEducation(last)} maxWidth={200} />;
     },
   },

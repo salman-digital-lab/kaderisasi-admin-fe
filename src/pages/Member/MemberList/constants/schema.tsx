@@ -4,7 +4,10 @@ import { EyeOutlined } from "@ant-design/icons";
 
 import { renderUserLevel } from "../../../../constants/render";
 import { Member } from "../../../../types/model/members";
-import { formatCurrentEducation } from "../../../../utils/education";
+import {
+  currentEducation,
+  formatCurrentEducation,
+} from "../../../../utils/education";
 
 const { Text } = Typography;
 
@@ -90,7 +93,7 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
     dataIndex: "education_history",
     width: 220,
     render: (value: Member["education_history"]) => {
-      const last = value?.slice(-1)[0];
+      const last = currentEducation(value);
       return (
         <Tooltip title={formatCurrentEducation(last)} placement="topLeft">
           <span

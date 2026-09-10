@@ -3,7 +3,6 @@ import { DescriptionsProps, Image, Flex, Typography, Divider, Tag } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import type { ReactNode } from "react";
-import type { EducationEntry } from "../../../types/model/members";
 
 import { getActivity, getRegistrant } from "../../../api/services/activity";
 import { getProfileByUserId } from "../../../api/services/member";
@@ -11,7 +10,13 @@ import { renderUserLevel } from "../../../constants/render";
 import { getCustomFormByFeature } from "../../../api/services/customForm";
 import { ProvinceRender } from "../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../components/render/UniversityRender";
-import { formatCurrentEducation } from "../../../utils/education";
+import {
+  currentEducation,
+  formatCurrentEducation,
+  formatEducationHistory,
+  formatWorkHistory,
+  formatProfileValue,
+} from "../../../utils/education";
 
 const { Title } = Typography;
 
@@ -21,8 +26,7 @@ const GENDER_MAP: Record<string, string> = {
 };
 
 function formatValue(value: unknown): ReactNode {
-  if (typeof value === "boolean") return value ? "Ya" : "Tidak";
-  return (value as string) || "-";
+  return formatProfileValue(value);
 }
 
 /** Render a profile field value with special handling for province/university/gender/level. */
@@ -44,8 +48,10 @@ function renderProfileField(
     return renderUserLevel(rawValue as number);
   }
   if (fieldKey === "current_education") {
-    return formatCurrentEducation(rawValue as EducationEntry | undefined);
+    return formatCurrentEducation(rawValue);
   }
+  if (fieldKey === "education_history") return formatEducationHistory(rawValue);
+  if (fieldKey === "work_history") return formatWorkHistory(rawValue);
   return formatValue(rawValue);
 }
 
@@ -112,7 +118,10 @@ const RegistrantDetail = () => {
       intake_year: profile?.intake_year,
       level: profile?.level,
       birth_date: profile?.birth_date,
-      current_education: profile?.education_history?.slice(-1)[0],
+      email: profile?.publicUser?.email,
+      education_history: profile?.education_history,
+      work_history: profile?.work_history,
+      current_education: currentEducation(profile?.education_history),
     };
     userInfoDescription = profileSection.fields.map((field, idx) => ({
       key: String(idx),
@@ -163,9 +172,23 @@ const RegistrantDetail = () => {
       { key: "7", label: "Tiktok", children: profile?.tiktok },
       { key: "8", label: "Linkedin", children: profile?.linkedin },
       { key: "9", label: "Provinsi", children: profile?.province?.name },
-      { key: "10", label: "Universitas", children: profile?.university?.name },
-      { key: "11", label: "Jurusan", children: profile?.major },
-      { key: "12", label: "Angkatan", children: profile?.intake_year },
+      {
+        key: "10",
+        label: "Pendidikan Sekarang",
+        children: formatCurrentEducation(
+          currentEducation(profile?.education_history),
+        ),
+      },
+      {
+        key: "11",
+        label: "Riwayat Pendidikan",
+        children: formatEducationHistory(profile?.education_history),
+      },
+      {
+        key: "12",
+        label: "Riwayat Pekerjaan",
+        children: formatWorkHistory(profile?.work_history),
+      },
       {
         key: "13",
         label: "Jenjang",

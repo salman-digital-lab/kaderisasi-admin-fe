@@ -47,6 +47,10 @@ import {
   Member,
 } from "../../../types/model/members";
 import UniversityNameSelect from "../../../components/common/UniversityNameSelect";
+import {
+  normalizeEducationHistory,
+  normalizeWorkHistory,
+} from "../../../utils/profile-history";
 
 type FormType = {
   name?: string;
@@ -80,25 +84,18 @@ const DEGREE_OPTIONS = [
   { label: "S3 (Doktor)", value: "doctoral" },
 ];
 
-const normalizeYearValue = (
-  value?: number | string | null,
-): number | undefined => {
-  if (typeof value === "number" && !Number.isNaN(value)) return value;
-  if (typeof value === "string" && value.trim() !== "") {
-    const parsedValue = Number(value);
-    return Number.isNaN(parsedValue) ? undefined : parsedValue;
-  }
-
-  return undefined;
+const historyYearRule = {
+  validator: (
+    _rule: unknown,
+    value: number | null | undefined,
+  ): Promise<void> =>
+    value == null ||
+    (Number.isInteger(value) &&
+      value >= 1900 &&
+      value <= new Date().getFullYear() + 10)
+      ? Promise.resolve()
+      : Promise.reject(new Error("Tahun tidak valid")),
 };
-
-const normalizeWorkHistory = (entries?: WorkEntry[]): WorkEntry[] =>
-  (entries ?? []).map((entry) => ({
-    job_title: entry.job_title ?? "",
-    company: entry.company ?? "",
-    start_year: normalizeYearValue(entry.start_year),
-    end_year: normalizeYearValue(entry.end_year),
-  }));
 
 const MemberDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -130,7 +127,7 @@ const MemberDetailPage = () => {
       origin_province_id: profile?.origin_province_id,
       origin_city_id: profile?.origin_city_id,
       country: profile?.country,
-      education_history: profile?.education_history ?? [],
+      education_history: normalizeEducationHistory(profile?.education_history),
       work_history: normalizeWorkHistory(profile?.work_history),
     });
     setRegionalInput(profile?.extra_data?.alumni_regional_assignment ?? []);
@@ -335,7 +332,9 @@ const MemberDetailPage = () => {
               origin_province_id: value.origin_province_id,
               origin_city_id: value.origin_city_id,
               country: value.country,
-              education_history: value.education_history ?? [],
+              education_history: normalizeEducationHistory(
+                value.education_history,
+              ),
               work_history: normalizedWorkHistoryEntries,
               extra_data: {
                 alumni_regional_assignment: regionalInput,
@@ -343,6 +342,7 @@ const MemberDetailPage = () => {
               },
             };
             await runAsync(id || "", { data: payload });
+            refresh();
             exitEdit();
           }}
         >
@@ -530,6 +530,7 @@ const MemberDetailPage = () => {
                       <Form.Item
                         name={[name, "intake_year"]}
                         label="Tahun Masuk"
+                        rules={[historyYearRule]}
                       >
                         <InputNumber style={{ width: "100%" }} />
                       </Form.Item>
@@ -579,6 +580,13 @@ const MemberDetailPage = () => {
                       <Form.Item
                         name={[name, "job_title"]}
                         label="Posisi / Jabatan"
+                        rules={[
+                          {
+                            required: true,
+                            whitespace: true,
+                            message: "Posisi/jabatan wajib diisi",
+                          },
+                        ]}
                       >
                         <Input placeholder="Contoh: Software Engineer" />
                       </Form.Item>
@@ -587,6 +595,13 @@ const MemberDetailPage = () => {
                       <Form.Item
                         name={[name, "company"]}
                         label="Perusahaan / Organisasi"
+                        rules={[
+                          {
+                            required: true,
+                            whitespace: true,
+                            message: "Nama tempat wajib diisi",
+                          },
+                        ]}
                       >
                         <Input placeholder="Nama perusahaan atau organisasi" />
                       </Form.Item>
@@ -595,6 +610,7 @@ const MemberDetailPage = () => {
                       <Form.Item
                         name={[name, "start_year"]}
                         label="Tahun Mulai"
+                        rules={[historyYearRule]}
                       >
                         <InputNumber
                           style={{ width: "100%" }}
@@ -608,6 +624,31 @@ const MemberDetailPage = () => {
                       <Form.Item
                         name={[name, "end_year"]}
                         label="Tahun Selesai"
+                        dependencies={[["work_history", name, "start_year"]]}
+                        rules={[
+                          historyYearRule,
+                          ({ getFieldValue }) => ({
+                            validator: (
+                              _rule: unknown,
+                              value: number | null | undefined,
+                            ): Promise<void> => {
+                              const start = getFieldValue([
+                                "work_history",
+                                name,
+                                "start_year",
+                              ]) as number | null | undefined;
+                              return value == null ||
+                                start == null ||
+                                value >= start
+                                ? Promise.resolve()
+                                : Promise.reject(
+                                    new Error(
+                                      "Tahun selesai tidak boleh lebih kecil dari tahun mulai",
+                                    ),
+                                  );
+                            },
+                          }),
+                        ]}
                       >
                         <InputNumber
                           style={{ width: "100%" }}
