@@ -3,6 +3,7 @@ import { handleError } from "../errorHandling";
 import {
   GetRuangCurhatReq,
   GetRuangCurhatResp,
+  GetCounselorOptionsResp,
   GetRuangCurhatsReq,
   GetRuangCurhatsResp,
   PutRuangCurhatReq,
@@ -29,6 +30,17 @@ export const getRuangCurhat = async (props: GetRuangCurhatReq) => {
   try {
     const res = await axios.get<GetRuangCurhatResp>(
       "/ruang-curhat/" + props.id,
+    );
+    return res.data.data;
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const getCounselorOptions = async () => {
+  try {
+    const res = await axios.get<GetCounselorOptionsResp>(
+      "/ruang-curhat/counselors",
     );
     return res.data.data;
   } catch (error) {

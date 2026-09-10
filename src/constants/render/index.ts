@@ -115,6 +115,8 @@ export function renderNotification(code: string) {
       return "Data berhasil diubah";
     case "DELETE_DATA_SUCCESS":
       return "Data berhasil dihapus";
+    case "INVALID_COUNSELOR":
+      return "Pilih konselor aktif yang memiliki akses Ruang Curhat";
 
     // Activity Messages
     case "ACTIVITY_NOT_FOUND":

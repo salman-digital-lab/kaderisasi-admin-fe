@@ -4,6 +4,7 @@ import {
 } from "../constants/ruangcurhat";
 import { AdminUser } from "./adminuser";
 import { PublicUser } from "./members";
+import type { University } from "./university";
 
 export type RuangCurhatData = {
   id: number;
@@ -21,4 +22,5 @@ export type RuangCurhatData = {
   updated_at: string;
   publicUser: PublicUser;
   adminUser?: AdminUser;
+  university?: University | null;
 };

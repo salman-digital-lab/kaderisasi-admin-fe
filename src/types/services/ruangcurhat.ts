@@ -28,6 +28,17 @@ export type GetRuangCurhatResp = {
   data: RuangCurhatData;
 };
 
+export type CounselorOption = {
+  id: number;
+  email: string;
+  display_name: string | null;
+};
+
+export type GetCounselorOptionsResp = {
+  message: string;
+  data: CounselorOption[];
+};
+
 export type PutRuangCurhatReq = {
   id: string;
   data: Partial<

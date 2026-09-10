@@ -1,14 +1,14 @@
 import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Select } from "antd";
 import { useRequest } from "ahooks";
 
-import { getAdminUsers } from "../../../../api/services/adminuser";
-import { PutRuangCurhatReq } from "../../../../types/services/ruangcurhat";
-import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
+import { getCounselorOptions } from "../../../../api/services/ruangcurhat";
+import type { PutRuangCurhatReq } from "../../../../types/services/ruangcurhat";
+import type { RuangCurhatData } from "../../../../types/model/ruangcurhat";
 
-type EditAdminUserProps = {
+type EditCounselorProps = {
   counselorId?: number;
   isOpen: boolean;
   run: (props: PutRuangCurhatReq) => Promise<RuangCurhatData | undefined>;
@@ -22,20 +22,18 @@ export default function EditCounselorModal({
   dataRefresh,
   counselorId,
   isOpen,
-}: EditAdminUserProps) {
+}: EditCounselorProps) {
   const { id } = useParams<{ id: string }>();
 
-  const { data: rolesData, loading } = useRequest(
-    () =>
-      getAdminUsers({
-        per_page: "1000",
-        page: "1",
-        search: "",
-      }),
-    {},
-  );
+  const { data: counselors, loading } = useRequest(getCounselorOptions, {
+    ready: isOpen,
+  });
 
   const [newData, setNewData] = useState(counselorId);
+
+  useEffect(() => {
+    if (isOpen) setNewData(counselorId);
+  }, [counselorId, isOpen]);
 
   const handleChange = (val: number) => {
     setNewData(val);
@@ -64,12 +62,10 @@ export default function EditCounselorModal({
         optionFilterProp="label"
         loading={loading}
         value={newData || counselorId}
-        options={rolesData?.data
-          .filter((item) => item.is_active)
-          .map((item) => ({
-            label: item.email,
-            value: item.id,
-          }))}
+        options={counselors?.map((item) => ({
+          label: item.display_name || item.email,
+          value: item.id,
+        }))}
       />
     </Modal>
   );

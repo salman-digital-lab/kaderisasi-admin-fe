@@ -30,7 +30,7 @@ import {
 
 import { UPDATE_STATUS_MENU } from "./utils/constants";
 import EditCounselorModal from "./components/EditCounselorModal";
-import { getProfileByUserId } from "../../../api/services/member";
+import { usePermissions } from "../../../stores/authStore";
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -39,67 +39,61 @@ export function RuangCurhatDetail() {
   const { id } = useParams<{ id: string }>();
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [modalIsOpen, { toggle: toggleModal }] = useToggle();
+  const permissions = usePermissions();
+  const canManage = permissions.includes("counseling.manage");
 
   const { data, refresh } = useRequest(() => getRuangCurhat({ id: id || "" }), {
     onSuccess: (data) => setAdditionalNotes(data?.additional_notes || ""),
   });
 
-  const { data: profileData } = useRequest(
-    () => getProfileByUserId(String(data?.publicUser.id)),
-    {
-      ready: !!data?.publicUser.id,
-    },
-  );
-
   const { loading: editLoading, runAsync } = useRequest(putRuangCurhat, {
     manual: true,
   });
+
+  const profile = data?.publicUser.profile;
 
   const basicInfo: DescriptionsProps["items"] = [
     {
       key: "1",
       label: "Email Pendaftar",
-      children: profileData?.profile[0].publicUser?.email,
+      children: data?.publicUser.email,
     },
     {
       key: "2",
       label: "Nama Pendaftar",
-      children: profileData?.profile[0].name,
+      children: profile?.name,
     },
     {
       key: "3",
       label: "Nomor WhatsApp",
-      children: profileData?.profile[0].whatsapp,
+      children: profile?.whatsapp,
     },
     {
       key: "5",
       label: "Universitas",
-      children: profileData?.profile[0].university?.name || "-",
+      children: data?.university?.name || "-",
     },
     {
       key: "6",
       label: "Angkatan",
-      children: profileData?.profile[0].intake_year || "-",
+      children: profile?.intake_year || "-",
     },
     {
       key: "7",
       label: "Jenis Kelamin",
-      children:
-        profileData?.profile[0].gender === "F" ? "Perempuan" : "Laki-Laki",
+      children: profile?.gender === "F" ? "Perempuan" : "Laki-Laki",
     },
     {
       key: "8",
       label: "Tanggal Lahir",
-      children: profileData?.profile[0].birth_date
-        ? dayjs(profileData.profile[0].birth_date)
-            .locale("id")
-            .format("DD MMMM YYYY")
+      children: profile?.birth_date
+        ? dayjs(profile.birth_date).locale("id").format("DD MMMM YYYY")
         : "-",
     },
     {
       key: "9",
       label: "Jenjang Kaderisasi",
-      children: renderUserLevel(profileData?.profile[0].level),
+      children: renderUserLevel(profile?.level),
     },
   ];
 
@@ -114,7 +108,7 @@ export function RuangCurhatDetail() {
       key: "2",
       span: 2,
       label: "Nama Pemilik Masalah",
-      children: data?.owner_name || profileData?.profile[0].name,
+      children: data?.owner_name || profile?.name,
     },
     {
       key: "4",
@@ -168,13 +162,15 @@ export function RuangCurhatDetail() {
 
   return (
     <Flex vertical gap="large" style={{ padding: 12 }}>
-      <EditCounselorModal
-        counselorId={data?.counselor_id}
-        isOpen={modalIsOpen}
-        run={runAsync}
-        toggle={toggleModal}
-        dataRefresh={refresh}
-      />
+      {canManage && (
+        <EditCounselorModal
+          counselorId={data?.counselor_id}
+          isOpen={modalIsOpen}
+          run={runAsync}
+          toggle={toggleModal}
+          dataRefresh={refresh}
+        />
+      )}
       <div>
         <Title level={5} style={{ marginBottom: 12 }}>
           Informasi Pendaftar
@@ -201,30 +197,32 @@ export function RuangCurhatDetail() {
           <Title level={5} style={{ margin: 0 }}>
             Konselor
           </Title>
-          <Space>
-            <Dropdown
-              menu={{
-                items: UPDATE_STATUS_MENU?.map((item) => ({
-                  ...item,
-                  onClick: () =>
-                    runAsync({
-                      id: id || "",
-                      data: { status: Number(item?.key || "0") },
-                    }).finally(refresh),
-                })) as MenuProps["items"],
-              }}
-            >
-              <Button loading={editLoading}>
-                <Space>
-                  Ubah Status
-                  <DownOutlined />
-                </Space>
+          {canManage && (
+            <Space>
+              <Dropdown
+                menu={{
+                  items: UPDATE_STATUS_MENU?.map((item) => ({
+                    ...item,
+                    onClick: () =>
+                      runAsync({
+                        id: id || "",
+                        data: { status: Number(item?.key || "0") },
+                      }).finally(refresh),
+                  })) as MenuProps["items"],
+                }}
+              >
+                <Button loading={editLoading}>
+                  <Space>
+                    Ubah Status
+                    <DownOutlined />
+                  </Space>
+                </Button>
+              </Dropdown>
+              <Button type="primary" onClick={() => toggleModal()}>
+                Ubah Konselor
               </Button>
-            </Dropdown>
-            <Button type="primary" onClick={() => toggleModal()}>
-              Ubah Konselor
-            </Button>
-          </Space>
+            </Space>
+          )}
         </Flex>
         <Descriptions items={counselorData} bordered size="small" />
       </div>
@@ -237,23 +235,29 @@ export function RuangCurhatDetail() {
         <TextArea
           rows={4}
           value={additionalNotes}
+          readOnly={!canManage}
           onChange={(e) => setAdditionalNotes(e.target.value)}
         />
-        <Button
-          type="primary"
-          style={{ marginTop: "1rem" }}
-          loading={editLoading}
-          onClick={() =>
-            runAsync({
-              id: id || "",
-              data: { status: data?.status, additional_notes: additionalNotes },
-            }).finally(refresh)
-          }
-        >
-          {additionalNotes && additionalNotes.length
-            ? "Ubah Catatan"
-            : "Tambahkan Catatan"}
-        </Button>
+        {canManage && (
+          <Button
+            type="primary"
+            style={{ marginTop: "1rem" }}
+            loading={editLoading}
+            onClick={() =>
+              runAsync({
+                id: id || "",
+                data: {
+                  status: data?.status,
+                  additional_notes: additionalNotes,
+                },
+              }).finally(refresh)
+            }
+          >
+            {additionalNotes && additionalNotes.length
+              ? "Ubah Catatan"
+              : "Tambahkan Catatan"}
+          </Button>
+        )}
       </div>
     </Flex>
   );
