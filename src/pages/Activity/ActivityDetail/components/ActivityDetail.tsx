@@ -41,7 +41,7 @@ import { usePermissions } from "../../../../stores/authStore";
 import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
 import { Link } from "react-router-dom";
 import PublicationHelp from "../../ActivitySetup/PublicationHelp";
-import DeleteFeatureButton from "../../../../components/common/DeleteFeatureButton";
+import UnsavedChangesGuard from "../../../../components/common/UnsavedChangesGuard";
 
 const { Title } = Typography;
 
@@ -94,7 +94,7 @@ const ActivityDetail = () => {
   const { data: activityData, loading } = useRequest(
     () => getActivity(Number(id)),
     {
-      cacheKey: `activity-${id}`,
+      refreshDeps: [id],
       onSuccess: (data) => {
         form.setFieldsValue({
           name: data?.name,
@@ -128,16 +128,6 @@ const ActivityDetail = () => {
   return (
     <Skeleton loading={loading}>
       <div>
-        {activityData && (
-          <div style={{ marginBottom: 16 }}>
-            <DeleteFeatureButton
-              kind="activity"
-              id={activityData.id}
-              name={activityData.name}
-              disabled={editLoading || loading}
-            />
-          </div>
-        )}
         <Form
           scrollToFirstError={{ focus: true }}
           form={form}
@@ -189,7 +179,7 @@ const ActivityDetail = () => {
             align="middle"
             style={{ marginBottom: 16 }}
           >
-            <Space align="center" size="middle">
+            <Space align="center" size="middle" wrap>
               <Title level={4} style={{ margin: 0 }}>
                 Detail Umum
               </Title>
@@ -203,14 +193,10 @@ const ActivityDetail = () => {
               </Tag>
             </Space>
 
-            <Space>
+            <Space wrap>
               {permissions.includes("activities.manage") && (
-                <Link to={`/activity/${id}/setup?step=3`}>
-                  <Button>
-                    {permissions.includes("activities.publish")
-                      ? "Periksa penayangan & pendaftaran"
-                      : "Lanjutkan persiapan kegiatan"}
-                  </Button>
+                <Link to={`/activity/${id}?tab=overview`}>
+                  <Button>Ringkasan</Button>
                 </Link>
               )}
               <Button
@@ -251,7 +237,7 @@ const ActivityDetail = () => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Form.Item
                 name="minimum_level"
                 label="Jenjang Minimum"
@@ -296,7 +282,7 @@ const ActivityDetail = () => {
                 />
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Form.Item
                 name="activity_category"
                 label="Kategori Kegiatan"
@@ -309,7 +295,7 @@ const ActivityDetail = () => {
                 />
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Form.Item
                 name="activity_type"
                 label="Tipe Kegiatan"
@@ -362,7 +348,7 @@ const ActivityDetail = () => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Form.Item name="club_id" label="Klub Terkait">
                 <Select
                   allowClear
@@ -381,7 +367,7 @@ const ActivityDetail = () => {
             </Title>
           </Row>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item
                 name="registration_date"
                 label="Tanggal Mulai & Selesai Pendaftaran"
@@ -391,7 +377,7 @@ const ActivityDetail = () => {
               </Form.Item>
             </Col>
             {activityType !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY ? (
-              <Col span={12}>
+              <Col xs={24} md={12}>
                 <Form.Item
                   label="Tanggal Mulai & Selesai Kegiatan"
                   name="activity_date"
@@ -440,7 +426,7 @@ const ActivityDetail = () => {
                 label: "Pengaturan Tambahan",
                 children: (
                   <Row gutter={16}>
-                    <Col span={12}>
+                    <Col xs={24} md={12}>
                       <Form.Item
                         name="badge"
                         label="Lencana Kegiatan"
@@ -449,7 +435,7 @@ const ActivityDetail = () => {
                         <Input />
                       </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    <Col xs={24} md={12}>
                       <Form.Item
                         name="custom_selection_status"
                         label="Status Pendaftaran Kegiatan Tambahan"
@@ -496,6 +482,7 @@ const ActivityDetail = () => {
             ]}
           />
         </Form>
+        <UnsavedChangesGuard dirty={isChanged} includeSearchChanges />
         {permissions.includes("activities.manage") &&
           !permissions.includes("activities.publish") && (
             <PublicationHelp id={Number(id)} name={activityData?.name ?? ""} />

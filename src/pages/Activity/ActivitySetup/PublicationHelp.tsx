@@ -9,7 +9,7 @@ export default function PublicationHelp({
   id: number;
   name: string;
 }): ReactElement {
-  const url = `${window.location.origin}/activity/${id}/setup?step=3`;
+  const url = `${window.location.origin}/activity/${id}`;
   const help = `Halo, mohon bantuan Asisten Manager Program atau Super Admin untuk memeriksa kegiatan "${name}" dan membantu penayangan/pembukaan pendaftaran setelah siap. Tautan admin: ${url}`;
   return (
     <aside className="guided-help">

@@ -1,6 +1,19 @@
-import { Alert, Button, Tabs, Dropdown } from "antd";
+import {
+  Alert,
+  Button,
+  Tabs,
+  Dropdown,
+  Skeleton,
+  Space,
+  Tag,
+  Typography,
+} from "antd";
 import { MoreOutlined } from "@ant-design/icons";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { useRequest } from "ahooks";
+import { getSetupActivity } from "../../../api/services/activity-setup";
+import DeleteFeatureButton from "../../../components/common/DeleteFeatureButton";
+import ActivityOverview from "./components/ActivityOverview";
 import type { TabsProps, MenuProps } from "antd";
 
 import ActivityDetail from "./components/ActivityDetail";
@@ -13,9 +26,39 @@ import CustomFormSelection from "./components/CustomFormSelection";
 
 const MainActivityDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "1";
+  const { id } = useParams();
+  const activeTab = searchParams.get("tab") || "overview";
+  const {
+    data: activity,
+    loading,
+    error,
+    refresh,
+  } = useRequest(() => getSetupActivity(Number(id)), {
+    refreshDeps: [id, activeTab],
+  });
+
+  if (error)
+    return (
+      <Alert
+        type="error"
+        title="Detail kegiatan gagal dimuat"
+        action={<Button onClick={refresh}>Coba Lagi</Button>}
+      />
+    );
+  if (!activity) return <Skeleton active />;
 
   const items: TabsProps["items"] = [
+    {
+      key: "overview",
+      label: "Ringkasan",
+      children: (
+        <ActivityOverview
+          activity={activity}
+          onUpdated={refresh}
+          onNavigate={(tab) => setSearchParams({ tab })}
+        />
+      ),
+    },
     {
       key: "1",
       label: "Detail Kegiatan",
@@ -97,11 +140,50 @@ const MainActivityDetail = () => {
   ];
 
   return (
-    <div style={{ padding: 12 }}>
+    <main style={{ minWidth: 0, width: "100%", padding: 12 }}>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 16,
+          marginBottom: 8,
+        }}
+      >
+        <div>
+          <Space size="small" wrap>
+            <Typography.Title level={2} style={{ margin: 0 }}>
+              {activity.name}
+            </Typography.Title>
+            <Tag color={activity.is_published ? "success" : "default"}>
+              {activity.is_published ? "Tayang" : "Draf"}
+            </Tag>
+            <Tag
+              color={activity.is_registration_open ? "processing" : "default"}
+            >
+              {activity.is_registration_open
+                ? "Pendaftaran Dibuka"
+                : "Pendaftaran Ditutup"}
+            </Tag>
+          </Space>
+          <Typography.Paragraph type="secondary" style={{ margin: "4px 0 0" }}>
+            Kelola informasi kegiatan, poster, pendaftaran, dan peserta dari
+            satu tempat.
+          </Typography.Paragraph>
+        </div>
+        <DeleteFeatureButton
+          kind="activity"
+          id={activity.id}
+          name={activity.name}
+          disabled={loading}
+        />
+      </header>
       <Tabs
         activeKey={activeTab}
         onTabClick={(key) => setSearchParams({ tab: key })}
-        tabPosition="top"
+        tabPlacement="top"
+        destroyOnHidden
         items={items}
         tabBarExtraContent={
           <Dropdown
@@ -117,7 +199,7 @@ const MainActivityDetail = () => {
           </Dropdown>
         }
       />
-    </div>
+    </main>
   );
 };
 
