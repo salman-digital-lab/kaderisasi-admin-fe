@@ -12,7 +12,6 @@ import { MoreOutlined } from "@ant-design/icons";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import { getSetupActivity } from "../../../api/services/activity-setup";
-import DeleteFeatureButton from "../../../components/common/DeleteFeatureButton";
 import ActivityOverview from "./components/ActivityOverview";
 import type { TabsProps, MenuProps } from "antd";
 
@@ -30,7 +29,6 @@ const MainActivityDetail = () => {
   const activeTab = searchParams.get("tab") || "overview";
   const {
     data: activity,
-    loading,
     error,
     refresh,
   } = useRequest(() => getSetupActivity(Number(id)), {
@@ -172,12 +170,6 @@ const MainActivityDetail = () => {
             satu tempat.
           </Typography.Paragraph>
         </div>
-        <DeleteFeatureButton
-          kind="activity"
-          id={activity.id}
-          name={activity.name}
-          disabled={loading}
-        />
       </header>
       <Tabs
         activeKey={activeTab}

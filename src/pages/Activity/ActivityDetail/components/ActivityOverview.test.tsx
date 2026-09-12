@@ -3,9 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Activity } from "../../../../types/model/activity";
 import type { SetupReadiness } from "../../../../api/services/activity-setup";
 import ActivityOverview from "./ActivityOverview";
+import { MemoryRouter } from "react-router-dom";
 
 const request = vi.hoisted(() => ({
   data: undefined as SetupReadiness | undefined,
+  role: "reader",
+}));
+vi.mock("../../../../stores/authStore", () => ({
+  useRole: () => ({ code: request.role }),
 }));
 vi.mock("ahooks", () => ({
   useRequest: () => ({ ...request, loading: false }),
@@ -17,22 +22,25 @@ vi.mock("../../../../api/services/activity-setup", () => ({
 
 const renderOverview = (published: boolean): string =>
   renderToStaticMarkup(
-    <ActivityOverview
-      activity={
-        {
-          id: 1,
-          name: "Kegiatan",
-          is_published: published ? 1 : 0,
-          is_registration_open: false,
-        } as Activity
-      }
-      onUpdated={vi.fn()}
-      onNavigate={vi.fn()}
-    />,
+    <MemoryRouter>
+      <ActivityOverview
+        activity={
+          {
+            id: 1,
+            name: "Kegiatan",
+            is_published: published ? 1 : 0,
+            is_registration_open: false,
+          } as Activity
+        }
+        onUpdated={vi.fn()}
+        onNavigate={vi.fn()}
+      />
+    </MemoryRouter>,
   );
 
 describe("Activity overview", () => {
   beforeEach(() => {
+    request.role = "reader";
     request.data = {
       can_publish: true,
       can_open_registration: true,
@@ -56,10 +64,19 @@ describe("Activity overview", () => {
 
   it("requires publication before registration can open", () => {
     expect(renderOverview(false)).toMatch(
-      /<button[^>]*disabled[^>]*><span>Buka Pendaftaran/,
+      /<button[^>]*disabled[^>]*>(?:(?!<\/button>)[\s\S])*Buka Pendaftaran/,
     );
     expect(renderOverview(true)).not.toMatch(
-      /<button[^>]*disabled[^>]*><span>Buka Pendaftaran/,
+      /<button[^>]*disabled[^>]*>(?:(?!<\/button>)[\s\S])*Buka Pendaftaran/,
+    );
+  });
+
+  it("places permanent deletion after the checklists for admins", () => {
+    request.role = "admin";
+    const html = renderOverview(false);
+    expect(html).toContain("Penghapusan kegiatan bersifat permanen");
+    expect(html.indexOf("Hapus Kegiatan")).toBeGreaterThan(
+      html.indexOf("Kelola Form Pendaftaran"),
     );
   });
 

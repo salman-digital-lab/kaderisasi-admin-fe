@@ -1,5 +1,24 @@
 import { useState, type ReactElement } from "react";
-import { Alert, Button, Card, Col, Row, Space, Typography } from "antd";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  List,
+  Progress,
+  Row,
+  Space,
+  Tag,
+  Typography,
+} from "antd";
+import {
+  ArrowRightOutlined,
+  CheckCircleFilled,
+  ClockCircleOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  FormOutlined,
+} from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import {
   getActivityReadiness,
@@ -8,6 +27,9 @@ import {
 import type { Activity } from "../../../../types/model/activity";
 import { actionError } from "../../../../utils/action-error";
 import PublicationHelp from "../../ActivitySetup/PublicationHelp";
+import { activityChecklist } from "./activity-checklist";
+import DeleteFeatureButton from "../../../../components/common/DeleteFeatureButton";
+import { useRole } from "../../../../stores/authStore";
 
 type Props = {
   activity: Activity;
@@ -20,6 +42,7 @@ export default function ActivityOverview({
   onUpdated,
   onNavigate,
 }: Props): ReactElement {
+  const role = useRole();
   const [failure, setFailure] = useState("");
   const [busy, setBusy] = useState(false);
   const {
@@ -50,9 +73,9 @@ export default function ActivityOverview({
         <Typography.Title level={3} style={{ marginBottom: 4 }}>
           Ringkasan Pengaturan
         </Typography.Title>
-        <Typography.Paragraph type="secondary">
-          Periksa kelengkapan kegiatan sebelum menayangkan informasi atau
-          membuka pendaftaran.
+        <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
+          Gunakan daftar berikut untuk melihat apa yang sudah siap dan tindakan
+          berikutnya.
         </Typography.Paragraph>
       </div>
       {failure && <Alert type="error" showIcon title={failure} />}
@@ -80,40 +103,117 @@ export default function ActivityOverview({
           const allowed = publication
             ? readiness?.actions.can_publish
             : readiness?.actions.can_manage_registration;
-          const issues =
-            readiness?.issues.filter((issue) => issue.scope === scope) ?? [];
+          const checklist = readiness
+            ? activityChecklist(readiness, publication)
+            : [];
+          const completed = checklist.filter((item) => item.complete).length;
+          const progress = checklist.length
+            ? Math.round((completed / checklist.length) * 100)
+            : 0;
           return (
             <Col xs={24} lg={12} key={scope}>
               <Card
                 title={
-                  publication ? "Penayangan Kegiatan" : "Pendaftaran Online"
+                  publication
+                    ? "Jalur 1 · Publikasikan Kegiatan"
+                    : "Jalur 2 · Pendaftaran Online"
+                }
+                extra={
+                  <Tag
+                    color={
+                      active ? "success" : ready ? "processing" : "default"
+                    }
+                  >
+                    {publication
+                      ? active
+                        ? "Sudah tayang"
+                        : "Masih draf"
+                      : active
+                        ? "Pendaftaran dibuka"
+                        : ready && activity.is_published
+                          ? "Siap dibuka"
+                          : "Belum siap dibuka"}
+                  </Tag>
                 }
                 loading={loading}
                 style={{ height: "100%" }}
               >
                 <Typography.Paragraph>
                   {publication
-                    ? "Informasi kegiatan dapat ditayangkan tanpa membuka pendaftaran."
-                    : "Lengkapi tanggal dan formulir sebelum menerima pendaftar."}
+                    ? "Cocok untuk kegiatan yang hanya membutuhkan halaman informasi publik tanpa pendaftaran online."
+                    : "Pilih jalur ini jika peserta perlu mengisi formulir dan ditinjau oleh admin."}
                 </Typography.Paragraph>
-                {readiness &&
-                  (issues.length ? (
-                    <ul style={{ paddingInlineStart: 20 }}>
-                      {issues.map((issue) => (
-                        <li key={issue.code}>{issue.message}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <Typography.Paragraph>
-                      {publication
-                        ? "Informasi wajib sudah lengkap."
-                        : "Tanggal dan formulir siap untuk membuka pendaftaran."}
-                    </Typography.Paragraph>
-                  ))}
+                {readiness && (
+                  <>
+                    {publication && (
+                      <Progress
+                        percent={progress}
+                        aria-label={`${completed} dari ${checklist.length} item kegiatan selesai`}
+                      />
+                    )}
+                    <List
+                      dataSource={checklist}
+                      renderItem={(item) => (
+                        <List.Item
+                          actions={[
+                            <Button
+                              key={item.key}
+                              type="link"
+                              onClick={() => onNavigate(item.tab)}
+                            >
+                              {item.complete ? "Lihat" : "Lengkapi"}
+                            </Button>,
+                          ]}
+                        >
+                          <List.Item.Meta
+                            avatar={
+                              item.complete ? (
+                                <CheckCircleFilled
+                                  style={{ color: "#52c41a" }}
+                                  aria-label="Selesai"
+                                />
+                              ) : (
+                                <ClockCircleOutlined
+                                  style={{ color: "#8c8c8c" }}
+                                  aria-label="Belum selesai"
+                                />
+                              )
+                            }
+                            title={
+                              <Space size="small" wrap>
+                                <Typography.Text>{item.label}</Typography.Text>
+                                {item.required && <Tag color="blue">Wajib</Tag>}
+                              </Space>
+                            }
+                            description={item.description}
+                          />
+                        </List.Item>
+                      )}
+                    />
+                    {!publication && !activity.is_published && (
+                      <Typography.Paragraph type="secondary">
+                        Tayangkan kegiatan melalui Jalur 1 sebelum membuka
+                        pendaftaran.
+                      </Typography.Paragraph>
+                    )}
+                  </>
+                )}
                 <Space wrap>
                   {allowed && (
                     <Button
                       type={active ? "default" : "primary"}
+                      danger={active}
+                      icon={
+                        publication ? (
+                          active ? (
+                            <EyeInvisibleOutlined />
+                          ) : (
+                            <EyeOutlined />
+                          )
+                        ) : (
+                          <FormOutlined />
+                        )
+                      }
                       loading={busy}
                       disabled={
                         busy ||
@@ -139,13 +239,15 @@ export default function ActivityOverview({
                           : "Buka Pendaftaran"}
                     </Button>
                   )}
-                  <Button onClick={() => onNavigate("1")}>
+                  <Button
+                    icon={
+                      publication ? <ArrowRightOutlined /> : <FormOutlined />
+                    }
+                    onClick={() => onNavigate(publication ? "1" : "7")}
+                  >
                     {publication
                       ? "Edit Detail Kegiatan"
-                      : "Atur Tanggal Pendaftaran"}
-                  </Button>
-                  <Button onClick={() => onNavigate(publication ? "3" : "7")}>
-                    {publication ? "Kelola Poster" : "Kelola Form Pendaftaran"}
+                      : "Kelola Form Pendaftaran"}
                   </Button>
                 </Space>
               </Card>
@@ -155,6 +257,23 @@ export default function ActivityOverview({
       </Row>
       {readiness?.actions.can_edit && !readiness.actions.can_publish && (
         <PublicationHelp id={activity.id} name={activity.name} />
+      )}
+      {(role?.code === "super_admin" || role?.code === "admin") && (
+        <Card title="Hapus Kegiatan">
+          <Alert
+            type="warning"
+            showIcon
+            title="Penghapusan kegiatan bersifat permanen"
+            description="Data pendaftaran dan jawaban peserta ikut dihapus. Kegiatan dengan riwayat sertifikat tidak dapat dihapus."
+            style={{ marginBottom: 16 }}
+          />
+          <DeleteFeatureButton
+            kind="activity"
+            id={activity.id}
+            name={activity.name}
+            disabled={busy || loading}
+          />
+        </Card>
       )}
     </Space>
   );
