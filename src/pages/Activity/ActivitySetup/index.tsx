@@ -39,6 +39,7 @@ import type { Activity } from "../../../types/model/activity";
 import { ACTIVITY_TYPE_ENUM } from "../../../types/constants/activity";
 import { RichTextEditor } from "../../../components/common/RichTextEditor";
 import UnsavedChangesGuard from "../../../components/common/UnsavedChangesGuard";
+import DeleteFeatureButton from "../../../components/common/DeleteFeatureButton";
 import { actionError } from "../../../utils/action-error";
 import ImageList from "../ActivityDetail/components/ImageList";
 import CustomFormSelection from "../ActivityDetail/components/CustomFormSelection";
@@ -220,6 +221,13 @@ export default function ActivitySetup(): ReactElement {
                 ? "Pendaftaran dibuka"
                 : "Pendaftaran ditutup"}
             </Tag>
+            <DeleteFeatureButton
+              kind="activity"
+              id={activity.id}
+              name={activity.name}
+              disabled={busy || mediaBusy || loading}
+              onDeleted={() => flushSync(() => setDirty(false))}
+            />
           </div>
         )}
       </div>

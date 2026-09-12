@@ -6,6 +6,7 @@ import { useRequest } from "ahooks";
 import type { TabsProps } from "antd";
 
 import { getClub } from "../../../api/services/club";
+import DeleteFeatureButton from "../../../components/common/DeleteFeatureButton";
 import type { Club } from "../../../types/model/club";
 import ClubRegistrationInfo from "../ClubRegistrationInfo";
 import ClubActivitiesPage from "../ClubActivities";
@@ -138,9 +139,17 @@ const MainClubDetail = () => {
             tempat.
           </Paragraph>
         </div>
-        <Button icon={<ReloadOutlined />} loading={loading} onClick={refresh}>
-          Muat Ulang
-        </Button>
+        <Space wrap>
+          <Button icon={<ReloadOutlined />} loading={loading} onClick={refresh}>
+            Muat Ulang
+          </Button>
+          <DeleteFeatureButton
+            kind="club"
+            id={club.id}
+            name={club.name}
+            disabled={loading}
+          />
+        </Space>
       </header>
 
       <Tabs

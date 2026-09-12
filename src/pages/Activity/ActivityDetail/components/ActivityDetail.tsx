@@ -41,6 +41,7 @@ import { usePermissions } from "../../../../stores/authStore";
 import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
 import { Link } from "react-router-dom";
 import PublicationHelp from "../../ActivitySetup/PublicationHelp";
+import DeleteFeatureButton from "../../../../components/common/DeleteFeatureButton";
 
 const { Title } = Typography;
 
@@ -127,6 +128,16 @@ const ActivityDetail = () => {
   return (
     <Skeleton loading={loading}>
       <div>
+        {activityData && (
+          <div style={{ marginBottom: 16 }}>
+            <DeleteFeatureButton
+              kind="activity"
+              id={activityData.id}
+              name={activityData.name}
+              disabled={editLoading || loading}
+            />
+          </div>
+        )}
         <Form
           scrollToFirstError={{ focus: true }}
           form={form}

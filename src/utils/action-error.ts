@@ -1,6 +1,14 @@
 import { isAxiosError } from "axios";
 
 const messages: Record<string, string> = {
+  DELETE_CONFIRMATION_MISMATCH:
+    "Nama konfirmasi tidak cocok. Muat ulang detail lalu ketik nama persis seperti yang ditampilkan.",
+  ACTIVITY_HAS_CERTIFICATE_HISTORY:
+    "Kegiatan memiliki riwayat penerbitan atau persetujuan sertifikat dan tidak dapat dihapus. Kembalikan kegiatan ke draf jika ingin menyembunyikannya.",
+  ACTIVITY_NOT_FOUND:
+    "Kegiatan sudah dihapus atau tidak ditemukan. Muat ulang halaman.",
+  CLUB_NOT_FOUND:
+    "Klub sudah dihapus atau tidak ditemukan. Muat ulang halaman.",
   ACTIVITY_DESCRIPTION_REQUIRED:
     "Kegiatan yang tayang wajib memiliki deskripsi. Isi deskripsi sebelum menyimpan.",
   ACTIVITY_POSTER_REQUIRED:
