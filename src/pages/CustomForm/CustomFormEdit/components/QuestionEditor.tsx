@@ -1,11 +1,14 @@
 import { useRef, type ReactElement } from "react";
-import { Button, Collapse, Input, InputNumber, Select, Switch } from "antd";
 import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+  Button,
+  Collapse,
+  Dropdown,
+  Input,
+  InputNumber,
+  Select,
+  Switch,
+} from "antd";
+import { DeleteOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   DndContext,
   KeyboardSensor,
@@ -37,6 +40,7 @@ export function QuestionEditor({
   onChange: (field: FormField) => void;
 }): ReactElement {
   const newOptions = useRef(new Set<string>());
+  const optionKeyAliases = useRef(new Map<string, string>());
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, {
@@ -58,7 +62,8 @@ export function QuestionEditor({
       },
     });
   const optionIds = options.map(
-    (option, index) => `${field.key}:option:${optionValue(option)}:${index}`,
+    (option, index) =>
+      `${field.key}:option:${optionKeyAliases.current.get(optionValue(option)) ?? optionValue(option)}:${index}`,
   );
   const moveOption = (from: number, to: number): void => {
     if (to >= 0 && to < options.length)
@@ -162,7 +167,12 @@ export function QuestionEditor({
                                 i !== index &&
                                 optionValue(item) === option.label.trim(),
                             )
-                          )
+                          ) {
+                            // Keep the menu button mounted during the input's first blur.
+                            optionKeyAliases.current.set(
+                              option.label.trim(),
+                              value,
+                            );
                             update({
                               options: options.map((item, i) =>
                                 i === index
@@ -170,33 +180,47 @@ export function QuestionEditor({
                                   : item,
                               ),
                             });
+                          }
                         }}
                       />
-                      <Button
-                        type="text"
-                        aria-label={`Naikkan pilihan ${index + 1}`}
-                        icon={<ArrowUpOutlined />}
-                        disabled={index === 0}
-                        onClick={() => moveOption(index, index - 1)}
-                      />
-                      <Button
-                        type="text"
-                        aria-label={`Turunkan pilihan ${index + 1}`}
-                        icon={<ArrowDownOutlined />}
-                        disabled={index === options.length - 1}
-                        onClick={() => moveOption(index, index + 1)}
-                      />
-                      <Button
-                        type="text"
-                        danger
-                        aria-label={`Hapus pilihan ${index + 1}`}
-                        icon={<DeleteOutlined />}
-                        onClick={() =>
-                          update({
-                            options: options.filter((_, i) => i !== index),
-                          })
-                        }
-                      />
+                      <Dropdown
+                        trigger={["click"]}
+                        menu={{
+                          items: [
+                            {
+                              key: "up",
+                              label: "Pindah ke atas",
+                              disabled: index === 0,
+                              onClick: () => moveOption(index, index - 1),
+                            },
+                            {
+                              key: "down",
+                              label: "Pindah ke bawah",
+                              disabled: index === options.length - 1,
+                              onClick: () => moveOption(index, index + 1),
+                            },
+                            { type: "divider" },
+                            {
+                              key: "delete",
+                              label: "Hapus pilihan",
+                              danger: true,
+                              icon: <DeleteOutlined aria-hidden />,
+                              onClick: () =>
+                                update({
+                                  options: options.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                                }),
+                            },
+                          ],
+                        }}
+                      >
+                        <Button
+                          type="text"
+                          aria-label={`Menu pilihan ${index + 1}`}
+                          icon={<MoreOutlined />}
+                        />
+                      </Dropdown>
                     </div>
                   )}
                 </SortableItem>
@@ -204,7 +228,7 @@ export function QuestionEditor({
             </SortableContext>
           </DndContext>
           <Button
-            icon={<PlusOutlined />}
+            icon={<PlusOutlined aria-hidden />}
             onClick={() => {
               const value = newId();
               newOptions.current.add(value);

@@ -27,6 +27,7 @@ export function SortableItem({
   return (
     <div
       ref={setNodeRef}
+      className="builder-sortable"
       style={{
         transform: transform
           ? `translate3d(${transform.x}px, ${transform.y}px, 0)`

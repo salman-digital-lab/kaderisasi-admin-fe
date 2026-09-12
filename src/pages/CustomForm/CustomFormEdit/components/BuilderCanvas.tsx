@@ -1,16 +1,23 @@
-import { useState, type ReactElement, type ReactNode } from "react";
 import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import {
+  Affix,
   Alert,
   Button,
   Collapse,
   Drawer,
   Dropdown,
-  Empty,
-  Input,
+  Grid,
   Modal,
-  Typography,
 } from "antd";
 import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
   CopyOutlined,
   DeleteOutlined,
   MoreOutlined,
@@ -38,31 +45,48 @@ import type {
 } from "../../../../types/model/customForm";
 import {
   builderIssues,
-  duplicateQuestion,
   duplicateSection,
   moveQuestion,
   newId,
 } from "../utils/builder-state";
-import { FIELD_TYPES } from "../constants";
-import { SortableItem } from "./SortableItem";
-import { QuestionEditor } from "./QuestionEditor";
+import { SectionOutline } from "./SectionOutline";
+import { QuestionCard } from "./QuestionCard";
 import { SectionRouting } from "./SectionRouting";
+import { SectionDetails } from "./SectionDetails";
 
 interface Props {
+  toolbarBottom: number;
   sections: FormSection[];
   onChange: (sections: FormSection[]) => void;
   profile: ReactNode;
+  profileCount: number;
+  activeSectionId: string | null | undefined;
+  onSelectSection: (id: string | null) => void;
 }
+
 export function BuilderCanvas({
+  toolbarBottom,
   sections,
   onChange,
   profile,
+  profileCount,
+  activeSectionId,
+  onSelectSection,
 }: Props): ReactElement {
   const [selected, setSelected] = useState<string>();
   const [outlineOpen, setOutlineOpen] = useState(false);
-  let profileAnchorId = "profile";
-  while (sections.some((section) => section.id === profileAnchorId))
-    profileAnchorId += "_";
+  const pendingFocus = useRef<string | null>(null);
+  const screens = Grid.useBreakpoint();
+  const activeId =
+    activeSectionId === null
+      ? null
+      : (sections.find((section) => section.id === activeSectionId)?.id ??
+        sections[0]?.id ??
+        null);
+  const section = sections.find((item) => item.id === activeId);
+  const index = sections.findIndex((item) => item.id === activeId);
+  const issues = builderIssues({ fields: sections });
+  const sectionIssues = issues.filter((issue) => issue.sectionId === activeId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, {
@@ -70,36 +94,32 @@ export function BuilderCanvas({
       scrollBehavior: "auto",
     }),
   );
-  const issues = builderIssues({ fields: sections });
   const updateSection = (id: string, patch: Partial<FormSection>): void =>
     onChange(
-      sections.map((section) =>
-        section.id === id ? { ...section, ...patch } : section,
-      ),
+      sections.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     );
-  const updateQuestion = (id: string, field: FormField): void => {
-    const section = sections.find((item) => item.id === id)!;
-    updateSection(id, {
-      fields: section.fields.map((item) =>
-        item.key === field.key ? field : item,
-      ),
-    });
+  const focusContent = (): void => {
+    const target = document.getElementById(
+      pendingFocus.current ?? "builder-active-content",
+    );
+    target?.focus({ preventScroll: true });
+    target?.scrollIntoView({ block: "start", behavior: "instant" });
   };
-  const focusSection = (id: string): void => {
+  const selectSection = (id: string | null, questionKey?: string): void => {
+    onSelectSection(id);
+    setSelected(questionKey);
+    pendingFocus.current = questionKey
+      ? `builder-question-${questionKey}`
+      : "builder-active-content";
     setOutlineOpen(false);
-    requestAnimationFrame(() =>
-      document.getElementById(`builder-section-${id}`)?.focus(),
-    );
+    requestAnimationFrame(focusContent);
   };
-  const addQuestion = (section: FormSection): void => {
-    const field: FormField = {
-      key: `custom_${newId()}`,
-      label: "",
-      type: "text",
-      required: false,
-    };
-    updateSection(section.id!, { fields: [...section.fields, field] });
-    setSelected(field.key);
+  const selectQuestion = (key?: string, reveal = false): void => {
+    setSelected(key);
+    if (key && reveal) {
+      pendingFocus.current = `builder-question-${key}`;
+      requestAnimationFrame(focusContent);
+    }
   };
   const addSection = (): void => {
     const id = newId();
@@ -107,414 +127,325 @@ export function BuilderCanvas({
       ...sections,
       { id, section_name: `Bagian ${sections.length + 1}`, fields: [] },
     ]);
-    requestAnimationFrame(() => focusSection(id));
+    selectSection(id);
   };
-  const moveSection = (index: number, target: number): void =>
-    onChange(arrayMove(sections, index, target));
+  const addQuestion = (): void => {
+    if (!section) return;
+    const field: FormField = {
+      key: `custom_${newId()}`,
+      label: "",
+      type: "text",
+      required: false,
+    };
+    updateSection(section.id!, { fields: [...section.fields, field] });
+    selectQuestion(field.key, true);
+    requestAnimationFrame(() =>
+      document
+        .getElementById(`builder-question-${field.key}`)
+        ?.querySelector("textarea")
+        ?.focus(),
+    );
+  };
+  const moveSection = (from: number, to: number): void =>
+    onChange(arrayMove(sections, from, to));
+  const moveField = (
+    key: string,
+    targetId: string,
+    targetIndex?: number,
+  ): void => {
+    onChange(moveQuestion(sections, key, targetId, targetIndex));
+    if (targetId !== activeId) selectSection(targetId, key);
+  };
   const onDragEnd = ({ active, over }: DragEndEvent): void => {
     if (!over || active.id === over.id) return;
+    const target = sections.find(
+      (item) =>
+        item.id === over.id ||
+        item.fields.some((field) => field.key === over.id),
+    );
+    if (!target) return;
     if (active.data.current?.kind === "section") {
-      const from = sections.findIndex((section) => section.id === active.id);
-      const to = sections.findIndex(
-        (section) =>
-          section.id === over.id ||
-          section.fields.some((field) => field.key === over.id),
-      );
-      if (from >= 0 && to >= 0) moveSection(from, to);
+      const from = sections.findIndex((item) => item.id === active.id);
+      if (from >= 0) moveSection(from, sections.indexOf(target));
     } else if (active.data.current?.kind === "question") {
-      const target = sections.find(
-        (section) =>
-          section.id === over.id ||
-          section.fields.some((field) => field.key === over.id),
+      const targetIndex = target.fields.findIndex(
+        (field) => field.key === over.id,
       );
-      if (target) {
-        const index = target.fields.findIndex((field) => field.key === over.id);
-        onChange(
-          moveQuestion(
-            sections,
-            String(active.id),
-            target.id!,
-            index < 0 ? undefined : index,
-          ),
-        );
-      }
+      moveField(
+        String(active.id),
+        target.id!,
+        targetIndex < 0 ? undefined : targetIndex,
+      );
     }
   };
   const outline = (
-    <nav aria-label="Daftar bagian formulir" className="builder-outline-links">
-      <Typography.Text strong>Bagian formulir</Typography.Text>
-      <Button type="text" onClick={() => focusSection(profileAnchorId)}>
-        Data diri
-      </Button>
-      {sections.map((section, index) => (
-        <Button
-          type="text"
-          key={section.id}
-          onClick={() => focusSection(section.id!)}
-        >
-          {index + 1}. {section.section_name || "Bagian tanpa nama"}
-          <span className="builder-hint">
-            {section.fields.length} pertanyaan
-          </span>
-        </Button>
-      ))}
-      <Button icon={<PlusOutlined />} onClick={addSection}>
-        Tambah bagian
-      </Button>
-    </nav>
+    <SectionOutline
+      sections={sections}
+      activeId={activeId}
+      profileCount={profileCount}
+      issueSectionIds={new Set(issues.map((issue) => issue.sectionId))}
+      onSelect={selectSection}
+      onAdd={addSection}
+    />
   );
+  const navigation = section?.navigation;
+  const destination = navigation?.defaultTarget;
+  const routeSummary = navigation?.questionKey
+    ? `Berdasarkan jawaban · ${navigation.routes?.length ?? 0} aturan`
+    : destination?.type === "submit" ||
+        ((!destination || destination.type === "next") &&
+          index === sections.length - 1)
+      ? "Kirim formulir"
+      : destination?.type === "section"
+        ? (sections.find((item) => item.id === destination.sectionId)
+            ?.section_name ?? "Tujuan perlu diperbaiki")
+        : "Lanjut ke bagian berikutnya";
   return (
-    <div className="builder-layout">
-      <aside className="builder-outline">{outline}</aside>
-      <div className="builder-mobile-outline">
-        <Button
-          icon={<UnorderedListOutlined />}
-          onClick={() => setOutlineOpen(true)}
-        >
-          Daftar bagian
-        </Button>
-      </div>
-      <Drawer
-        title="Bagian formulir"
-        open={outlineOpen}
-        onClose={() => setOutlineOpen(false)}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+    >
+      <div
+        className="builder-layout"
+        style={
+          {
+            "--builder-outline-offset": `${toolbarBottom + 16}px`,
+            "--builder-content-offset": `${toolbarBottom + (screens.md ? 16 : 68)}px`,
+          } as CSSProperties
+        }
       >
-        {outline}
-      </Drawer>
-      <div className="builder-canvas">
-        <section
-          id={`builder-section-${profileAnchorId}`}
-          tabIndex={-1}
-          className="builder-profile"
-        >
-          {profile}
-        </section>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={onDragEnd}
-        >
-          <SortableContext
-            items={sections.map((section) => section.id!)}
-            strategy={verticalListSortingStrategy}
-          >
-            {sections.map((section, index) => (
-              <SortableItem
-                key={section.id}
-                id={section.id!}
-                kind="section"
-                label={`bagian ${index + 1}`}
+        {screens.md && (
+          <aside className="builder-outline">
+            <Affix offsetTop={toolbarBottom + 16}>{outline}</Affix>
+          </aside>
+        )}
+        {!screens.md && (
+          <Affix offsetTop={toolbarBottom} className="builder-mobile-outline">
+            <div className="builder-mobile-outline-control">
+              <Button
+                block
+                icon={<UnorderedListOutlined aria-hidden />}
+                onClick={() => setOutlineOpen(true)}
               >
-                {(handle) => (
-                  <section
-                    className="builder-section"
-                    id={`builder-section-${section.id}`}
-                    tabIndex={-1}
-                    aria-label={section.section_name}
-                  >
-                    <div className="builder-section-heading">
-                      {handle}
-                      <Typography.Text type="secondary">
-                        Bagian {index + 1}
-                      </Typography.Text>
-                      <Dropdown
-                        trigger={["click"]}
-                        menu={{
-                          triggerSubMenuAction: "click",
-                          items: [
-                            {
-                              key: "up",
-                              label: "Pindah ke atas",
-                              disabled: index === 0,
-                              onClick: () => moveSection(index, index - 1),
-                            },
-                            {
-                              key: "down",
-                              label: "Pindah ke bawah",
-                              disabled: index === sections.length - 1,
-                              onClick: () => moveSection(index, index + 1),
-                            },
-                            {
-                              key: "copy",
-                              label: "Duplikat bagian",
-                              icon: <CopyOutlined aria-hidden />,
-                              onClick: () => {
-                                const updated = [...sections];
-                                updated.splice(
-                                  index + 1,
-                                  0,
-                                  duplicateSection(section),
-                                );
-                                onChange(updated);
-                              },
-                            },
-                            {
-                              key: "delete",
-                              label: "Hapus bagian",
-                              danger: true,
-                              icon: <DeleteOutlined aria-hidden />,
-                              onClick: () =>
-                                Modal.confirm({
-                                  title: "Hapus bagian ini?",
-                                  content:
-                                    "Pertanyaan di dalamnya akan dihapus. Aturan yang menuju bagian ini perlu diperbaiki sebelum menyimpan.",
-                                  okText: "Hapus",
-                                  cancelText: "Batal",
-                                  okButtonProps: { danger: true },
-                                  onOk: () =>
-                                    onChange(
-                                      sections.filter(
-                                        (item) => item.id !== section.id,
-                                      ),
-                                    ),
-                                }),
-                            },
-                          ],
-                        }}
-                      >
-                        <Button
-                          type="text"
-                          aria-label={`Menu bagian ${index + 1}`}
-                          icon={<MoreOutlined />}
-                        />
-                      </Dropdown>
-                    </div>
-                    <label className="builder-control">
-                      Nama bagian
-                      <Input
-                        value={section.section_name}
-                        onChange={(event) =>
-                          updateSection(section.id!, {
-                            section_name: event.target.value,
-                          })
-                        }
-                      />
-                    </label>
-                    <label className="builder-control">
-                      Deskripsi bagian
-                      <Input.TextArea
-                        autoSize={{ minRows: 1, maxRows: 5 }}
-                        value={section.description}
-                        placeholder="Petunjuk untuk bagian ini (opsional)"
-                        onChange={(event) =>
-                          updateSection(section.id!, {
-                            description: event.target.value,
-                          })
-                        }
-                      />
-                    </label>
-                    <SortableContext
-                      items={section.fields.map((field) => field.key)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {section.fields.map((field, fieldIndex) => (
-                        <SortableItem
-                          key={field.key}
-                          id={field.key}
-                          kind="question"
-                          label={`pertanyaan ${fieldIndex + 1}`}
-                        >
-                          {(questionHandle) => (
-                            <article
-                              className={`builder-question ${selected === field.key ? "builder-question-selected" : ""}`}
-                            >
-                              <div className="builder-question-heading">
-                                {questionHandle}
-                                <Button
-                                  type="text"
-                                  className="builder-question-title"
-                                  onClick={() =>
-                                    setSelected(
-                                      selected === field.key
-                                        ? undefined
-                                        : field.key,
-                                    )
-                                  }
-                                  aria-expanded={selected === field.key}
-                                >
-                                  {field.label || "Pertanyaan tanpa judul"}
-                                  {field.required && (
-                                    <span aria-label="wajib"> *</span>
-                                  )}
-                                </Button>
-                                <Dropdown
-                                  trigger={["click"]}
-                                  menu={{
-                                    triggerSubMenuAction: "click",
-                                    items: [
-                                      {
-                                        key: "up",
-                                        label: "Pindah ke atas",
-                                        disabled: fieldIndex === 0,
-                                        onClick: () =>
-                                          onChange(
-                                            moveQuestion(
-                                              sections,
-                                              field.key,
-                                              section.id!,
-                                              fieldIndex - 1,
-                                            ),
-                                          ),
-                                      },
-                                      {
-                                        key: "down",
-                                        label: "Pindah ke bawah",
-                                        disabled:
-                                          fieldIndex ===
-                                          section.fields.length - 1,
-                                        onClick: () =>
-                                          onChange(
-                                            moveQuestion(
-                                              sections,
-                                              field.key,
-                                              section.id!,
-                                              fieldIndex + 1,
-                                            ),
-                                          ),
-                                      },
-                                      {
-                                        key: "section",
-                                        label: "Pindah ke bagian",
-                                        disabled: sections.length < 2,
-                                        children: sections
-                                          .filter(
-                                            (item) => item.id !== section.id,
-                                          )
-                                          .map((item) => ({
-                                            key: item.id!,
-                                            label: item.section_name,
-                                            onClick: () =>
-                                              onChange(
-                                                moveQuestion(
-                                                  sections,
-                                                  field.key,
-                                                  item.id!,
-                                                ),
-                                              ),
-                                          })),
-                                      },
-                                      {
-                                        key: "copy",
-                                        label: "Duplikat pertanyaan",
-                                        icon: <CopyOutlined aria-hidden />,
-                                        onClick: () => {
-                                          const copy = duplicateQuestion(field);
-                                          const fields = [...section.fields];
-                                          fields.splice(
-                                            fieldIndex + 1,
-                                            0,
-                                            copy,
-                                          );
-                                          updateSection(section.id!, {
-                                            fields,
-                                          });
-                                          setSelected(copy.key);
-                                        },
-                                      },
-                                      {
-                                        key: "delete",
-                                        label: "Hapus pertanyaan",
-                                        danger: true,
-                                        icon: <DeleteOutlined aria-hidden />,
-                                        onClick: () =>
-                                          Modal.confirm({
-                                            title: "Hapus pertanyaan?",
-                                            okText: "Hapus",
-                                            cancelText: "Batal",
-                                            onOk: () =>
-                                              updateSection(section.id!, {
-                                                fields: section.fields.filter(
-                                                  (item) =>
-                                                    item.key !== field.key,
-                                                ),
-                                              }),
-                                          }),
-                                      },
-                                    ],
-                                  }}
-                                >
-                                  <Button
-                                    type="text"
-                                    aria-label={`Menu pertanyaan ${fieldIndex + 1}`}
-                                    icon={<MoreOutlined />}
-                                  />
-                                </Dropdown>
-                              </div>
-                              {selected === field.key ? (
-                                <QuestionEditor
-                                  field={field}
-                                  onChange={(updated) =>
-                                    updateQuestion(section.id!, updated)
-                                  }
-                                />
-                              ) : (
-                                <p className="builder-question-summary">
-                                  {FIELD_TYPES.find(
-                                    (type) => type.value === field.type,
-                                  )?.label ?? field.type}
-                                  {field.options?.length
-                                    ? ` · ${field.options.map((option) => option.label).join(", ")}`
-                                    : ""}
-                                </p>
-                              )}
-                            </article>
-                          )}
-                        </SortableItem>
-                      ))}
-                    </SortableContext>
-                    {!section.fields.length && (
-                      <Empty
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        description="Belum ada pertanyaan. Bagian berisi petunjuk saja juga dapat digunakan."
-                      />
-                    )}
-                    <Button
-                      block
-                      type="dashed"
-                      icon={<PlusOutlined />}
-                      onClick={() => addQuestion(section)}
-                    >
-                      Tambah pertanyaan
-                    </Button>
-                    <Collapse
-                      ghost
-                      defaultActiveKey={section.navigation ? ["routing"] : []}
-                      items={[
-                        {
-                          key: "routing",
-                          label: "Alur setelah bagian",
-                          children: (
-                            <SectionRouting
-                              section={section}
-                              sections={sections}
-                              onChange={(navigation) =>
-                                updateSection(section.id!, { navigation })
-                              }
-                            />
-                          ),
+                <span>
+                  {section
+                    ? `Bagian ${index + 1} dari ${sections.length}`
+                    : "Data diri"}
+                </span>
+                <span className="builder-hint">Ganti bagian</span>
+              </Button>
+            </div>
+          </Affix>
+        )}
+        {!screens.md && (
+          <Drawer
+            title="Isi formulir"
+            open={outlineOpen}
+            onClose={() => {
+              pendingFocus.current = null;
+              setOutlineOpen(false);
+            }}
+            destroyOnHidden
+            afterOpenChange={(open) => {
+              if (!open && pendingFocus.current) focusContent();
+            }}
+          >
+            {outline}
+          </Drawer>
+        )}
+        <div
+          className="builder-canvas"
+          id="builder-active-content"
+          tabIndex={-1}
+        >
+          {section ? (
+            <section
+              key={section.id}
+              className="builder-section"
+              id={`builder-section-${section.id}`}
+              tabIndex={-1}
+              aria-label={section.section_name}
+            >
+              <div className="builder-section-heading">
+                <span className="builder-hint">
+                  Bagian {index + 1} · {section.fields.length} pertanyaan
+                </span>
+                <Dropdown
+                  trigger={["click"]}
+                  menu={{
+                    items: [
+                      {
+                        key: "up",
+                        label: "Pindah ke atas",
+                        disabled: index === 0,
+                        onClick: () => moveSection(index, index - 1),
+                      },
+                      {
+                        key: "down",
+                        label: "Pindah ke bawah",
+                        disabled: index === sections.length - 1,
+                        onClick: () => moveSection(index, index + 1),
+                      },
+                      { type: "divider" },
+                      {
+                        key: "copy",
+                        label: "Duplikat bagian",
+                        icon: <CopyOutlined aria-hidden />,
+                        onClick: () => {
+                          const copy = duplicateSection(section);
+                          const updated = [...sections];
+                          updated.splice(index + 1, 0, copy);
+                          onChange(updated);
+                          selectSection(copy.id!);
                         },
-                      ]}
-                    />
-                    {issues
-                      .filter((issue) => issue.sectionId === section.id)
-                      .map((issue, i) => (
-                        <Alert
-                          key={i}
-                          type="error"
-                          title={issue.message}
-                          showIcon
-                        />
+                      },
+                      {
+                        key: "delete",
+                        label: "Hapus bagian",
+                        danger: true,
+                        icon: <DeleteOutlined aria-hidden />,
+                        onClick: () =>
+                          Modal.confirm({
+                            title: "Hapus bagian ini?",
+                            content:
+                              "Pertanyaan di dalamnya akan dihapus. Aturan yang menuju bagian ini perlu diperbaiki sebelum menyimpan.",
+                            okText: "Hapus",
+                            cancelText: "Batal",
+                            okButtonProps: { danger: true },
+                            onOk: () => {
+                              onChange(
+                                sections.filter(
+                                  (item) => item.id !== section.id,
+                                ),
+                              );
+                              selectSection(
+                                sections[index + 1]?.id ??
+                                  sections[index - 1]?.id ??
+                                  null,
+                              );
+                            },
+                          }),
+                      },
+                    ],
+                  }}
+                >
+                  <Button
+                    type="text"
+                    aria-label={`Menu bagian ${index + 1}`}
+                    icon={<MoreOutlined />}
+                  />
+                </Dropdown>
+              </div>
+              <SectionDetails
+                section={section}
+                onChange={(patch) => updateSection(section.id!, patch)}
+              />
+              {sectionIssues.length > 0 && (
+                <Alert
+                  className="builder-section-errors"
+                  type="error"
+                  showIcon
+                  title="Periksa bagian ini"
+                  description={
+                    <ul>
+                      {sectionIssues.map((issue, i) => (
+                        <li key={i}>{issue.message}</li>
                       ))}
-                  </section>
+                    </ul>
+                  }
+                />
+              )}
+              <div className="builder-question-list">
+                <SortableContext
+                  items={section.fields.map((field) => field.key)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {section.fields.map((field, fieldIndex) => (
+                    <QuestionCard
+                      key={field.key}
+                      field={field}
+                      index={fieldIndex}
+                      section={section}
+                      sections={sections}
+                      selected={selected === field.key}
+                      onSelect={selectQuestion}
+                      onFieldsChange={(fields) =>
+                        updateSection(section.id!, { fields })
+                      }
+                      onMove={moveField}
+                    />
+                  ))}
+                </SortableContext>
+                {!section.fields.length && (
+                  <p className="builder-empty">
+                    Belum ada pertanyaan. Tambahkan pertanyaan atau gunakan
+                    bagian ini untuk petunjuk saja.
+                  </p>
                 )}
-              </SortableItem>
-            ))}
-          </SortableContext>
-        </DndContext>
-        <Button block icon={<PlusOutlined />} onClick={addSection}>
-          Tambah bagian
-        </Button>
+              </div>
+              <Button
+                className="builder-add-question"
+                block
+                icon={<PlusOutlined aria-hidden />}
+                onClick={addQuestion}
+              >
+                Tambah pertanyaan
+              </Button>
+              <Collapse
+                className="builder-routing-panel"
+                ghost
+                items={[
+                  {
+                    key: "routing",
+                    label: (
+                      <span className="builder-routing-label">
+                        <strong>Alur setelah bagian</strong>
+                        <span className="builder-hint">{routeSummary}</span>
+                      </span>
+                    ),
+                    children: (
+                      <SectionRouting
+                        section={section}
+                        sections={sections}
+                        onChange={(navigation) =>
+                          updateSection(section.id!, { navigation })
+                        }
+                      />
+                    ),
+                  },
+                ]}
+              />
+            </section>
+          ) : (
+            <section
+              className="builder-profile"
+              id="builder-profile-content"
+              tabIndex={-1}
+            >
+              {profile}
+            </section>
+          )}
+          <div className="builder-section-navigation">
+            <Button
+              icon={<ArrowLeftOutlined aria-hidden />}
+              disabled={index < 0}
+              onClick={() => selectSection(sections[index - 1]?.id ?? null)}
+            >
+              {index === 0 ? "Data diri" : "Bagian sebelumnya"}
+            </Button>
+            {index < sections.length - 1 ? (
+              <Button onClick={() => selectSection(sections[index + 1].id!)}>
+                Bagian berikutnya <ArrowRightOutlined aria-hidden />
+              </Button>
+            ) : (
+              <Button icon={<PlusOutlined aria-hidden />} onClick={addSection}>
+                Tambah bagian
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </DndContext>
   );
 }

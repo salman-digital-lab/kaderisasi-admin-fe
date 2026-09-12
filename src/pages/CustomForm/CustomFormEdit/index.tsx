@@ -4,6 +4,7 @@ import {
   Affix,
   Alert,
   Button,
+  ConfigProvider,
   Form,
   Space,
   Spin,
@@ -42,6 +43,7 @@ import "../../../styles/guided-workflows.css";
 import "./builder.css";
 
 type Values = BuilderRecovery["values"];
+const BUILDER_THEME = { token: { motion: false } };
 
 export default function CustomFormEdit(): ReactElement {
   const [form] = Form.useForm<Values>();
@@ -50,10 +52,15 @@ export default function CustomFormEdit(): ReactElement {
     | undefined;
   const [basicDirty, setBasicDirty] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [activeSectionId, setActiveSectionId] = useState<string | null>();
   const [failure, setFailure] = useState("");
   const [recovery, setRecovery] = useState<BuilderRecovery | null>(null);
   const [recoveryLoaded, setRecoveryLoaded] = useState("");
   const [draftStatus, setDraftStatus] = useState("");
+  const [toolbarElement, setToolbarElement] = useState<HTMLElement | null>(
+    null,
+  );
+  const [toolbarHeight, setToolbarHeight] = useState(100);
   const user = useUser();
   const navigate = useNavigate();
   const { clubId, activityId } = useParams<{
@@ -95,6 +102,15 @@ export default function CustomFormEdit(): ReactElement {
   const dirty = basicDirty || schemaDirty;
 
   useEffect(() => {
+    if (!toolbarElement) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setToolbarHeight(entry.target.getBoundingClientRect().height);
+    });
+    observer.observe(toolbarElement);
+    return () => observer.disconnect();
+  }, [toolbarElement]);
+
+  useEffect(() => {
     if (!recoveryKey || recoveryLoaded === recoveryKey) return;
     setRecovery(readRecovery(recoveryKey));
     setRecoveryLoaded(recoveryKey);
@@ -111,6 +127,7 @@ export default function CustomFormEdit(): ReactElement {
       updateLoading
     )
       return;
+    setDraftStatus("Menyimpan draf di perangkat ini...");
     const timer = setTimeout(() => {
       try {
         localStorage.setItem(
@@ -155,6 +172,7 @@ export default function CustomFormEdit(): ReactElement {
     const issues = builderIssues(schema);
     if (!issues.length) return true;
     setFailure(issues[0].message);
+    setActiveSectionId(issues[0].sectionId);
     handleTabChange("schema");
     requestAnimationFrame(() =>
       document
@@ -211,7 +229,6 @@ export default function CustomFormEdit(): ReactElement {
   const profile = (
     <ProfileFieldsSection
       selectedBasicFields={selectedBasicFields}
-      profileDataCategories={PROFILE_DATA_CATEGORIES}
       profileDataTemplates={PROFILE_DATA_TEMPLATES}
       fieldTypes={FIELD_TYPES}
       profileFieldRequiredOverrides={profileFieldRequiredOverrides}
@@ -222,159 +239,171 @@ export default function CustomFormEdit(): ReactElement {
     />
   );
   return (
-    <div className="form-builder-page guided-page">
-      <UnsavedChangesGuard dirty={dirty} />
-      <Affix offsetTop={48}>
-        <header className="builder-toolbar">
-          <div className="builder-toolbar-title">
-            {activityId && (
-              <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                onClick={() =>
-                  navigate(
-                    returnToSetup
-                      ? `/activity/${activityId}/setup?step=2`
-                      : `/activity/${activityId}?tab=7`,
-                  )
-                }
+    <ConfigProvider
+      theme={BUILDER_THEME}
+      dropdown={{ className: "builder-popup" }}
+      select={{ classNames: { popup: { root: "builder-popup" } } }}
+    >
+      <div className="form-builder-page guided-page">
+        <UnsavedChangesGuard dirty={dirty} />
+        <Affix offsetTop={48}>
+          <header ref={setToolbarElement} className="builder-toolbar">
+            <div className="builder-toolbar-title">
+              {activityId && (
+                <Button
+                  type="text"
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() =>
+                    navigate(
+                      returnToSetup
+                        ? `/activity/${activityId}/setup?step=2`
+                        : `/activity/${activityId}?tab=7`,
+                    )
+                  }
+                >
+                  Kembali ke kegiatan
+                </Button>
+              )}
+              {clubId && (
+                <Button
+                  type="text"
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() =>
+                    navigate(`/club/${clubId}?section=registration`)
+                  }
+                >
+                  Kembali ke Pendaftaran Klub
+                </Button>
+              )}
+              <Typography.Title level={2} style={{ margin: 0, fontSize: 20 }}>
+                {watched?.formName || initialData.form_name}
+              </Typography.Title>
+              <Typography.Text
+                type="secondary"
+                role="status"
+                aria-label="Status penyimpanan"
               >
-                Kembali ke kegiatan
-              </Button>
-            )}
-            {clubId && (
+                {updateLoading
+                  ? "Menyimpan perubahan..."
+                  : dirty
+                    ? draftStatus || "Ada perubahan belum disimpan"
+                    : "Semua perubahan tersimpan"}
+              </Typography.Text>
+            </div>
+            <div className="builder-toolbar-actions">
               <Button
-                type="text"
-                icon={<ArrowLeftOutlined />}
-                onClick={() => navigate(`/club/${clubId}?section=registration`)}
-              >
-                Kembali ke Pendaftaran Klub
-              </Button>
-            )}
-            <Typography.Title level={2} style={{ margin: 0, fontSize: 20 }}>
-              {watched?.formName || initialData.form_name}
-            </Typography.Title>
-            <Typography.Text
-              type="secondary"
-              role="status"
-              aria-label="Status penyimpanan"
-            >
-              {updateLoading
-                ? "Menyimpan perubahan..."
-                : dirty
-                  ? draftStatus || "Ada perubahan belum disimpan"
-                  : "Semua perubahan tersimpan"}
-            </Typography.Text>
-          </div>
-          <div className="builder-toolbar-actions">
-            <Button
-              aria-label="Pratinjau"
-              icon={<EyeOutlined />}
-              disabled={updateLoading}
-              onClick={() => {
-                setFailure("");
-                if (checkSchema()) setPreviewOpen(true);
-              }}
-            >
-              Pratinjau
-            </Button>
-            <Button
-              aria-label="Simpan Perubahan"
-              type="primary"
-              icon={<SaveOutlined />}
-              loading={updateLoading}
-              disabled={!!recovery}
-              onClick={() => void handleSave()}
-            >
-              Simpan Perubahan
-            </Button>
-          </div>
-        </header>
-      </Affix>
-      {recovery && (
-        <Alert
-          type="warning"
-          showIcon
-          title="Draf yang belum disimpan tersedia"
-          description={
-            recovery.updatedAt !== initialData.updated_at
-              ? "Formulir di server telah berubah sejak draf dibuat. Memulihkan draf akan mengganti isi editor, belum menyimpan ke server."
-              : "Pulihkan perubahan terakhir yang tersimpan di perangkat ini."
-          }
-          action={
-            <Space wrap>
-              <Button
+                aria-label="Pratinjau"
+                icon={<EyeOutlined />}
+                disabled={updateLoading}
                 onClick={() => {
-                  data.restoreSchema(recovery.schema);
-                  form.setFieldsValue(recovery.values);
-                  setBasicDirty(true);
-                  setRecovery(null);
-                  handleTabChange("schema");
+                  setFailure("");
+                  if (checkSchema()) setPreviewOpen(true);
                 }}
               >
-                Pulihkan draf
+                Pratinjau
               </Button>
-              <Button onClick={clearRecovery}>Buang draf</Button>
-            </Space>
-          }
+              <Button
+                aria-label="Simpan Perubahan"
+                type="primary"
+                icon={<SaveOutlined />}
+                loading={updateLoading}
+                disabled={!!recovery}
+                onClick={() => void handleSave()}
+              >
+                Simpan Perubahan
+              </Button>
+            </div>
+          </header>
+        </Affix>
+        {recovery && (
+          <Alert
+            type="warning"
+            showIcon
+            title="Draf yang belum disimpan tersedia"
+            description={
+              recovery.updatedAt !== initialData.updated_at
+                ? "Formulir di server telah berubah sejak draf dibuat. Memulihkan draf akan mengganti isi editor, belum menyimpan ke server."
+                : "Pulihkan perubahan terakhir yang tersimpan di perangkat ini."
+            }
+            action={
+              <Space wrap>
+                <Button
+                  onClick={() => {
+                    data.restoreSchema(recovery.schema);
+                    form.setFieldsValue(recovery.values);
+                    setBasicDirty(true);
+                    setRecovery(null);
+                    handleTabChange("schema");
+                  }}
+                >
+                  Pulihkan draf
+                </Button>
+                <Button onClick={clearRecovery}>Buang draf</Button>
+              </Space>
+            }
+          />
+        )}
+        {failure && (
+          <Alert
+            type="error"
+            showIcon
+            title="Perubahan belum disimpan"
+            description={failure}
+            closable
+            onClose={() => setFailure("")}
+          />
+        )}
+        <Tabs
+          activeKey={activeTab}
+          onChange={handleTabChange}
+          items={[
+            {
+              key: "basic",
+              label: "Informasi Dasar",
+              forceRender: true,
+              children: (
+                <BasicInfoTab
+                  form={form}
+                  initialData={initialData}
+                  onSave={() => void handleSave()}
+                  onChange={() => setBasicDirty(true)}
+                />
+              ),
+            },
+            {
+              key: "schema",
+              label: "Ubah Formulir",
+              children: (
+                <BuilderCanvas
+                  toolbarBottom={48 + toolbarHeight}
+                  sections={customFieldSections}
+                  onChange={setCustomFieldSections}
+                  profile={profile}
+                  profileCount={selectedBasicFields.length}
+                  activeSectionId={activeSectionId}
+                  onSelectSection={setActiveSectionId}
+                />
+              ),
+            },
+          ]}
         />
-      )}
-      {failure && (
-        <Alert
-          type="error"
-          showIcon
-          title="Perubahan belum disimpan"
-          description={failure}
-          closable
-          onClose={() => setFailure("")}
+        <BasicFieldModal
+          visible={fields.basicFieldModalVisible}
+          selectedBasicFields={selectedBasicFields}
+          profileDataCategories={PROFILE_DATA_CATEGORIES}
+          profileDataTemplates={PROFILE_DATA_TEMPLATES}
+          onCancel={() => fields.setBasicFieldModalVisible(false)}
+          onAddProfileField={fields.handleAddProfileDataFromTemplate}
         />
-      )}
-      <Tabs
-        activeKey={activeTab}
-        onChange={handleTabChange}
-        items={[
-          {
-            key: "basic",
-            label: "Informasi Dasar",
-            forceRender: true,
-            children: (
-              <BasicInfoTab
-                form={form}
-                initialData={initialData}
-                onSave={() => void handleSave()}
-                onChange={() => setBasicDirty(true)}
-              />
-            ),
-          },
-          {
-            key: "schema",
-            label: "Ubah Formulir",
-            children: (
-              <BuilderCanvas
-                sections={customFieldSections}
-                onChange={setCustomFieldSections}
-                profile={profile}
-              />
-            ),
-          },
-        ]}
-      />
-      <BasicFieldModal
-        visible={fields.basicFieldModalVisible}
-        selectedBasicFields={selectedBasicFields}
-        profileDataCategories={PROFILE_DATA_CATEGORIES}
-        profileDataTemplates={PROFILE_DATA_TEMPLATES}
-        onCancel={() => fields.setBasicFieldModalVisible(false)}
-        onAddProfileField={fields.handleAddProfileDataFromTemplate}
-      />
-      {previewOpen && (
-        <FormPreview
-          schema={schema}
-          title={watched?.formName || initialData.form_name}
-          description={watched?.formDescription}
-          onClose={() => setPreviewOpen(false)}
-        />
-      )}
-    </div>
+        {previewOpen && (
+          <FormPreview
+            schema={schema}
+            title={watched?.formName || initialData.form_name}
+            description={watched?.formDescription}
+            onClose={() => setPreviewOpen(false)}
+          />
+        )}
+      </div>
+    </ConfigProvider>
   );
 }

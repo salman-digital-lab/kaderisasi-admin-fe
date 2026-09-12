@@ -38,7 +38,6 @@ export interface SchemaTabProps {
 export const SchemaTab: React.FC<SchemaTabProps> = ({
   selectedBasicFields,
   customFieldSections,
-  profileDataCategories,
   profileDataTemplates,
   fieldTypes,
   fieldCategories,
@@ -61,7 +60,6 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
     <Space direction="vertical" style={{ width: "100%" }}>
       <ProfileFieldsSection
         selectedBasicFields={selectedBasicFields}
-        profileDataCategories={profileDataCategories}
         profileDataTemplates={profileDataTemplates}
         fieldTypes={fieldTypes}
         profileFieldRequiredOverrides={profileFieldRequiredOverrides}
