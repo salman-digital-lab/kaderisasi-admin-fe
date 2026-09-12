@@ -1,0 +1,237 @@
+.form-builder-page {
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  min-width: 0;
+}
+.builder-toolbar {
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border-bottom: 1px solid #dedede;
+}
+.builder-toolbar-title {
+  flex: 1;
+  min-width: 180px;
+}
+.builder-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.builder-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 800px);
+  gap: 24px;
+}
+.builder-outline {
+  position: sticky;
+  top: 110px;
+  align-self: start;
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+}
+.builder-outline-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+.builder-outline-links .ant-btn {
+  min-height: 44px;
+  display: block;
+  text-align: left;
+  white-space: normal;
+  height: auto;
+  overflow-wrap: anywhere;
+}
+.builder-outline-links .builder-hint {
+  display: block;
+}
+.builder-mobile-outline {
+  display: none;
+}
+.builder-canvas {
+  min-width: 0;
+}
+.builder-section {
+  margin-bottom: 24px;
+  padding: 24px;
+  border: 1px solid #dedede;
+  background: #fff;
+  scroll-margin-top: 120px;
+}
+.builder-section-heading,
+.builder-question-heading,
+.builder-option-row,
+.builder-control-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.builder-section-heading > .ant-typography {
+  flex: 1;
+}
+.builder-section-heading {
+  margin-bottom: 12px;
+}
+.builder-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.builder-control .ant-select,
+.builder-control .ant-input-number {
+  width: 100%;
+}
+.builder-question {
+  border: 1px solid #dedede;
+  margin: 16px 0;
+  border-radius: 8px;
+  min-width: 0;
+}
+.builder-question-selected {
+  border-left: 3px solid #087da7;
+}
+.builder-question-heading {
+  padding: 8px;
+}
+.builder-question-title.ant-btn {
+  flex: 1;
+  text-align: left;
+  justify-content: flex-start;
+  white-space: normal;
+  height: auto;
+  overflow-wrap: anywhere;
+}
+.builder-question-title > span {
+  white-space: normal;
+}
+.builder-question-editor {
+  padding: 8px 16px 16px;
+}
+.builder-question-summary {
+  color: #454545;
+  margin: 0 16px 16px;
+  overflow-wrap: anywhere;
+}
+.builder-required {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.builder-option-row {
+  margin-bottom: 8px;
+}
+.builder-option-row .ant-input {
+  min-width: 0;
+}
+.builder-options {
+  margin-bottom: 16px;
+}
+.builder-drag {
+  touch-action: none;
+  cursor: grab;
+  flex-shrink: 0;
+}
+.builder-routing {
+  border-top: 1px solid #dedede;
+  padding-top: 16px;
+}
+.builder-hint {
+  color: #454545;
+  font-size: 13px;
+  font-weight: 400;
+}
+.builder-routing-error {
+  color: #a8071a;
+  margin-bottom: 12px;
+}
+.builder-profile {
+  margin-bottom: 24px;
+  scroll-margin-top: 120px;
+}
+.form-builder-page .ant-btn {
+  min-height: 44px;
+}
+.form-builder-page .ant-typography-secondary,
+.form-builder-page .ant-select-placeholder,
+.form-builder-page .ant-select-selection-placeholder,
+.form-builder-page .ant-input::placeholder,
+.builder-preview .ant-form-item-extra {
+  color: #595959;
+}
+.form-builder-page :focus-visible {
+  outline: 2px solid #075d80;
+  outline-offset: 3px;
+}
+.builder-preview {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 760px;
+  padding: 16px;
+}
+.builder-preview-mobile {
+  max-width: 390px;
+}
+.builder-preview-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+@media (max-width: 767px) {
+  .builder-layout {
+    display: block;
+  }
+  .builder-outline {
+    display: none;
+  }
+  .builder-mobile-outline {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .builder-section {
+    padding: 16px;
+  }
+  .builder-toolbar {
+    padding: 12px;
+  }
+  .builder-toolbar-title {
+    flex-basis: 100%;
+  }
+  .builder-toolbar-actions {
+    width: 100%;
+  }
+  .builder-control-row {
+    flex-wrap: wrap;
+  }
+  .builder-control-row > .builder-control {
+    flex-basis: 100%;
+  }
+  .builder-required {
+    margin-bottom: 16px;
+  }
+  .builder-option-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .builder-option-row .ant-input {
+    flex: 1;
+    min-width: 120px;
+  }
+  .builder-question-editor {
+    padding: 8px;
+  }
+}

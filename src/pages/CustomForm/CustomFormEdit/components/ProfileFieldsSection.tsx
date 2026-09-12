@@ -81,7 +81,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
       title={
         <Space>
           <UserOutlined />
-          <span>Pertanyaan Dasar</span>
+          <span>Data diri</span>
           <Badge count={selectedBasicFields.length} showZero />
         </Space>
       }
@@ -93,7 +93,7 @@ export const ProfileFieldsSection: React.FC<ProfileFieldsSectionProps> = ({
           icon={<PlusOutlined />}
           onClick={onOpenAddModal}
         >
-          Tambah Pertanyaan
+          Tambah data diri
         </Button>
       }
     >

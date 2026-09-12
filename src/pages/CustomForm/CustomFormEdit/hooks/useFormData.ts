@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import { message } from "antd";
@@ -14,12 +14,17 @@ import type {
   FormSection,
 } from "../../../../types/model/customForm";
 import { BASIC_PROFILE_FIELDS } from "../constants";
+import { normalizeSchema } from "../utils/builder-state";
 
 export const useFormData = () => {
   const { formId } = useParams<{ formId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [initialData, setInitialData] = useState<CustomForm | null>(null);
+  const [profileSection, setProfileSection] = useState<FormSection>({
+    section_name: "profile_data",
+    fields: [],
+  });
   const [selectedBasicFields, setSelectedBasicFields] = useState<string[]>([]);
   const [customFieldSections, setCustomFieldSections] = useState<FormSection[]>(
     [],
@@ -32,10 +37,7 @@ export const useFormData = () => {
     profileFieldRequiredOverrides,
   ]);
   const [savedSchema, setSavedSchema] = useState<string>();
-  useEffect(() => {
-    if (initialData && savedSchema === undefined)
-      setSavedSchema(schemaFingerprint);
-  }, [initialData, savedSchema, schemaFingerprint]);
+  const loadVersion = useRef(0);
 
   // Active tab state with URL sync
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -69,8 +71,11 @@ export const useFormData = () => {
   const { loading: fetchLoading, run: fetchCustomForm } = useRequest(
     async () => {
       if (!formId) return;
+      const version = ++loadVersion.current;
       const data = await getCustomForm(parseInt(formId));
+      if (version !== loadVersion.current) return;
       if (data) {
+        data.form_schema = normalizeSchema(data.form_schema);
         setInitialData(data);
 
         // Initialize form schema data
@@ -84,6 +89,7 @@ export const useFormData = () => {
           );
 
           if (profileSection) {
+            setProfileSection(profileSection);
             const existingFields = profileSection.fields.map(
               (field) => field.key,
             );
@@ -105,9 +111,21 @@ export const useFormData = () => {
               }
             });
             setProfileFieldRequiredOverrides(requiredOverrides);
+            setSavedSchema(
+              JSON.stringify([allFields, customSections, requiredOverrides]),
+            );
           } else {
+            setProfileSection(
+              normalizeSchema({
+                fields: [{ section_name: "profile_data", fields: [] }],
+              }).fields[0],
+            );
             // If no existing profile section, set default fields
             setSelectedBasicFields(["name", "gender"]);
+            setProfileFieldRequiredOverrides({});
+            setSavedSchema(
+              JSON.stringify([["name", "gender"], customSections, {}]),
+            );
           }
 
           // Load custom sections (excluding profile_data)
@@ -119,6 +137,52 @@ export const useFormData = () => {
       manual: true,
     },
   );
+
+  const buildSchema = (): FormSchema => ({
+    version: 2,
+    fields: [
+      {
+        ...profileSection,
+        navigation: undefined,
+        fields: selectedBasicFields.flatMap((key) => {
+          const field =
+            profileSection.fields.find((item) => item.key === key) ??
+            BASIC_PROFILE_FIELDS.find((item) => item.key === key);
+          return field
+            ? [
+                {
+                  ...field,
+                  required: ["name", "gender"].includes(key)
+                    ? true
+                    : (profileFieldRequiredOverrides[key] ?? field.required),
+                },
+              ]
+            : [];
+        }),
+      },
+      ...customFieldSections,
+    ],
+  });
+  const restoreSchema = (schema: FormSchema): void => {
+    const normalized = normalizeSchema(schema);
+    const profile = normalized.fields.find(
+      (section) => section.section_name === "profile_data",
+    );
+    if (profile) {
+      setProfileSection(profile);
+      setSelectedBasicFields(profile.fields.map((field) => field.key));
+      setProfileFieldRequiredOverrides(
+        Object.fromEntries(
+          profile.fields.map((field) => [field.key, field.required]),
+        ),
+      );
+    }
+    setCustomFieldSections(
+      normalized.fields.filter(
+        (section) => section.section_name !== "profile_data",
+      ),
+    );
+  };
 
   const { loading: updateLoading, runAsync: updateForm } = useRequest(
     async (values: {
@@ -133,49 +197,17 @@ export const useFormData = () => {
     }) => {
       if (!formId) return;
 
-      // Build form schema from current state
-      const profileFields = BASIC_PROFILE_FIELDS.filter((field) =>
-        selectedBasicFields.includes(field.key),
-      ).map((field) => ({
-        ...field,
-        required: profileFieldRequiredOverrides[field.key] ?? field.required,
-      }));
-
-      // Filter out sections with empty fields
-      const nonEmptyCustomSections = customFieldSections.filter(
-        (section) => section.fields && section.fields.length > 0,
-      );
-
-      // Check if any sections were removed
-      const removedSectionsCount =
-        customFieldSections.length - nonEmptyCustomSections.length;
-
-      const updatedFormSchema: FormSchema = {
-        fields: [
-          {
-            section_name: "profile_data",
-            fields: profileFields,
-          },
-          ...nonEmptyCustomSections,
-        ],
-      };
-
-      await updateCustomForm(parseInt(formId), {
+      const saved = await updateCustomForm(parseInt(formId), {
         formName: values.formName,
         formDescription: values.formDescription || "",
         postSubmissionInfo: values.postSubmissionInfo || "",
         featureType: values.featureType,
         featureId: values.featureId,
-        formSchema: updatedFormSchema,
+        formSchema: buildSchema(),
       });
 
-      if (removedSectionsCount > 0) {
-        message.success(
-          `Formulir berhasil diperbarui! ${removedSectionsCount} grup kosong dihapus.`,
-        );
-      } else {
-        message.success("Formulir berhasil diperbarui!");
-      }
+      setInitialData(saved);
+      message.success("Formulir berhasil diperbarui!");
     },
     {
       manual: true,
@@ -193,6 +225,8 @@ export const useFormData = () => {
 
   return {
     initialData,
+    buildSchema,
+    restoreSchema,
     selectedBasicFields,
     setSelectedBasicFields,
     customFieldSections,

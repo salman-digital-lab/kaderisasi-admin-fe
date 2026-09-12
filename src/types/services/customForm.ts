@@ -1,5 +1,5 @@
 import { Pagination } from "./base";
-import { CustomForm } from "../model/customForm";
+import { CustomForm, FormSchema } from "../model/customForm";
 
 // Request types
 export interface GetCustomFormsReq {
@@ -23,17 +23,7 @@ export interface CreateCustomFormReq {
     | "club_registration"
     | "independent_form";
   featureId?: number | null;
-  formSchema?: {
-    fields: {
-      section_name: string;
-      fields: {
-        key: string;
-        label: string;
-        required: boolean;
-        type: string;
-      }[];
-    }[];
-  };
+  formSchema?: FormSchema;
   isActive?: boolean;
 }
 

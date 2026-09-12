@@ -1,3 +1,5 @@
+import type { SectionNavigation } from "../../utils/form-routing";
+
 export interface CustomForm {
   id: number;
   form_name: string;
@@ -24,6 +26,9 @@ export interface FormField {
   options?: FieldOption[];
   validation?: FieldValidation;
   disabled?: boolean;
+  hidden?: boolean;
+  description?: string;
+  defaultValue?: unknown;
 }
 
 export interface FieldOption {
@@ -42,10 +47,14 @@ export interface FieldValidation {
 }
 
 export interface FormSection {
+  id?: string;
   section_name: string;
+  description?: string;
+  navigation?: SectionNavigation;
   fields: FormField[];
 }
 
 export interface FormSchema {
+  version?: number;
   fields: FormSection[];
 }

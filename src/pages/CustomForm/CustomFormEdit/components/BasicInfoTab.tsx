@@ -94,7 +94,7 @@ export const BasicInfoTab = ({
       }}
     >
       <Row gutter={24}>
-        <Col span={16}>
+        <Col xs={24} md={16}>
           <Form.Item
             label="Nama Form"
             name="formName"
@@ -205,7 +205,7 @@ export const BasicInfoTab = ({
           />
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} md={8}>
           <Card
             size="small"
             title="Informasi Form"
