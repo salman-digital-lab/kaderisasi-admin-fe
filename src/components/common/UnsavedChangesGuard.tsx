@@ -4,12 +4,17 @@ import { useBlocker } from "react-router-dom";
 
 export default function UnsavedChangesGuard({
   dirty,
+  includeSearchChanges = false,
 }: {
   dirty: boolean;
+  includeSearchChanges?: boolean;
 }): ReactElement {
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      dirty && currentLocation.pathname !== nextLocation.pathname,
+      dirty &&
+      (currentLocation.pathname !== nextLocation.pathname ||
+        (includeSearchChanges &&
+          currentLocation.search !== nextLocation.search)),
   );
   useEffect(() => {
     if (!dirty) return;
