@@ -15,11 +15,12 @@ import RoleSummary from "../components/RoleSummary";
 import "../../../styles/guided-workflows.css";
 
 const tasks: Record<string, string> = {
-  activity_manager: "Menyiapkan kegiatan dan mengelola peserta",
+  activity_manager: "Menyiapkan program atau kegiatan dan mengelola peserta",
+  achievement_manager:
+    "Menyiapkan kegiatan serta mengelola prestasi dan leaderboard",
   club_manager: "Mengelola komunitas, klub, dan kelas",
-  member_manager: "Mengurus data anggota dan memeriksa prestasi",
   konselor: "Menangani layanan konseling",
-  admin: "Menangani operasional, penayangan, dan sertifikat",
+  admin: "Mengelola program, penayangan, dan sertifikat",
 };
 type Values = { role_code: string; reason: string };
 

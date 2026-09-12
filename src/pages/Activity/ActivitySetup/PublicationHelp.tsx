@@ -10,14 +10,14 @@ export default function PublicationHelp({
   name: string;
 }): ReactElement {
   const url = `${window.location.origin}/activity/${id}/setup?step=3`;
-  const help = `Halo, mohon bantuan Admin Operasional atau Super Admin untuk memeriksa kegiatan "${name}" dan membantu penayangan/pembukaan pendaftaran setelah siap. Tautan admin: ${url}`;
+  const help = `Halo, mohon bantuan Asisten Manager Program atau Super Admin untuk memeriksa kegiatan "${name}" dan membantu penayangan/pembukaan pendaftaran setelah siap. Tautan admin: ${url}`;
   return (
     <aside className="guided-help">
       <Typography.Title level={3}>Minta bantuan penayangan</Typography.Title>
       <p>
-        Panitia Kegiatan dapat menyiapkan kegiatan, mengubah informasi, dan
-        mengelola peserta. Penayangan serta pembukaan atau penutupan pendaftaran
-        dilakukan oleh Admin Operasional atau Super Admin.
+        Anda dapat menyiapkan kegiatan, mengubah informasi, dan mengelola
+        peserta. Penayangan serta pembukaan atau penutupan pendaftaran dilakukan
+        oleh Asisten Manager Program atau Super Admin.
       </p>
       <p>
         Kirim tautan kegiatan kepada admin yang berwenang. Jika belum tahu siapa

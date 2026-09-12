@@ -12,9 +12,9 @@ const messages: Record<string, string> = {
   ROLE_NOT_REQUESTABLE:
     "Peran ini tidak dapat diajukan. Muat ulang daftar peran.",
   ACTIVITY_PUBLICATION_FORBIDDEN:
-    "Penayangan memerlukan Admin Operasional atau Super Admin. Perubahan belum disimpan.",
+    "Penayangan memerlukan Asisten Manager Program atau Super Admin. Perubahan belum disimpan.",
   ACTIVITY_REGISTRATION_CONTROL_FORBIDDEN:
-    "Pembukaan atau penutupan pendaftaran memerlukan Admin Operasional atau Super Admin.",
+    "Pembukaan atau penutupan pendaftaran memerlukan Asisten Manager Program atau Super Admin.",
   ACTIVITY_NOT_READY:
     "Masih ada informasi yang perlu dilengkapi. Periksa daftar di bawah sebelum mencoba lagi.",
   CLOSE_REGISTRATION_BEFORE_FORM_CHANGE:
