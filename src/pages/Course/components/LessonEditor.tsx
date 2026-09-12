@@ -12,6 +12,7 @@ import type {
 import {
   hasLessonChanges,
   lessonInput,
+  mergeSavedLesson,
   youtubeVideoId,
 } from "../utils/course-editor";
 import LessonDocuments from "./LessonDocuments";
@@ -95,7 +96,7 @@ export default function LessonEditor({
         values,
       );
       const normalized = lessonInput(updated);
-      setCurrentLesson(updated);
+      setCurrentLesson((previous) => mergeSavedLesson(updated, previous));
       setSavedValues(normalized);
       form.setFieldsValue(normalized);
       setDirty(false);

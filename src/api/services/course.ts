@@ -5,7 +5,7 @@ import type {
   Course,
   CourseDetail,
   CourseInput,
-  CourseLesson,
+  CourseLessonRecord,
   CourseDocument,
   CourseLearner,
   CoursePage,
@@ -43,7 +43,7 @@ export function saveCourseLesson(
   id: number,
   lessonId: number | undefined,
   input: LessonInput,
-): Promise<CourseLesson> {
+): Promise<CourseLessonRecord> {
   return result(
     lessonId
       ? axios.put(`/courses/${id}/lessons/${lessonId}`, input)

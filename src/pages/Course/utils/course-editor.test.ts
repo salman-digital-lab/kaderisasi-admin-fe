@@ -4,6 +4,7 @@ import {
   formatDocumentSize,
   hasLessonChanges,
   lessonInput,
+  mergeSavedLesson,
   lessonsWithoutVideo,
   moveLessonIds,
   youtubeVideoId,
@@ -78,6 +79,34 @@ describe("lesson ordering and authoring state", () => {
       ),
     ).toEqual([2, 3]);
     expect(lessonsWithoutVideo([lesson(1)])).toEqual([]);
+  });
+});
+
+describe("lesson save responses", () => {
+  const response = {
+    id: 11,
+    course_id: 2,
+    title: "Judul tersimpan",
+    description: "",
+    youtube_video_id: "aqz-KE-bpKQ",
+    position: 1,
+  };
+  it("opens document controls after creation when the API omits documents", () => {
+    const saved = mergeSavedLesson(response);
+    expect(saved.documents).toEqual([]);
+    expect(lessonInput(saved).title).toBe("Judul tersimpan");
+  });
+  it("keeps the loaded document list when an edit response omits it", () => {
+    const previous = {
+      ...lesson(11),
+      documents: [
+        { id: 3, lesson_id: 11, filename: "materi.pdf", size_bytes: 1659 },
+      ],
+    };
+    expect(mergeSavedLesson(response, previous)).toEqual({
+      ...response,
+      documents: previous.documents,
+    });
   });
 });
 

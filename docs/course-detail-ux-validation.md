@@ -82,3 +82,21 @@ catalog. A subsequent run was refused by the existing fixture lease because
 another test process was active. The failed attempt restored its borrowed
 services and completed cleanup; it had created no storage objects. These results
 do not constitute a passing backend-connected browser run.
+
+The fixtures later became available. The next browser run exposed that lesson
+creation/update returns a lesson record without `documents`, unlike course
+detail reads. The editor now models that response explicitly and supplies an
+empty document list on creation while retaining loaded documents on edits.
+Two regression tests cover these real response shapes. The isolated release
+then passed lint, TypeScript/build, and all **129 tests**.
+
+The corrected real Go/Adonis/PostgreSQL/S3 workflow passed **170 checks**, including
+the admin and learner browser flow, PDF byte comparisons, mobile/desktop layouts,
+and keyboard checks. The browser report recorded no unhandled errors. All four
+recorded storage objects were cleaned, and borrowed services were restored.
+
+The aggregate `make test-courses-browser` still exited nonzero at its subsequent
+coverage freshness gate: unrelated public-profile files changed in another task
+during the run. All 12 course routes had successful evidence with no missing
+scenario categories. Neither the coverage gate nor historical baseline was
+altered to bypass the freshness check.

@@ -12,13 +12,15 @@ export type CourseDocument = {
   filename: string;
   size_bytes: number;
 };
-export type CourseLesson = {
+export type CourseLessonRecord = {
   id: number;
   course_id: number;
   title: string;
   description: string;
   youtube_video_id: string;
   position: number;
+};
+export type CourseLesson = CourseLessonRecord & {
   documents: CourseDocument[];
 };
 export type Course = CourseInput & {

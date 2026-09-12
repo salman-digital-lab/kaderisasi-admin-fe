@@ -1,4 +1,8 @@
-import type { CourseLesson, LessonInput } from "../../../types/model/course";
+import type {
+  CourseLesson,
+  CourseLessonRecord,
+  LessonInput,
+} from "../../../types/model/course";
 
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 export const MAX_COURSE_PDF_BYTES = 20 * 1024 * 1024;
@@ -33,7 +37,7 @@ export function youtubeVideoId(value: string): string | null {
   }
 }
 
-export function lessonInput(lesson?: CourseLesson): LessonInput {
+export function lessonInput(lesson?: CourseLessonRecord): LessonInput {
   return {
     title: lesson?.title ?? "",
     description: lesson?.description ?? "",
@@ -41,6 +45,13 @@ export function lessonInput(lesson?: CourseLesson): LessonInput {
       ? `https://www.youtube.com/watch?v=${lesson.youtube_video_id}`
       : "",
   };
+}
+
+export function mergeSavedLesson(
+  saved: CourseLessonRecord,
+  previous?: CourseLesson,
+): CourseLesson {
+  return { ...saved, documents: previous?.documents ?? [] };
 }
 
 export function hasLessonChanges(
