@@ -119,12 +119,8 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
   if (permissions.includes("short_links.read"))
     items.push({
       key: "/short-links",
-      icon: <LinkOutlined style={{ color: "#087aa6" }} />,
-      label: (
-        <Link to="/short-links" style={{ color: "#087aa6" }}>
-          Tautan Pendek
-        </Link>
-      ),
+      icon: <LinkOutlined />,
+      label: <Link to="/short-links">Tautan Pendek</Link>,
     });
   if (permissions.includes("clubs.read"))
     items.push({
