@@ -79,6 +79,8 @@ const ACCOUNT_STATUS_LABEL: Record<string, { label: string; color: string }> = {
 };
 
 const DEGREE_OPTIONS = [
+  { label: "SMA/SMK", value: "high_school" },
+  { label: "D3 (Diploma)", value: "diploma" },
   { label: "S1 (Sarjana)", value: "bachelor" },
   { label: "S2 (Magister)", value: "master" },
   { label: "S3 (Doktor)", value: "doctoral" },
@@ -513,7 +515,7 @@ const MemberDetailPage = () => {
                     </Col>
                     <Col span={7}>
                       <Form.Item name={[name, "institution"]} label="Institusi">
-                        <UniversityNameSelect placeholder="Cari universitas" />
+                        <UniversityNameSelect placeholder="Cari atau ketik nama institusi" />
                       </Form.Item>
                     </Col>
                     <Col span={6}>

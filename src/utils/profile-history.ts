@@ -1,5 +1,5 @@
 export type EducationEntry = {
-  degree?: "bachelor" | "master" | "doctoral";
+  degree?: "high_school" | "diploma" | "bachelor" | "master" | "doctoral";
   institution: string;
   faculty: string;
   major: string;
@@ -42,6 +42,8 @@ const textValue = (value: unknown): string =>
 export function normalizeEducationHistory(value: unknown): EducationEntry[] {
   return historyEntries(value).map((entry) => ({
     degree:
+      entry.degree === "high_school" ||
+      entry.degree === "diploma" ||
       entry.degree === "bachelor" ||
       entry.degree === "master" ||
       entry.degree === "doctoral"

@@ -23,6 +23,7 @@ export default function UniversityNameSelect({
   const [options, setOptions] = useState<{ label: string; value: string }[]>(
     value ? [{ label: value, value }] : [],
   );
+  const [searchValue, setSearchValue] = useState("");
   const [searchTimeout, setSearchTimeout] = useState<ReturnType<
     typeof setTimeout
   > | null>(null);
@@ -44,9 +45,17 @@ export default function UniversityNameSelect({
   }, []);
 
   const handleSearch = (search: string) => {
+    setSearchValue(search);
     if (searchTimeout) clearTimeout(searchTimeout);
     setSearchTimeout(setTimeout(() => fetchUniversities(search), 300));
   };
+
+  const institutionName = searchValue.trim();
+  const institutionOptions =
+    institutionName &&
+    !options.some((option) => option.value === institutionName)
+      ? [{ label: institutionName, value: institutionName }, ...options]
+      : options;
 
   return (
     <Select
@@ -54,10 +63,10 @@ export default function UniversityNameSelect({
       showSearch
       value={value}
       onChange={onChange}
-      options={options}
+      options={institutionOptions}
       filterOption={false}
       onSearch={handleSearch}
-      notFoundContent="Universitas tidak ditemukan"
+      notFoundContent="Ketik nama sekolah atau perguruan tinggi"
       style={{ width: "100%", ...props.style }}
     />
   );
