@@ -1,5 +1,6 @@
 import {
   DatabaseOutlined,
+  LinkOutlined,
   ReadOutlined,
   FileTextOutlined,
   FormOutlined,
@@ -114,6 +115,12 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
       key: "/custom-form",
       icon: <FormOutlined />,
       label: <Link to="/custom-form">Form Digital</Link>,
+    });
+  if (permissions.includes("short_links.read"))
+    items.push({
+      key: "/short-links",
+      icon: <LinkOutlined />,
+      label: <Link to="/short-links">Tautan Pendek</Link>,
     });
   if (permissions.includes("clubs.read"))
     items.push({

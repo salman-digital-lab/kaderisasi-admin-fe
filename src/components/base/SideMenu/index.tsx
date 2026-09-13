@@ -66,6 +66,7 @@ const SideMenu = ({
       return ["/lifetime-leaderboard"];
     if (currentPath.startsWith("/club")) return ["/club"];
     if (currentPath.startsWith("/courses")) return ["/courses"];
+    if (currentPath.startsWith("/short-links")) return ["/short-links"];
     if (currentPath.startsWith("/province")) return ["/province"];
     if (currentPath.startsWith("/universities")) return ["/universities"];
     if (currentPath.startsWith("/custom-form")) return ["/custom-form"];

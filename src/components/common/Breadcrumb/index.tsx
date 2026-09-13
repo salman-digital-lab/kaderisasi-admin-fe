@@ -46,6 +46,7 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   ],
   "/club": [{ path: "/club", title: "Daftar Klub" }],
   "/courses": [{ path: "/courses", title: "Daftar Kelas" }],
+  "/short-links": [{ path: "/short-links", title: "Tautan Pendek" }],
   "/rbac/roles": [{ path: "/rbac/roles", title: "Role & Permission" }],
   "/digital-certificate": [
     { path: "/digital-certificate", title: "Template Sertifikat" },

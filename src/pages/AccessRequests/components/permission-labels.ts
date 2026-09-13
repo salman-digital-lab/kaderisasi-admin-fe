@@ -1,4 +1,6 @@
 export const permissionLabels: Record<string, string> = {
+  "short_links.read": "Melihat tautan pendek",
+  "short_links.manage": "Membuat, mengubah, dan menghapus tautan pendek",
   "courses.read": "Melihat kelas dan progres peserta",
   "courses.manage": "Mengelola kelas dan materi pembelajaran",
   "dashboard.read": "Melihat ringkasan dasbor",

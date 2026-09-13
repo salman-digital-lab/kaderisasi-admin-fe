@@ -49,6 +49,7 @@ const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
 const ClubList = lazy(() => import("../pages/Club/ClubList"));
 const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
 const CourseList = lazy(() => import("../pages/Course/CourseList"));
+const ShortLinks = lazy(() => import("../pages/ShortLinks"));
 const CourseDetail = lazy(() => import("../pages/Course/CourseDetail"));
 const ActivityCertificates = lazy(
   () => import("../pages/Activity/ActivityCertificates"),
@@ -278,6 +279,10 @@ const routes = createBrowserRouter([
       },
       { path: "club", element: guarded(<ClubList />, "clubs.read") },
       { path: "courses", element: guarded(<CourseList />, "courses.read") },
+      {
+        path: "short-links",
+        element: guarded(<ShortLinks />, "short_links.read"),
+      },
       {
         path: "courses/:id",
         element: guarded(<CourseDetail />, "courses.read"),
