@@ -37,3 +37,20 @@ export async function updateShortLink(
 export async function deleteShortLink(code: string): Promise<void> {
   await axios.delete(`/short-links/${encodeURIComponent(code)}`);
 }
+
+export async function findDetailShortLink(
+  destination: string,
+): Promise<ShortLink | null> {
+  let page = 1;
+  while (true) {
+    const result = await getShortLinks({
+      search: destination,
+      page,
+      per_page: 100,
+    });
+    const match = result.data.find((link) => link.original_url === destination);
+    if (match) return match;
+    if (page >= result.meta.last_page) return null;
+    page += 1;
+  }
+}

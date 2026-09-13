@@ -1,3 +1,4 @@
+import DetailShortLink from "../../../../components/common/ShortLinks/DetailShortLink";
 import {
   Alert,
   Button,
@@ -266,6 +267,10 @@ const ClubOverview = ({
           </Card>
         </Col>
       </Row>
+      <DetailShortLink
+        path={`/clubs/${club.id}`}
+        published={Boolean(club.is_show)}
+      />
     </Space>
   );
 };

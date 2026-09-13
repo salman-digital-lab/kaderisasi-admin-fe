@@ -11,6 +11,7 @@ const request = vi.hoisted(() => ({
 }));
 vi.mock("../../../../stores/authStore", () => ({
   useRole: () => ({ code: request.role }),
+  usePermissions: () => [],
 }));
 vi.mock("ahooks", () => ({
   useRequest: () => ({ ...request, loading: false }),

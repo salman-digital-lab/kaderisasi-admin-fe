@@ -1,3 +1,4 @@
+import DetailShortLink from "../../../../components/common/ShortLinks/DetailShortLink";
 import { useState, type ReactElement } from "react";
 import {
   Alert,
@@ -255,6 +256,14 @@ export default function ActivityOverview({
           );
         })}
       </Row>
+      <DetailShortLink
+        path={
+          activity.slug
+            ? `/activity/${encodeURIComponent(activity.slug)}`
+            : null
+        }
+        published={Boolean(activity.is_published)}
+      />
       {readiness?.actions.can_edit && !readiness.actions.can_publish && (
         <PublicationHelp id={activity.id} name={activity.name} />
       )}
