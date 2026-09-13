@@ -1,6 +1,20 @@
 import { isAxiosError } from "axios";
 
 const messages: Record<string, string> = {
+  SCORING_REVISION_CONFLICT:
+    "Data penilaian telah berubah. Muat ulang halaman sebelum menyimpan atau menerbitkan lagi.",
+  SCORING_RUBRIC_LOCKED:
+    "Rubrik sudah digunakan untuk menilai peserta dan tidak dapat diubah.",
+  SCORING_INCOMPLETE:
+    "Lengkapi semua aspek peserta yang dipilih sebelum menerbitkan.",
+  SCORING_TEMPLATE_MISMATCH:
+    "Templat bukan milik kegiatan ini atau sudah kedaluwarsa. Unduh templat terbaru.",
+  SCORING_IMPORT_CHANGED_REVIEW_AGAIN:
+    "Data berubah sejak pratinjau. Periksa ulang berkas sebelum menyimpan.",
+  SCORING_NOT_PUBLISHED:
+    "Hasil belum diterbitkan atau sudah ditarik. Muat ulang halaman.",
+  ACTIVITY_HAS_SCORING_HISTORY:
+    "Kegiatan memiliki riwayat penilaian yang harus dipertahankan dan tidak dapat dihapus.",
   DELETE_CONFIRMATION_MISMATCH:
     "Nama konfirmasi tidak cocok. Muat ulang detail lalu ketik nama persis seperti yang ditampilkan.",
   ACTIVITY_HAS_CERTIFICATE_HISTORY:

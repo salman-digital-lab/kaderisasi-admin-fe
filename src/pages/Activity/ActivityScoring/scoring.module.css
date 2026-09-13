@@ -1,0 +1,61 @@
+.page,
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.page {
+  padding: 12px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.criterion {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+.grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+.notice {
+  margin: 16px 0;
+}
+.scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.page :global(.ant-input-number) {
+  width: 100%;
+}
+.page :global(.ant-card-head-wrapper) {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.page :global(.ant-card-head-title) {
+  white-space: normal;
+}
+@media (width < 768px) {
+  .page {
+    padding: 8px;
+  }
+  .criterion,
+  .grade {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .page :global(.ant-btn) {
+    min-height: 44px;
+  }
+  .actions > * {
+    max-width: 100%;
+  }
+}

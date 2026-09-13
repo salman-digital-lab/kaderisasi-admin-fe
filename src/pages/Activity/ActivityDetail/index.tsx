@@ -22,6 +22,7 @@ import QuestionnaireForm from "./components/Questionnaire";
 import MandatoryData from "./components/MandatoryData";
 import ImageList from "./components/ImageList";
 import CustomFormSelection from "./components/CustomFormSelection";
+import ActivityScoring from "../ActivityScoring";
 
 const MainActivityDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -77,6 +78,11 @@ const MainActivityDetail = () => {
       key: "5",
       label: "Peserta",
       children: <RegistrantList />,
+    },
+    {
+      key: "scoring",
+      label: "Penilaian",
+      children: <ActivityScoring activityId={activity.id} />,
     },
   ];
 
