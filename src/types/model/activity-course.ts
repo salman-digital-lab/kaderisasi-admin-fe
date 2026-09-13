@@ -5,6 +5,8 @@ export type ActivityCourse = {
   title: string;
   status: CourseStatus;
   lesson_count: number;
+  summary: string;
+  minimum_level: number;
 };
 
 export type CourseProgressStatus =

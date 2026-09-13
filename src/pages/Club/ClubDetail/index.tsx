@@ -1,3 +1,5 @@
+import LinkedCoursesTab from "../../../components/LinkedCourses/LinkedCoursesTab";
+import { usePermissions } from "../../../stores/authStore";
 import { useState } from "react";
 import { Alert, Button, Skeleton, Space, Tabs, Tag, Typography } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
@@ -22,6 +24,7 @@ import {
 const { Paragraph, Title } = Typography;
 
 const MainClubDetail = () => {
+  const permissions = usePermissions();
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [club, setClub] = useState<Club | null>(null);
@@ -107,6 +110,18 @@ const MainClubDetail = () => {
       children: <ClubActivitiesPage />,
     },
   ];
+
+  if (
+    permissions.includes("clubs.manage") ||
+    permissions.includes("club_registrations.read")
+  ) {
+    items.splice(3, 0, {
+      key: "courses",
+      label: "Kelas Online",
+      destroyOnHidden: true,
+      children: <LinkedCoursesTab kind="club" ownerId={club.id} />,
+    });
+  }
 
   return (
     <main style={{ minWidth: 0, width: "100%", padding: 12 }}>

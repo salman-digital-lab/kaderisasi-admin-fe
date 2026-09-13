@@ -89,7 +89,10 @@ const MainActivityDetail = () => {
     },
   ];
 
-  if (permissions.includes("activities.manage")) {
+  if (
+    permissions.includes("activities.manage") ||
+    permissions.includes("activity_registrations.read")
+  ) {
     items.splice(4, 0, {
       key: "courses",
       label: "Kelas Online",

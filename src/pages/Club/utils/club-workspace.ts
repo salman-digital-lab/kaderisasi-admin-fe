@@ -7,6 +7,7 @@ export const CLUB_SECTIONS = [
   "profile",
   "registration",
   "people",
+  "courses",
   "activities",
 ] as const;
 

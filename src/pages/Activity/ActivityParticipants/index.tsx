@@ -63,14 +63,10 @@ import { getCertificateVerificationUrl } from "../../DigitalCertificate/utils/ce
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
-import { getActivityCourses } from "../../../api/services/activity-course";
-import { courseColumns } from "./constants/course-columns";
 
 interface FilterValues {
   search?: string;
   status?: string;
-  course_id?: string;
-  course_completion?: string;
 }
 
 type ParticipantRow = Registrant & { activity_id: number };
@@ -120,41 +116,6 @@ const ActivityParticipants = () => {
   const [filters, setFilters] = useState<FilterValues>({});
   const [searchInput, setSearchInput] = useState("");
   const [statusInput, setStatusInput] = useState<string>();
-  const [courseInput, setCourseInput] = useState<string>();
-  const [completionInput, setCompletionInput] = useState<string>();
-  const {
-    data: linkedCourses,
-    loading: coursesLoading,
-    error: coursesError,
-    refresh: refreshCourses,
-  } = useRequest(() => getActivityCourses(Number(id)), { refreshDeps: [id] });
-
-  useEffect(() => {
-    if (!linkedCourses) return;
-    const selectedCourseRemoved = [courseInput, filters.course_id].some(
-      (value) =>
-        value && !linkedCourses.some((course) => String(course.id) === value),
-    );
-    const noCoursesForFilter =
-      linkedCourses.length === 0 &&
-      (completionInput || filters.course_completion);
-    if (!selectedCourseRemoved && !noCoursesForFilter) return;
-    setCourseInput(undefined);
-    setCompletionInput(undefined);
-    setFilters((old) => ({
-      ...old,
-      course_id: undefined,
-      course_completion: undefined,
-    }));
-    setPagination((old) => ({ ...old, page: 1 }));
-    setSelectedRowKeys([]);
-  }, [
-    linkedCourses,
-    courseInput,
-    completionInput,
-    filters.course_id,
-    filters.course_completion,
-  ]);
 
   // Fetch activity details
   const { data: activity, loading: activityLoading } = useRequest(
@@ -181,27 +142,21 @@ const ActivityParticipants = () => {
       const profileKeys = new Set(
         profileSection?.fields.map((f) => f.key) ?? [],
       );
-      return [
-        ...ALL_COLUMNS.filter(
-          (col) => ALWAYS_VISIBLE.has(col.key) || profileKeys.has(col.key),
-        ),
-        ...courseColumns(linkedCourses ?? []),
-      ];
+      return ALL_COLUMNS.filter(
+        (col) => ALWAYS_VISIBLE.has(col.key) || profileKeys.has(col.key),
+      );
     }
 
     // No custom form configured — show all columns
-    return [...ALL_COLUMNS, ...courseColumns(linkedCourses ?? [])];
-  }, [customForm, linkedCourses]);
+    return ALL_COLUMNS;
+  }, [customForm]);
 
   // Load column preferences from localStorage, constrained to form-allowed columns
   useEffect(() => {
     if (!id || customFormLoading) return;
 
     const savedVisibility = new Map(
-      (loadColumnPreferences(id, formAllowedColumns) ?? []).map((c) => [
-        c.key,
-        c.visible,
-      ]),
+      (loadColumnPreferences(id) ?? []).map((c) => [c.key, c.visible]),
     );
     setColumns(
       formAllowedColumns.map((col) => ({
@@ -215,20 +170,16 @@ const ActivityParticipants = () => {
   const {
     data: participantsData,
     loading: participantsLoading,
-    error: participantsError,
     run: fetchParticipants,
   } = useRequest(
-    async () => {
-      const result = await getRegistrants(id, {
+    () =>
+      getRegistrants(id, {
         page: String(pagination.page),
         per_page: String(pagination.per_page),
         sort_by: sortBy,
         sort_order: sortOrder,
         ...filters,
-      });
-      if (!result) throw new Error("Peserta gagal dimuat");
-      return result;
-    },
+      }),
     {
       refreshDeps: [id, pagination, sortBy, sortOrder, filters],
       loadingDelay: 200,
@@ -279,12 +230,10 @@ const ActivityParticipants = () => {
       ...prev,
       search: searchInput || undefined,
       status: statusInput,
-      course_id: courseInput,
-      course_completion: completionInput,
     }));
     setPagination((prev) => ({ ...prev, page: 1 }));
     setSelectedRowKeys([]);
-  }, [searchInput, statusInput, courseInput, completionInput]);
+  }, [searchInput, statusInput]);
 
   // Handle status filter
   const handleStatusFilter = useCallback((value: string | undefined) => {
@@ -310,11 +259,10 @@ const ActivityParticipants = () => {
 
   // Handle refresh
   const handleRefresh = useCallback(() => {
-    refreshCourses();
     fetchParticipants();
     fetchIssuedCertificates();
     setSelectedRowKeys([]);
-  }, [fetchIssuedCertificates, fetchParticipants, refreshCourses]);
+  }, [fetchIssuedCertificates, fetchParticipants]);
 
   const openCertificatePreview = useCallback((certificateId: number) => {
     const previewWindow = window.open(
@@ -615,18 +563,11 @@ const ActivityParticipants = () => {
           <ResponsiveFilters
             onApply={handleSearch}
             activeCount={
-              [
-                filters.search,
-                filters.status,
-                filters.course_id,
-                filters.course_completion,
-              ].filter(Boolean).length
+              [filters.search, filters.status].filter(Boolean).length
             }
             onReset={() => {
               setSearchInput("");
               setStatusInput(undefined);
-              setCourseInput(undefined);
-              setCompletionInput(undefined);
               setFilters({});
               setPagination((prev) => ({ ...prev, page: 1 }));
               setSelectedRowKeys([]);
@@ -657,55 +598,6 @@ const ActivityParticipants = () => {
                   value={statusInput}
                   aria-label="Status peserta"
                 />
-                {Boolean(linkedCourses?.length) && !coursesError && (
-                  <>
-                    <Select
-                      aria-label="Kelas untuk filter progres"
-                      placeholder="Semua kelas terkait"
-                      allowClear
-                      style={{ width: 240 }}
-                      value={courseInput}
-                      options={linkedCourses?.map((course) => ({
-                        value: String(course.id),
-                        label: `${course.title} (#${course.id})`,
-                      }))}
-                      onChange={(value: string | undefined) => {
-                        setCourseInput(value);
-                        if (!compact) {
-                          setFilters((old) => ({ ...old, course_id: value }));
-                          setPagination((old) => ({ ...old, page: 1 }));
-                          setSelectedRowKeys([]);
-                        }
-                      }}
-                    />
-                    <Select
-                      aria-label="Penyelesaian kelas"
-                      placeholder="Semua progres"
-                      allowClear
-                      style={{ width: 240 }}
-                      value={completionInput}
-                      options={[
-                        { value: "completed", label: "Selesai" },
-                        { value: "incomplete", label: "Belum selesai" },
-                        {
-                          value: "unverifiable",
-                          label: "Tidak dapat diverifikasi",
-                        },
-                      ]}
-                      onChange={(value: string | undefined) => {
-                        setCompletionInput(value);
-                        if (!compact) {
-                          setFilters((old) => ({
-                            ...old,
-                            course_completion: value,
-                          }));
-                          setPagination((old) => ({ ...old, page: 1 }));
-                          setSelectedRowKeys([]);
-                        }
-                      }}
-                    />
-                  </>
-                )}
               </Space>
             )}
           </ResponsiveFilters>
@@ -774,61 +666,37 @@ const ActivityParticipants = () => {
 
       {/* Participants Table */}
       <div style={{ marginTop: 12 }}>
-        {coursesLoading && <Text type="secondary">Memuat kelas terkait…</Text>}
-        {coursesError && (
-          <Alert
-            type="error"
-            title="Kelas terkait gagal dimuat"
-            action={<Button onClick={refreshCourses}>Coba lagi</Button>}
-          />
-        )}
-        {Boolean(linkedCourses?.length) && (
-          <p>
-            Progres mengikuti materi yang masih tersedia dan dapat berubah
-            ketika materi diperbarui. Filter semua kelas menampilkan peserta
-            yang menyelesaikan seluruh kelas terkait. Ekspor mencakup semua
-            peserta.
-          </p>
-        )}
-        {participantsError ? (
-          <Alert
-            type="error"
-            title="Peserta dan progres kelas gagal dimuat"
-            action={<Button onClick={fetchParticipants}>Coba lagi</Button>}
-          />
-        ) : (
-          <Table
-            listId="pages/Activity/ActivityParticipants/index:1"
-            rowKey="id"
-            columns={tableColumns}
-            dataSource={participantsData?.data?.map((item: ParticipantRow) => ({
-              ...item,
-              activity_id: Number(id),
-            }))}
-            loading={participantsLoading}
-            rowSelection={rowSelection}
-            pagination={{
-              current: participantsData?.meta?.current_page || pagination.page,
-              pageSize: participantsData?.meta?.per_page || pagination.per_page,
-              total: participantsData?.meta?.total,
-              showSizeChanger: true,
-              pageSizeOptions: ["25", "50", "100", "200"],
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} dari ${total}`,
-            }}
-            onChange={handleTableChange}
-            scroll={{
-              x: tableColumns.reduce(
-                (width, col) => width + Number(col.width || 200),
-                48,
-              ),
-              y: "calc(100vh - 280px)",
-            }}
-            sticky={{ offsetHeader: 0 }}
-            size="small"
-            bordered
-          />
-        )}
+        <Table
+          listId="pages/Activity/ActivityParticipants/index:1"
+          rowKey="id"
+          columns={tableColumns}
+          dataSource={participantsData?.data?.map((item: ParticipantRow) => ({
+            ...item,
+            activity_id: Number(id),
+          }))}
+          loading={participantsLoading}
+          rowSelection={rowSelection}
+          pagination={{
+            current: participantsData?.meta?.current_page || pagination.page,
+            pageSize: participantsData?.meta?.per_page || pagination.per_page,
+            total: participantsData?.meta?.total,
+            showSizeChanger: true,
+            pageSizeOptions: ["25", "50", "100", "200"],
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} dari ${total}`,
+          }}
+          onChange={handleTableChange}
+          scroll={{
+            x: tableColumns.reduce(
+              (width, col) => width + Number(col.width || 200),
+              48,
+            ),
+            y: "calc(100vh - 280px)",
+          }}
+          sticky={{ offsetHeader: 0 }}
+          size="small"
+          bordered
+        />
       </div>
     </div>
   );
