@@ -42,6 +42,8 @@ import {
   revokeCertificate,
 } from "../../../api/services/certificateTemplate";
 import type { Registrant } from "../../../types/model/activity";
+import { getLinkedCourses } from "../../../api/services/linked-course";
+import { courseColumns } from "./constants/course-columns";
 import type { IssuedCertificate } from "../../../types/services/certificateTemplate";
 
 import { getCustomFormByFeature } from "../../../api/services/customForm";
@@ -134,6 +136,16 @@ const ActivityParticipants = () => {
   );
 
   // Derive columns allowed by the custom form's profile section (Pertanyaan Dasar)
+  const {
+    data: linkedCourses,
+    loading: coursesLoading,
+    error: coursesError,
+    run: fetchCourses,
+  } = useRequest(() => getLinkedCourses("activity", Number(id)), {
+    ready: !!id,
+    refreshDeps: [id],
+  });
+
   const formAllowedColumns = useMemo((): ColumnConfig[] => {
     const ALWAYS_VISIBLE = new Set(["name", "created_at", "status"]);
 
@@ -151,25 +163,34 @@ const ActivityParticipants = () => {
     return ALL_COLUMNS;
   }, [customForm]);
 
+  const availableColumns = useMemo(
+    () => [...formAllowedColumns, ...courseColumns(linkedCourses ?? [])],
+    [formAllowedColumns, linkedCourses],
+  );
+
   // Load column preferences from localStorage, constrained to form-allowed columns
   useEffect(() => {
-    if (!id || customFormLoading) return;
+    if (!id || customFormLoading || coursesLoading || coursesError) return;
 
     const savedVisibility = new Map(
-      (loadColumnPreferences(id) ?? []).map((c) => [c.key, c.visible]),
+      (loadColumnPreferences(id, availableColumns) ?? []).map((c) => [
+        c.key,
+        c.visible,
+      ]),
     );
     setColumns(
-      formAllowedColumns.map((col) => ({
+      availableColumns.map((col) => ({
         ...col,
         visible: savedVisibility.get(col.key) ?? col.visible,
       })),
     );
-  }, [id, customFormLoading, formAllowedColumns]);
+  }, [id, customFormLoading, coursesLoading, coursesError, availableColumns]);
 
   // Fetch participants
   const {
     data: participantsData,
     loading: participantsLoading,
+    error: participantsError,
     run: fetchParticipants,
   } = useRequest(
     () =>
@@ -260,9 +281,10 @@ const ActivityParticipants = () => {
   // Handle refresh
   const handleRefresh = useCallback(() => {
     fetchParticipants();
+    fetchCourses();
     fetchIssuedCertificates();
     setSelectedRowKeys([]);
-  }, [fetchIssuedCertificates, fetchParticipants]);
+  }, [fetchIssuedCertificates, fetchParticipants, fetchCourses]);
 
   const openCertificatePreview = useCallback((certificateId: number) => {
     const previewWindow = window.open(
@@ -656,7 +678,7 @@ const ActivityParticipants = () => {
 
             <ColumnManager
               columns={columns}
-              defaultColumns={formAllowedColumns}
+              defaultColumns={availableColumns}
               onColumnsChange={handleColumnsChange}
               activityId={id || ""}
             />
@@ -666,15 +688,34 @@ const ActivityParticipants = () => {
 
       {/* Participants Table */}
       <div style={{ marginTop: 12 }}>
+        {(coursesError || participantsError) && (
+          <Alert
+            type="error"
+            showIcon
+            title="Data peserta atau progres kelas gagal dimuat"
+            action={<Button onClick={handleRefresh}>Coba lagi</Button>}
+            style={{ marginBottom: 12 }}
+          />
+        )}
+        {!!linkedCourses?.length && (
+          <Typography.Paragraph type="secondary">
+            Progres mengikuti materi kelas saat ini. Perubahan materi dapat
+            mengubah penyelesaian kelas. Muat ulang peserta untuk memperbarui
+            progres.
+          </Typography.Paragraph>
+        )}
         <Table
           listId="pages/Activity/ActivityParticipants/index:1"
           rowKey="id"
           columns={tableColumns}
-          dataSource={participantsData?.data?.map((item: ParticipantRow) => ({
+          dataSource={(coursesError || participantsError
+            ? []
+            : participantsData?.data
+          )?.map((item: ParticipantRow) => ({
             ...item,
             activity_id: Number(id),
           }))}
-          loading={participantsLoading}
+          loading={participantsLoading || coursesLoading}
           rowSelection={rowSelection}
           pagination={{
             current: participantsData?.meta?.current_page || pagination.page,
