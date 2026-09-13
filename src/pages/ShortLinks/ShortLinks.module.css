@@ -9,12 +9,14 @@
   color: #fff;
 }
 
-.page :global(.ant-btn-dangerous:not(:disabled)) {
+.page :global(.ant-btn-dangerous:not(:disabled)),
+.page :global(.ant-btn-color-dangerous:not(:disabled)) {
   color: #c83238;
   border-color: #c83238;
 }
 
-.dialog :global(.ant-btn-primary.ant-btn-dangerous:not(:disabled)) {
+.dialog :global(.ant-btn-primary.ant-btn-dangerous:not(:disabled)),
+.dialog :global(.ant-btn-color-dangerous.ant-btn-variant-solid:not(:disabled)) {
   background: #c83238 !important;
 }
 
