@@ -1,0 +1,23 @@
+.page :global(.ant-typography-secondary),
+.dialog :global(.ant-form-item-extra) {
+  color: #595959;
+}
+
+.page :global(.ant-btn-primary:not(:disabled)),
+.dialog :global(.ant-btn-primary:not(:disabled)) {
+  background: #087aa6 !important;
+  color: #fff;
+}
+
+.page :global(.ant-btn-dangerous:not(:disabled)) {
+  color: #c83238;
+  border-color: #c83238;
+}
+
+.dialog :global(.ant-btn-primary.ant-btn-dangerous:not(:disabled)) {
+  background: #c83238 !important;
+}
+
+.dialog :global(.ant-form-item-explain-error) {
+  color: #c83238;
+}

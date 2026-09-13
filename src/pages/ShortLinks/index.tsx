@@ -18,6 +18,7 @@ import { handleError } from "../../api/errorHandling";
 import { deleteShortLink, getShortLinks } from "../../api/services/short-link";
 import type { ShortLink } from "../../types/model/short-link";
 import ShortLinkForm from "./ShortLinkForm";
+import styles from "./ShortLinks.module.css";
 
 export default function ShortLinks(): ReactElement {
   return (
@@ -58,6 +59,7 @@ function ShortLinksContent(): ReactElement {
   };
   const remove = (link: ShortLink): void => {
     modal.confirm({
+      rootClassName: styles.dialog,
       title: "Hapus tautan pendek?",
       content: (
         <Typography.Paragraph style={{ overflowWrap: "anywhere" }}>
@@ -84,7 +86,7 @@ function ShortLinksContent(): ReactElement {
     });
   };
   return (
-    <main style={{ padding: 12, minWidth: 0 }}>
+    <main className={styles.page} style={{ padding: 12, minWidth: 0 }}>
       {messageContext}
       {modalContext}
       <Typography.Title level={2} style={{ marginBottom: 4 }}>
@@ -247,6 +249,7 @@ function ShortLinksContent(): ReactElement {
         bot.
       </Typography.Paragraph>
       <Modal
+        rootClassName={styles.dialog}
         open={editor !== null}
         title={editor === "new" ? "Buat tautan pendek" : "Ubah alamat tujuan"}
         footer={null}
