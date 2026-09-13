@@ -18,6 +18,7 @@ import { handleError } from "../../api/errorHandling";
 import { deleteShortLink, getShortLinks } from "../../api/services/short-link";
 import type { ShortLink } from "../../types/model/short-link";
 import ShortLinkForm from "./ShortLinkForm";
+import ShortLinkQRCode from "./ShortLinkQRCode";
 import styles from "./ShortLinks.module.css";
 
 export default function ShortLinks(): ReactElement {
@@ -40,6 +41,7 @@ function ShortLinksContent(): ReactElement {
   const [params, setParams] = useState({ search: "", page: 1, per_page: 12 });
   const [editor, setEditor] = useState<ShortLink | "new" | null>(null);
   const [created, setCreated] = useState<ShortLink | null>(null);
+  const [qrLink, setQRLink] = useState<ShortLink | null>(null);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [message, messageContext] = messageAPI.useMessage();
   const [modal, modalContext] = Modal.useModal();
@@ -131,6 +133,9 @@ function ShortLinksContent(): ReactElement {
               </Typography.Text>
               <Button onClick={() => void copy(created)}>
                 Salin tautan baru
+              </Button>
+              <Button onClick={() => setQRLink(created)}>
+                Kode QR tautan baru
               </Button>
             </Space>
           }
@@ -230,6 +235,7 @@ function ShortLinksContent(): ReactElement {
               render: (_, link) => (
                 <Space wrap>
                   <Button onClick={() => void copy(link)}>Salin</Button>
+                  <Button onClick={() => setQRLink(link)}>Kode QR</Button>
                   {canManage && (
                     <>
                       <Button onClick={() => setEditor(link)}>Ubah</Button>
@@ -272,6 +278,9 @@ function ShortLinksContent(): ReactElement {
           />
         )}
       </Modal>
+      {qrLink && (
+        <ShortLinkQRCode link={qrLink} onClose={() => setQRLink(null)} />
+      )}
     </main>
   );
 }
