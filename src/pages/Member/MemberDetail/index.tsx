@@ -102,6 +102,10 @@ const historyYearRule = {
 const MemberDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm<FormType>();
+  const educationHistory: EducationEntry[] | undefined = Form.useWatch(
+    "education_history",
+    form,
+  );
 
   const [isEdit, { setLeft: exitEdit, setRight: enterEdit }] = useToggle(false);
   const [isEditAuthOpen, setIsEditAuthOpen] = useState(false);
@@ -509,20 +513,41 @@ const MemberDetailPage = () => {
                       <Form.Item name={[name, "degree"]} label="Jenjang">
                         <Select
                           options={DEGREE_OPTIONS}
+                          onChange={(degree: string): void => {
+                            if (degree === "high_school") {
+                              form.setFieldValue(
+                                ["education_history", name, "faculty"],
+                                "",
+                              );
+                            }
+                          }}
                           style={{ width: "100%" }}
                         />
                       </Form.Item>
                     </Col>
                     <Col span={7}>
-                      <Form.Item name={[name, "institution"]} label="Institusi">
-                        <UniversityNameSelect placeholder="Cari atau ketik nama institusi" />
+                      <Form.Item
+                        name={[name, "institution"]}
+                        label={
+                          educationHistory?.[name]?.degree === "high_school"
+                            ? "Nama Sekolah"
+                            : "Institusi"
+                        }
+                      >
+                        {educationHistory?.[name]?.degree === "high_school" ? (
+                          <Input placeholder="Nama sekolah" />
+                        ) : (
+                          <UniversityNameSelect placeholder="Cari atau ketik nama institusi" />
+                        )}
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
-                      <Form.Item name={[name, "faculty"]} label="Fakultas">
-                        <Input placeholder="Fakultas" />
-                      </Form.Item>
-                    </Col>
+                    {educationHistory?.[name]?.degree !== "high_school" && (
+                      <Col span={6}>
+                        <Form.Item name={[name, "faculty"]} label="Fakultas">
+                          <Input placeholder="Fakultas" />
+                        </Form.Item>
+                      </Col>
+                    )}
                     <Col span={6}>
                       <Form.Item name={[name, "major"]} label="Jurusan">
                         <Input placeholder="Jurusan" />
