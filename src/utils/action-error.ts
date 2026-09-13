@@ -1,6 +1,10 @@
 import { isAxiosError } from "axios";
 
 const messages: Record<string, string> = {
+  INVALID_ACTIVITY_COURSES:
+    "Pilihan kelas tidak valid atau kelas sudah dihapus. Muat ulang daftar kelas lalu coba lagi.",
+  INVALID_ACTIVITY_COURSE_FILTER:
+    "Kelas terkait telah berubah. Muat ulang peserta dan pilih kembali filter progres.",
   SCORING_REVISION_CONFLICT:
     "Data penilaian telah berubah. Muat ulang halaman sebelum menyimpan atau menerbitkan lagi.",
   SCORING_RUBRIC_LOCKED:

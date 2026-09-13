@@ -362,6 +362,7 @@ export const COLUMN_STORAGE_KEY = "participant_column_preferences";
 // Load column preferences from localStorage
 export const loadColumnPreferences = (
   activityId: string,
+  availableColumns: ColumnConfig[] = ALL_COLUMNS,
 ): ColumnConfig[] | null => {
   try {
     const stored = localStorage.getItem(`${COLUMN_STORAGE_KEY}_${activityId}`);
@@ -371,16 +372,18 @@ export const loadColumnPreferences = (
         visible: boolean;
       }>;
       // Merge with current ALL_COLUMNS to handle new columns
-      return ALL_COLUMNS.map((col) => {
-        const saved = parsed.find((p) => p.key === col.key);
-        return saved ? { ...col, visible: saved.visible } : col;
-      }).sort((a, b) => {
-        const aIndex = parsed.findIndex((p) => p.key === a.key);
-        const bIndex = parsed.findIndex((p) => p.key === b.key);
-        if (aIndex === -1) return 1;
-        if (bIndex === -1) return -1;
-        return aIndex - bIndex;
-      });
+      return availableColumns
+        .map((col) => {
+          const saved = parsed.find((p) => p.key === col.key);
+          return saved ? { ...col, visible: saved.visible } : col;
+        })
+        .sort((a, b) => {
+          const aIndex = parsed.findIndex((p) => p.key === a.key);
+          const bIndex = parsed.findIndex((p) => p.key === b.key);
+          if (aIndex === -1) return 1;
+          if (bIndex === -1) return -1;
+          return aIndex - bIndex;
+        });
     }
   } catch (e) {
     console.error("Failed to load column preferences:", e);

@@ -2,6 +2,7 @@ import { ACTIVITY_CATEGORY_ENUM } from "../constants/activity";
 import { USER_LEVEL_ENUM } from "../constants/profile";
 import type { EducationEntry } from "./members";
 import type { Club } from "./club";
+import type { ActivityCourseProgress } from "./activity-course";
 
 export type Questionnaire =
   | {
@@ -62,6 +63,7 @@ export type Activity = {
 };
 
 export type Registrant = {
+  course_progress?: ActivityCourseProgress[];
   id: number;
   user_id: number | null;
   activity_id: number;

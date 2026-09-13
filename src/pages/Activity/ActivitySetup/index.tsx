@@ -43,6 +43,7 @@ import { actionError } from "../../../utils/action-error";
 import ImageList from "../ActivityDetail/components/ImageList";
 import CustomFormSelection from "../ActivityDetail/components/CustomFormSelection";
 import PublicationHelp from "./PublicationHelp";
+import ActivityCourses from "./ActivityCourses";
 import "../../../styles/guided-workflows.css";
 
 type Values = Pick<
@@ -73,6 +74,8 @@ export default function ActivitySetup(): ReactElement {
   const [readiness, setReadiness] = useState<SetupReadiness>();
   const [description, setDescription] = useState("");
   const [dirty, setDirty] = useState(false);
+  const [coursesDirty, setCoursesDirty] = useState(false);
+  const [coursesBusy, setCoursesBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mediaBusy, setMediaBusy] = useState(false);
   const [failure, setFailure] = useState("");
@@ -141,7 +144,11 @@ export default function ActivitySetup(): ReactElement {
       const row = await saveSetupActivity(id, payload);
       flushSync(() => {
         setDirty(false);
-        setSaved("Semua perubahan tersimpan");
+        setSaved(
+          coursesDirty
+            ? "Informasi kegiatan tersimpan. Simpan kelas terkait secara terpisah."
+            : "Semua perubahan tersimpan",
+        );
       });
       if (exit) {
         navigate("/activity");
@@ -363,6 +370,14 @@ export default function ActivitySetup(): ReactElement {
                   )}
                 </div>
                 <div hidden={step !== 2}>
+                  {id && permissions.includes("activities.manage") && (
+                    <ActivityCourses
+                      key={id}
+                      activityId={id}
+                      onDirtyChange={setCoursesDirty}
+                      onBusyChange={setCoursesBusy}
+                    />
+                  )}
                   <p>
                     Pendaftaran boleh disiapkan nanti. Kegiatan dapat
                     ditayangkan sebagai informasi terlebih dahulu.
@@ -562,22 +577,25 @@ export default function ActivitySetup(): ReactElement {
             </Form>
             <footer className="guided-footer guided-actions">
               <span className="guided-save-state" role="status">
-                {mediaBusy
-                  ? "Poster sedang disimpan…"
-                  : dirty
-                    ? "Ada perubahan belum disimpan"
-                    : saved || (id ? "Perubahan tersimpan" : "Belum disimpan")}
+                {coursesBusy
+                  ? "Kelas terkait sedang disimpan…"
+                  : mediaBusy
+                    ? "Poster sedang disimpan…"
+                    : dirty || coursesDirty
+                      ? "Ada perubahan belum disimpan"
+                      : saved ||
+                        (id ? "Perubahan tersimpan" : "Belum disimpan")}
               </span>
               {step > 0 && (
                 <Button
-                  disabled={busy || mediaBusy}
+                  disabled={busy || mediaBusy || coursesBusy}
                   onClick={() => void save(step - 1)}
                 >
                   Kembali
                 </Button>
               )}
               <Button
-                disabled={busy || mediaBusy}
+                disabled={busy || mediaBusy || coursesBusy}
                 onClick={() => void save(undefined, true)}
               >
                 Simpan & keluar
@@ -585,7 +603,7 @@ export default function ActivitySetup(): ReactElement {
               {step < 3 && (
                 <Button
                   type="primary"
-                  loading={busy || mediaBusy}
+                  loading={busy || mediaBusy || coursesBusy}
                   onClick={() => void save(step + 1)}
                 >
                   Simpan & lanjutkan
@@ -598,7 +616,9 @@ export default function ActivitySetup(): ReactElement {
           </>
         )}
       </Skeleton>
-      <UnsavedChangesGuard dirty={dirty || mediaBusy} />
+      <UnsavedChangesGuard
+        dirty={dirty || mediaBusy || coursesDirty || coursesBusy}
+      />
     </main>
   );
 }

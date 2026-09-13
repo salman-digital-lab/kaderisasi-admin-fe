@@ -80,6 +80,8 @@ export type postActivityResp = {
 };
 
 export type getRegistrantReq = {
+  course_id?: string;
+  course_completion?: string;
   per_page: string;
   page: string;
   search?: string;
