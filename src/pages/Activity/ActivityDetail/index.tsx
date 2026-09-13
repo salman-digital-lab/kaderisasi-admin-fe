@@ -23,10 +23,13 @@ import MandatoryData from "./components/MandatoryData";
 import ImageList from "./components/ImageList";
 import CustomFormSelection from "./components/CustomFormSelection";
 import ActivityScoring from "../ActivityScoring";
+import ActivityCoursesTab from "./components/ActivityCoursesTab";
+import { usePermissions } from "../../../stores/authStore";
 
 const MainActivityDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { id } = useParams();
+  const permissions = usePermissions();
   const activeTab = searchParams.get("tab") || "overview";
   const {
     data: activity,
@@ -85,6 +88,14 @@ const MainActivityDetail = () => {
       children: <ActivityScoring activityId={activity.id} />,
     },
   ];
+
+  if (permissions.includes("activities.manage")) {
+    items.splice(4, 0, {
+      key: "courses",
+      label: "Kelas Online",
+      children: <ActivityCoursesTab activityId={activity.id} />,
+    });
+  }
 
   // Legacy forms - only shown when explicitly selected
   if (activeTab === "4" || activeTab === "6") {
