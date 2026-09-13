@@ -3,6 +3,13 @@
   color: #595959;
 }
 
+.page :global(input::placeholder),
+.dialog :global(input::placeholder),
+.dialog :global(textarea::placeholder) {
+  color: #595959;
+  opacity: 1;
+}
+
 .page :global(.ant-btn-primary:not(:disabled)),
 .dialog :global(.ant-btn-primary:not(:disabled)) {
   background: #087aa6 !important;
