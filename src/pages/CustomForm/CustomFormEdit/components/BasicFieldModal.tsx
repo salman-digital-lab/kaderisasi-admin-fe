@@ -1,5 +1,9 @@
 import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
-import React from "react";
+import type { ReactElement } from "react";
+import type {
+  PROFILE_DATA_CATEGORIES,
+  PROFILE_DATA_TEMPLATES,
+} from "../constants";
 import {
   Alert,
   Space,
@@ -19,20 +23,22 @@ const { TabPane } = Tabs;
 interface BasicFieldModalProps {
   visible: boolean;
   selectedBasicFields: string[];
-  profileDataCategories: readonly any[];
-  profileDataTemplates: readonly any[];
+  profileDataCategories: typeof PROFILE_DATA_CATEGORIES;
+  profileDataTemplates: typeof PROFILE_DATA_TEMPLATES;
   onCancel: () => void;
-  onAddProfileField: (template: any) => void;
+  onAddProfileField: (
+    template: (typeof PROFILE_DATA_TEMPLATES)[number],
+  ) => void;
 }
 
-export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
+export const BasicFieldModal = ({
   visible,
   selectedBasicFields,
   profileDataCategories,
   profileDataTemplates,
   onCancel,
   onAddProfileField,
-}) => {
+}: BasicFieldModalProps): ReactElement => {
   const EDUCATION_PAIR = ["education_history", "current_education"];
   const selectedEducationField = EDUCATION_PAIR.find((key) =>
     selectedBasicFields.includes(key),
@@ -57,7 +63,9 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
       template.field.key !== blockedEducationField,
   );
 
-  const handleAddField = (template: any) => {
+  const handleAddField = (
+    template: (typeof PROFILE_DATA_TEMPLATES)[number],
+  ): void => {
     onAddProfileField(template);
     // Don't close the modal automatically to allow adding multiple fields
   };
@@ -66,8 +74,8 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
     <Modal
       title={
         <Space>
-          <UserOutlined />
-          <span>Pilih Pertanyaan Dasar</span>
+          <UserOutlined aria-hidden />
+          <span>Pilih isian Data diri</span>
         </Space>
       }
       open={visible}
@@ -75,7 +83,12 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
       footer={null}
       width={900}
       destroyOnHidden
+      className="builder-profile-picker"
     >
+      <p className="builder-hint">
+        Gunakan isian bawaan sesuai kebutuhan peserta. Data yang sudah tercakup
+        di sini tidak perlu ditanyakan lagi di bagian kustom.
+      </p>
       {availableTemplates.length === 0 && !blockedEducationField ? (
         <div style={{ textAlign: "center", padding: "40px 20px" }}>
           <UserOutlined
@@ -117,10 +130,10 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                     type="info"
                     showIcon
                     style={{ marginBottom: 12 }}
-                    message={
+                    title={
                       blockedEducationField === "current_education"
-                        ? 'Formulir sudah menggunakan "Riwayat Pendidikan". Tidak dapat menambahkan "Pendidikan Sekarang" secara bersamaan — hanya salah satu yang boleh dipilih.'
-                        : 'Formulir sudah menggunakan "Pendidikan Sekarang". Tidak dapat menambahkan "Riwayat Pendidikan" secara bersamaan — hanya salah satu yang boleh dipilih.'
+                        ? 'Formulir sudah menggunakan "Riwayat Pendidikan", termasuk data kampus. Gunakan salah satu jenis isian pendidikan.'
+                        : 'Formulir sudah menggunakan "Pendidikan Sekarang", termasuk data kampus. Gunakan salah satu jenis isian pendidikan.'
                     }
                   />
                 )}
@@ -134,7 +147,7 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                     const blockedLabel = CITY_BLOCKED_LABEL[template.field.key];
 
                     return (
-                      <Col span={8} key={template.name}>
+                      <Col xs={24} sm={12} md={8} key={template.name}>
                         <Tooltip
                           title={
                             isProvinceBlocked
@@ -143,6 +156,10 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                           }
                         >
                           <Card
+                            role="button"
+                            aria-label={`Tambahkan ${template.name}`}
+                            aria-disabled={isProvinceBlocked}
+                            tabIndex={isProvinceBlocked ? -1 : 0}
                             size="small"
                             hoverable={!isProvinceBlocked}
                             style={{
@@ -157,6 +174,15 @@ export const BasicFieldModal: React.FC<BasicFieldModalProps> = ({
                             onClick={() =>
                               !isProvinceBlocked && handleAddField(template)
                             }
+                            onKeyDown={(event) => {
+                              if (
+                                !isProvinceBlocked &&
+                                ["Enter", " "].includes(event.key)
+                              ) {
+                                event.preventDefault();
+                                handleAddField(template);
+                              }
+                            }}
                           >
                             <Space
                               direction="vertical"

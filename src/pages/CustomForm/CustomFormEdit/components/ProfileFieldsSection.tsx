@@ -6,11 +6,13 @@ import {
   MoreOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import { BuilderHelp } from "./BuilderHelp";
 
 interface ProfileFieldsSectionProps {
   selectedBasicFields: string[];
   profileDataTemplates: readonly {
     name: string;
+    description?: string;
     field: { key: string; type: string; required: boolean };
   }[];
   fieldTypes: readonly { value: string; label: string }[];
@@ -37,13 +39,52 @@ export function ProfileFieldsSection({
     <div className="builder-section">
       <div className="builder-profile-heading">
         <div>
-          <h3>Data diri</h3>
-          <p>Selalu ditampilkan sebelum pertanyaan formulir.</p>
+          <div className="builder-heading-with-help">
+            <h3>Data diri</h3>
+            <BuilderHelp title="Tentang Data diri">
+              <p>
+                Isian bawaan ini ditampilkan sebelum pertanyaan kustom. Pilih
+                yang dibutuhkan melalui <strong>Tambah data diri</strong>.
+              </p>
+              <p>
+                Untuk asal kampus, buka tab <strong>Pendidikan</strong> dan
+                pilih <strong>Pendidikan Sekarang</strong>. Isian ini mencakup
+                kampus atau sekolah, jenjang, fakultas, jurusan, dan tahun
+                masuk.
+              </p>
+              <p>
+                Jika sudah memakai <strong>Riwayat Pendidikan</strong>, data
+                kampus juga tersedia di sana. Gunakan salah satu jenis isian
+                pendidikan.
+              </p>
+              <p>
+                Nama Lengkap dan Jenis Kelamin merupakan isian wajib yang tidak
+                dapat dihapus.
+              </p>
+            </BuilderHelp>
+          </div>
+          <p>
+            Isian bawaan untuk data peserta. Pilih yang diperlukan agar tidak
+            perlu membuat pertanyaan serupa di bagian kustom.
+          </p>
         </div>
         <Button icon={<PlusOutlined aria-hidden />} onClick={onOpenAddModal}>
           Tambah data diri
         </Button>
       </div>
+      <p className="builder-profile-example">
+        {selectedBasicFields.includes("education_history") ? (
+          <>
+            Data <strong>asal kampus</strong> sudah tercakup dalam{" "}
+            <strong>Riwayat Pendidikan</strong>.
+          </>
+        ) : (
+          <>
+            Perlu data <strong>asal kampus</strong>? Gunakan{" "}
+            <strong>Pendidikan Sekarang</strong>.
+          </>
+        )}
+      </p>
       <ul className="builder-profile-list">
         {selectedBasicFields.map((fieldKey, index) => {
           const template = profileDataTemplates.find(
@@ -60,11 +101,10 @@ export function ProfileFieldsSection({
               <div className="builder-profile-copy">
                 <strong>{template.name}</strong>
                 <small>
-                  {
+                  {template.description ??
                     fieldTypes.find(
                       (type) => type.value === template.field.type,
-                    )?.label
-                  }
+                    )?.label}
                 </small>
               </div>
               {immutable ? (

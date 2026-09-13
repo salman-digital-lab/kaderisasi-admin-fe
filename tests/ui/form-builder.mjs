@@ -8,7 +8,7 @@ const require = createRequire(
 );
 const { chromium, expect } = require("@playwright/test");
 const output = new URL(
-  "../../../kaderisasi-admin-be-go/.artifacts/form-builder-refinement/",
+  "../../../kaderisasi-admin-be-go/.artifacts/form-builder-guidance/",
   import.meta.url,
 );
 mkdirSync(output, { recursive: true });
@@ -216,12 +216,29 @@ try {
       if (width < 768) await expect(page.getByRole("dialog")).toBeHidden();
     };
     const capture = async (name) => {
-      assert.ok(
-        await page.evaluate(
-          () => document.documentElement.scrollWidth <= window.innerWidth,
-        ),
-        "Horizontal overflow",
-      );
+      await expect
+        .poll(() =>
+          page
+            .locator(".builder-help-popup:not(.ant-popover-hidden)")
+            .evaluateAll((nodes) =>
+              nodes.every((node) => {
+                const rect = node.getBoundingClientRect();
+                return (
+                  getComputedStyle(node).opacity === "1" &&
+                  rect.x >= 0 &&
+                  rect.right <= window.innerWidth
+                );
+              }),
+            ),
+        )
+        .toBe(true);
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () => document.documentElement.scrollWidth <= window.innerWidth,
+          ),
+        )
+        .toBe(true);
       await page.screenshot({
         path: new URL(`${name}-${width}.png`, output).pathname,
         fullPage: false,
@@ -241,6 +258,27 @@ try {
       }),
     ).toBeHidden();
     await capture("refined-overview");
+    const guide = page.getByRole("button", {
+      name: "Panduan formulir",
+      exact: true,
+    });
+    await expect(guide).toHaveAttribute("aria-expanded", "false");
+    await guide.focus();
+    await page.keyboard.press("Enter");
+    const guideContent = page.getByRole("note", {
+      name: "Panduan formulir",
+      exact: true,
+    });
+    await expect(guideContent).toContainText(
+      "kebutuhan khusus kegiatan atau klub",
+    );
+    const guideBounds = await guideContent.boundingBox();
+    assert.ok(guideBounds.x >= 0 && guideBounds.x + guideBounds.width <= width);
+    await capture("guidance-overview");
+    await page.keyboard.press("Escape");
+    await expect(guideContent).toBeHidden();
+    await expect(guide).toBeFocused();
+    await expect(status).toHaveText("Semua perubahan tersimpan");
     const initialHeight = await page.evaluate(
       () => document.documentElement.scrollHeight,
     );
@@ -297,8 +335,61 @@ try {
     await expect(page.locator("#builder-question-q11_7")).toContainText(
       "Pengalaman mengelola donasi peserta",
     );
-    await select("Data diri");
+    await page.locator(".builder-help-link").click();
     await expect(page.locator(".builder-profile-row")).toHaveCount(9);
+    await expect(page.locator(".builder-profile-example")).toContainText(
+      "Pendidikan Sekarang",
+    );
+    const profileHelp = page.getByRole("button", {
+      name: "Tentang Data diri",
+      exact: true,
+    });
+    await profileHelp.click();
+    const profileHelpContent = page.getByRole("note", {
+      name: "Tentang Data diri",
+      exact: true,
+    });
+    await expect(profileHelpContent).toBeVisible();
+    await expect(profileHelpContent).toContainText(
+      "fakultas, jurusan, dan tahun masuk",
+    );
+    await capture("guidance-profile-tip");
+    await profileHelp.click();
+    await expect(
+      page.getByRole("note", { name: "Tentang Data diri", exact: true }),
+    ).toBeHidden();
+    await page
+      .getByRole("button", { name: "Tambah data diri", exact: true })
+      .click();
+    const picker = page.getByRole("dialog");
+    await expect(picker).toContainText(
+      "tidak perlu ditanyakan lagi di bagian kustom",
+    );
+    await picker.getByRole("tab", { name: /Pendidikan/ }).click();
+    const education = picker.getByRole("button", {
+      name: "Tambahkan Pendidikan Sekarang",
+      exact: true,
+    });
+    await expect(education).toContainText("asal kampus/sekolah");
+    await capture("guidance-education-picker");
+    await education.focus();
+    await page.keyboard.press("Enter");
+    await expect(picker).toContainText(
+      'Formulir sudah menggunakan "Pendidikan Sekarang", termasuk data kampus.',
+    );
+    await expect(
+      picker.getByRole("button", {
+        name: "Tambahkan Riwayat Pendidikan",
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    await picker.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(page.locator(".builder-profile-row")).toHaveCount(10);
+    await expect(
+      page
+        .locator(".builder-profile-row")
+        .filter({ hasText: "Pendidikan Sekarang" }),
+    ).toContainText("asal kampus/sekolah");
     await page
       .getByRole("button", { name: "Menu data diri: Nama Lengkap" })
       .click();
@@ -380,6 +471,21 @@ try {
       true,
     );
     assert.equal(writes.at(-1).formSchema.fields.length, 13);
+    assert.equal(
+      writes
+        .at(-1)
+        .formSchema.fields[0].fields.filter(
+          (field) => field.key === "current_education",
+        ).length,
+      1,
+    );
+    assert.equal(
+      writes
+        .at(-1)
+        .formSchema.fields.slice(1)
+        .flatMap((section) => section.fields).length,
+      96,
+    );
 
     await page.getByRole("button", { name: "Pratinjau", exact: true }).click();
     const preview = page.getByRole("dialog");
@@ -476,7 +582,7 @@ try {
             section.fields.map((field) => field.key),
           ),
       ).size,
-      115,
+      116,
     );
     await page
       .getByRole("button", { name: "Menu bagian 6", exact: true })
@@ -581,6 +687,32 @@ try {
     );
     if (width < 768) await page.keyboard.press("Escape");
     await save();
+    await select("Data diri");
+    await page
+      .getByRole("button", {
+        name: "Menu data diri: Pendidikan Sekarang",
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole("menuitem", { name: "Hapus isian", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Tambah data diri", exact: true })
+      .click();
+    await picker.getByRole("tab", { name: /Pendidikan/ }).click();
+    await picker
+      .getByRole("button", {
+        name: "Tambahkan Riwayat Pendidikan",
+        exact: true,
+      })
+      .click();
+    await picker.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(page.locator(".builder-profile-example")).toHaveText(
+      /sudah tercakup dalam Riwayat Pendidikan/,
+    );
+    await capture("guidance-education-history");
+    await save();
     await page.goto("/activity/new");
     await expect(
       page.getByRole("heading", { name: "Buat kegiatan", exact: true }),
@@ -613,7 +745,7 @@ try {
       new URL("failure-details.json", output),
       JSON.stringify(
         await page
-          .locator(".ant-dropdown, .ant-select-dropdown")
+          .locator(".ant-dropdown, .ant-select-dropdown, .ant-popover")
           .evaluateAll((nodes) =>
             nodes.map((node) => ({
               className: node.className,

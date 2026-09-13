@@ -247,6 +247,12 @@ export function QuestionEditor({
             label: "Teks bantuan dan validasi",
             children: (
               <div className="builder-settings">
+                <p className="builder-hint">
+                  Teks bantuan memberi petunjuk kepada peserta. Validasi
+                  membatasi jawaban yang diterima; kosongkan batas yang tidak
+                  diperlukan. Pesan kesalahan menjelaskan cara memperbaiki
+                  jawaban.
+                </p>
                 <label className="builder-control">
                   Teks bantuan
                   <Input.TextArea

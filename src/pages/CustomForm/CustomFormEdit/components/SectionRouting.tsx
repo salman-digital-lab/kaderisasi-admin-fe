@@ -83,6 +83,11 @@ export function SectionRouting({
   };
   return (
     <div className="builder-routing">
+      <p className="builder-hint">
+        Atur bagian yang dibuka setelah peserta menekan Lanjutkan. Misalnya,
+        jawaban “Ya” membuka bagian detail, sedangkan “Tidak” langsung ke
+        penutup.
+      </p>
       <label className="builder-control">
         Setelah bagian ini
         {renderDestination(
@@ -187,7 +192,9 @@ export function SectionRouting({
         ))}
       <p className="builder-hint">
         Satu pertanyaan pilihan ganda atau dropdown menentukan bagian
-        berikutnya. Pilihan tanpa aturan mengikuti tujuan bagian.
+        berikutnya. Tujuan hanya boleh berupa bagian sesudahnya atau Kirim
+        formulir. Pilihan tanpa aturan mengikuti tujuan pada “Setelah bagian
+        ini”.
       </p>
     </div>
   );

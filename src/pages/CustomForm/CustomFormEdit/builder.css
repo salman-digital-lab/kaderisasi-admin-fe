@@ -233,7 +233,61 @@
   flex-shrink: 0;
 }
 .builder-add-question {
-  margin-block: 12px 20px;
+  margin-block: 12px 0;
+}
+.builder-question-hint {
+  margin: 0 0 16px;
+  color: #595959;
+  font-size: 13px;
+}
+.builder-help-link {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #096c92;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.builder-help-trigger.ant-btn {
+  min-width: 44px;
+  color: #595959;
+}
+.builder-heading-with-help {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.builder-profile-heading > div {
+  flex: 1;
+  min-width: 220px;
+}
+.builder-profile-example {
+  margin: 0 0 20px;
+  color: #454545;
+  font-size: 13px;
+}
+.builder-help-content {
+  width: 300px;
+  max-width: calc(100vw - 56px);
+  max-height: 60dvh;
+  overflow-y: auto;
+  color: #454545;
+}
+.builder-help-content p {
+  margin: 0 0 12px;
+}
+.builder-help-content p:last-child {
+  margin-bottom: 0;
+}
+.builder-help-popup :focus-visible,
+.builder-profile-picker :focus-visible {
+  outline: 2px solid #075d80;
+  outline-offset: 3px;
+}
+.builder-profile-picker .ant-typography-secondary {
+  color: #595959;
 }
 .builder-routing-panel {
   border-top: 1px solid #e8e8e8;

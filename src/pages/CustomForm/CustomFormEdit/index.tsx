@@ -28,6 +28,7 @@ import {
 } from "./components";
 import { BuilderCanvas } from "./components/BuilderCanvas";
 import { FormPreview } from "./components/FormPreview";
+import { BuilderHelp } from "./components/BuilderHelp";
 import { useFormData, useFieldManagement } from "./hooks";
 import {
   FIELD_TYPES,
@@ -356,6 +357,28 @@ export default function CustomFormEdit(): ReactElement {
         <Tabs
           activeKey={activeTab}
           onChange={handleTabChange}
+          tabBarExtraContent={
+            <BuilderHelp title="Panduan formulir" label="Panduan">
+              <p>
+                <strong>Data diri</strong> menyediakan isian bawaan untuk
+                identitas, kontak, domisili, dan pendidikan peserta.
+              </p>
+              <p>
+                <strong>Pertanyaan kustom</strong> digunakan untuk kebutuhan
+                khusus kegiatan atau klub, seperti motivasi dan pilihan sesi.
+              </p>
+              <p>
+                <strong>Bagian</strong> mengelompokkan pertanyaan. Gunakan{" "}
+                <strong>Alur setelah bagian</strong> jika peserta perlu melihat
+                bagian berbeda sesuai jawabannya.
+              </p>
+              <p>
+                <strong>Pratinjau</strong> mencoba formulir tanpa mengirim
+                pendaftaran. Draf di perangkat belum tersimpan ke server; pilih{" "}
+                <strong>Simpan Perubahan</strong> untuk menerapkan perubahan.
+              </p>
+            </BuilderHelp>
+          }
           items={[
             {
               key: "basic",

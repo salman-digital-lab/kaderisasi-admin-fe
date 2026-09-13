@@ -392,6 +392,17 @@ export function BuilderCanvas({
               >
                 Tambah pertanyaan
               </Button>
+              <p className="builder-question-hint">
+                Data umum peserta tersedia di{" "}
+                <button
+                  type="button"
+                  className="builder-help-link"
+                  onClick={() => selectSection(null)}
+                >
+                  Data diri
+                </button>
+                .
+              </p>
               <Collapse
                 className="builder-routing-panel"
                 ghost
