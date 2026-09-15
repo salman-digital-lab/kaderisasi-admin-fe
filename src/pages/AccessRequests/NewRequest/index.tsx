@@ -8,7 +8,9 @@ import {
   getMyRequests,
   getRequestableTargets,
 } from "../../../api/services/access";
-import { useRole } from "../../../stores/authStore";
+import { useRoles } from "../../../stores/authStore";
+import RoleTags from "../../../components/common/RoleTags";
+import { refreshSessionProfile } from "../../../api/axios";
 import UnsavedChangesGuard from "../../../components/common/UnsavedChangesGuard";
 import { actionError } from "../../../utils/action-error";
 import RoleSummary from "../components/RoleSummary";
@@ -27,7 +29,7 @@ type Values = { role_code: string; reason: string };
 export default function NewRequestPage(): ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentRole = useRole();
+  const currentRoles = useRoles();
   const [form] = Form.useForm<Values>();
   const roleCode = Form.useWatch("role_code", form);
   const [dirty, setDirty] = useState(false);
@@ -38,6 +40,7 @@ export default function NewRequestPage(): ReactElement {
     const [targets, tickets] = await Promise.all([
       getRequestableTargets(),
       getMyRequests(),
+      refreshSessionProfile(),
     ]);
     const order = Object.keys(tasks);
     return {
@@ -48,12 +51,19 @@ export default function NewRequestPage(): ReactElement {
     };
   });
   const selected = data?.roles.find((role) => role.code === roleCode);
+  const alreadyAssigned = currentRoles.some((role) => role.code === roleCode);
+  const allAssigned =
+    !!data?.roles.length &&
+    data.roles.every((role) =>
+      currentRoles.some((assigned) => assigned.code === role.code),
+    );
   const duplicate = data?.tickets.find(
     (ticket) =>
       ticket.status === "open" && ticket.requested_role_code === roleCode,
   );
   const submit = async (values: Values): Promise<void> => {
-    if (duplicate || !selected) return;
+    if (busy || duplicate || alreadyAssigned || !selected || error || loading)
+      return;
     setBusy(true);
     setFailure("");
     try {
@@ -84,10 +94,23 @@ export default function NewRequestPage(): ReactElement {
         </Typography.Title>
         <p>
           Pilih tugas Anda, lalu jelaskan kebutuhan akses. Super Admin akan
-          meninjau pengajuan Anda.
+          meninjau pengajuan Anda. Setiap pengajuan menambahkan satu peran;
+          peran yang sudah dimiliki tetap tersedia.
         </p>
       </div>
       <div className="guided-content">
+        <section className="guided-section" aria-label="Peran saat ini">
+          <Typography.Title level={3}>Peran Anda saat ini</Typography.Title>
+          <RoleTags roles={currentRoles} />
+        </section>
+        {allAssigned && (
+          <Alert
+            type="info"
+            showIcon
+            title="Semua peran yang dapat diajukan sudah Anda miliki"
+            description="Tidak perlu mengirim pengajuan baru. Hak akses Anda tersedia di Akses Saya."
+          />
+        )}
         {error && (
           <Alert
             type="error"
@@ -117,7 +140,7 @@ export default function NewRequestPage(): ReactElement {
             <section className="guided-section">
               <Form.Item
                 name="role_code"
-                label="1. Pilih tugas utama"
+                label="1. Pilih peran tambahan sesuai tugas"
                 rules={[
                   {
                     required: true,
@@ -127,8 +150,25 @@ export default function NewRequestPage(): ReactElement {
               >
                 <Radio.Group className="guided-choices">
                   {data?.roles.map((role) => (
-                    <Radio key={role.code} value={role.code}>
+                    <Radio
+                      key={role.code}
+                      value={role.code}
+                      disabled={currentRoles.some(
+                        (assigned) => assigned.code === role.code,
+                      )}
+                    >
                       {showNames ? role.name : (tasks[role.code] ?? role.name)}
+                      {currentRoles.some(
+                        (assigned) => assigned.code === role.code,
+                      )
+                        ? " (Sudah dimiliki)"
+                        : data.tickets.some(
+                              (ticket) =>
+                                ticket.status === "open" &&
+                                ticket.requested_role_code === role.code,
+                            )
+                          ? " (Menunggu tinjauan)"
+                          : ""}
                     </Radio>
                   ))}
                 </Radio.Group>
@@ -140,7 +180,13 @@ export default function NewRequestPage(): ReactElement {
               </Button>
               {selected && <RoleSummary role={selected} />}
             </section>
-            {duplicate ? (
+            {alreadyAssigned ? (
+              <Alert
+                type="info"
+                title="Peran ini sudah Anda miliki"
+                description="Pilih peran lain jika membutuhkan akses tambahan."
+              />
+            ) : duplicate ? (
               <Alert
                 type="info"
                 showIcon
@@ -180,10 +226,9 @@ export default function NewRequestPage(): ReactElement {
                     />
                   </Form.Item>
                   <p>
-                    {currentRole
-                      ? `Peran baru yang disetujui akan menggantikan ${currentRole.name}.`
-                      : "Akses baru aktif setelah pengajuan disetujui."}{" "}
-                    Status dapat dilihat di Akses Saya.
+                    Peran yang disetujui akan ditambahkan ke akun Anda. Hak
+                    aksesnya digabungkan dengan seluruh peran yang sudah
+                    dimiliki. Status dapat dilihat di Akses Saya.
                   </p>
                 </section>
                 <div className="guided-actions">
@@ -191,7 +236,13 @@ export default function NewRequestPage(): ReactElement {
                     type="primary"
                     htmlType="submit"
                     loading={busy}
-                    disabled={!selected || !!error}
+                    disabled={
+                      !selected ||
+                      alreadyAssigned ||
+                      !!error ||
+                      loading ||
+                      allAssigned
+                    }
                   >
                     Kirim pengajuan akses
                   </Button>

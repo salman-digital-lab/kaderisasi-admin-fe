@@ -30,7 +30,8 @@ import { actionError } from "../../../../utils/action-error";
 import PublicationHelp from "../../ActivitySetup/PublicationHelp";
 import { activityChecklist } from "./activity-checklist";
 import DeleteFeatureButton from "../../../../components/common/DeleteFeatureButton";
-import { useRole } from "../../../../stores/authStore";
+import { useRoles } from "../../../../stores/authStore";
+import { canDeleteFeatures } from "../../../../utils/admin-roles";
 
 type Props = {
   activity: Activity;
@@ -43,7 +44,7 @@ export default function ActivityOverview({
   onUpdated,
   onNavigate,
 }: Props): ReactElement {
-  const role = useRole();
+  const roles = useRoles();
   const [failure, setFailure] = useState("");
   const [busy, setBusy] = useState(false);
   const {
@@ -267,7 +268,7 @@ export default function ActivityOverview({
       {readiness?.actions.can_edit && !readiness.actions.can_publish && (
         <PublicationHelp id={activity.id} name={activity.name} />
       )}
-      {(role?.code === "super_admin" || role?.code === "admin") && (
+      {canDeleteFeatures(roles) && (
         <Card title="Hapus Kegiatan">
           <Alert
             type="warning"

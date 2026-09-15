@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRequest } from "ahooks";
 import {
   Alert,
+  Collapse,
   Button,
   Form,
   Input,
@@ -28,6 +29,9 @@ import {
 import { useUser } from "../../../stores/authStore";
 import TicketDetails from "../components/TicketDetails";
 import RoleCapabilitiesTable from "../components/RoleCapabilitiesTable";
+import RoleTags from "../../../components/common/RoleTags";
+import { getAdminUser } from "../../../api/services/adminuser";
+import { assignedRoles } from "../../../utils/admin-roles";
 
 export default function ReviewDetailPage(): ReactElement {
   const { id = "" } = useParams();
@@ -52,9 +56,43 @@ export default function ReviewDetailPage(): ReactElement {
     (item) => item.code === data?.requested_role_code,
   );
   const selfReview = data?.requester_admin_user_id === user?.id;
+  const {
+    data: requester,
+    loading: requesterLoading,
+    error: requesterError,
+    refresh: retryRequester,
+    refreshAsync: refreshRequester,
+  } = useRequest(
+    async () => {
+      const account = await getAdminUser({
+        id: String(data?.requester_admin_user_id),
+      });
+      if (!account) throw new Error("REQUESTER_NOT_LOADED");
+      return account;
+    },
+    { ready: !!data, refreshDeps: [data?.requester_admin_user_id] },
+  );
+  const requesterRoles = requester ? assignedRoles(requester) : [];
+  const alreadyAssigned = requesterRoles.some(
+    (assigned) => assigned.code === data?.requested_role_code,
+  );
+  const combinedPermissions = [
+    ...new Set([
+      ...(requester?.effective_permissions ?? []),
+      ...(role?.permissions ?? []),
+    ]),
+  ];
 
   const resolve = async (): Promise<void> => {
-    if (!data || !decision || saving || selfReview) return;
+    if (
+      !data ||
+      !decision ||
+      saving ||
+      selfReview ||
+      (decision === "approved" &&
+        (!requester || requesterLoading || requesterError))
+    )
+      return;
     let reason = "";
     if (decision === "rejected") {
       try {
@@ -70,6 +108,7 @@ export default function ReviewDetailPage(): ReactElement {
           ? await approveReviewTicket(data.id)
           : await rejectReviewTicket(data.id, reason);
       mutate(updated);
+      void refreshRequester().catch(() => undefined);
       setDecision(null);
       form.resetFields();
       message.success(
@@ -108,6 +147,40 @@ export default function ReviewDetailPage(): ReactElement {
             <TicketDetails ticket={data} />
             <section style={{ marginTop: 20 }}>
               <Typography.Title level={5}>
+                Peran pemohon saat ini
+              </Typography.Title>
+              {requesterLoading ? (
+                <Skeleton paragraph={{ rows: 1 }} />
+              ) : requesterError || !requester ? (
+                <Alert
+                  type="error"
+                  title="Akses pemohon belum berhasil dimuat"
+                  action={<Button onClick={retryRequester}>Coba lagi</Button>}
+                />
+              ) : (
+                <>
+                  <RoleTags roles={requesterRoles} />
+                  {!requester.is_active && (
+                    <Alert
+                      style={{ marginTop: 12 }}
+                      type="warning"
+                      title="Akun pemohon nonaktif"
+                      description="Persetujuan menambahkan peran, tetapi akses baru dapat digunakan setelah akun diaktifkan melalui Akun Admin."
+                    />
+                  )}
+                  {alreadyAssigned && data.status === "open" && (
+                    <Alert
+                      style={{ marginTop: 12 }}
+                      type="info"
+                      title="Peran yang diminta sudah dimiliki"
+                      description="Persetujuan akan menutup pengajuan ini tanpa menggandakan peran atau menghapus peran lain."
+                    />
+                  )}
+                </>
+              )}
+            </section>
+            <section style={{ marginTop: 20 }}>
+              <Typography.Title level={5}>
                 Cakupan Peran yang Diminta
               </Typography.Title>
               {rolesLoading ? (
@@ -124,6 +197,22 @@ export default function ReviewDetailPage(): ReactElement {
                     {role.description}
                   </Typography.Paragraph>
                   <RoleCapabilitiesTable permissions={role.permissions} />
+                  {requester?.is_active && !requesterError && (
+                    <Collapse
+                      style={{ marginTop: 16 }}
+                      items={[
+                        {
+                          key: "combined",
+                          label: `Hak akses gabungan setelah persetujuan (${combinedPermissions.length})`,
+                          children: (
+                            <RoleCapabilitiesTable
+                              permissions={combinedPermissions}
+                            />
+                          ),
+                        },
+                      ]}
+                    />
+                  )}
                 </>
               ) : (
                 <Typography.Text type="secondary">
@@ -155,13 +244,21 @@ export default function ReviewDetailPage(): ReactElement {
                 <>
                   <Typography.Paragraph>
                     Jika disetujui, peran <strong>{data.role_name}</strong> akan
-                    menggantikan peran pemohon saat ini.
+                    ditambahkan ke akun pemohon. Peran yang sudah dimiliki tetap
+                    tersimpan, dan seluruh hak aksesnya digabungkan.
                   </Typography.Paragraph>
                   <Space wrap>
                     <Button
                       type="primary"
                       icon={<CheckOutlined />}
-                      disabled={rolesLoading || !!rolesError || !role}
+                      disabled={
+                        rolesLoading ||
+                        !!rolesError ||
+                        !role ||
+                        requesterLoading ||
+                        !!requesterError ||
+                        !requester
+                      }
                       onClick={() => setDecision("approved")}
                     >
                       Setujui Permintaan
@@ -201,7 +298,8 @@ export default function ReviewDetailPage(): ReactElement {
           <Typography.Paragraph>
             Peran <strong>{data?.role_name}</strong> akan diberikan kepada{" "}
             <strong>{data?.requester_name || data?.requester_email}</strong> dan
-            menggantikan peran sebelumnya.
+            digabungkan dengan peran yang sudah dimiliki. Persetujuan ini tidak
+            melepas peran lain.
           </Typography.Paragraph>
         ) : (
           <Form

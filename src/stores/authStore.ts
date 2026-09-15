@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import type { AuthSession, SessionUser } from "../types/services/auth";
+import { assignedRoles } from "../utils/admin-roles";
 
 export interface AuthState {
   token: string | null;
   user: SessionUser | null;
   role: AuthSession["user"]["role"];
+  roles: NonNullable<SessionUser["roles"]>;
   permissions: string[];
   authenticationMethods: string[];
   isSuperAdmin: boolean;
@@ -20,6 +22,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   token: null,
   user: null,
   role: null,
+  roles: [],
   permissions: [],
   authenticationMethods: [],
   isSuperAdmin: false,
@@ -31,6 +34,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       token: session.access_token,
       user: session.user,
       role: session.user.role,
+      roles: assignedRoles(session.user),
       permissions: session.permissions,
       authenticationMethods: session.authentication_methods,
       isSuperAdmin: session.is_super_admin,
@@ -42,6 +46,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       token: null,
       user: null,
       role: null,
+      roles: [],
       permissions: [],
       authenticationMethods: [],
       isSuperAdmin: false,
@@ -60,6 +65,7 @@ export const useUser = () => useAuthStore((state) => state.user);
 export const useToken = () => useAuthStore((state) => state.token);
 export const usePermissions = () => useAuthStore((state) => state.permissions);
 export const useRole = () => useAuthStore((state) => state.role);
+export const useRoles = () => useAuthStore((state) => state.roles);
 export const useIsSuperAdmin = () =>
   useAuthStore((state) => state.isSuperAdmin);
 export const useClearAuth = () => useAuthStore((state) => state.clearAuth);

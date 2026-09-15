@@ -1,10 +1,13 @@
 import { useState, type ReactElement } from "react";
 import { Alert, Button, Card, Form, Input, Typography, message } from "antd";
 import { updateProfile } from "../../api/services/profile";
-import { useSetSession, useUser } from "../../stores/authStore";
+import { useRoles, useSetSession, useUser } from "../../stores/authStore";
+import RoleTags from "../../components/common/RoleTags";
+import { Link } from "react-router-dom";
 
 export default function ProfilePage(): ReactElement {
   const user = useUser();
+  const roles = useRoles();
   const setSession = useSetSession();
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -24,6 +27,15 @@ export default function ProfilePage(): ReactElement {
     <div style={{ padding: 12 }}>
       <Typography.Title level={4}>Profil Saya</Typography.Title>
       <Card style={{ maxWidth: 640 }}>
+        <section style={{ marginBottom: 24 }}>
+          <Typography.Title level={5}>Peran Anda</Typography.Title>
+          <RoleTags roles={roles} />
+          <Typography.Paragraph style={{ marginTop: 12 }}>
+            <Link to="/my-requests">
+              Lihat hak akses gabungan dan pengajuan peran
+            </Link>
+          </Typography.Paragraph>
+        </section>
         {failed && (
           <Alert
             type="error"

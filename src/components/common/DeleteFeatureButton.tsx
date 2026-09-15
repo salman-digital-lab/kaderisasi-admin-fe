@@ -2,7 +2,8 @@ import { useRef, useState, type ReactElement } from "react";
 import { Alert, Button, Input, Modal, Typography, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
-import { useRole } from "../../stores/authStore";
+import { useRoles } from "../../stores/authStore";
+import { canDeleteFeatures } from "../../utils/admin-roles";
 import { actionError } from "../../utils/action-error";
 
 interface Props {
@@ -20,14 +21,14 @@ export default function DeleteFeatureButton({
   disabled = false,
   onDeleted,
 }: Props): ReactElement | null {
-  const role = useRole();
+  const roles = useRoles();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [confirmation, setConfirmation] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const inFlight = useRef(false);
-  const allowed = role?.code === "super_admin" || role?.code === "admin";
+  const allowed = canDeleteFeatures(roles);
   const label = kind === "activity" ? "Kegiatan" : "Klub";
 
   const remove = async (): Promise<void> => {

@@ -17,61 +17,52 @@ import {
   PutAdminUserResp,
 } from "../../types/services/adminuser";
 
-export const getAdminUsers = async (props: GetAdminUsersReq) => {
-  try {
-    const urlSearch = new URLSearchParams(
-      removeEmptyValueFromObj(props),
-    ).toString();
-    const res = await axios.get<GetAdminUsersResp>("/admin-users?" + urlSearch);
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-  }
+export const getAdminUsers = async (
+  props: GetAdminUsersReq,
+): Promise<GetAdminUsersResp["data"]> => {
+  const urlSearch = new URLSearchParams(
+    removeEmptyValueFromObj(props),
+  ).toString();
+  const res = await axios.get<GetAdminUsersResp>("/admin-users?" + urlSearch);
+  return res.data.data;
 };
 
-export const getAdminUser = async (props: GetAdminsUserReq) => {
-  try {
-    const res = await axios.get<GetAdminUserResp>("/admin-users/" + props.id);
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-  }
+export const getAdminUser = async (
+  props: GetAdminsUserReq,
+): Promise<GetAdminUserResp["data"]> => {
+  const res = await axios.get<GetAdminUserResp>("/admin-users/" + props.id);
+  return res.data.data;
 };
 
-export const postAdminUser = async (props: PostAdminUserReq) => {
-  try {
-    const bodyData = removeEmptyValueFromObj(props);
+export const postAdminUser = async (
+  props: PostAdminUserReq,
+): Promise<PostAdminUserResp["data"]> => {
+  const bodyData = removeEmptyValueFromObj(props);
 
-    const res = await axios.post<PostAdminUserResp>("/admin-users", bodyData);
+  const res = await axios.post<PostAdminUserResp>("/admin-users", bodyData);
 
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-  }
+  notification.success({
+    message: "Berhasil",
+    description: renderNotification(res.data.message),
+  });
+  return res.data.data;
 };
 
-export const putAdminUser = async (props: PutAdminUserReq) => {
-  try {
-    const bodyData = removeEmptyValueFromObj(props.data);
+export const putAdminUser = async (
+  props: PutAdminUserReq,
+): Promise<PutAdminUserResp["data"]> => {
+  const bodyData = removeEmptyValueFromObj(props.data);
 
-    const res = await axios.put<PutAdminUserResp>(
-      "/admin-users/" + props.id,
-      bodyData,
-    );
+  const res = await axios.put<PutAdminUserResp>(
+    "/admin-users/" + props.id,
+    bodyData,
+  );
 
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
+  notification.success({
+    message: "Berhasil",
+    description: renderNotification(res.data.message),
+  });
+  return res.data.data;
 };
 
 export const putAdminUserPassword = async (props: PutAdminUserPasswordReq) => {

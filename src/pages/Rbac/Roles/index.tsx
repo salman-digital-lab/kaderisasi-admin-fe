@@ -19,8 +19,9 @@ export default function RbacRolesPage(): ReactElement {
               Peran & Akses
             </Typography.Title>
             <Typography.Text type="secondary">
-              Lihat akses setiap role. Penetapan role dilakukan melalui Akun
-              Admin.
+              Satu akun dapat memiliki beberapa peran. Hak akses dari seluruh
+              peran digabungkan. Tetapkan peran melalui Akun Admin atau ajukan
+              peran tambahan melalui Akses Saya.
             </Typography.Text>
           </div>
         }

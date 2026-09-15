@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRequest } from "ahooks";
+import { Alert, Button, Typography } from "antd";
 
 import AdminUserTable from "./components/AdminUserTable";
 import { getAdminUsers } from "../../../api/services/adminuser";
@@ -14,7 +15,7 @@ export default function AdminUserList() {
     is_active: "",
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getAdminUsers({
         per_page: String(adminUserParam.per_page),
@@ -30,12 +31,26 @@ export default function AdminUserList() {
 
   return (
     <div style={{ padding: 12 }}>
+      <Typography.Title level={4}>Akun Admin</Typography.Title>
+      <Typography.Paragraph type="secondary">
+        Satu akun dapat memiliki beberapa peran dengan hak akses gabungan.
+        Filter peran menampilkan akun yang memiliki peran tersebut, termasuk
+        bersama peran lain.
+      </Typography.Paragraph>
       <AdminUserFilter
         setParameter={setAdminUserParam}
         refresh={refresh}
         loading={loading}
       />
       <div style={{ marginTop: 12 }}>
+        {error && (
+          <Alert
+            type="error"
+            title="Daftar akun admin belum berhasil dimuat"
+            action={<Button onClick={refresh}>Coba lagi</Button>}
+            style={{ marginBottom: 12 }}
+          />
+        )}
         <AdminUserTable
           data={data}
           loading={loading}

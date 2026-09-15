@@ -5,6 +5,8 @@ export type AdminUser = {
   email: string;
   display_name: string;
   role: AssignedRole | null;
+  roles?: AssignedRole[];
+  role_codes?: string[];
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -60,7 +60,7 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
 
   return (
     <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
-      <AddAdminUser isOpen={isOpen} setIsOpen={setIsOpen} />
+      <AddAdminUser isOpen={isOpen} setIsOpen={setIsOpen} onCreated={refresh} />
       <div
         style={{
           display: "flex",
@@ -90,14 +90,14 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
                 prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
               />
               <Select
-                aria-label="Filter role"
-                placeholder="Semua role"
+                aria-label="Filter peran"
+                placeholder="Semua peran"
                 style={{ width: 200 }}
                 allowClear
                 value={role || undefined}
                 onChange={(value) => setRole(value || "")}
                 options={[
-                  { value: "unassigned", label: "Belum memiliki role" },
+                  { value: "unassigned", label: "Belum memiliki peran" },
                   ...roles.map((item) => ({
                     value: item.code,
                     label: item.name,

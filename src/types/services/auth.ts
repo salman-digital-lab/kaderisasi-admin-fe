@@ -9,6 +9,7 @@ export type SessionUser = {
   display_name: string;
   is_active: boolean;
   role: AssignedRole | null;
+  roles?: AssignedRole[];
 };
 
 export type AuthSession = {

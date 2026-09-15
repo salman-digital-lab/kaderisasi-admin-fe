@@ -4,51 +4,56 @@ import { Alert, Button, Popconfirm, Skeleton, Typography } from "antd";
 import { Link, useParams } from "react-router-dom";
 import { cancelMyRequest, getMyRequest } from "../../../api/services/access";
 import { refreshSessionProfile } from "../../../api/axios";
-import { usePermissions, useRole } from "../../../stores/authStore";
+import { usePermissions, useRoles } from "../../../stores/authStore";
+import RoleTags from "../../../components/common/RoleTags";
 import { actionError } from "../../../utils/action-error";
 import TicketDetails from "../components/TicketDetails";
 import "../../../styles/guided-workflows.css";
 
-const destinations = [
-  ["activities.read", "/activity", "Buka kegiatan"],
-  ["clubs.read", "/club", "Buka komunitas"],
-  ["members.read", "/member", "Buka anggota"],
-  ["counseling.read", "/ruang-curhat", "Buka layanan konseling"],
-  ["dashboard.read", "/dashboard", "Buka dasbor"],
-];
+const destinations: Record<string, [string, string, string]> = {
+  activity_manager: ["activities.read", "/activity", "Buka kegiatan"],
+  achievement_manager: ["achievements.read", "/achievement", "Buka prestasi"],
+  club_manager: ["clubs.read", "/club", "Buka komunitas"],
+  konselor: ["counseling.read", "/ruang-curhat", "Buka layanan konseling"],
+  admin: ["activities.read", "/activity", "Buka kegiatan"],
+};
 export default function RequestDetailPage(): ReactElement {
   const { id = "" } = useParams();
-  const role = useRole();
+  const roles = useRoles();
   const permissions = usePermissions();
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState("");
-  const { data, loading, error, refresh } = useRequest(() => getMyRequest(id), {
-    refreshDeps: [id],
-    refreshOnWindowFocus: true,
-  });
+  const { data, loading, error, refresh } = useRequest(
+    async () => {
+      const [ticket] = await Promise.all([
+        getMyRequest(id),
+        refreshSessionProfile(),
+      ]);
+      return ticket;
+    },
+    {
+      refreshDeps: [id],
+      refreshOnWindowFocus: true,
+    },
+  );
   useEffect(() => {
-    if (data?.resolution === "approved")
-      void refreshSessionProfile().catch(() =>
-        setFailure(
-          "Akses terbaru belum berhasil dimuat. Tekan Perbarui status untuk mencoba lagi.",
-        ),
-      );
     if (data?.status !== "open") return;
     const timer = window.setInterval(() => {
       if (document.visibilityState === "visible") refresh();
     }, 30000);
     return () => window.clearInterval(timer);
   }, [data?.resolution, data?.status, refresh]);
-  const destination = destinations.find(([permission]) =>
-    permissions.includes(permission),
+  const alreadyAssigned = roles.some(
+    (role) => role.code === data?.requested_role_code,
   );
+  const destination = data ? destinations[data.requested_role_code] : undefined;
   return (
     <main className="guided-page">
       <Link to="/my-requests">← Akses Saya</Link>
       {error && (
         <Alert
           type="error"
-          title="Pengajuan belum berhasil dimuat"
+          title="Pengajuan atau akses terbaru belum berhasil dimuat"
           action={<Button onClick={refresh}>Coba lagi</Button>}
         />
       )}
@@ -77,19 +82,29 @@ export default function RequestDetailPage(): ReactElement {
                 {data.status === "open"
                   ? "Super Admin akan meninjau kebutuhan akses Anda. Status di halaman ini diperbarui secara berkala."
                   : data.resolution === "approved"
-                    ? `Peran aktif Anda saat ini: ${role?.name ?? "sedang diperbarui"}.`
+                    ? alreadyAssigned
+                      ? `Peran ${data.role_name} sudah tersedia. Hak aksesnya digabungkan dengan peran lain yang Anda miliki.`
+                      : "Pengajuan ini pernah disetujui, tetapi perannya tidak ada pada akses Anda saat ini. Hubungi Super Admin jika masih membutuhkannya."
                     : data.resolution === "rejected"
                       ? "Baca alasan penolakan di bawah. Anda dapat memperbaiki alasan dan mengajukan kembali."
                       : "Pengajuan ini tidak akan ditinjau. Anda dapat membuat pengajuan baru jika masih membutuhkan akses."}
               </p>
             </div>
+            <section className="guided-section">
+              <Typography.Title level={3}>Peran Anda saat ini</Typography.Title>
+              <RoleTags roles={roles} />
+            </section>
             <div className="guided-actions" style={{ marginBottom: 24 }}>
-              {data.resolution === "approved" && destination && (
-                <Link to={destination[1]}>
-                  <Button type="primary">{destination[2]}</Button>
-                </Link>
-              )}
-              {data.resolution === "rejected" && (
+              {data.resolution === "approved" &&
+                alreadyAssigned &&
+                destination &&
+                permissions.includes(destination[0]) &&
+                !error && (
+                  <Link to={destination[1]}>
+                    <Button type="primary">{destination[2]}</Button>
+                  </Link>
+                )}
+              {data.resolution === "rejected" && !alreadyAssigned && (
                 <Link
                   to="/my-requests/new"
                   state={{
@@ -108,11 +123,6 @@ export default function RequestDetailPage(): ReactElement {
                 onClick={() => {
                   setFailure("");
                   refresh();
-                  void refreshSessionProfile().catch(() =>
-                    setFailure(
-                      "Akses terbaru belum berhasil dimuat. Coba lagi.",
-                    ),
-                  );
                 }}
               >
                 Perbarui status

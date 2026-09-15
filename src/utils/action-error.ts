@@ -1,6 +1,15 @@
 import { isAxiosError } from "axios";
 
 const messages: Record<string, string> = {
+  LAST_SUPER_ADMIN_REQUIRED:
+    "Minimal satu Super Admin aktif harus tetap tersedia. Tetapkan Super Admin lain sebelum melepas peran ini atau menonaktifkan akun.",
+  SELF_DEACTIVATION_NOT_ALLOWED: "Anda tidak dapat menonaktifkan akun sendiri.",
+  SUPER_ADMIN_REQUIRED:
+    "Pengelolaan akun memerlukan peran Super Admin. Perbarui akses Anda.",
+  UNKNOWN_ROLE:
+    "Salah satu peran sudah tidak tersedia. Muat ulang daftar peran sebelum menyimpan.",
+  EMAIL_ALREADY_REGISTERED:
+    "Email ini sudah digunakan. Gunakan email lain atau ubah akun yang sudah ada.",
   INVALID_CLUB_COURSES:
     "Pilihan kelas tidak valid. Muat ulang pilihan dan coba lagi.",
   INVALID_COURSE_PROGRESS_FILTER:

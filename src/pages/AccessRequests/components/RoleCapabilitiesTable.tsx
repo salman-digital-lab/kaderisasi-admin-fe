@@ -19,6 +19,8 @@ const modules: Record<string, string> = {
   admin_users: "Akun Admin",
   rbac: "Peran & Hak Akses",
   tickets: "Tiket",
+  courses: "Kelas Online",
+  short_links: "Tautan Pendek",
 };
 
 export default function RoleCapabilitiesTable({

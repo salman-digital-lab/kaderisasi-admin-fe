@@ -1,29 +1,38 @@
 import { useEffect, type ReactElement } from "react";
 import { useRequest } from "ahooks";
-import { Alert, Button, Skeleton, Typography } from "antd";
+import { Alert, Button, Collapse, Skeleton, Typography } from "antd";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import { getMyRequests } from "../../../api/services/access";
 import { refreshSessionProfile } from "../../../api/axios";
-import { useRole } from "../../../stores/authStore";
+import { useRoles, usePermissions } from "../../../stores/authStore";
+import RoleTags from "../../../components/common/RoleTags";
+import RoleCapabilitiesTable from "../components/RoleCapabilitiesTable";
 import { ResponsiveTable } from "../../../components/common/Responsive/ResponsiveTable";
 import TicketStatus from "../components/TicketStatus";
 import type { AccessTicket } from "../../../types/model/access";
 import "../../../styles/guided-workflows.css";
 
 export default function MyRequestsPage(): ReactElement {
-  const role = useRole();
+  const roles = useRoles();
+  const permissions = usePermissions();
   const {
     data = [],
     loading,
     error,
     refresh,
-  } = useRequest(getMyRequests, {
-    refreshOnWindowFocus: true,
-    onSuccess: () => {
-      void refreshSessionProfile().catch(() => undefined);
+  } = useRequest(
+    async () => {
+      const [tickets] = await Promise.all([
+        getMyRequests(),
+        refreshSessionProfile(),
+      ]);
+      return tickets;
     },
-  });
+    {
+      refreshOnWindowFocus: true,
+    },
+  );
   const pending = data.filter((ticket) => ticket.status === "open");
   useEffect(() => {
     if (!pending.length) return;
@@ -37,15 +46,31 @@ export default function MyRequestsPage(): ReactElement {
       <div className="guided-intro">
         <Typography.Title level={2}>Akses Saya</Typography.Title>
         <p>
-          {role
-            ? `Peran Anda saat ini: ${role.name}.`
+          {roles.length
+            ? "Hak akses Anda merupakan gabungan dari seluruh peran yang dimiliki. Ajukan peran tambahan jika tugas Anda memerlukan akses lain."
             : "Akun Anda sudah siap. Ajukan akses sesuai tugas agar Anda dapat mulai bekerja."}
         </p>
       </div>
+      <section className="guided-section">
+        <Typography.Title level={3}>Peran Anda saat ini</Typography.Title>
+        <RoleTags roles={roles} />
+        {!!permissions.length && (
+          <Collapse
+            style={{ marginTop: 16 }}
+            items={[
+              {
+                key: "permissions",
+                label: `Hak akses gabungan (${permissions.length})`,
+                children: <RoleCapabilitiesTable permissions={permissions} />,
+              },
+            ]}
+          />
+        )}
+      </section>
       <div className="guided-actions" style={{ marginBottom: 24 }}>
         <Link to="/my-requests/new">
           <Button type="primary">
-            {role ? "Ajukan perubahan peran" : "Ajukan akses"}
+            {roles.length ? "Ajukan peran tambahan" : "Ajukan akses"}
           </Button>
         </Link>
         <Button onClick={refresh} loading={loading}>

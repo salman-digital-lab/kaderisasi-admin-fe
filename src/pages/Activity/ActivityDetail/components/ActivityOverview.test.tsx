@@ -10,7 +10,7 @@ const request = vi.hoisted(() => ({
   role: "reader",
 }));
 vi.mock("../../../../stores/authStore", () => ({
-  useRole: () => ({ code: request.role }),
+  useRoles: () => [{ code: "konselor" }, { code: request.role }],
   usePermissions: () => [],
 }));
 vi.mock("ahooks", () => ({

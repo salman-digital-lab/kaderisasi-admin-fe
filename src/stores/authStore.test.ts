@@ -34,6 +34,35 @@ describe("auth store", () => {
     useAuthStore.getState().clearAuth();
     expect(useAuthStore.getState().token).toBeNull();
     expect(useAuthStore.getState().permissions).toEqual([]);
+    expect(useAuthStore.getState().roles).toEqual([]);
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
+  });
+
+  it("stores every role and replaces them after an access refresh", () => {
+    const roles = [
+      { code: "konselor", name: "Konselor" },
+      { code: "admin", name: "Admin" },
+    ];
+    useAuthStore.getState().setSession({
+      ...session,
+      user: { ...session.user, role: roles[0], roles },
+      permissions: ["counseling.read", "activities.read"],
+    });
+    expect(useAuthStore.getState().roles).toEqual(roles);
+    expect(useAuthStore.getState().hasPermission("activities.read")).toBe(true);
+    useAuthStore.getState().setSession({
+      ...session,
+      user: { ...session.user, roles: [] },
+      permissions: [],
+    });
+    expect(useAuthStore.getState().roles).toEqual([]);
+    expect(useAuthStore.getState().hasPermission("activities.read")).toBe(
+      false,
+    );
+  });
+
+  it("supports a legacy single-role session during rollout", () => {
+    useAuthStore.getState().setSession(session);
+    expect(useAuthStore.getState().roles).toEqual([session.user.role]);
   });
 });

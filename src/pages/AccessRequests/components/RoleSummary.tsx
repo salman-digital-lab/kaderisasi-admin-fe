@@ -24,6 +24,7 @@ export default function RoleSummary({
           type="info"
           showIcon
           title={role.limitation}
+          description="Batas ini berlaku untuk peran ini saja. Hak akses dari peran lain yang dimiliki tetap tersedia."
           style={{ marginBottom: 16 }}
         />
       )}

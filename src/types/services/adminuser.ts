@@ -30,7 +30,7 @@ export type PostAdminUserReq = {
   displayName?: string;
   email?: string;
   password?: string;
-  role_code?: string | null;
+  role_codes?: string[];
 };
 
 export type PostAdminUserResp = {
@@ -43,7 +43,7 @@ export type PutAdminUserReq = {
   data: {
     displayName?: string;
     isActive?: boolean;
-    role_code?: string | null;
+    role_codes?: string[];
   };
 };
 
