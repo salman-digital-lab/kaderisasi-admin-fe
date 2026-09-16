@@ -28,10 +28,15 @@ const MainClubDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [club, setClub] = useState<Club | null>(null);
-  const activeSection = resolveClubSection(
+  const requestedSection = resolveClubSection(
     searchParams.get("section"),
     searchParams.get("tab"),
   );
+  const canReadActivities = permissions.includes("activities.read");
+  const activeSection =
+    requestedSection === "activities" && !canReadActivities
+      ? "overview"
+      : requestedSection;
   const isNewDraft = searchParams.get("setup") === "1";
 
   const { loading, error, refresh } = useRequest(() => getClub(Number(id)), {
@@ -104,12 +109,15 @@ const MainClubDetail = () => {
       label: "Pendaftar & Anggota",
       children: <ClubPeople club={club} />,
     },
-    {
+  ];
+
+  if (canReadActivities) {
+    items.push({
       key: "activities",
       label: "Kegiatan",
       children: <ClubActivitiesPage />,
-    },
-  ];
+    });
+  }
 
   if (
     permissions.includes("clubs.manage") ||

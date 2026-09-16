@@ -1,3 +1,4 @@
+import { usePermissions } from "../../../stores/authStore";
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -18,6 +19,8 @@ const { Title } = Typography;
 const pageSize = 10;
 
 const ClubActivitiesPage = () => {
+  const permissions = usePermissions();
+  const canReadActivities = permissions.includes("activities.read");
   const { id: clubId } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -31,7 +34,7 @@ const ClubActivitiesPage = () => {
         club_id: clubId,
       }),
     {
-      ready: Boolean(clubId),
+      ready: Boolean(clubId) && canReadActivities,
       refreshDeps: [clubId, currentPage, search],
     },
   );
@@ -83,6 +86,8 @@ const ClubActivitiesPage = () => {
     },
   ];
 
+  if (!canReadActivities) return null;
+
   return (
     <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       <Title level={4} style={{ margin: 0 }}>
@@ -103,9 +108,11 @@ const ClubActivitiesPage = () => {
           }}
           prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
         />
-        <Link to="/activity">
-          <Button type="primary">Tambah di Kegiatan</Button>
-        </Link>
+        {permissions.includes("activities.manage") && (
+          <Link to="/activity">
+            <Button type="primary">Tambah di Kegiatan</Button>
+          </Link>
+        )}
       </Space>
 
       <Table

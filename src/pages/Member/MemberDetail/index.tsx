@@ -1,3 +1,4 @@
+import { usePermissions } from "../../../stores/authStore";
 import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import {
@@ -100,6 +101,12 @@ const historyYearRule = {
 };
 
 const MemberDetailPage = () => {
+  const permissions = usePermissions();
+  const canManage = permissions.includes("members.manage");
+  const canManageCredentials = permissions.includes(
+    "members.credentials.manage",
+  );
+  const canReadHistory = permissions.includes("activity_registrations.read");
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm<FormType>();
   const educationHistory: EducationEntry[] | undefined = Form.useWatch(
@@ -107,7 +114,9 @@ const MemberDetailPage = () => {
     form,
   );
 
-  const [isEdit, { setLeft: exitEdit, setRight: enterEdit }] = useToggle(false);
+  const [editRequested, { setLeft: exitEdit, setRight: enterEdit }] =
+    useToggle(false);
+  const isEdit = editRequested && canManage;
   const [isEditAuthOpen, setIsEditAuthOpen] = useState(false);
   const [isGenerateAccountOpen, setIsGenerateAccountOpen] = useState(false);
   const [regionalInput, setRegionalInput] = useState<string[]>([]);
@@ -150,7 +159,7 @@ const MemberDetailPage = () => {
 
   const { data: myActivities } = useRequest(
     () => getActivityByUserId(data?.profile?.[0]?.user_id?.toString() || ""),
-    { ready: !!data?.profile?.[0]?.user_id },
+    { ready: canReadHistory && !!data?.profile?.[0]?.user_id },
   );
 
   const { loading: editLoading, runAsync } = useRequest(putProfile, {
@@ -251,57 +260,61 @@ const MemberDetailPage = () => {
                 },
               ]}
             />
-            <Space>
-              {accountStatus === "no_account" ? (
-                <Button
-                  type="primary"
-                  onClick={() => setIsGenerateAccountOpen(true)}
-                >
-                  Buat Akun
-                </Button>
-              ) : (
-                <Button onClick={() => setIsEditAuthOpen(true)}>
-                  Ubah Email dan Password
-                </Button>
-              )}
-            </Space>
+            {canManageCredentials && (
+              <Space>
+                {accountStatus === "no_account" ? (
+                  <Button
+                    type="primary"
+                    onClick={() => setIsGenerateAccountOpen(true)}
+                  >
+                    Buat Akun
+                  </Button>
+                ) : (
+                  <Button onClick={() => setIsEditAuthOpen(true)}>
+                    Ubah Email dan Password
+                  </Button>
+                )}
+              </Space>
+            )}
           </Flex>
         </Flex>
 
         {/* Edit toggle */}
-        <Flex justify="flex-end" gap={8} style={{ marginTop: 24 }}>
-          {isEdit ? (
-            <>
+        {canManage && (
+          <Flex justify="flex-end" gap={8} style={{ marginTop: 24 }}>
+            {isEdit ? (
+              <>
+                <Button
+                  htmlType="button"
+                  onClick={() => {
+                    resetFormToProfile(data?.profile[0]);
+                    exitEdit();
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button
+                  form="profile"
+                  htmlType="submit"
+                  loading={editLoading}
+                  icon={<SaveOutlined />}
+                  type="primary"
+                >
+                  Simpan
+                </Button>
+              </>
+            ) : (
               <Button
-                htmlType="button"
-                onClick={() => {
-                  resetFormToProfile(data?.profile[0]);
-                  exitEdit();
-                }}
-              >
-                Batal
-              </Button>
-              <Button
-                form="profile"
-                htmlType="submit"
-                loading={editLoading}
-                icon={<SaveOutlined />}
                 type="primary"
+                icon={<EditOutlined />}
+                htmlType="button"
+                onClick={() => enterEdit()}
               >
-                Simpan
+                Ubah
               </Button>
-            </>
-          ) : (
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              htmlType="button"
-              onClick={() => enterEdit()}
-            >
-              Ubah
-            </Button>
-          )}
-        </Flex>
+            )}
+          </Flex>
+        )}
 
         <Form
           scrollToFirstError={{ focus: true }}
@@ -310,6 +323,7 @@ const MemberDetailPage = () => {
           form={form}
           disabled={!isEdit}
           onFinish={async (value) => {
+            if (!canManage) return;
             const normalizedWorkHistoryEntries = normalizeWorkHistory(
               value.work_history,
             ).filter(
@@ -789,37 +803,50 @@ const MemberDetailPage = () => {
         )}
 
         {/* Activity history */}
-        <Divider>Kegiatan yang Diikuti</Divider>
-        <Table
-          listId="pages/Member/MemberDetail/index:1"
-          dataSource={myActivities}
-          columns={[
-            {
-              title: "Nama Aktivitas",
-              dataIndex: "activity",
-              render: (activity) => (
-                <Link to={`/activity/${activity.id}`}>{activity.name}</Link>
-              ),
-            },
-            { title: "Status", dataIndex: "status" },
-          ]}
-          pagination={false}
-          size="small"
-        />
+        {canReadHistory && (
+          <>
+            <Divider>Kegiatan yang Diikuti</Divider>
+            <Table
+              listId="pages/Member/MemberDetail/index:1"
+              dataSource={myActivities}
+              columns={[
+                {
+                  title: "Nama Aktivitas",
+                  dataIndex: "activity",
+                  render: (activity) =>
+                    permissions.includes("activities.read") ? (
+                      <Link to={`/activity/${activity.id}`}>
+                        {activity.name}
+                      </Link>
+                    ) : (
+                      activity.name
+                    ),
+                },
+                { title: "Status", dataIndex: "status" },
+              ]}
+              pagination={false}
+              size="small"
+            />
+          </>
+        )}
       </Card>
 
-      <EditAuthDataModal
-        isOpen={isEditAuthOpen}
-        setIsOpen={setIsEditAuthOpen}
-        id={publicUser?.id.toString() || ""}
-        refresh={refresh}
-      />
-      <GenerateAccountModal
-        isOpen={isGenerateAccountOpen}
-        setIsOpen={setIsGenerateAccountOpen}
-        userId={publicUser?.id.toString() || ""}
-        refresh={refresh}
-      />
+      {canManageCredentials && (
+        <>
+          <EditAuthDataModal
+            isOpen={isEditAuthOpen}
+            setIsOpen={setIsEditAuthOpen}
+            id={publicUser?.id.toString() || ""}
+            refresh={refresh}
+          />
+          <GenerateAccountModal
+            isOpen={isGenerateAccountOpen}
+            setIsOpen={setIsGenerateAccountOpen}
+            userId={publicUser?.id.toString() || ""}
+            refresh={refresh}
+          />
+        </>
+      )}
     </div>
   );
 };

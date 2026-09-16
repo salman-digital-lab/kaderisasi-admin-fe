@@ -1,3 +1,4 @@
+import { useAuthStore } from "../../../../stores/authStore";
 import { validateFieldsAndFocus } from "../../../../components/common/Responsive/validate-fields";
 import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
 import { useRequest } from "ahooks";
@@ -33,7 +34,12 @@ export default function GenerateAccountModal({
       cancelText="Batal"
       onOk={async () => {
         const data = await validateFieldsAndFocus(form);
-        if (data) {
+        if (
+          data &&
+          useAuthStore
+            .getState()
+            .permissions.includes("members.credentials.manage")
+        ) {
           await runAsync(userId, data);
           form.resetFields();
           setIsOpen(false);

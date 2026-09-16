@@ -129,7 +129,9 @@ export default function ActivitySetup(): ReactElement {
         activity_type: values.activity_type,
         activity_category: values.activity_category,
         minimum_level: values.minimum_level,
-        club_id: values.club_id ?? null,
+        ...(permissions.includes("clubs.read")
+          ? { club_id: values.club_id ?? null }
+          : {}),
         description,
         activity_start: values.activity_date?.[0]?.format("YYYY-MM-DD"),
         activity_end: values.activity_date?.[1]?.format("YYYY-MM-DD"),

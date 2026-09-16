@@ -33,6 +33,7 @@ const cardStyle = {
 const MainActivity = () => {
   const navigate = useNavigate();
   const permissions = usePermissions();
+  const canReadClubs = permissions.includes("clubs.read");
 
   // State for filter parameters
   const [parameters, setParameters] = useState<FilterType>({
@@ -54,11 +55,9 @@ const MainActivity = () => {
   >(undefined);
   const [clubInput, setClubInput] = useState<string | undefined>(undefined);
 
-  const { data: clubsData } = useRequest(() =>
-    getClubs({
-      page: "1",
-      per_page: "100",
-    }),
+  const { data: clubsData } = useRequest(
+    () => getClubs({ page: "1", per_page: "100" }),
+    { ready: canReadClubs },
   );
 
   const clubOptions =
@@ -75,10 +74,10 @@ const MainActivity = () => {
         search: parameters.name,
         activity_type: parameters.activity_type,
         category: parameters.activity_category,
-        club_id: parameters.club_id,
+        club_id: canReadClubs ? parameters.club_id : undefined,
       }),
     {
-      refreshDeps: [parameters],
+      refreshDeps: [parameters, canReadClubs],
       retryCount: 3,
       retryInterval: 1000,
       onError: (err) => {
@@ -93,7 +92,7 @@ const MainActivity = () => {
       name: searchInput,
       activity_type: typeInput,
       activity_category: categoryInput,
-      club_id: clubInput,
+      club_id: canReadClubs ? clubInput : undefined,
       page: 1,
     }));
   };
@@ -114,7 +113,12 @@ const MainActivity = () => {
           {/* Left: Filters */}
           <ResponsiveFilters
             onApply={handleSearch}
-            values={[searchInput, typeInput, categoryInput, clubInput]}
+            values={[
+              searchInput,
+              typeInput,
+              categoryInput,
+              canReadClubs ? clubInput : undefined,
+            ]}
             onReset={() => {
               setSearchInput("");
               setTypeInput(undefined);
@@ -159,16 +163,18 @@ const MainActivity = () => {
                   value={categoryInput}
                 />
 
-                <Select
-                  placeholder="Semua Klub"
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  style={{ width: 180 }}
-                  options={clubOptions}
-                  onChange={setClubInput}
-                  value={clubInput}
-                />
+                {canReadClubs && (
+                  <Select
+                    placeholder="Semua Klub"
+                    allowClear
+                    showSearch
+                    optionFilterProp="label"
+                    style={{ width: 180 }}
+                    options={clubOptions}
+                    onChange={setClubInput}
+                    value={clubInput}
+                  />
+                )}
 
                 <Button
                   type="primary"

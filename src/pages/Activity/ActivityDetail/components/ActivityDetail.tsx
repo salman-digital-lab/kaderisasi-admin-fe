@@ -140,7 +140,9 @@ const ActivityDetail = () => {
               activity_type: value.activity_type,
               activity_category: value.activity_category,
               badge: value.badge,
-              club_id: value.club_id ?? null,
+              ...(permissions.includes("clubs.read")
+                ? { club_id: value.club_id ?? null }
+                : {}),
               registration_start: value.registration_date?.[0]
                 ? value.registration_date[0].format("YYYY-MM-DD")
                 : undefined,
@@ -347,19 +349,25 @@ const ActivityDetail = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16}>
-            <Col xs={24} md={8}>
-              <Form.Item name="club_id" label="Klub Terkait">
-                <Select
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  options={clubOptions}
-                  placeholder="Pilih klub"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          {permissions.includes("clubs.read") ? (
+            <Row gutter={16}>
+              <Col xs={24} md={8}>
+                <Form.Item name="club_id" label="Klub Terkait">
+                  <Select
+                    allowClear
+                    showSearch
+                    optionFilterProp="label"
+                    options={clubOptions}
+                    placeholder="Pilih klub"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          ) : (
+            <Form.Item label="Klub Terkait">
+              {activityData?.club?.name || "Tidak terkait klub"}
+            </Form.Item>
+          )}
           <Divider style={{ margin: "12px 0" }} />
           <Row style={{ marginBottom: 16 }}>
             <Title level={4} style={{ margin: 0 }}>
