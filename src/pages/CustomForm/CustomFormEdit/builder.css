@@ -364,6 +364,30 @@
 .builder-section-errors {
   margin-bottom: 20px;
 }
+.builder-issue-groups {
+  display: grid;
+  gap: 16px;
+}
+.builder-issue-group {
+  min-width: 0;
+}
+.builder-issue-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #262626;
+}
+.builder-issue-question {
+  margin: 8px 0;
+  color: #595959;
+  overflow-wrap: anywhere;
+}
+.builder-issue-group ul {
+  color: #a8071a;
+  overflow-wrap: anywhere;
+}
 .builder-section-errors ul {
   padding-left: 18px;
   margin-block: 0;
@@ -580,5 +604,88 @@
   }
   .builder-sortable {
     transition: none !important;
+  }
+}
+.builder-flow-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 32px;
+  align-items: start;
+}
+.builder-flow-map {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.builder-flow-map > li {
+  padding: 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #fff;
+}
+.builder-flow-map > li.is-selected {
+  border-color: #087da7;
+  outline: 1px solid #087da7;
+}
+.builder-flow-map p {
+  margin: 8px 0;
+}
+.builder-flow-map ul {
+  padding-left: 24px;
+  line-height: 1.8;
+}
+.builder-flow-rules {
+  position: sticky;
+  top: 160px;
+  background: #fff;
+  padding: 24px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+}
+.builder-flow-rules > * + * {
+  margin-top: 16px;
+}
+.builder-preview-path {
+  color: #454545;
+  border-bottom: 1px solid #d9d9d9;
+  padding-bottom: 16px;
+  overflow-wrap: anywhere;
+}
+.builder-basic-settings .guided-section {
+  margin-bottom: 16px;
+}
+.builder-form-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin: 0 0 24px;
+  padding: 0 24px;
+  font-size: 14px;
+}
+.builder-form-metadata dt {
+  color: #595959;
+  margin-bottom: 4px;
+}
+.builder-form-metadata dd {
+  margin: 0;
+}
+@media (min-width: 992px) {
+  .builder-basic-settings .rich-text-editor-toolbar .ant-btn {
+    min-height: 32px;
+    height: 32px;
+  }
+}
+@media (max-width: 600px) {
+  .builder-form-metadata {
+    padding: 0 16px;
+  }
+}
+@media (max-width: 900px) {
+  .builder-flow-workspace {
+    grid-template-columns: 1fr;
+  }
+  .builder-flow-rules {
+    position: static;
   }
 }

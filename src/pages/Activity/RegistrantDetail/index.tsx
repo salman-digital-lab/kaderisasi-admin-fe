@@ -1,4 +1,5 @@
 import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
+import FormAnswerFiles from "../../../components/common/FormAnswerFiles";
 import { DescriptionsProps, Image, Flex, Typography, Divider, Tag } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
@@ -208,9 +209,15 @@ const RegistrantDetail = () => {
         ? allFields.map((field) => ({
             key: field.key,
             label: field.label,
-            children: formatValue(
-              registrantData?.questionnaire_answer[field.key],
-            ),
+            children:
+              field.type === "file" ? (
+                <FormAnswerFiles
+                  formId={customFormData.id}
+                  value={registrantData?.questionnaire_answer[field.key]}
+                />
+              ) : (
+                formatValue(registrantData?.questionnaire_answer[field.key])
+              ),
           }))
         : undefined;
   } else {

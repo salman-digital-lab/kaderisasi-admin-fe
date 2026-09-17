@@ -30,6 +30,10 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
     required: true,
     type: "select",
     placeholder: "Pilih jenis kelamin",
+    options: [
+      { label: "Laki-laki", value: "M" },
+      { label: "Perempuan", value: "F" },
+    ],
   },
   {
     key: "birth_date",

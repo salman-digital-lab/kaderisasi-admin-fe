@@ -8,6 +8,7 @@ import { Pagination } from "../../../../types/services/base";
 import { CustomForm } from "../../../../types/model/customForm";
 import { TABLE_SCHEMA } from "../constants/schema";
 import { deleteCustomForm } from "../../../../api/services/customForm";
+import { actionError } from "../../../../utils/action-error";
 
 interface CustomFormTableProps {
   data?: {
@@ -20,7 +21,7 @@ interface CustomFormTableProps {
       page: number;
       per_page: number;
       search: string;
-      feature_type?: "activity_registration";
+      feature_type?: "activity_registration" | "independent_form";
       feature_id?: string;
       is_active?: boolean;
     }>
@@ -38,8 +39,13 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
     try {
       await deleteCustomForm(id);
       refresh();
-    } catch {
-      message.error("Gagal menghapus form");
+    } catch (error) {
+      message.error(
+        actionError(
+          error,
+          "Formulir belum dapat dihapus. Periksa koneksi dan akses Anda, lalu coba lagi.",
+        ),
+      );
     }
   };
 

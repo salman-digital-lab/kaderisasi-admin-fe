@@ -1,6 +1,24 @@
 import { isAxiosError } from "axios";
 
 const messages: Record<string, string> = {
+  CUSTOM_FORM_NOT_FOUND:
+    "Formulir tidak ditemukan. Kembali ke daftar formulir dan pilih formulir yang tersedia.",
+  INVALID_FORM_SCHEMA:
+    "Pengaturan formulir belum valid. Periksa pertanyaan dan alur sebelum menyimpan kembali.",
+  INVALID_ACTIVITY_FORM_SCHEMA:
+    "Formulir kegiatan belum valid. Periksa pertanyaan dan alur sebelum menyimpan kembali.",
+  FORM_RESPONSE_NOT_FOUND:
+    "Respons tidak ditemukan. Tutup detail ini, lalu muat ulang daftar respons.",
+  STORAGE_UNAVAILABLE:
+    "Penyimpanan berkas sedang tidak tersedia. Coba lagi nanti atau hubungi admin.",
+  ADMIN_ORIGIN_NOT_CONFIGURED:
+    "Ekspor belum tersedia karena alamat situs admin belum dikonfigurasi. Hubungi pengelola sistem.",
+  FORM_HAS_ATTACHMENTS:
+    "Formulir tidak dapat dihapus karena masih memiliki berkas. Unggahan yang belum dikirim dibersihkan setelah 24 jam; berkas yang sudah dikirim tetap disimpan.",
+  FORM_HAS_RESPONSES:
+    "Formulir sudah memiliki respons. Tutup penerimaan respons untuk menghentikan pengisian; formulir tidak dapat dihapus atau dipindahkan.",
+  ATTACHMENT_NOT_FOUND:
+    "Berkas tidak ditemukan atau tidak tersedia untuk formulir ini.",
   LAST_SUPER_ADMIN_REQUIRED:
     "Minimal satu Super Admin aktif harus tetap tersedia. Tetapkan Super Admin lain sebelum melepas peran ini atau menonaktifkan akun.",
   SELF_DEACTIVATION_NOT_ALLOWED: "Anda tidak dapat menonaktifkan akun sendiri.",

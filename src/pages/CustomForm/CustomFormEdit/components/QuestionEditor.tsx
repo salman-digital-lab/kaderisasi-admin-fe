@@ -98,6 +98,14 @@ export function QuestionEditor({
                   ? options
                   : undefined,
                 validation: undefined,
+                file:
+                  type === "file"
+                    ? (field.file ?? {
+                        accept: "pdf_or_image",
+                        maxFiles: 1,
+                        maxSizeMB: 10,
+                      })
+                    : undefined,
               })
             }
           />
@@ -111,6 +119,74 @@ export function QuestionEditor({
           Wajib diisi
         </label>
       </div>
+      {field.type === "file" && (
+        <div className="builder-settings">
+          <label className="builder-control">
+            Jenis berkas
+            <Select
+              aria-label="Jenis berkas"
+              virtual={false}
+              value={field.file?.accept ?? "pdf_or_image"}
+              options={[
+                { value: "pdf", label: "PDF saja" },
+                { value: "image", label: "Gambar saja" },
+                { value: "pdf_or_image", label: "PDF dan gambar" },
+              ]}
+              onChange={(accept) =>
+                update({
+                  file: { maxFiles: 1, maxSizeMB: 10, ...field.file, accept },
+                })
+              }
+            />
+          </label>
+          <div className="builder-control-row">
+            <label className="builder-control">
+              Jumlah berkas maksimal
+              <InputNumber
+                aria-label="Jumlah berkas maksimal"
+                min={1}
+                max={5}
+                precision={0}
+                value={field.file?.maxFiles ?? 1}
+                onChange={(value) =>
+                  update({
+                    file: {
+                      accept: "pdf_or_image",
+                      maxSizeMB: 10,
+                      ...field.file,
+                      maxFiles: value ?? 1,
+                    },
+                  })
+                }
+              />
+            </label>
+            <label className="builder-control">
+              Ukuran maksimal per berkas (MB)
+              <InputNumber
+                aria-label="Ukuran maksimal per berkas"
+                min={1}
+                max={10}
+                precision={0}
+                value={field.file?.maxSizeMB ?? 10}
+                onChange={(value) =>
+                  update({
+                    file: {
+                      accept: "pdf_or_image",
+                      maxFiles: 1,
+                      ...field.file,
+                      maxSizeMB: value ?? 10,
+                    },
+                  })
+                }
+              />
+            </label>
+          </div>
+          <p className="builder-hint">
+            Gambar JPEG, PNG, dan WebP dioptimalkan otomatis menjadi WebP,
+            maksimal 2400 × 2400 piksel. PDF disimpan tanpa perubahan.
+          </p>
+        </div>
+      )}
       {["radio", "select", "checkbox", "multiselect"].includes(field.type) && (
         <div className="builder-options">
           <DndContext

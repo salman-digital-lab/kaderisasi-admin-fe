@@ -10,7 +10,14 @@ import {
   Spin,
   Tabs,
   Typography,
+  Select,
 } from "antd";
+import { FlowWorkspace } from "./components/FlowWorkspace";
+import { ResponsesTab } from "./components/ResponsesTab";
+import { ResponsiveDialog } from "../../../components/common/Responsive/ResponsiveDialog";
+import DetailShortLink from "../../../components/common/ShortLinks/DetailShortLink";
+import { getCertificatePublicBaseUrl } from "../../DigitalCertificate/utils/certificate-content";
+import { toggleCustomFormActive } from "../../../api/services/customForm";
 import {
   ArrowLeftOutlined,
   EyeOutlined,
@@ -44,7 +51,9 @@ import "../../../styles/guided-workflows.css";
 import "./builder.css";
 
 type Values = BuilderRecovery["values"];
-const BUILDER_THEME = { token: { motion: false } };
+const BUILDER_THEME = {
+  token: { motion: false, colorPrimary: "#087da7", colorLink: "#096c92" },
+};
 
 export default function CustomFormEdit(): ReactElement {
   const [form] = Form.useForm<Values>();
@@ -53,6 +62,8 @@ export default function CustomFormEdit(): ReactElement {
     | undefined;
   const [basicDirty, setBasicDirty] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState<string | null>();
   const [failure, setFailure] = useState("");
   const [recovery, setRecovery] = useState<BuilderRecovery | null>(null);
@@ -94,6 +105,7 @@ export default function CustomFormEdit(): ReactElement {
     setSelectedBasicFields,
     PROFILE_DATA_TEMPLATES,
     handleRequiredFieldChange,
+    initialData?.feature_type === "independent_form",
   );
   const recoveryKey =
     user && initialData ? `form-builder:v1:${user.id}:${initialData.id}` : "";
@@ -172,7 +184,11 @@ export default function CustomFormEdit(): ReactElement {
   const checkSchema = (): boolean => {
     const issues = builderIssues(schema);
     if (!issues.length) return true;
-    setFailure(issues[0].message);
+    setFailure(
+      issues[0].sectionId
+        ? "Periksa daftar perbaikan pada bagian yang ditandai. Perubahan belum disimpan."
+        : issues[0].message,
+    );
     setActiveSectionId(issues[0].sectionId);
     handleTabChange("schema");
     requestAnimationFrame(() =>
@@ -229,6 +245,7 @@ export default function CustomFormEdit(): ReactElement {
 
   const profile = (
     <ProfileFieldsSection
+      independent={initialData.feature_type === "independent_form"}
       selectedBasicFields={selectedBasicFields}
       profileDataTemplates={PROFILE_DATA_TEMPLATES}
       fieldTypes={FIELD_TYPES}
@@ -292,6 +309,9 @@ export default function CustomFormEdit(): ReactElement {
               </Typography.Text>
             </div>
             <div className="builder-toolbar-actions">
+              {initialData.feature_type === "independent_form" && (
+                <Button onClick={() => setShareOpen(true)}>Bagikan</Button>
+              )}
               <Button
                 aria-label="Pratinjau"
                 icon={<EyeOutlined />}
@@ -382,20 +402,79 @@ export default function CustomFormEdit(): ReactElement {
           items={[
             {
               key: "basic",
-              label: "Informasi Dasar",
+              label: "Pengaturan",
               forceRender: true,
               children: (
-                <BasicInfoTab
-                  form={form}
-                  initialData={initialData}
-                  onSave={() => void handleSave()}
-                  onChange={() => setBasicDirty(true)}
-                />
+                <>
+                  <BasicInfoTab
+                    form={form}
+                    initialData={initialData}
+                    onSave={() => void handleSave()}
+                    onChange={() => setBasicDirty(true)}
+                  />
+                  {initialData.feature_type === "independent_form" && (
+                    <div className="builder-settings">
+                      <label className="builder-control">
+                        Siapa yang dapat mengisi?
+                        <Select
+                          aria-label="Akses formulir"
+                          value={data.accessMode}
+                          options={[
+                            {
+                              value: "public",
+                              label: "Siapa saja yang memiliki tautan",
+                            },
+                            {
+                              value: "members",
+                              label: "Anggota yang sudah masuk",
+                            },
+                          ]}
+                          onChange={(mode) => {
+                            data.setAccessMode(mode);
+                            setBasicDirty(true);
+                          }}
+                        />
+                      </label>
+                      <p>
+                        Data diri opsional. Jawaban tidak mengubah profil
+                        anggota.
+                      </p>
+                      <p role="status">
+                        {initialData.is_active
+                          ? "Sedang menerima respons"
+                          : "Penerimaan respons ditutup"}
+                      </p>
+                      <Button
+                        loading={toggling}
+                        disabled={dirty}
+                        onClick={() => {
+                          setToggling(true);
+                          void toggleCustomFormActive(initialData.id)
+                            .then(data.setInitialData)
+                            .catch((error: unknown) =>
+                              setFailure(actionError(error)),
+                            )
+                            .finally(() => setToggling(false));
+                        }}
+                      >
+                        {initialData.is_active
+                          ? "Tutup penerimaan respons"
+                          : "Buka penerimaan respons"}
+                      </Button>
+                      {dirty && (
+                        <p className="builder-hint">
+                          Simpan perubahan sebelum membuka atau menutup
+                          penerimaan respons.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
               ),
             },
             {
               key: "schema",
-              label: "Ubah Formulir",
+              label: "Pertanyaan",
               children: (
                 <BuilderCanvas
                   toolbarBottom={48 + toolbarHeight}
@@ -405,10 +484,40 @@ export default function CustomFormEdit(): ReactElement {
                   profileCount={selectedBasicFields.length}
                   activeSectionId={activeSectionId}
                   onSelectSection={setActiveSectionId}
+                  onOpenFlow={() => handleTabChange("flow")}
                 />
               ),
             },
-          ]}
+            {
+              key: "flow",
+              label: "Alur",
+              children: (
+                <FlowWorkspace
+                  key={activeSectionId ?? "flow"}
+                  selectedSectionId={activeSectionId}
+                  sections={customFieldSections}
+                  onChange={setCustomFieldSections}
+                  onEdit={(id) => {
+                    setActiveSectionId(id);
+                    handleTabChange("schema");
+                  }}
+                />
+              ),
+            },
+            ...(initialData.feature_type === "independent_form"
+              ? [
+                  {
+                    key: "responses",
+                    label: "Respons",
+                    children: <ResponsesTab formId={initialData.id} />,
+                  },
+                ]
+              : []),
+          ].sort(
+            (a, b) =>
+              ["schema", "flow", "responses", "basic"].indexOf(a.key) -
+              ["schema", "flow", "responses", "basic"].indexOf(b.key),
+          )}
         />
         <BasicFieldModal
           visible={fields.basicFieldModalVisible}
@@ -420,12 +529,56 @@ export default function CustomFormEdit(): ReactElement {
         />
         {previewOpen && (
           <FormPreview
+            independent={initialData.feature_type === "independent_form"}
             schema={schema}
             title={watched?.formName || initialData.form_name}
             description={watched?.formDescription}
+            completionMessage={watched?.postSubmissionInfo}
             onClose={() => setPreviewOpen(false)}
           />
         )}
+        <ResponsiveDialog
+          open={shareOpen}
+          onCancel={() => setShareOpen(false)}
+          title="Bagikan formulir"
+          footer={null}
+        >
+          <p>
+            {initialData.is_active
+              ? "Formulir menerima respons."
+              : "Formulir ditutup. Buka penerimaan respons di Pengaturan sebelum membagikannya."}
+          </p>
+          {dirty && (
+            <Alert
+              type="info"
+              title="Tautan menampilkan versi yang terakhir disimpan."
+            />
+          )}
+          {getCertificatePublicBaseUrl() ? (
+            <>
+              <Typography.Paragraph
+                copyable
+              >{`${getCertificatePublicBaseUrl()}/form/${initialData.id}`}</Typography.Paragraph>
+              <Button
+                href={`${getCertificatePublicBaseUrl()}/form/${initialData.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Buka formulir
+              </Button>
+              <DetailShortLink
+                allowCustomCode
+                path={`/form/${initialData.id}`}
+                published={initialData.is_active}
+              />
+            </>
+          ) : (
+            <Alert
+              type="warning"
+              title="Alamat situs publik belum dikonfigurasi."
+            />
+          )}
+        </ResponsiveDialog>
       </div>
     </ConfigProvider>
   );

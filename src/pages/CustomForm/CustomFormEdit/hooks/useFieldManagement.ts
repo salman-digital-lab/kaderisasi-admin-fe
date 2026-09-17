@@ -38,7 +38,10 @@ export const useFieldManagement = (
   setSelectedBasicFields: (fields: string[]) => void,
   _profileTemplates: readonly any[],
   onRequiredFieldChange?: (fieldKey: string, required: boolean) => void,
+  independent = false,
 ) => {
+  const immutable = (key: string): boolean =>
+    !independent && isImmutableField(key);
   const [editingField, setEditingField] = useState<FormField | null>(null);
   const [editingSectionKey, setEditingSectionKey] = useState<string | null>(
     null,
@@ -177,7 +180,11 @@ export const useFieldManagement = (
       (s) => s.section_name === sectionKey,
     );
     if (!section) {
-      notification.error({ message: "Section tidak ditemukan!" });
+      notification.error({
+        message: "Bagian tidak ditemukan",
+        description:
+          "Pilih kembali bagian dari daftar Isi formulir sebelum menghapus pertanyaan.",
+      });
       return;
     }
 
@@ -185,7 +192,10 @@ export const useFieldManagement = (
       (field) => field.key === fieldKey,
     );
     if (!fieldToDelete) {
-      notification.error({ message: "Field tidak ditemukan!" });
+      notification.error({
+        message: "Pertanyaan tidak ditemukan",
+        description: "Pilih kembali pertanyaan pada bagian yang sedang dibuka.",
+      });
       return;
     }
 
@@ -243,7 +253,11 @@ export const useFieldManagement = (
 
   const handleAddProfileDataFromTemplate = (template: any) => {
     if (selectedBasicFields.includes(template.field.key)) {
-      notification.info({ message: "Pertanyaan ini sudah ditambahkan!" });
+      notification.info({
+        message: "Isian sudah tersedia",
+        description:
+          "Buka Data diri untuk mengatur isian yang sudah ditambahkan.",
+      });
       return;
     }
 
@@ -254,7 +268,7 @@ export const useFieldManagement = (
           ? "Provinsi Domisili"
           : "Provinsi Asal";
       notification.warning({
-        message: `Tambahkan "${provinceLabel}" terlebih dahulu sebelum menambahkan field ini.`,
+        message: `Tambahkan "${provinceLabel}" terlebih dahulu agar pilihan kota dapat dimuat.`,
       });
       return;
     }
@@ -263,8 +277,12 @@ export const useFieldManagement = (
   };
 
   const handleRemoveProfileField = (fieldKey: string) => {
-    if (isImmutableField(fieldKey)) {
-      notification.warning({ message: "Pertanyaan ini tidak dapat dihapus!" });
+    if (immutable(fieldKey)) {
+      notification.warning({
+        message: "Isian identitas harus tetap tersedia",
+        description:
+          "Nama dan jenis kelamin diperlukan untuk pendaftaran kegiatan atau klub dan tidak dapat dihapus.",
+      });
       return;
     }
 
@@ -305,9 +323,11 @@ export const useFieldManagement = (
   };
 
   const handleToggleRequiredField = (fieldKey: string, required: boolean) => {
-    if (isImmutableField(fieldKey)) {
+    if (immutable(fieldKey)) {
       notification.warning({
-        message: "Status wajib untuk pertanyaan ini tidak dapat diubah!",
+        message: "Isian identitas harus tetap wajib",
+        description:
+          "Nama dan jenis kelamin diperlukan untuk pendaftaran kegiatan atau klub.",
       });
       return;
     }

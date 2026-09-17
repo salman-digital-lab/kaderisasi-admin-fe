@@ -99,9 +99,12 @@ export const FieldModal: React.FC<FieldModalProps> = ({
             rules={[
               {
                 required: true,
-                message: "Label pertanyaan wajib diisi!",
+                message: "Isi judul pertanyaan.",
               },
-              { min: 2, message: "Label minimal 2 karakter!" },
+              {
+                min: 2,
+                message: "Gunakan minimal 2 karakter untuk judul pertanyaan.",
+              },
             ]}
           >
             <Input.TextArea
@@ -119,7 +122,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                 rules={[
                   {
                     required: true,
-                    message: "Tipe pertanyaan wajib dipilih!",
+                    message: "Pilih jenis jawaban.",
                   },
                 ]}
               >
@@ -207,7 +210,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                           rules={[
                             {
                               required: true,
-                              message: "Label opsi wajib diisi",
+                              message: "Isi teks pilihan jawaban.",
                             },
                           ]}
                           style={{ marginBottom: 0 }}

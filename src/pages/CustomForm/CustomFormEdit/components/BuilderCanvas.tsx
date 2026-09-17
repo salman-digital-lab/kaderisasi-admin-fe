@@ -5,16 +5,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import {
-  Affix,
-  Alert,
-  Button,
-  Collapse,
-  Drawer,
-  Dropdown,
-  Grid,
-  Modal,
-} from "antd";
+import { Affix, Button, Collapse, Drawer, Dropdown, Grid, Modal } from "antd";
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
@@ -53,6 +44,7 @@ import { SectionOutline } from "./SectionOutline";
 import { QuestionCard } from "./QuestionCard";
 import { SectionRouting } from "./SectionRouting";
 import { SectionDetails } from "./SectionDetails";
+import { BuilderIssueList } from "./BuilderIssueList";
 
 interface Props {
   toolbarBottom: number;
@@ -62,6 +54,7 @@ interface Props {
   profileCount: number;
   activeSectionId: string | null | undefined;
   onSelectSection: (id: string | null) => void;
+  onOpenFlow?: () => void;
 }
 
 export function BuilderCanvas({
@@ -72,6 +65,7 @@ export function BuilderCanvas({
   profileCount,
   activeSectionId,
   onSelectSection,
+  onOpenFlow,
 }: Props): ReactElement {
   const [selected, setSelected] = useState<string>();
   const [outlineOpen, setOutlineOpen] = useState(false);
@@ -342,18 +336,10 @@ export function BuilderCanvas({
                 onChange={(patch) => updateSection(section.id!, patch)}
               />
               {sectionIssues.length > 0 && (
-                <Alert
-                  className="builder-section-errors"
-                  type="error"
-                  showIcon
-                  title="Periksa bagian ini"
-                  description={
-                    <ul>
-                      {sectionIssues.map((issue, i) => (
-                        <li key={i}>{issue.message}</li>
-                      ))}
-                    </ul>
-                  }
+                <BuilderIssueList
+                  section={section}
+                  issues={sectionIssues}
+                  onSelect={selectQuestion}
                 />
               )}
               <div className="builder-question-list">
@@ -374,6 +360,20 @@ export function BuilderCanvas({
                         updateSection(section.id!, { fields })
                       }
                       onMove={moveField}
+                      onBranch={() => {
+                        updateSection(section.id!, {
+                          navigation: {
+                            defaultTarget: section.navigation
+                              ?.defaultTarget ?? { type: "next" },
+                            questionKey: field.key,
+                            routes:
+                              section.navigation?.questionKey === field.key
+                                ? section.navigation.routes
+                                : [],
+                          },
+                        });
+                        onOpenFlow?.();
+                      }}
                     />
                   ))}
                 </SortableContext>

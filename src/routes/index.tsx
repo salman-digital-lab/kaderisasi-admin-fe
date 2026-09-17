@@ -46,6 +46,7 @@ const LifetimeLeaderboard = lazy(
 );
 const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
 const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
+const FormAttachment = lazy(() => import("../pages/CustomForm/FormAttachment"));
 const ClubList = lazy(() => import("../pages/Club/ClubList"));
 const ClubDetail = lazy(() => import("../pages/Club/ClubDetail"));
 const CourseList = lazy(() => import("../pages/Course/CourseList"));
@@ -299,6 +300,10 @@ const routes = createBrowserRouter([
       {
         path: "custom-form/:formId/edit",
         element: guarded(<CustomFormEdit />, "custom_forms.manage"),
+      },
+      {
+        path: "custom-form/:formId/files/:attachmentId",
+        element: guarded(<FormAttachment />, "custom_forms.read"),
       },
       {
         path: "activity/:id/certificates",

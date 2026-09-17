@@ -47,7 +47,7 @@ export default function ShortLinkQRCode({
       rootClassName={styles.dialog}
       onCancel={onClose}
       footer={[
-        <Button key="close" onClick={onClose}>
+        <Button key="close" autoFocus onClick={onClose}>
           Tutup
         </Button>,
         <Button key="download" type="primary" onClick={download}>

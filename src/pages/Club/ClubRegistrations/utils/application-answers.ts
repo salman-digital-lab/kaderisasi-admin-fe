@@ -81,6 +81,7 @@ export const buildApplicationAnswerSections = (
       if (typeof field.key !== "string" || knownKeys.has(field.key)) return [];
 
       knownKeys.add(field.key);
+      if (field.type === "file") return [];
       return [
         {
           key: `schema:${sectionIndex}:${fieldIndex}:${field.key}`,

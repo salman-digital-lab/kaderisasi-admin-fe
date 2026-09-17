@@ -1,4 +1,5 @@
 import { ResponsiveDescriptions as Descriptions } from "../../../../components/common/Responsive/ResponsiveDescriptions";
+import FormAnswerFiles from "../../../../components/common/FormAnswerFiles";
 import { Button, Drawer, Empty, Space, Tag, Typography } from "antd";
 import type { DescriptionsProps } from "antd";
 import dayjs from "dayjs";
@@ -18,6 +19,7 @@ type ReviewStatus = Extract<
 >;
 
 type ApplicationDetailDrawerProps = {
+  formId?: number;
   open: boolean;
   registration: ClubRegistration | null;
   formSchema?: FormSchema;
@@ -38,6 +40,7 @@ const getApplicantName = (registration: ClubRegistration): string =>
   "Pendaftar";
 
 const ApplicationDetailDrawer = ({
+  formId,
   open,
   registration,
   formSchema,
@@ -163,6 +166,19 @@ const ApplicationDetailDrawer = ({
           </section>
 
           <section aria-labelledby="application-answers-heading">
+            {formId &&
+              formSchema?.fields
+                .flatMap((section) => section.fields)
+                .filter((field) => field.type === "file")
+                .map((field) => (
+                  <div key={field.key}>
+                    <Text strong>{field.label}</Text>
+                    <FormAnswerFiles
+                      formId={formId}
+                      value={registration.additional_data?.[field.key]}
+                    />
+                  </div>
+                ))}
             <Title id="application-answers-heading" level={5}>
               Jawaban Pendaftaran
             </Title>

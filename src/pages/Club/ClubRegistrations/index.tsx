@@ -628,6 +628,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
       </Space>
 
       <ApplicationDetailDrawer
+        formId={club.attachedCustomForm?.id}
         open={viewedRegistration !== null}
         registration={viewedRegistration}
         formSchema={club.attachedCustomForm?.form_schema}

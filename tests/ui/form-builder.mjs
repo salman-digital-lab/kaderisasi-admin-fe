@@ -282,7 +282,11 @@ try {
     const initialHeight = await page.evaluate(
       () => document.documentElement.scrollHeight,
     );
-    assert.ok(initialHeight < 1800, "Large form should render one section");
+    // The desktop density budget remains fixed. On narrow screens, the new
+    // workspace tabs and persistent actions wrap; the eight-row assertion
+    // above verifies that inactive sections remain unmounted at both widths.
+    if (width >= 768)
+      assert.ok(initialHeight < 1800, "Large form should render one section");
     await page.evaluate(() => window.scrollTo(0, 600));
     const sectionPicker =
       width < 768
@@ -490,6 +494,14 @@ try {
     await page.getByRole("button", { name: "Pratinjau", exact: true }).click();
     const preview = page.getByRole("dialog");
     await preview
+      .getByRole("textbox", { name: "Nama Lengkap", exact: true })
+      .fill("Peserta simulasi");
+    await preview
+      .getByRole("combobox", { name: "Jenis Kelamin", exact: true })
+      .click();
+    await page.getByRole("option", { name: "Perempuan", exact: true }).click();
+    await preview.locator("#preview-whatsapp").fill("628123456789");
+    await preview
       .getByRole("button", { name: "Lanjutkan", exact: true })
       .click();
     await preview
@@ -615,7 +627,7 @@ try {
       .click();
     await expect(page.locator("#builder-section-section-0")).toBeVisible();
     await expect(
-      page.getByText(/batas minimum melebihi maksimum/).last(),
+      page.getByText(/Batas minimum melebihi maksimum/).last(),
     ).toBeVisible();
     assert.equal(writes.length, count, "Invalid hidden section blocks saving");
     await page

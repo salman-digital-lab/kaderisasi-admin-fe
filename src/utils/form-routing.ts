@@ -32,6 +32,7 @@ export interface RoutingSchema {
 
 export interface RoutingIssue {
   sectionId?: string;
+  fieldKey?: string;
   message: string;
 }
 
@@ -78,35 +79,47 @@ export function validateFormRouting(schema: RoutingSchema): RoutingIssue[] {
         "Data diri harus menjadi bagian pertama dan hanya boleh ada satu.",
     });
   if (schema.version !== undefined && schema.version !== 2) {
-    issues.push({ message: "Versi formulir tidak didukung." });
+    issues.push({
+      message:
+        "Versi formulir belum didukung oleh editor ini. Hubungi pengelola sistem untuk memperbarui formulir.",
+    });
   }
   for (const section of schema.fields) {
-    const add = (message: string): void => {
-      issues.push({ sectionId: section.id, message });
+    const add = (message: string, fieldKey?: string): void => {
+      issues.push({ sectionId: section.id, fieldKey, message });
     };
     if (
       schema.version === 2 &&
       (typeof section.id !== "string" || !section.id.trim())
     )
-      add("Bagian harus memiliki ID.");
+      add(
+        "Identitas bagian hilang. Muat ulang formulir; jika masih terjadi, hubungi pengelola sistem.",
+      );
     if (section.id !== undefined) {
       if (
         typeof section.id !== "string" ||
         !section.id.trim() ||
         ids.has(section.id)
       )
-        add("ID bagian harus unik dan tidak kosong.");
+        add(
+          "Identitas bagian kosong atau dipakai oleh bagian lain. Muat ulang formulir; jika masih terjadi, hubungi pengelola sistem.",
+        );
       ids.add(section.id);
     }
     for (const field of section.fields) {
       if (!field.key.trim() || keys.has(field.key))
-        add("Kunci pertanyaan harus unik dan tidak kosong.");
+        add(
+          "Identitas pertanyaan kosong atau dipakai oleh pertanyaan lain. Buat ulang pertanyaan ini dengan tombol Tambah pertanyaan.",
+          field.key,
+        );
       keys.add(field.key);
     }
     const navigation = section.navigation;
     if (navigation === undefined) continue;
     if (!navigation || typeof navigation !== "object") {
-      add("Pengaturan alur tidak valid.");
+      add(
+        "Pengaturan alur tidak dapat dibaca. Pilih kembali tujuan pada Alur setelah bagian.",
+      );
       continue;
     }
     if (section.section_name === "profile_data") {
@@ -114,10 +127,15 @@ export function validateFormRouting(schema: RoutingSchema): RoutingIssue[] {
       continue;
     }
     const index = sections.findIndex((item) => item.id === section.id);
-    if (!section.id || index < 0) add("Bagian dengan alur harus memiliki ID.");
+    if (!section.id || index < 0)
+      add(
+        "Bagian untuk alur ini tidak ditemukan. Muat ulang formulir sebelum mengatur percabangan.",
+      );
     const checkTarget = (target: FormDestination): void => {
       if (!target || typeof target !== "object") {
-        add("Tujuan bagian tidak valid.");
+        add(
+          "Pilih tujuan pada Alur setelah bagian: bagian berikutnya, bagian tertentu, atau Kirim formulir.",
+        );
         return;
       }
       if (target.type === "next" || target.type === "submit") return;
@@ -133,7 +151,9 @@ export function validateFormRouting(schema: RoutingSchema): RoutingIssue[] {
     };
     checkTarget(navigation.defaultTarget);
     if (navigation.routes !== undefined && !Array.isArray(navigation.routes)) {
-      add("Daftar aturan alur tidak valid.");
+      add(
+        "Aturan alur tidak dapat dibaca. Pilih Tanpa percabangan, lalu atur kembali tujuan jawaban.",
+      );
       continue;
     }
     const question = section.fields.find(
@@ -156,7 +176,10 @@ export function validateFormRouting(schema: RoutingSchema): RoutingIssue[] {
         ?.filter((option) => !option.disabled)
         .map(optionValue) ?? [];
     if (navigation.questionKey && new Set(allowed).size !== allowed.length)
-      add("Nilai pilihan untuk percabangan harus unik.");
+      add(
+        "Ada pilihan percabangan dengan nilai yang sama. Hapus pilihan duplikat lalu tambahkan penggantinya.",
+        question?.key,
+      );
     for (const route of navigation.routes ?? []) {
       if (
         !route ||
@@ -166,7 +189,7 @@ export function validateFormRouting(schema: RoutingSchema): RoutingIssue[] {
         values.has(route.optionValue)
       ) {
         add(
-          "Pilihan pada aturan alur tidak tersedia atau digunakan lebih dari sekali.",
+          "Ada pilihan yang sudah dihapus atau dipakai berulang pada aturan alur. Hapus aturan tersebut, lalu pilih kembali jawaban dan tujuannya.",
         );
       } else values.add(route.optionValue);
       checkTarget(route?.target);

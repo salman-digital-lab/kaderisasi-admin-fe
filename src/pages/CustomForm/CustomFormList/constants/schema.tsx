@@ -29,6 +29,7 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
     render: (featureType) => {
       const typeMap: Record<string, string> = {
         activity_registration: "Pendaftaran Aktivitas",
+        independent_form: "Form mandiri",
         club_registration: "-",
       };
       return typeMap[featureType] || featureType;

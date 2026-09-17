@@ -17,6 +17,11 @@ export interface CustomForm {
 }
 
 export interface FormField {
+  file?: {
+    accept: "pdf" | "image" | "pdf_or_image";
+    maxFiles: number;
+    maxSizeMB: number;
+  };
   key: string;
   label: string;
   required: boolean;
@@ -55,6 +60,7 @@ export interface FormSection {
 }
 
 export interface FormSchema {
+  settings?: { accessMode: "public" | "members" };
   version?: number;
   fields: FormSection[];
 }

@@ -50,6 +50,66 @@ it("rejects invalid regex and reversed validation bounds", () => {
   };
   expect(builderIssues(invalid)).toHaveLength(2);
 });
+it("keeps question identity separate from concise errors and avoids duplicate empty-choice errors", () => {
+  for (const type of ["radio", "select", "multiselect", "checkbox"]) {
+    const invalid: FormSchema = {
+      fields: [
+        {
+          id: "one",
+          section_name: "Bagian 1",
+          fields: [
+            {
+              key: "attendance",
+              label: "Pertanyaan kehadiran yang sangat panjang. ".repeat(12),
+              type,
+              required: true,
+              options: [],
+            },
+          ],
+        },
+      ],
+    };
+    expect(builderIssues(invalid)).toEqual([
+      {
+        sectionId: "one",
+        fieldKey: "attendance",
+        message: "Tambahkan minimal satu pilihan jawaban.",
+      },
+    ]);
+  }
+});
+it("distinguishes missing option text from missing choices and identifies invalid upload limits", () => {
+  const invalid: FormSchema = {
+    fields: [
+      {
+        id: "one",
+        section_name: "Bagian 1",
+        fields: [
+          {
+            key: "choice",
+            label: "Pilihan",
+            type: "radio",
+            required: false,
+            options: [{ label: "", value: "stable" }],
+          },
+          {
+            key: "file",
+            label: "Berkas",
+            type: "file",
+            required: false,
+            file: { accept: "pdf", maxFiles: 6, maxSizeMB: 0 },
+          },
+        ],
+      },
+    ],
+  };
+  const issues = builderIssues(invalid);
+  expect(issues).toHaveLength(3);
+  expect(issues[0].message).toContain("teks pada setiap pilihan");
+  expect(issues.slice(1).every((issue) => issue.fieldKey === "file")).toBe(
+    true,
+  );
+});
 it("ignores corrupt and expired recovery documents", () => {
   const getItem = vi.fn().mockReturnValue("{");
   vi.stubGlobal("localStorage", { getItem });

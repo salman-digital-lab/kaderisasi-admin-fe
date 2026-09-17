@@ -9,6 +9,7 @@ import {
 import { BuilderHelp } from "./BuilderHelp";
 
 interface ProfileFieldsSectionProps {
+  independent?: boolean;
   selectedBasicFields: string[];
   profileDataTemplates: readonly {
     name: string;
@@ -26,6 +27,7 @@ interface ProfileFieldsSectionProps {
 const IMMUTABLE_FIELD_KEYS = ["name", "gender"];
 
 export function ProfileFieldsSection({
+  independent = false,
   selectedBasicFields,
   profileDataTemplates,
   fieldTypes,
@@ -58,8 +60,9 @@ export function ProfileFieldsSection({
                 pendidikan.
               </p>
               <p>
-                Nama Lengkap dan Jenis Kelamin merupakan isian wajib yang tidak
-                dapat dihapus.
+                {independent
+                  ? "Data diri bersifat opsional dan disimpan bersama respons, tanpa mengubah profil anggota."
+                  : "Nama Lengkap dan Jenis Kelamin merupakan isian wajib yang tidak dapat dihapus."}
               </p>
             </BuilderHelp>
           </div>
@@ -91,7 +94,8 @@ export function ProfileFieldsSection({
             (item) => item.field.key === fieldKey,
           );
           if (!template) return null;
-          const immutable = IMMUTABLE_FIELD_KEYS.includes(fieldKey);
+          const immutable =
+            !independent && IMMUTABLE_FIELD_KEYS.includes(fieldKey);
           const required = immutable
             ? template.field.required
             : (profileFieldRequiredOverrides[fieldKey] ??

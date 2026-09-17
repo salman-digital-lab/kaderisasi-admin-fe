@@ -37,11 +37,12 @@ export const useFormData = () => {
     profileFieldRequiredOverrides,
   ]);
   const [savedSchema, setSavedSchema] = useState<string>();
+  const [accessMode, setAccessMode] = useState<"public" | "members">("members");
   const loadVersion = useRef(0);
 
   // Active tab state with URL sync
   const [activeTab, setActiveTab] = useState<string>(() => {
-    return searchParams.get("tab") || "basic";
+    return searchParams.get("tab") || "schema";
   });
 
   // Sync URL with active tab
@@ -77,6 +78,7 @@ export const useFormData = () => {
       if (data) {
         data.form_schema = normalizeSchema(data.form_schema);
         setInitialData(data);
+        setAccessMode(data.form_schema.settings?.accessMode ?? "members");
 
         // Initialize form schema data
         if (data.form_schema) {
@@ -94,7 +96,10 @@ export const useFormData = () => {
               (field) => field.key,
             );
             // Always include name and gender as default fields
-            const defaultFields = ["name", "gender"];
+            const defaultFields =
+              data.feature_type === "independent_form"
+                ? []
+                : ["name", "gender"];
             const allFields = [
               ...new Set([...defaultFields, ...existingFields]),
             ];
@@ -121,11 +126,13 @@ export const useFormData = () => {
               }).fields[0],
             );
             // If no existing profile section, set default fields
-            setSelectedBasicFields(["name", "gender"]);
+            const defaults =
+              data.feature_type === "independent_form"
+                ? []
+                : ["name", "gender"];
+            setSelectedBasicFields(defaults);
             setProfileFieldRequiredOverrides({});
-            setSavedSchema(
-              JSON.stringify([["name", "gender"], customSections, {}]),
-            );
+            setSavedSchema(JSON.stringify([defaults, customSections, {}]));
           }
 
           // Load custom sections (excluding profile_data)
@@ -140,6 +147,9 @@ export const useFormData = () => {
 
   const buildSchema = (): FormSchema => ({
     version: 2,
+    ...(initialData?.feature_type === "independent_form"
+      ? { settings: { accessMode } }
+      : {}),
     fields: [
       {
         ...profileSection,
@@ -152,9 +162,11 @@ export const useFormData = () => {
             ? [
                 {
                   ...field,
-                  required: ["name", "gender"].includes(key)
-                    ? true
-                    : (profileFieldRequiredOverrides[key] ?? field.required),
+                  required:
+                    initialData?.feature_type !== "independent_form" &&
+                    ["name", "gender"].includes(key)
+                      ? true
+                      : (profileFieldRequiredOverrides[key] ?? field.required),
                 },
               ]
             : [];
@@ -164,6 +176,7 @@ export const useFormData = () => {
     ],
   });
   const restoreSchema = (schema: FormSchema): void => {
+    setAccessMode(schema.settings?.accessMode ?? "members");
     const normalized = normalizeSchema(schema);
     const profile = normalized.fields.find(
       (section) => section.section_name === "profile_data",
@@ -211,9 +224,6 @@ export const useFormData = () => {
     },
     {
       manual: true,
-      onError: () => {
-        message.error("Gagal memperbarui formulir");
-      },
     },
   );
 
@@ -224,6 +234,9 @@ export const useFormData = () => {
   }, [formId]);
 
   return {
+    accessMode,
+    setAccessMode,
+    setInitialData,
     initialData,
     buildSchema,
     restoreSchema,

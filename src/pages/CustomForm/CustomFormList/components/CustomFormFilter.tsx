@@ -7,6 +7,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Form } from "antd";
 
 import { FilterType } from "../constants/type";
@@ -18,6 +19,7 @@ const cardStyle = {
 };
 
 type CreateFormType = {
+  featureType: "activity_registration" | "independent_form";
   formName: string;
   formDescription?: string;
 };
@@ -35,6 +37,7 @@ const CustomFormFilter = ({
   refresh,
   loading,
 }: FilterProps) => {
+  const navigate = useNavigate();
   const [createForm] = Form.useForm<CreateFormType>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -42,7 +45,7 @@ const CustomFormFilter = ({
   // Local filter state
   const [searchInput, setSearchInput] = useState("");
   const [featureType, setFeatureType] = useState<
-    "activity_registration" | undefined
+    "activity_registration" | "independent_form" | undefined
   >();
   const [featureId, setFeatureId] = useState("");
   const [isActive, setIsActive] = useState<boolean | undefined>();
@@ -79,17 +82,26 @@ const CustomFormFilter = ({
   const handleCreate = async (values: CreateFormType) => {
     setIsCreating(true);
     try {
-      await createCustomForm({
+      const created = await createCustomForm({
         formName: values.formName,
         formDescription: values.formDescription,
-        isActive: true,
+        featureType: values.featureType,
+        featureId: null,
+        formSchema: {
+          version: 2,
+          ...(values.featureType === "independent_form"
+            ? { settings: { accessMode: "public" as const } }
+            : {}),
+          fields: [],
+        },
+        isActive: false,
       });
 
       message.success("Form berhasil dibuat!");
       setIsModalVisible(false);
       createForm.resetFields();
       // Refresh the form list
-      window.location.reload();
+      navigate(`/custom-form/${created.id}/edit`);
     } catch {
       // Error is already handled by the API service
     } finally {
@@ -148,6 +160,7 @@ const CustomFormFilter = ({
                   value={featureType}
                   onChange={setFeatureType}
                   options={[
+                    { label: "Form mandiri", value: "independent_form" },
                     {
                       label: "Pendaftaran Aktivitas",
                       value: "activity_registration",
@@ -217,7 +230,26 @@ const CustomFormFilter = ({
           layout="vertical"
           onFinish={handleCreate}
           requiredMark={false}
+          initialValues={{ featureType: "independent_form" }}
         >
+          <Form.Item
+            label="Jenis formulir"
+            name="featureType"
+            rules={[{ required: true }]}
+          >
+            <Select
+              options={[
+                {
+                  value: "independent_form",
+                  label: "Form mandiri (tanpa kegiatan atau klub)",
+                },
+                {
+                  value: "activity_registration",
+                  label: "Pendaftaran aktivitas",
+                },
+              ]}
+            />
+          </Form.Item>
           <Form.Item
             label="Nama Form"
             name="formName"

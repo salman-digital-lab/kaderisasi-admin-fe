@@ -45,7 +45,7 @@ export default function ActivityScoring({
 }): ReactElement {
   const permissions = usePermissions();
   const canManage = permissions.includes("activities.manage");
-  const canEdit = permissions.includes("activities.registration.manage");
+  const canEdit = permissions.includes("activity_registrations.manage");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [state, setState] = useState("");

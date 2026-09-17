@@ -12,6 +12,7 @@ import { SortableItem } from "./SortableItem";
 import { ResponsiveDialog } from "../../../../components/common/Responsive/ResponsiveDialog";
 
 interface Props {
+  onBranch?: () => void;
   field: FormField;
   index: number;
   section: FormSection;
@@ -31,6 +32,7 @@ export function QuestionCard({
   onSelect,
   onFieldsChange,
   onMove,
+  onBranch,
 }: Props): ReactElement {
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTarget, setMoveTarget] = useState<string>();
@@ -57,6 +59,13 @@ export function QuestionCard({
           className={`builder-question ${selected ? "builder-question-selected" : ""}`}
         >
           <div className="builder-question-heading">
+            {["radio", "select"].includes(field.type) && onBranch && (
+              <Button type="link" onClick={onBranch}>
+                {section.navigation?.questionKey === field.key
+                  ? "Edit percabangan"
+                  : "Tambah percabangan"}
+              </Button>
+            )}
             {handle}
             <Button
               type="text"

@@ -5,10 +5,18 @@ import {
   DownOutlined,
   CheckSquareOutlined,
   DatabaseOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 
 // Enhanced form field types for custom form section
 export const FIELD_TYPES = [
+  {
+    value: "file",
+    label: "Unggah berkas",
+    icon: UploadOutlined,
+    category: "file",
+    description: "PDF, gambar, atau keduanya",
+  },
   // Text Input Fields
   {
     value: "text",
