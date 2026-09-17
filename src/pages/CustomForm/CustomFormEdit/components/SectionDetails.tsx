@@ -14,7 +14,7 @@ export function SectionDetails({
     !section.fields.length && !section.description,
   );
   return (
-    <div className="builder-section-details">
+    <div className="builder-section-details" data-editing={editing}>
       {editing ? (
         <div id={`builder-details-${section.id}`}>
           <label className="builder-control builder-section-name">

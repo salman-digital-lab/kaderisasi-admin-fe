@@ -1,5 +1,5 @@
-.form-builder-page {
-  max-width: 1120px;
+.form-builder-page.guided-page {
+  max-width: none;
   width: 100%;
   margin: 0 auto;
   min-width: 0;
@@ -313,6 +313,51 @@
 }
 .builder-section-details {
   margin-bottom: 16px;
+}
+@media (min-width: 901px) {
+  .builder-toolbar {
+    padding: 12px 0;
+  }
+  .builder-outline-links {
+    gap: 12px;
+  }
+  .builder-outline-list {
+    min-height: 0;
+  }
+  .builder-section-heading {
+    margin-bottom: 8px;
+  }
+  .form-builder-page .builder-section-heading > .ant-btn {
+    min-height: 32px;
+    height: 32px;
+  }
+  .builder-section-details[data-editing="false"] {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .builder-section-details[data-editing="false"] > div {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .builder-section-details h3 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .builder-section-details p {
+    margin: 4px 0 0;
+  }
+  .builder-section-details[data-editing="false"] > .ant-btn {
+    flex-shrink: 0;
+    min-height: 32px;
+    height: 32px;
+  }
+  .builder-question-heading {
+    padding-block: 4px;
+  }
 }
 .builder-move-dialog .builder-control {
   position: relative;
