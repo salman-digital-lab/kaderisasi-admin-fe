@@ -99,7 +99,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
               cursor: "help",
             }}
           >
-            {isPublished ? "Dipublikasi" : "Draft"}
+            {isPublished ? "Dipublikasi" : "Tidak Tayang"}
           </Tag>
         </Tooltip>
       );

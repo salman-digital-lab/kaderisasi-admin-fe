@@ -70,7 +70,7 @@ const ClubActivitiesPage = () => {
       key: "is_published",
       render: (value) => (
         <Tag color={value ? "green" : "default"}>
-          {value ? "Dipublikasi" : "Draft"}
+          {value ? "Dipublikasi" : "Tidak Tayang"}
         </Tag>
       ),
     },
