@@ -11,10 +11,11 @@
 - Use a 32px desktop rich-text toolbar to keep formatting controls subordinate to the content; retain existing touch targets on narrow screens.
 - Bound editor heights to keep long content editable without pushing settings far down the page.
 - Use neutral status text because an inactive form is a state, not a validation error.
+- Expose status controls in Pengaturan for all form types, using the existing toggle endpoint. Activity and club controls activate the form without changing registration state; existing server guards prevent deactivation while registration is open. Save pending edits before toggling.
 
 ## Verification and delivery gate
 
-- PASS, layout: `node tests/ui/form-settings.mjs` checks 1280px, 1440px, and 390px, desktop columns, narrow-screen stacking, editable inputs, keyboard expansion, no overflow, and no browser errors.
+- PASS, layout and status: `node tests/ui/form-settings.mjs` checks 1280px, 1440px, and 390px, desktop columns, narrow-screen stacking, editable inputs, keyboard expansion, no overflow, and no browser errors. Activity, club, and standalone fixtures cover activation, deactivation, server rejection retaining status, and disabling the control for unsaved edits.
 - PASS, visual consistency: settings screenshots compared with ActivitySetup at 1440px and the existing guided-section source; shared container, borders, spacing, and controls are retained. Screenshots live in `../../kaderisasi-admin-be-go/.artifacts/form-settings/`.
 - PASS, functional regression: `npm run test:form-builder-ui` passes at 1440px and 390px, including saves, routing, preview, and local draft recovery. Requests use intercepted fixtures; no database records or storage objects are created.
 - PASS, engineering: lint and production build, including TypeScript checking, pass. Existing vendor bundle-size advisory remains.

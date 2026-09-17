@@ -12,12 +12,33 @@ const output = new URL(
 mkdirSync(output, { recursive: true });
 const browser = await chromium.launch();
 try {
-  for (const width of [1280, 1440, 390]) {
+  for (const [width, featureType] of [
+    [1280, "activity_registration"],
+    [1440, "activity_registration"],
+    [390, "activity_registration"],
+    [1440, "club_registration"],
+    [1440, "independent_form"],
+  ]) {
     const page = await browser.newPage({ viewport: { width, height: 1000 } });
     const errors = [];
+    let active = false;
+    let failToggle = false;
+    let toggles = 0;
     page.on("pageerror", (error) => errors.push(error.message));
     await page.route("**/v2/**", async (route) => {
       const path = new URL(route.request().url()).pathname;
+      if (path.endsWith("/toggle-active")) {
+        assert.equal(route.request().method(), "PUT");
+        toggles++;
+        if (failToggle) {
+          await route.fulfill({
+            status: 400,
+            json: { message: "CLOSE_REGISTRATION_BEFORE_FORM_CHANGE" },
+          });
+          return;
+        }
+        active = !active;
+      }
       const data = path.includes("/auth/")
         ? {
             access_token: "ui-fixture",
@@ -32,13 +53,13 @@ try {
             authentication_methods: ["password"],
             is_super_admin: true,
           }
-        : path.endsWith("/custom-forms/9999")
+        : path.endsWith("/custom-forms/9999") || path.endsWith("/toggle-active")
           ? {
               id: 9999,
               form_name: "Pendaftaran kegiatan",
-              feature_type: "activity_registration",
+              feature_type: featureType,
               feature_id: null,
-              is_active: false,
+              is_active: active,
               form_description:
                 "Informasi kegiatan dan petunjuk pendaftaran.\n\nSilakan lengkapi pertanyaan sesuai kondisi Anda.",
               post_submission_info:
@@ -60,10 +81,43 @@ try {
     await expect(
       settings.getByLabel("Nama Form", { exact: true }),
     ).toBeVisible();
+    const openName =
+      featureType === "independent_form"
+        ? "Buka penerimaan respons"
+        : "Aktifkan formulir";
+    const closeName =
+      featureType === "independent_form"
+        ? "Tutup penerimaan respons"
+        : "Nonaktifkan formulir";
+    await page.getByRole("button", { name: openName, exact: true }).focus();
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("button", { name: closeName, exact: true }),
+    ).toBeVisible();
+    await expect(
+      settings
+        .locator(".builder-form-metadata")
+        .getByText("Aktif", { exact: true }),
+    ).toBeVisible();
+    failToggle = true;
+    await page.getByRole("button", { name: closeName, exact: true }).click();
+    await expect(page.locator(".ant-alert-error")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: closeName, exact: true }),
+    ).toBeVisible();
+    failToggle = false;
+    await page.getByRole("button", { name: closeName, exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: openName, exact: true }),
+    ).toBeVisible();
+    assert.equal(toggles, 3);
     const intro = settings.locator("textarea");
     const editor = settings.locator(".ProseMirror");
     await intro.fill("Petunjuk yang diperbarui.");
     await editor.fill("Pesan setelah mengirim yang diperbarui.");
+    await expect(
+      page.getByRole("button", { name: openName, exact: true }),
+    ).toBeDisabled();
     const left = await intro.boundingBox();
     const right = await editor.boundingBox();
     if (width >= 992)
@@ -79,7 +133,7 @@ try {
     await page.keyboard.press("Enter");
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
-      path: new URL(`settings-${width}.png`, output).pathname,
+      path: new URL(`settings-${featureType}-${width}.png`, output).pathname,
       fullPage: true,
     });
     assert.equal(
@@ -90,7 +144,7 @@ try {
     );
     assert.deepEqual(errors, []);
     await page.close();
-    console.log(`Settings ${width}px: passed`);
+    console.log(`Settings ${featureType} ${width}px: passed`);
   }
 } finally {
   await browser.close();

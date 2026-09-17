@@ -412,63 +412,86 @@ export default function CustomFormEdit(): ReactElement {
                     onSave={() => void handleSave()}
                     onChange={() => setBasicDirty(true)}
                   />
-                  {initialData.feature_type === "independent_form" && (
-                    <div className="builder-settings">
-                      <label className="builder-control">
-                        Siapa yang dapat mengisi?
-                        <Select
-                          aria-label="Akses formulir"
-                          value={data.accessMode}
-                          options={[
-                            {
-                              value: "public",
-                              label: "Siapa saja yang memiliki tautan",
-                            },
-                            {
-                              value: "members",
-                              label: "Anggota yang sudah masuk",
-                            },
-                          ]}
-                          onChange={(mode) => {
-                            data.setAccessMode(mode);
-                            setBasicDirty(true);
-                          }}
-                        />
-                      </label>
-                      <p>
-                        Data diri opsional. Jawaban tidak mengubah profil
-                        anggota.
-                      </p>
-                      <p role="status">
-                        {initialData.is_active
-                          ? "Sedang menerima respons"
-                          : "Penerimaan respons ditutup"}
-                      </p>
-                      <Button
-                        loading={toggling}
-                        disabled={dirty}
-                        onClick={() => {
-                          setToggling(true);
-                          void toggleCustomFormActive(initialData.id)
-                            .then(data.setInitialData)
-                            .catch((error: unknown) =>
-                              setFailure(actionError(error)),
-                            )
-                            .finally(() => setToggling(false));
-                        }}
-                      >
-                        {initialData.is_active
-                          ? "Tutup penerimaan respons"
-                          : "Buka penerimaan respons"}
-                      </Button>
-                      {dirty && (
-                        <p className="builder-hint">
-                          Simpan perubahan sebelum membuka atau menutup
-                          penerimaan respons.
+                  <div className="builder-settings guided-section">
+                    {initialData.feature_type === "independent_form" && (
+                      <>
+                        <label className="builder-control">
+                          Siapa yang dapat mengisi?
+                          <Select
+                            aria-label="Akses formulir"
+                            value={data.accessMode}
+                            options={[
+                              {
+                                value: "public",
+                                label: "Siapa saja yang memiliki tautan",
+                              },
+                              {
+                                value: "members",
+                                label: "Anggota yang sudah masuk",
+                              },
+                            ]}
+                            onChange={(mode) => {
+                              data.setAccessMode(mode);
+                              setBasicDirty(true);
+                            }}
+                          />
+                        </label>
+                        <p>
+                          Data diri opsional. Jawaban tidak mengubah profil
+                          anggota.
                         </p>
-                      )}
-                    </div>
-                  )}
+                      </>
+                    )}
+                    <Typography.Title
+                      level={3}
+                      style={{ fontSize: 16, marginTop: 0 }}
+                    >
+                      Status formulir
+                    </Typography.Title>
+                    <p role="status">
+                      {initialData.feature_type === "independent_form"
+                        ? initialData.is_active
+                          ? "Sedang menerima respons"
+                          : "Penerimaan respons ditutup"
+                        : initialData.is_active
+                          ? "Formulir aktif"
+                          : "Formulir tidak aktif"}
+                    </p>
+                    {initialData.feature_type !== "independent_form" && (
+                      <p className="builder-hint">
+                        Formulir aktif digunakan saat pendaftaran kegiatan atau
+                        klub dibuka. Status ini tidak membuka atau menutup
+                        pendaftaran.
+                      </p>
+                    )}
+                    <Button
+                      loading={toggling}
+                      disabled={dirty || updateLoading || !!recovery}
+                      onClick={() => {
+                        setFailure("");
+                        setToggling(true);
+                        void toggleCustomFormActive(initialData.id)
+                          .then(data.setInitialData)
+                          .catch((error: unknown) =>
+                            setFailure(actionError(error)),
+                          )
+                          .finally(() => setToggling(false));
+                      }}
+                    >
+                      {initialData.feature_type === "independent_form"
+                        ? initialData.is_active
+                          ? "Tutup penerimaan respons"
+                          : "Buka penerimaan respons"
+                        : initialData.is_active
+                          ? "Nonaktifkan formulir"
+                          : "Aktifkan formulir"}
+                    </Button>
+                    {dirty && (
+                      <p className="builder-hint">
+                        Simpan perubahan sebelum mengubah status formulir.
+                      </p>
+                    )}
+                  </div>
                 </>
               ),
             },
