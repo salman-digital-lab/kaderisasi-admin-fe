@@ -37,7 +37,8 @@ try {
         : path.endsWith("/custom-forms/9999")
           ? {
               id: 9999,
-              form_name: "Pendaftaran kegiatan",
+              form_name:
+                "Pendaftaran Open Recruitment Peserta LMD 241 Khusus SSC 85",
               feature_type: "activity_registration",
               feature_id: null,
               is_active: true,
@@ -92,11 +93,23 @@ try {
         (await section.boundingBox()).height < 620,
         "Four-question section stays compact",
       );
+      assert.equal(
+        await page
+          .locator(".builder-form-title")
+          .evaluate((el) => getComputedStyle(el).fontSize),
+        "24px",
+      );
     }
     await page.screenshot({
       path: new URL(`questions-${width}.png`, output).pathname,
       fullPage: true,
     });
+    await page.getByRole("tab", { name: "Alur", exact: true }).click();
+    await page.screenshot({
+      path: new URL(`flow-${width}.png`, output).pathname,
+      fullPage: true,
+    });
+    await page.getByRole("tab", { name: "Pertanyaan", exact: true }).click();
     await section
       .getByRole("button", { name: "Edit bagian", exact: true })
       .click();

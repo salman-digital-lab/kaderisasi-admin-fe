@@ -18,6 +18,16 @@
   flex: 1;
   min-width: 180px;
 }
+.builder-toolbar-title .builder-form-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.builder-save-status {
+  display: block;
+  margin-top: 4px;
+}
 .builder-toolbar-actions {
   display: flex;
   gap: 8px;
@@ -315,8 +325,21 @@
   margin-bottom: 16px;
 }
 @media (min-width: 901px) {
+  .form-builder-page.guided-page {
+    padding-top: 0;
+  }
   .builder-toolbar {
-    padding: 12px 0;
+    padding: 8px 0;
+  }
+  .builder-toolbar-title .builder-form-title {
+    font-size: 24px;
+    line-height: 1.35;
+  }
+  .form-builder-page .builder-back.ant-btn {
+    min-height: 32px;
+    height: 32px;
+    padding-inline: 4px;
+    margin-bottom: 4px;
   }
   .builder-outline-links {
     gap: 12px;

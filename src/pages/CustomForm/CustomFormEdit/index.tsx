@@ -269,6 +269,7 @@ export default function CustomFormEdit(): ReactElement {
             <div className="builder-toolbar-title">
               {activityId && (
                 <Button
+                  className="builder-back"
                   type="text"
                   icon={<ArrowLeftOutlined />}
                   onClick={() =>
@@ -284,6 +285,7 @@ export default function CustomFormEdit(): ReactElement {
               )}
               {clubId && (
                 <Button
+                  className="builder-back"
                   type="text"
                   icon={<ArrowLeftOutlined />}
                   onClick={() =>
@@ -293,10 +295,11 @@ export default function CustomFormEdit(): ReactElement {
                   Kembali ke Pendaftaran Klub
                 </Button>
               )}
-              <Typography.Title level={2} style={{ margin: 0, fontSize: 20 }}>
+              <Typography.Title level={2} className="builder-form-title">
                 {watched?.formName || initialData.form_name}
               </Typography.Title>
               <Typography.Text
+                className="builder-save-status"
                 type="secondary"
                 role="status"
                 aria-label="Status penyimpanan"
