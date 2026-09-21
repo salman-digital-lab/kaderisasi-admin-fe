@@ -1,4 +1,6 @@
 export const permissionLabels: Record<string, string> = {
+  "calendar.read": "Melihat kalender kegiatan",
+  "calendar.manage": "Membuat, mengubah, dan menghapus acara kalender",
   "short_links.read": "Melihat tautan pendek",
   "short_links.manage": "Membuat, mengubah, dan menghapus tautan pendek",
   "courses.read": "Melihat kelas dan progres peserta",

@@ -58,6 +58,12 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
         : []),
     ],
   });
+  if (permissions.includes("calendar.read"))
+    items.push({
+      key: "/calendar",
+      icon: <ScheduleOutlined />,
+      label: <Link to="/calendar">Kalender Kegiatan</Link>,
+    });
   if (permissions.includes("activities.read"))
     items.push({
       key: "/activity",

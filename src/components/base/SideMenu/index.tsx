@@ -52,6 +52,7 @@ const SideMenu = ({
 
   // Determine selected keys based on current path
   const getSelectedKeys = () => {
+    if (currentPath.startsWith("/calendar")) return ["/calendar"];
     if (currentPath.startsWith("/dashboard")) return ["/dashboard"];
     if (currentPath.startsWith("/my-requests")) return ["/my-requests"];
     if (currentPath.startsWith("/ticket-review")) return ["/ticket-review"];

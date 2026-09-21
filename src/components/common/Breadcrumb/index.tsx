@@ -10,6 +10,7 @@ interface BreadcrumbItem {
 // Hardcoded breadcrumb mappings for all routes
 const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   "/": [{ path: "/", title: "Beranda" }],
+  "/calendar": [{ path: "/calendar", title: "Kalender Kegiatan" }],
   "/profile": [{ path: "/profile", title: "Profil Saya" }],
   "/my-requests": [
     { path: "", title: "Akses & Tiket" },
