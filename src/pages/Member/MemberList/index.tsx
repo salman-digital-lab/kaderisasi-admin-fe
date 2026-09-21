@@ -6,16 +6,22 @@ import {
   SearchOutlined,
   ReloadOutlined,
   PlusOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 
 import { getProfiles } from "../../../api/services/member";
 
 import MemberTable from "./components/MemberTable";
 import CreateMemberModal from "./CreateMemberModal";
-import { usePermissions } from "../../../stores/authStore";
+import { useIsSuperAdmin, usePermissions } from "../../../stores/authStore";
+import ExportMemberModal from "./ExportMemberModal";
+import type { MemberExportFilters } from "../../../api/services/member-export";
 
 const MemberListPage = () => {
   const canManage = usePermissions().includes("members.manage");
+  const isSuperAdmin = useIsSuperAdmin();
+  const [exportFilters, setExportFilters] =
+    useState<MemberExportFilters | null>(null);
   const [parameters, setParameters] = useState({
     page: 1,
     per_page: 10,
@@ -145,6 +151,21 @@ const MemberListPage = () => {
           </ResponsiveFilters>
 
           <Space size={8} wrap>
+            {isSuperAdmin && (
+              <Button
+                icon={<DownloadOutlined aria-hidden />}
+                onClick={() =>
+                  setExportFilters({
+                    search: parameters.search,
+                    badge: parameters.badge,
+                    member_id: parameters.member_id,
+                    education_institution: parameters.education_institution,
+                  })
+                }
+              >
+                Unduh Data
+              </Button>
+            )}
             {canManage && (
               <Button
                 type="primary"
@@ -176,6 +197,12 @@ const MemberListPage = () => {
         />
       </div>
 
+      {isSuperAdmin && exportFilters && (
+        <ExportMemberModal
+          filters={exportFilters}
+          onClose={() => setExportFilters(null)}
+        />
+      )}
       {canManage && (
         <CreateMemberModal
           isOpen={isCreateOpen}
