@@ -1,0 +1,99 @@
+.dialog :global(.ant-modal) {
+  padding-bottom: 0;
+}
+.dialog :global(.ant-modal-container) {
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+}
+.dialog :global(.ant-modal-body) {
+  overflow-y: auto;
+  min-height: 0;
+}
+.dialog :global(.ant-modal-header),
+.dialog :global(.ant-modal-footer) {
+  flex: none;
+}
+.dialog :global(.ant-modal-footer) {
+  border-top: 1px solid #dedede;
+  padding-top: 16px;
+  margin-top: 20px;
+}
+.dialog :global(.ant-btn) {
+  min-height: 40px;
+  height: auto;
+  white-space: normal;
+}
+.dialog :global(.ant-input-textarea-show-count) {
+  margin-bottom: 24px;
+}
+.dialog :global(:focus-visible) {
+  outline: 2px solid #075d80;
+  outline-offset: 3px;
+}
+.progress {
+  margin-bottom: 24px;
+}
+.audienceGroup {
+  padding: 16px 0;
+  border-bottom: 1px solid #dedede;
+}
+.audienceGroup:first-of-type {
+  padding-top: 0;
+}
+.audienceGroup:last-child {
+  border-bottom: 0;
+}
+.audienceGroup > :global(.ant-checkbox-wrapper) {
+  font-weight: 600;
+  min-height: 28px;
+  align-items: center;
+}
+.audienceOptions {
+  padding: 12px 0 0 24px;
+}
+.audienceOptions :global(.ant-form-item:last-child) {
+  margin-bottom: 0;
+}
+.message {
+  overflow-wrap: anywhere;
+}
+.message :global(.ant-btn) {
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.reviewCount {
+  border-bottom: 1px solid #dedede;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.footerActions {
+  display: flex;
+  gap: 8px;
+}
+@media (max-width: 575px) {
+  .dialog :global(.ant-btn) {
+    min-height: 44px;
+  }
+  .dialog :global(.ant-steps-item-title) {
+    font-size: 12px;
+  }
+  .audienceGroup > :global(.ant-checkbox-wrapper) {
+    min-height: 44px;
+  }
+  .footerActions {
+    margin-left: auto;
+  }
+  .audienceOptions {
+    padding-left: 0;
+  }
+}

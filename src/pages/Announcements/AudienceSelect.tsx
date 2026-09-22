@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactElement } from "react";
-import { Select, Typography } from "antd";
+import { Select } from "antd";
 import axios from "../../api/axios";
 const EMPTY_IDS: number[] = [];
 
@@ -71,14 +71,13 @@ export default function AudienceSelect({
         placeholder="Ketik untuk mencari"
         style={{ width: "100%" }}
         notFoundContent={
-          failed
-            ? "Gagal memuat. Ketik ulang untuk mencoba lagi."
-            : "Tidak ada hasil"
+          loading
+            ? "Memuat pilihan…"
+            : failed
+              ? "Gagal memuat. Ketik ulang untuk mencoba lagi."
+              : "Tidak ada hasil"
         }
       />
-      <Typography.Text type="secondary">
-        Menampilkan hingga 50 hasil. Persempit pencarian bila diperlukan.
-      </Typography.Text>
     </>
   );
 }
