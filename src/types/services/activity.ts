@@ -13,6 +13,7 @@ export type getActivitiesReq = {
   activity_type?: ACTIVITY_TYPE_ENUM;
   category?: ACTIVITY_CATEGORY_ENUM;
   club_id?: string;
+  is_published?: "0" | "1";
 };
 
 export type getActivitiesResp = {

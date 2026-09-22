@@ -8,11 +8,32 @@ import {
   renderActivityType,
 } from "../../../../constants/render";
 import { Activity } from "../../../../types/model/activity";
+import { usePermissions } from "../../../../stores/authStore";
+import type { ReactElement } from "react";
 
 const { Text } = Typography;
 
 const toBoolean = (value: boolean | number | undefined): boolean =>
   Boolean(value);
+
+function ActivityAction({ activity }: { activity: Activity }): ReactElement {
+  const permissions = usePermissions();
+  const resume =
+    !activity.is_published && permissions.includes("activities.manage");
+  return (
+    <Link
+      to={
+        resume
+          ? `/activity/${activity.id}/setup?step=resume`
+          : `/activity/${activity.id}`
+      }
+    >
+      <Button size="small" icon={<EditOutlined />}>
+        {resume ? "Lanjutkan draf" : "Detail"}
+      </Button>
+    </Link>
+  );
+}
 
 export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
   {
@@ -32,25 +53,10 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
         >
           {name}
         </Text>
-        <Tooltip title="Edit aktivitas">
-          <Link to={`/activity/${record.id}`}>
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              aria-label="Buka detail kegiatan"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "4px",
-              }}
-            >
-              Detail
-            </Button>
-          </Link>
-        </Tooltip>
+        <ActivityAction activity={record} />
       </Space>
     ),
-    width: 250,
+    width: 340,
   },
   {
     title: "Tipe Aktivitas",
@@ -87,7 +93,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
           title={
             isPublished
               ? "Kegiatan ditampilkan di website"
-              : "Kegiatan tidak ditampilkan di website"
+              : "Draf tersimpan. Lanjutkan pengaturan untuk menayangkan kegiatan."
           }
         >
           <Tag
@@ -99,7 +105,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
               cursor: "help",
             }}
           >
-            {isPublished ? "Dipublikasi" : "Tidak Tayang"}
+            {isPublished ? "Dipublikasi" : "Draf"}
           </Tag>
         </Tooltip>
       );

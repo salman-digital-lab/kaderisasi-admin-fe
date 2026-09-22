@@ -1,14 +1,45 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import axios from "../axios";
 import type { Activity } from "../../types/model/activity";
-import { saveSetupActivity, setupActivityConfig } from "./activity-setup";
+import {
+  findSetupActivities,
+  saveSetupActivity,
+  setupActivityConfig,
+} from "./activity-setup";
 
-vi.mock("../axios", () => ({ default: { post: vi.fn(), put: vi.fn() } }));
+vi.mock("../axios", () => ({
+  default: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(axios.post).mockResolvedValue({ data: { data: { id: 42 } } });
   vi.mocked(axios.put).mockResolvedValue({ data: { data: { id: 42 } } });
+});
+
+it("retrieves paginated drafts with the backend publication filter", async () => {
+  const page = {
+    data: [{ id: 42, name: "Pembinaan Oktober" }],
+    meta: { total: 6 },
+  };
+  vi.mocked(axios.get).mockResolvedValue({ data: { data: page } });
+  const params = {
+    page: "2",
+    per_page: "5",
+    is_published: "0" as const,
+    search: "Pembinaan",
+  };
+
+  expect(await findSetupActivities(params)).toEqual(page);
+  expect(axios.get).toHaveBeenCalledWith("/activities", { params });
+});
+
+it("propagates lookup failures so creation cannot mistake an error for no matches", async () => {
+  vi.mocked(axios.get).mockRejectedValue(new Error("offline"));
+  await expect(
+    findSetupActivities({ page: "1", per_page: "5", search: "Pembinaan" }),
+  ).rejects.toThrow("offline");
+  expect(axios.post).not.toHaveBeenCalled();
 });
 
 it("sends the required configuration lists when saving a new draft", async () => {

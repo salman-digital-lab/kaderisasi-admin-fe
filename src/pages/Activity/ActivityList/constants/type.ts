@@ -7,4 +7,5 @@ export type FilterType = {
   activity_type?: ACTIVITY_TYPE_ENUM;
   activity_category?: ACTIVITY_CATEGORY_ENUM;
   club_id?: string;
+  is_published?: "0" | "1";
 };

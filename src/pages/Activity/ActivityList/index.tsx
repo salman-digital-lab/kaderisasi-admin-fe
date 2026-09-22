@@ -1,6 +1,6 @@
 import { ResponsiveFilters } from "../../../components/common/Responsive/ResponsiveFilters";
-import { useState } from "react";
-import { Space, Button, Input, Select, Tooltip, Card } from "antd";
+import { useState, type ReactElement } from "react";
+import { Space, Button, Input, Select, Tooltip, Card, Alert } from "antd";
 import { useRequest } from "ahooks";
 import { useNavigate } from "react-router-dom";
 import { usePermissions } from "../../../stores/authStore";
@@ -30,7 +30,7 @@ const cardStyle = {
   boxShadow: "none",
 };
 
-const MainActivity = () => {
+const MainActivity = (): ReactElement => {
   const navigate = useNavigate();
   const permissions = usePermissions();
   const canReadClubs = permissions.includes("clubs.read");
@@ -54,6 +54,9 @@ const MainActivity = () => {
     ACTIVITY_CATEGORY_ENUM | undefined
   >(undefined);
   const [clubInput, setClubInput] = useState<string | undefined>(undefined);
+  const [publicationInput, setPublicationInput] = useState<
+    "0" | "1" | undefined
+  >(undefined);
 
   const { data: clubsData } = useRequest(
     () => getClubs({ page: "1", per_page: "100" }),
@@ -75,6 +78,7 @@ const MainActivity = () => {
         activity_type: parameters.activity_type,
         category: parameters.activity_category,
         club_id: canReadClubs ? parameters.club_id : undefined,
+        is_published: parameters.is_published,
       }),
     {
       refreshDeps: [parameters, canReadClubs],
@@ -93,12 +97,27 @@ const MainActivity = () => {
       activity_type: typeInput,
       activity_category: categoryInput,
       club_id: canReadClubs ? clubInput : undefined,
+      is_published: publicationInput,
       page: 1,
     }));
   };
 
   return (
     <div style={{ padding: 12 }}>
+      {permissions.includes("activities.manage") && (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 12 }}
+          title={
+            <>
+              Kegiatan yang belum selesai tetap tersimpan sebagai draf. Pilih
+              <strong> Lanjutkan draf</strong> untuk melengkapinya tanpa membuat
+              kegiatan baru.
+            </>
+          }
+        />
+      )}
       {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
@@ -117,6 +136,7 @@ const MainActivity = () => {
               searchInput,
               typeInput,
               categoryInput,
+              publicationInput,
               canReadClubs ? clubInput : undefined,
             ]}
             onReset={() => {
@@ -124,6 +144,7 @@ const MainActivity = () => {
               setTypeInput(undefined);
               setCategoryInput(undefined);
               setClubInput(undefined);
+              setPublicationInput(undefined);
               setParameters((prev) => ({
                 ...prev,
                 page: 1,
@@ -131,6 +152,7 @@ const MainActivity = () => {
                 activity_type: undefined,
                 activity_category: undefined,
                 club_id: undefined,
+                is_published: undefined,
               }));
             }}
           >
@@ -176,8 +198,22 @@ const MainActivity = () => {
                   />
                 )}
 
+                <Select
+                  aria-label="Tampilkan kegiatan"
+                  placeholder="Semua publikasi"
+                  allowClear
+                  value={publicationInput}
+                  style={{ width: 190 }}
+                  options={[
+                    { value: "0", label: "Draf / belum tayang" },
+                    { value: "1", label: "Sudah tayang" },
+                  ]}
+                  onChange={setPublicationInput}
+                />
+
                 <Button
                   type="primary"
+                  aria-label="Terapkan filter kegiatan"
                   icon={<SearchOutlined />}
                   onClick={apply}
                 />

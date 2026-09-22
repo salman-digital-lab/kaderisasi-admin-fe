@@ -1,0 +1,49 @@
+.activity-duplicate-dialog a {
+  color: #096c92;
+}
+
+.activity-duplicate-dialog :focus-visible {
+  outline: 2px solid #075d80;
+  outline-offset: 3px;
+}
+
+.activity-draft-list {
+  list-style: none;
+  padding: 0;
+  margin-block: 16px;
+}
+
+.activity-draft-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding-block: 12px;
+  border-bottom: 1px solid #dedede;
+}
+
+.activity-draft-list li > span {
+  flex: 1 1 220px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.activity-draft-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.activity-setup-option {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding-block: 4px;
+}
+
+.activity-setup-option-description {
+  color: #595959;
+  font-size: 12px;
+}
+.activity-setup-form .ant-form-item-extra {
+  color: #595959;
+}

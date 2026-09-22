@@ -1,5 +1,18 @@
 import axios from "../axios";
 import type { Activity } from "../../types/model/activity";
+import type {
+  getActivitiesReq,
+  getActivitiesResp,
+} from "../../types/services/activity";
+
+export async function findSetupActivities(
+  params: getActivitiesReq,
+): Promise<getActivitiesResp["data"]> {
+  const response = await axios.get<getActivitiesResp>("/activities", {
+    params,
+  });
+  return response.data.data;
+}
 
 export type SetupReadiness = {
   can_publish: boolean;

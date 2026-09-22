@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { flushSync } from "react-dom";
 import { useRequest } from "ahooks";
 import {
@@ -7,6 +7,7 @@ import {
   DatePicker,
   Form,
   Input,
+  Modal,
   Select,
   Skeleton,
   Steps,
@@ -23,6 +24,7 @@ import {
 import dayjs, { type Dayjs } from "dayjs";
 import {
   getActivityReadiness,
+  findSetupActivities,
   getSetupActivity,
   saveSetupActivity,
   setupActivityConfig,
@@ -45,6 +47,7 @@ import CustomFormSelection from "../ActivityDetail/components/CustomFormSelectio
 import PublicationHelp from "./PublicationHelp";
 import ActivityCourses from "./ActivityCourses";
 import "../../../styles/guided-workflows.css";
+import "./setup.css";
 
 type Values = Pick<
   Activity,
@@ -62,9 +65,6 @@ export default function ActivitySetup(): ReactElement {
   const id = routeId ? Number(routeId) : undefined;
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const step = id
-    ? Math.max(0, Math.min(3, Number(params.get("step")) || 0))
-    : 0;
   const permissions = usePermissions();
   const canPublish = permissions.includes("activities.publish");
   const canRegister = permissions.includes("activities.registration.manage");
@@ -72,11 +72,23 @@ export default function ActivitySetup(): ReactElement {
   const activityType = Form.useWatch("activity_type", form);
   const [activity, setActivity] = useState<Activity>();
   const [readiness, setReadiness] = useState<SetupReadiness>();
+  const step = !id
+    ? 0
+    : params.get("step") === "resume"
+      ? Math.min(3, ...(readiness?.issues.map((issue) => issue.step) ?? []))
+      : Math.max(0, Math.min(3, Number(params.get("step")) || 0));
   const [description, setDescription] = useState("");
   const [dirty, setDirty] = useState(false);
   const [coursesDirty, setCoursesDirty] = useState(false);
   const [coursesBusy, setCoursesBusy] = useState(false);
   const [busy, setBusy] = useState(false);
+  const saving = useRef(false);
+  const [duplicates, setDuplicates] = useState<{
+    activities: Activity[];
+    total: number;
+    nextStep?: number;
+    exit: boolean;
+  }>();
   const [mediaBusy, setMediaBusy] = useState(false);
   const [failure, setFailure] = useState("");
   const [saved, setSaved] = useState("");
@@ -115,15 +127,40 @@ export default function ActivitySetup(): ReactElement {
         );
   }, [id, step]);
   useEffect(() => {
-    document.getElementById("setup-step-title")?.focus();
-  }, [step]);
-  const save = async (nextStep?: number, exit = false): Promise<void> => {
-    if (mediaBusy || busy) return;
+    if (!loading)
+      document
+        .getElementById(id ? "setup-step-title" : "setup-page-title")
+        ?.focus();
+  }, [step, id, loading]);
+  const save = async (
+    nextStep?: number,
+    exit = false,
+    createSeparate = false,
+  ): Promise<void> => {
+    if (mediaBusy || coursesBusy || busy || saving.current) return;
+    saving.current = true;
+    setBusy(true);
     setFailure("");
     try {
       await form.validateFields(["name"]);
       const values = form.getFieldsValue(true);
-      setBusy(true);
+      if (!id && !createSeparate) {
+        const existing = await findSetupActivities({
+          page: "1",
+          per_page: "5",
+          search: values.name.trim(),
+        });
+        if (existing.data.length) {
+          setDuplicates({
+            activities: existing.data,
+            total: existing.meta.total,
+            nextStep,
+            exit,
+          });
+          return;
+        }
+      }
+      setDuplicates(undefined);
       const payload: Partial<Activity> = {
         name: values.name.trim(),
         activity_type: values.activity_type,
@@ -146,6 +183,7 @@ export default function ActivitySetup(): ReactElement {
       const row = await saveSetupActivity(id, payload);
       flushSync(() => {
         setDirty(false);
+        setBusy(false);
         setSaved(
           coursesDirty
             ? "Informasi kegiatan tersimpan. Simpan kelas terkait secara terpisah."
@@ -176,6 +214,7 @@ export default function ActivitySetup(): ReactElement {
       }
       setFailure(actionError(cause));
     } finally {
+      saving.current = false;
       setBusy(false);
     }
   };
@@ -210,12 +249,13 @@ export default function ActivitySetup(): ReactElement {
     <main className="guided-page">
       <Link to="/activity">← Daftar kegiatan</Link>
       <div className="guided-intro">
-        <Typography.Title level={2}>
+        <Typography.Title level={2} id="setup-page-title" tabIndex={-1}>
           {id ? (activity?.name ?? "Siapkan kegiatan") : "Buat kegiatan"}
         </Typography.Title>
         <p>
-          Mulai dari nama kegiatan. Simpan draf sekarang dan lengkapi informasi
-          secara bertahap.
+          {id
+            ? "Kegiatan ini sudah tersimpan. Perubahan akan disimpan pada kegiatan yang sama."
+            : "Simpan & lanjutkan akan menyimpan kegiatan sebagai draf. Jika belum selesai, lanjutkan draf yang sama dari daftar kegiatan."}
         </p>
         {activity && (
           <div>
@@ -232,6 +272,15 @@ export default function ActivitySetup(): ReactElement {
           </div>
         )}
       </div>
+      {id && activity && !activity.is_published && (
+        <Alert
+          type="info"
+          showIcon
+          title="Draf tersimpan, belum tayang"
+          description="Tidak perlu membuat kegiatan baru jika belum selesai. Gunakan Simpan & keluar, lalu pilih Lanjutkan draf dari daftar kegiatan."
+          style={{ marginBottom: 24 }}
+        />
+      )}
       <Steps
         current={step}
         size="small"
@@ -261,6 +310,7 @@ export default function ActivitySetup(): ReactElement {
         {!error && (
           <>
             <Form
+              className="activity-setup-form"
               form={form}
               layout="vertical"
               disabled={busy}
@@ -271,12 +321,14 @@ export default function ActivitySetup(): ReactElement {
             >
               <section className="guided-section">
                 <Typography.Title id="setup-step-title" tabIndex={-1} level={3}>
-                  {step + 1}. {titles[step]}
+                  {!id ? "Kegiatan baru · " : `${step + 1}. `}
+                  {titles[step]}
                 </Typography.Title>
                 <div hidden={step !== 0}>
                   <Form.Item
                     name="name"
                     label="Nama kegiatan"
+                    extra="Gunakan nama kegiatan tanpa kata tambahan seperti Pendaftaran atau Oprec, kecuali untuk tipe Umum - Hanya Pendaftaran. Nama wajib diisi untuk menyimpan draf."
                     rules={[
                       {
                         required: true,
@@ -295,9 +347,23 @@ export default function ActivitySetup(): ReactElement {
                     Informasi berikut boleh dilengkapi nanti. Tipe, kategori,
                     dan jenjang diperlukan sebelum kegiatan ditayangkan.
                   </p>
-                  <Form.Item name="activity_type" label="Tipe kegiatan">
+                  <Form.Item
+                    name="activity_type"
+                    label="Tipe kegiatan"
+                    extra="Tipe kegiatan memengaruhi jenjang pendaftar dan fitur pengelolaan. Jika belum tahu, pilih Umum - Hanya Pendaftaran. Baca panduan atau konsultasikan dengan Asmen atau Admin IT jika ragu."
+                  >
                     <Select
                       options={ACTIVITY_TYPE_OPTIONS}
+                      optionRender={(option) => (
+                        <div className="activity-setup-option">
+                          <div>{option.data.label}</div>
+                          {option.data.title && (
+                            <div className="activity-setup-option-description">
+                              {option.data.title}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       placeholder="Pilih sesuai tujuan kegiatan"
                       onChange={(value) => {
                         if (value !== ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY)
@@ -305,7 +371,11 @@ export default function ActivitySetup(): ReactElement {
                       }}
                     />
                   </Form.Item>
-                  <Form.Item name="activity_category" label="Kategori">
+                  <Form.Item
+                    name="activity_category"
+                    label="Kategori"
+                    extra="Pilih kategori yang sesuai dengan tujuan kegiatan. Jika bingung memilih, konsultasikan dengan Asmen atau Admin IT."
+                  >
                     <Select
                       options={ACTIVITY_CATEGORY_OPTIONS}
                       placeholder="Pilih kategori kegiatan"
@@ -314,10 +384,18 @@ export default function ActivitySetup(): ReactElement {
                   <Form.Item
                     name="minimum_level"
                     label="Jenjang minimum peserta"
-                    extra="Menentukan siapa yang dapat mendaftar."
+                    extra="Jenjang minimum yang harus dimiliki peserta agar dapat mendaftar. Penjelasan setiap jenjang tersedia pada pilihan di atas."
                   >
                     <Select
                       options={USER_LEVEL_OPTIONS}
+                      optionRender={(option) => (
+                        <div className="activity-setup-option">
+                          <div>{option.data.label}</div>
+                          <div className="activity-setup-option-description">
+                            {option.data.title}
+                          </div>
+                        </div>
+                      )}
                       placeholder="Pilih jenjang peserta"
                     />
                   </Form.Item>
@@ -325,6 +403,7 @@ export default function ActivitySetup(): ReactElement {
                     <Form.Item
                       name="club_id"
                       label="Komunitas terkait (opsional)"
+                      extra="Pilih komunitas yang terkait dengan kegiatan ini. Kosongkan jika kegiatan tidak terkait dengan komunitas tertentu."
                     >
                       <Select
                         allowClear
@@ -340,6 +419,7 @@ export default function ActivitySetup(): ReactElement {
                   <Form.Item
                     name="activity_date"
                     label="Tanggal kegiatan (opsional)"
+                    extra="Pilih tanggal mulai dan selesai pelaksanaan kegiatan, bukan masa pendaftaran. Boleh dikosongkan jika jadwal belum ditentukan."
                   >
                     <DatePicker.RangePicker
                       allowClear={!activity?.activity_start}
@@ -353,6 +433,13 @@ export default function ActivitySetup(): ReactElement {
                     peserta. Deskripsi dan minimal satu poster wajib diisi
                     sebelum kegiatan ditayangkan.
                   </p>
+                  <Alert
+                    type="info"
+                    showIcon
+                    title="Panduan deskripsi kegiatan"
+                    description="Deskripsi wajib diisi sebelum kegiatan ditayangkan. Jangan mencantumkan tautan website kaderisasi; hashtag tidak diperlukan."
+                    style={{ marginBottom: 16 }}
+                  />
                   <RichTextEditor
                     ariaLabel="Deskripsi kegiatan (wajib sebelum tayang)"
                     disabled={busy}
@@ -387,7 +474,7 @@ export default function ActivitySetup(): ReactElement {
                   <Form.Item
                     name="registration_date"
                     label="Tanggal pendaftaran"
-                    extra="Pembukaan dilakukan manual oleh admin pada rentang tanggal ini."
+                    extra="Tentukan rentang tanggal peserta dapat mendaftar. Mengisi tanggal tidak otomatis membuka pendaftaran; admin perlu membukanya secara manual pada rentang tanggal tersebut."
                   >
                     <DatePicker.RangePicker
                       allowClear={!activity?.registration_start}
@@ -399,7 +486,7 @@ export default function ActivitySetup(): ReactElement {
                       name="allow_guest_registration"
                       label="Izinkan peserta tanpa akun"
                       valuePropName="checked"
-                      extra="Hanya tersedia untuk kegiatan Umum – Hanya Pendaftaran."
+                      extra="Jika diaktifkan, peserta yang belum login dapat mendaftar sebagai tamu. Data tamu tidak terhubung ke akun pengguna. Hanya tersedia untuk tipe Umum - Hanya Pendaftaran."
                     >
                       <Switch />
                     </Form.Item>
@@ -619,8 +706,63 @@ export default function ActivitySetup(): ReactElement {
         )}
       </Skeleton>
       <UnsavedChangesGuard
-        dirty={dirty || mediaBusy || coursesDirty || coursesBusy}
+        dirty={dirty || busy || mediaBusy || coursesDirty || coursesBusy}
       />
+      <Modal
+        open={!!duplicates}
+        title="Kegiatan serupa sudah ada"
+        className="activity-duplicate-dialog"
+        onCancel={() => setDuplicates(undefined)}
+        footer={
+          <div className="guided-actions">
+            <Button onClick={() => setDuplicates(undefined)}>
+              Kembali ke formulir
+            </Button>
+            <Button
+              loading={busy}
+              onClick={() => {
+                if (duplicates)
+                  void save(duplicates.nextStep, duplicates.exit, true);
+              }}
+            >
+              Tetap buat kegiatan berbeda
+            </Button>
+          </div>
+        }
+      >
+        <p>
+          Belum ada kegiatan baru yang dibuat. Jika ini kegiatan yang sama,
+          lanjutkan kegiatan yang sudah tersimpan.
+        </p>
+        <ul className="activity-draft-list">
+          {duplicates?.activities.map((existing) => (
+            <li key={existing.id}>
+              <span>
+                {existing.name}
+                <br />
+                <Tag>{existing.is_published ? "Sudah tayang" : "Draf"}</Tag>
+              </span>
+              <Link
+                to={
+                  existing.is_published
+                    ? `/activity/${existing.id}`
+                    : `/activity/${existing.id}/setup?step=resume`
+                }
+                onClick={() => setDuplicates(undefined)}
+              >
+                {existing.is_published ? "Buka kegiatan" : "Lanjutkan draf"}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {duplicates && duplicates.total > duplicates.activities.length && (
+          <p>
+            Menampilkan {duplicates.activities.length} dari {duplicates.total}{" "}
+            kegiatan. Cari nama kegiatan di daftar kegiatan untuk melihat hasil
+            lainnya.
+          </p>
+        )}
+      </Modal>
     </main>
   );
 }
