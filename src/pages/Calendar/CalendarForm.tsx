@@ -1,5 +1,15 @@
 import { useEffect, useState, type ReactElement } from "react";
-import { Alert, Button, Form, Input, Modal, Select, Space } from "antd";
+import {
+  Alert,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+} from "antd";
+import dayjs, { type Dayjs } from "dayjs";
 import { getActivities } from "../../api/services/activity";
 import { saveCalendarEvent } from "../../api/services/calendar";
 import { handleError } from "../../api/errorHandling";
@@ -10,8 +20,8 @@ interface Values {
   title: string;
   description?: string;
   location?: string;
-  start: string;
-  end: string;
+  start: Dayjs;
+  end: Dayjs;
   activity_id?: number;
 }
 
@@ -83,8 +93,8 @@ export default function CalendarForm({
         description: values.description?.trim() || null,
         location: values.location?.trim() || null,
         all_day: true,
-        starts_at: midnight(values.start),
-        ends_at: midnight(addDays(values.end, 1)),
+        starts_at: midnight(values.start.format("YYYY-MM-DD")),
+        ends_at: midnight(addDays(values.end.format("YYYY-MM-DD"), 1)),
         activity_id: values.activity_id ?? null,
       });
       onSaved(saved);
@@ -118,10 +128,12 @@ export default function CalendarForm({
           description: current?.description ?? "",
           location: current?.location ?? "",
           activity_id: current?.activity?.id,
-          start: current ? wibDate(current.starts_at) : wibDate(),
-          end: current
-            ? wibDate(new Date(Date.parse(current.ends_at) - 1))
-            : wibDate(),
+          start: dayjs(current ? wibDate(current.starts_at) : wibDate()),
+          end: dayjs(
+            current
+              ? wibDate(new Date(Date.parse(current.ends_at) - 1))
+              : wibDate(),
+          ),
         }}
       >
         <Alert
@@ -153,7 +165,11 @@ export default function CalendarForm({
           label="Tanggal mulai"
           rules={[{ required: true, message: "Isi tanggal mulai" }]}
         >
-          <Input type="date" />
+          <DatePicker
+            format="DD MMMM YYYY"
+            placeholder="Pilih tanggal"
+            style={{ width: "100%" }}
+          />
         </Form.Item>
         <Form.Item
           name="end"
@@ -162,9 +178,9 @@ export default function CalendarForm({
           rules={[
             { required: true, message: "Isi tanggal terakhir" },
             {
-              validator: async (_, value: string): Promise<void> => {
-                const start = form.getFieldValue("start") as string;
-                if (start && value && value < start)
+              validator: async (_, value: Dayjs | null): Promise<void> => {
+                const start = form.getFieldValue("start") as Dayjs | undefined;
+                if (start && value && value.isBefore(start, "day"))
                   throw new Error(
                     "Tanggal terakhir tidak boleh sebelum tanggal mulai",
                   );
@@ -172,7 +188,11 @@ export default function CalendarForm({
             },
           ]}
         >
-          <Input type="date" />
+          <DatePicker
+            format="DD MMMM YYYY"
+            placeholder="Pilih tanggal"
+            style={{ width: "100%" }}
+          />
         </Form.Item>
         <Form.Item
           name="location"
