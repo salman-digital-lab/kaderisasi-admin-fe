@@ -11,6 +11,8 @@ interface BreadcrumbItem {
 const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   "/": [{ path: "/", title: "Beranda" }],
   "/calendar": [{ path: "/calendar", title: "Kalender Kegiatan" }],
+  "/announcements": [{ path: "/announcements", title: "Pengumuman" }],
+  "/notifications": [{ path: "/notifications", title: "Notifikasi" }],
   "/profile": [{ path: "/profile", title: "Profil Saya" }],
   "/my-requests": [
     { path: "", title: "Akses & Tiket" },

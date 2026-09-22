@@ -24,6 +24,13 @@ export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 
 export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
   const items: MenuItem[] = [];
+  if (permissions.includes("announcements.manage")) {
+    items.push({
+      key: "/announcements",
+      icon: <FileTextOutlined />,
+      label: <Link to="/announcements">Pengumuman</Link>,
+    });
+  }
   if (permissions.includes("dashboard.read")) {
     items.push({
       key: "/dashboard",

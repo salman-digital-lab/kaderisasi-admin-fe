@@ -27,6 +27,7 @@ import { logout } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { useUser, useClearAuth } from "../../stores/authStore";
 import Breadcrumb from "../common/Breadcrumb";
+import NotificationBell from "../../features/notifications/NotificationBell";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -175,6 +176,7 @@ const AppLayout = () => {
             </Flex>
 
             <Flex align="center" gap={8}>
+              <NotificationBell key={user?.id} />
               <Badge dot={false}>
                 <Button
                   type="text"

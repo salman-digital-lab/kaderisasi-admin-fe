@@ -6,9 +6,16 @@ import {
   useIsAuthenticated,
   useIsInitialized,
   usePermissions,
+  useUser,
 } from "../stores/authStore";
 
 const LoginPage = lazy(() => import("../pages/LoginPage"));
+const NotificationInbox = lazy(() => import("../features/notifications/Inbox"));
+const AnnouncementsPage = lazy(() => import("../pages/Announcements"));
+const AccountNotificationInbox = (): ReactNode => {
+  const user = useUser();
+  return <NotificationInbox key={user?.id} />;
+};
 const ProfilePage = lazy(() => import("../pages/Profile"));
 const DashboardPage = lazy(() => import("../pages/Dashboard"));
 const MainMember = lazy(() => import("../pages/Member/MemberList"));
@@ -150,6 +157,18 @@ const routes = createBrowserRouter([
     element: <Authenticated element={<AppLayout />} />,
     children: [
       { index: true, element: <DefaultLanding /> },
+      {
+        path: "notifications",
+        element: (
+          <Page>
+            <AccountNotificationInbox />
+          </Page>
+        ),
+      },
+      {
+        path: "announcements",
+        element: guarded(<AnnouncementsPage />, "announcements.manage"),
+      },
       {
         path: "profile",
         element: (
