@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { flushSync } from "react-dom";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import {
   Alert,
@@ -246,10 +247,22 @@ export default function ActivitySetup(): ReactElement {
     canPublish ? "Periksa & tayangkan" : "Periksa & minta bantuan",
   ];
   return (
-    <main className="guided-page">
-      <Link to="/activity">← Daftar kegiatan</Link>
-      <div className="guided-intro">
-        <Typography.Title level={2} id="setup-page-title" tabIndex={-1}>
+    <main className="guided-page activity-setup-page">
+      <header className="activity-setup-header">
+        <Button
+          type="text"
+          className="activity-setup-back"
+          icon={<ArrowLeftOutlined aria-hidden />}
+          onClick={() => navigate("/activity")}
+        >
+          Daftar kegiatan
+        </Button>
+        <Typography.Title
+          level={2}
+          id="setup-page-title"
+          tabIndex={-1}
+          className="activity-setup-title"
+        >
           {id ? (activity?.name ?? "Siapkan kegiatan") : "Buat kegiatan"}
         </Typography.Title>
         <p>
@@ -271,7 +284,7 @@ export default function ActivitySetup(): ReactElement {
             </Tag>
           </div>
         )}
-      </div>
+      </header>
       {id && activity && !activity.is_published && (
         <Alert
           type="info"

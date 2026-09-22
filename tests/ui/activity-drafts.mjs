@@ -206,7 +206,7 @@ try {
       await expect(page.locator(".ant-select-dropdown:visible")).toHaveCount(0);
     }
     await page
-      .getByRole("link", { name: "← Daftar kegiatan", exact: true })
+      .getByRole("button", { name: "Daftar kegiatan", exact: true })
       .click();
     await page
       .getByRole("link", { name: "Lanjutkan draf", exact: false })
