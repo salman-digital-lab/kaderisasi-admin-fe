@@ -1,4 +1,7 @@
-import type { FormSchema } from "../../../../types/model/customForm";
+import type {
+  FieldOption,
+  FormSchema,
+} from "../../../../types/model/customForm";
 
 export const EMPTY_APPLICATION_ANSWER = "Tidak diisi";
 
@@ -28,8 +31,13 @@ export const humanizeApplicationKey = (key: string): string => {
   return words.replace(/\b\w/g, (character) => character.toUpperCase());
 };
 
-export const formatApplicationAnswer = (value: unknown): string => {
+export const formatApplicationAnswer = (
+  value: unknown,
+  options?: FieldOption[],
+): string => {
   if (value === null || value === undefined) return EMPTY_APPLICATION_ANSWER;
+  const option = options?.find((item) => String(item.value) === String(value));
+  if (!Array.isArray(value) && option) return option.label;
   if (typeof value === "boolean") return value ? "Ya" : "Tidak";
   if (typeof value === "string")
     return value.trim() || EMPTY_APPLICATION_ANSWER;
@@ -39,7 +47,7 @@ export const formatApplicationAnswer = (value: unknown): string => {
 
   if (Array.isArray(value)) {
     const values = value
-      .map(formatApplicationAnswer)
+      .map((item) => formatApplicationAnswer(item, options))
       .filter((item) => item !== EMPTY_APPLICATION_ANSWER);
     return values.length > 0 ? values.join(", ") : EMPTY_APPLICATION_ANSWER;
   }
@@ -89,7 +97,10 @@ export const buildApplicationAnswerSections = (
             typeof field.label === "string" && field.label.trim()
               ? field.label.trim()
               : humanizeApplicationKey(field.key),
-          displayValue: formatApplicationAnswer(answers[field.key]),
+          displayValue: formatApplicationAnswer(
+            answers[field.key],
+            field.options,
+          ),
         },
       ];
     });

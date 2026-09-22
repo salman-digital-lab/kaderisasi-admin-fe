@@ -10,6 +10,7 @@ import { CLUB_REGISTRATION_STATUS_OPTIONS } from "../../../../constants/options"
 import type { ClubRegistration } from "../../../../types/model/clubRegistration";
 import type { FormSchema } from "../../../../types/model/customForm";
 import { buildApplicationAnswerSections } from "../utils/application-answers";
+import { buildApplicationProfileItems } from "../utils/application-profile";
 
 const { Text, Title } = Typography;
 
@@ -33,11 +34,6 @@ const STATUS_COLORS: Record<ClubRegistration["status"], string> = {
   APPROVED: "green",
   REJECTED: "red",
 };
-
-const getApplicantName = (registration: ClubRegistration): string =>
-  registration.member?.profile?.name ||
-  registration.member?.email ||
-  "Pendaftar";
 
 const ApplicationDetailDrawer = ({
   formId,
@@ -63,21 +59,7 @@ const ApplicationDetailDrawer = ({
       )?.label || registration.status;
 
     return [
-      {
-        key: "name",
-        label: "Nama",
-        children: getApplicantName(registration),
-      },
-      {
-        key: "email",
-        label: "Email",
-        children: registration.member?.email || "-",
-      },
-      {
-        key: "whatsapp",
-        label: "WhatsApp",
-        children: registration.member?.profile?.whatsapp || "-",
-      },
+      ...buildApplicationProfileItems(registration, formSchema),
       {
         key: "status",
         label: "Status",
@@ -91,7 +73,7 @@ const ApplicationDetailDrawer = ({
         children: dayjs(registration.created_at).format("DD MMM YYYY, HH:mm"),
       },
     ];
-  }, [registration]);
+  }, [registration, formSchema]);
 
   const isReviewing = reviewingStatus !== null;
 
@@ -160,7 +142,7 @@ const ApplicationDetailDrawer = ({
             <Descriptions
               bordered
               size="small"
-              column={{ xs: 1, sm: 2 }}
+              column={1}
               items={identityItems}
             />
           </section>

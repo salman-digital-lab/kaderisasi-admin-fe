@@ -40,6 +40,40 @@ const formSchema: FormSchema = {
 };
 
 describe("Club application answers", () => {
+  it("resolves stored choice IDs, including multiple and numeric options", () => {
+    const options = [
+      { value: "06e119d1-e88e-4e57-8211-6b10a480d13d", label: "Bersedia" },
+      { value: 0, label: "Belum pernah" },
+    ];
+    const schema: FormSchema = {
+      fields: [
+        {
+          section_name: "Registrasi",
+          fields: [
+            {
+              key: "commitment",
+              label: "Kesediaan hadir",
+              type: "checkbox",
+              required: true,
+              options,
+            },
+          ],
+        },
+      ],
+    };
+    const sections = buildApplicationAnswerSections(
+      { commitment: [options[0].value, "0", "Pilihan lama"] },
+      schema,
+    );
+    expect(sections[0].answers[0].displayValue).toBe(
+      "Bersedia, Belum pernah, Pilihan lama",
+    );
+    expect(formatApplicationAnswer(null, options)).toBe(
+      EMPTY_APPLICATION_ANSWER,
+    );
+    expect(formatApplicationAnswer(false, options)).toBe("Tidak");
+  });
+
   it("uses schema section and field order while excluding profile fields", () => {
     const sections = buildApplicationAnswerSections(
       {

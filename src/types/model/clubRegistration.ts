@@ -1,5 +1,6 @@
 import type { Club } from "./club";
 import type { ClubMemberRole } from "./clubMemberRole";
+import type { EducationEntry, WorkEntry } from "../../utils/profile-history";
 
 export interface Profile {
   id: number;
@@ -14,12 +15,18 @@ export interface Profile {
   linkedin?: string;
   province_id?: number;
   city_id?: number;
+  origin_province_id?: number;
+  origin_city_id?: number;
+  country?: string;
   university_id?: number;
   major?: string;
-  intake_year?: string;
+  intake_year?: string | number;
   birth_date?: string;
   level?: number;
-  badges?: string;
+  badges?: string[];
+  education_history?: EducationEntry[] | string | null;
+  work_history?: WorkEntry[] | string | null;
+  extra_data?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
