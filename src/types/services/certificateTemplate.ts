@@ -1,4 +1,5 @@
 import { Pagination } from "./base";
+import type { PublishedScoringResult } from "./scoring";
 
 export type CertificateTemplateStatus = "draft" | "published" | "archived";
 
@@ -143,6 +144,7 @@ export interface GenerateCertificatesReq {
 }
 
 export interface CertificateParticipant {
+  scoring_result?: PublishedScoringResult;
   registration_id: number;
   user_id: number | null;
   name: string;

@@ -1,4 +1,9 @@
 import type { jsPDF } from "jspdf";
+import {
+  fitScoreSheet,
+  SCORE_SHEET_WIDTH,
+  SCORE_SHEET_HEIGHT,
+} from "../components/CertificateScoreSheet";
 import type {
   CertificateElement,
   CertificateTemplate as CertificateTemplateData,
@@ -7,6 +12,7 @@ import type {
 export interface GenerateCertificatePdfOptions {
   template: CertificateTemplateData;
   sourceElement: HTMLElement;
+  scoreSourceElement?: HTMLElement | null;
   resolveText: (element: CertificateElement) => string;
   onProgress?: (stage: string) => void;
 }
@@ -81,12 +87,15 @@ function prepareFittedImages(source: HTMLElement): void {
   }
 }
 
-export async function createCertificatePdf({
-  template,
-  sourceElement,
-  resolveText,
-  onProgress,
-}: GenerateCertificatePdfOptions): Promise<jsPDF> {
+async function renderCertificatePage(
+  {
+    template,
+    sourceElement,
+    resolveText,
+    onProgress,
+  }: GenerateCertificatePdfOptions,
+  existingPdf?: jsPDF,
+): Promise<jsPDF> {
   const startedAt = performance.now();
   onProgress?.("Memuat gambar dan huruf…");
   const imports = Promise.all([import("html2canvas"), import("jspdf")]);
@@ -124,6 +133,7 @@ export async function createCertificatePdf({
       ...backgrounds.map(waitForImage),
     ]);
     prepareFittedImages(source);
+    fitScoreSheet(source);
     const [{ default: html2canvas }, { default: JsPDF }] = await imports;
     onProgress?.("Merender sertifikat…");
     await new Promise<void>((resolve) =>
@@ -151,12 +161,17 @@ export async function createCertificatePdf({
       ),
     );
     const metrics = getPdfPageSize(template.canvasWidth, template.canvasHeight);
-    const pdf = new JsPDF({
-      orientation: metrics.width > metrics.height ? "landscape" : "portrait",
-      unit: "pt",
-      format: [metrics.width, metrics.height],
-      compress: true,
-    });
+    const orientation =
+      metrics.width > metrics.height ? "landscape" : "portrait";
+    const pdf =
+      existingPdf ??
+      new JsPDF({
+        orientation: metrics.width > metrics.height ? "landscape" : "portrait",
+        unit: "pt",
+        format: [metrics.width, metrics.height],
+        compress: true,
+      });
+    if (existingPdf) pdf.addPage([metrics.width, metrics.height], orientation);
     pdf.addImage(
       new Uint8Array(await blob.arrayBuffer()),
       "PNG",
@@ -183,6 +198,28 @@ export async function createCertificatePdf({
     // Consume imports even when an asset failed first.
     await imports.catch(() => undefined);
   }
+}
+
+export async function createCertificatePdf(
+  options: GenerateCertificatePdfOptions,
+): Promise<jsPDF> {
+  const pdf = await renderCertificatePage(options);
+  if (options.scoreSourceElement) {
+    await renderCertificatePage(
+      {
+        ...options,
+        sourceElement: options.scoreSourceElement,
+        template: {
+          backgroundUrl: null,
+          elements: [],
+          canvasWidth: SCORE_SHEET_WIDTH,
+          canvasHeight: SCORE_SHEET_HEIGHT,
+        },
+      },
+      pdf,
+    );
+  }
+  return pdf;
 }
 
 export async function saveCertificatePdf(

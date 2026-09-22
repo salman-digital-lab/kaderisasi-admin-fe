@@ -3,23 +3,25 @@ import {
   Alert,
   Button,
   Card,
+  ConfigProvider,
   Result,
   Skeleton,
   Space,
   Tag,
   Typography,
-  message,
 } from "antd";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getIssuedCertificate } from "../../api/services/certificateTemplate";
 import type { CertificatePayload } from "../../types/services/certificateTemplate";
-import { CertificateArtwork } from "../DigitalCertificate/components/CertificateArtwork";
+import { CertificatePreviewPages } from "../DigitalCertificate/components/CertificatePreviewPages";
 import {
   getCertificateVerificationUrl,
   resolveCertificateText,
 } from "../DigitalCertificate/utils/certificate-content";
 import { saveCertificatePdf } from "../DigitalCertificate/utils/certificatePdf";
+import { CERTIFICATE_APPROVAL_THEME } from "../DigitalCertificate/constants/approval-theme";
+import "../DigitalCertificate/components/certificate-approval.css";
 
 const { Text, Title } = Typography;
 
@@ -33,8 +35,10 @@ const CertificatePreview: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const certificateRef = useRef<HTMLDivElement>(null);
+  const scoreRef = useRef<HTMLDivElement>(null);
   const downloadingRef = useRef(false);
   const [downloadStage, setDownloadStage] = useState("");
+  const [downloadError, setDownloadError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -90,13 +94,13 @@ const CertificatePreview: React.FC = () => {
 
     downloadingRef.current = true;
     setDownloading(true);
+    setDownloadError("");
     setDownloadStage("Memeriksa sertifikat…");
 
     try {
       const authorized = await getIssuedCertificate(certificateId);
       if (authorized.certificate?.revoked_at) {
         setData(authorized);
-        message.error("Sertifikat telah dicabut dan tidak dapat diunduh.");
         return;
       }
       const participantName =
@@ -110,6 +114,7 @@ const CertificatePreview: React.FC = () => {
         template: authorized.template.template_data,
         onProgress: setDownloadStage,
         sourceElement: certificateRef.current,
+        scoreSourceElement: scoreRef.current,
         filename: `sertifikat-${safeName || data.certificate?.certificate_code || "peserta"}.pdf`,
         resolveText: (element) =>
           resolveCertificateText(
@@ -120,7 +125,9 @@ const CertificatePreview: React.FC = () => {
           ),
       });
     } catch {
-      message.error("PDF sertifikat tidak dapat diunduh.");
+      setDownloadError(
+        "PDF belum dapat diunduh. Periksa koneksi, lalu coba lagi.",
+      );
     } finally {
       downloadingRef.current = false;
       setDownloading(false);
@@ -178,93 +185,139 @@ const CertificatePreview: React.FC = () => {
   const participantName = data.participant.guest_name || data.participant.name;
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#f5f5f5",
-        padding: "clamp(12px, 3vw, 24px)",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 960, margin: "0 auto" }}>
-        <Card style={{ marginBottom: 16 }}>
-          <span role="status">{downloadStage}</span>
-          <Space direction="vertical" size={12} style={{ width: "100%" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: 16,
-                flexWrap: "wrap",
-              }}
-            >
-              <div>
-                <Title level={1} style={{ margin: 0, fontSize: 28 }}>
-                  {participantName}
-                </Title>
-                <Text type="secondary">
-                  {data.activity.name} · {data.participant.activity_date}
-                </Text>
-                <div style={{ marginTop: 8 }}>
-                  <Tag color={revoked ? "red" : "green"}>
-                    {revoked ? "Dicabut" : "Valid"}
-                  </Tag>
-                  {data.certificate?.certificate_code && (
-                    <Text code>{data.certificate.certificate_code}</Text>
-                  )}
-                </div>
-              </div>
-              <Button
-                type="primary"
-                icon={<DownloadOutlined />}
-                onClick={handleDownload}
-                loading={downloading}
-                disabled={(hasVerificationQr && !verificationUrl) || revoked}
-                style={{ minHeight: 44 }}
+    <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
+      <main
+        className="certificate-workflow"
+        style={{
+          minHeight: "100vh",
+          background: "#f5f5f5",
+          padding: "clamp(12px, 3vw, 24px)",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: 960, margin: "0 auto" }}>
+          <Button
+            icon={<LeftOutlined />}
+            onClick={() =>
+              navigate(`/activity/${data.activity.id}/certificates`)
+            }
+            style={{ minHeight: 44, marginBottom: 16 }}
+          >
+            Kembali ke sertifikat kegiatan
+          </Button>
+          <Card style={{ marginBottom: 16 }}>
+            <Space direction="vertical" size={12} style={{ width: "100%" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  gap: 16,
+                  flexWrap: "wrap",
+                }}
               >
-                Unduh PDF
-              </Button>
-            </div>
+                <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
+                  <Title level={1} style={{ margin: 0, fontSize: 28 }}>
+                    {participantName}
+                  </Title>
+                  <Text type="secondary">
+                    {data.activity.name} · {data.participant.activity_date}
+                  </Text>
+                  <div style={{ marginTop: 8 }}>
+                    <Tag
+                      color={revoked ? "red" : "green"}
+                      style={{ color: revoked ? "#a8071a" : "#237804" }}
+                    >
+                      {revoked ? "Dicabut" : "Valid"}
+                    </Tag>
+                    {data.certificate?.certificate_code && (
+                      <Text code>{data.certificate.certificate_code}</Text>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  type="primary"
+                  icon={<DownloadOutlined />}
+                  onClick={handleDownload}
+                  loading={downloading}
+                  disabled={(hasVerificationQr && !verificationUrl) || revoked}
+                  style={{ minHeight: 44 }}
+                >
+                  Unduh PDF
+                </Button>
+              </div>
 
-            {revoked && (
-              <Alert
-                type="error"
-                showIcon
-                title="Sertifikat ini telah dicabut"
-                description={
-                  data.certificate?.revoked_reason ||
-                  "Sertifikat tidak lagi berlaku."
-                }
-              />
-            )}
-            {hasVerificationQr && !verificationUrl && (
-              <Alert
-                type="error"
-                showIcon
-                title="URL verifikasi publik belum dikonfigurasi"
-                description="Tetapkan VITE_PUBLIC_WEB_URL sebelum menampilkan QR atau mengunduh PDF."
-              />
-            )}
-          </Space>
-        </Card>
+              <Text>
+                {data.participant.scoring_result
+                  ? "PDF berisi 2 halaman: sertifikat dan hasil penilaian. Nilai disimpan saat sertifikat diterbitkan."
+                  : "PDF berisi 1 halaman. Sertifikat ini diterbitkan tanpa hasil penilaian."}
+              </Text>
+              <span role="status" aria-live="polite">
+                {downloadStage}
+              </span>
+              {downloadError && (
+                <Alert
+                  type="error"
+                  showIcon
+                  title="Unduhan belum berhasil"
+                  role="alert"
+                  description={
+                    <Space direction="vertical">
+                      <Text>{downloadError}</Text>
+                      <Button
+                        onClick={handleDownload}
+                        loading={downloading}
+                        style={{ minHeight: 44 }}
+                      >
+                        Coba unduh lagi
+                      </Button>
+                    </Space>
+                  }
+                />
+              )}
 
-        <CertificateArtwork
-          ref={certificateRef}
-          template={templateData}
-          backgroundImage={data.template.background_image}
-          resolveText={(element) =>
-            resolveCertificateText(
-              element,
-              data.participant,
-              data.certificate?.certificate_code,
-              data.certificate?.approval,
-            )
-          }
-          verificationUrl={verificationUrl}
-          revoked={revoked}
-        />
-      </div>
-    </main>
+              {revoked && (
+                <Alert
+                  type="error"
+                  showIcon
+                  title="Sertifikat ini telah dicabut"
+                  description={
+                    data.certificate?.revoked_reason ||
+                    "Sertifikat tidak lagi berlaku."
+                  }
+                />
+              )}
+              {hasVerificationQr && !verificationUrl && (
+                <Alert
+                  type="error"
+                  showIcon
+                  title="Tautan verifikasi belum tersedia"
+                  description="Hubungi pengelola platform untuk mengaktifkan tautan verifikasi sebelum mengunduh sertifikat."
+                />
+              )}
+            </Space>
+          </Card>
+
+          <CertificatePreviewPages
+            artworkRef={certificateRef}
+            scoreRef={scoreRef}
+            participant={data.participant}
+            certificateCode={data.certificate?.certificate_code}
+            template={templateData}
+            backgroundImage={data.template.background_image}
+            resolveText={(element) =>
+              resolveCertificateText(
+                element,
+                data.participant,
+                data.certificate?.certificate_code,
+                data.certificate?.approval,
+              )
+            }
+            verificationUrl={verificationUrl}
+            revoked={revoked}
+          />
+        </div>
+      </main>
+    </ConfigProvider>
   );
 };
 

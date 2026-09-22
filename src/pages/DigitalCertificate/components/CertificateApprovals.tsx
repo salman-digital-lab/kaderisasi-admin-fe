@@ -26,7 +26,7 @@ import type {
   ApprovalSummary,
 } from "../../../api/services/certificateApproval";
 import { usePermissions, useUser } from "../../../stores/authStore";
-import { CertificateArtwork } from "./CertificateArtwork";
+import { CertificatePreviewPages } from "./CertificatePreviewPages";
 import {
   CERTIFICATE_SAMPLE_CODE,
   getCertificateVerificationUrl,
@@ -358,7 +358,14 @@ export function CertificateApprovals({
                 </Typography.Paragraph>
                 <Tag>{LABELS[current.status]}</Tag>
                 {current.reason && <Alert type="info" title={current.reason} />}
-                <CertificateArtwork
+                <Typography.Paragraph>
+                  {current.snapshot.participant.scoring_result
+                    ? "2 halaman: sertifikat dan hasil penilaian. Periksa kedua halaman sebelum menyetujui."
+                    : "1 halaman: sertifikat tanpa hasil penilaian."}
+                </Typography.Paragraph>
+                <CertificatePreviewPages
+                  key={current.id}
+                  participant={current.snapshot.participant}
                   template={current.snapshot.template.template_data}
                   backgroundImage={current.snapshot.template.background_image}
                   resolveText={(element) =>

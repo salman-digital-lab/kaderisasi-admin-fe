@@ -44,6 +44,13 @@ export type ScoringSnapshot = {
   published_by: number;
   published_at: string;
 };
+export type PublishedScoringResult = {
+  revision: number;
+  published_at: string;
+  rubric: ScoringDefinition;
+  note: string;
+  result: ScoringResult;
+};
 export type ScoringState =
   | "unscored"
   | "incomplete"

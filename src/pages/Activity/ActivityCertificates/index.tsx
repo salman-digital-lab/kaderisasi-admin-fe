@@ -9,6 +9,7 @@ import {
   Alert,
   Button,
   Card,
+  ConfigProvider,
   Input,
   List,
   Pagination,
@@ -44,6 +45,7 @@ import {
   canManageCertificateTemplates,
 } from "../../../utils/certificate-permissions";
 import { CertificateArtwork } from "../../DigitalCertificate/components/CertificateArtwork";
+import { CertificatePreviewPages } from "../../DigitalCertificate/components/CertificatePreviewPages";
 import {
   CERTIFICATE_SAMPLE_CODE,
   getCertificateVerificationUrl,
@@ -55,6 +57,7 @@ import { formatRegistrationTime } from "../../../utils/registration-time";
 import styles from "./index.module.css";
 import { ApprovalRequestForm } from "./ApprovalRequestForm";
 import { CertificateApprovals } from "../../DigitalCertificate/components/CertificateApprovals";
+import { CERTIFICATE_APPROVAL_THEME } from "../../DigitalCertificate/constants/approval-theme";
 
 const LABELS = {
   eligible_not_issued: "Siap diterbitkan",
@@ -413,429 +416,482 @@ export default function ActivityCertificates(): React.ReactElement {
   ).length;
   const returnPath = `/activity/${activityId}/certificates`;
   return (
-    <main className={styles.page}>
-      <Card>
-        <div className={styles.header}>
-          <div>
-            <Link to={`/activity/${activityId}`}>
-              <ArrowLeftOutlined /> Kembali ke kegiatan
-            </Link>
-            <Typography.Title
-              ref={headingRef}
-              tabIndex={-1}
-              level={1}
-              style={{ fontSize: 24, margin: "8px 0" }}
-            >
-              Sertifikat kegiatan
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              {recipients?.activity.name}
-            </Typography.Text>
+    <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
+      <main className={`${styles.page} certificate-workflow`}>
+        <Card>
+          <div className={styles.header}>
+            <div>
+              <Link to={`/activity/${activityId}`}>
+                <ArrowLeftOutlined /> Kembali ke kegiatan
+              </Link>
+              <Typography.Title
+                ref={headingRef}
+                tabIndex={-1}
+                level={1}
+                style={{ fontSize: 24, margin: "8px 0" }}
+              >
+                Sertifikat kegiatan
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                {recipients?.activity.name}
+              </Typography.Text>
+            </div>
+            <Button
+              icon={<ReloadOutlined />}
+              aria-label="Muat ulang sertifikat"
+              disabled={running}
+              onClick={() => setRefresh((value) => value + 1)}
+            />
           </div>
-          <Button
-            icon={<ReloadOutlined />}
-            aria-label="Muat ulang sertifikat"
-            disabled={running}
-            onClick={() => setRefresh((value) => value + 1)}
+        </Card>
+        <Card className={styles.body}>
+          <Steps
+            current={step}
+            items={[
+              { title: "Template" },
+              { title: "Penerima" },
+              { title: "Tinjau & Terbitkan" },
+            ]}
           />
-        </div>
-      </Card>
-      <Card className={styles.body}>
-        <Steps
-          current={step}
-          items={[
-            { title: "Template" },
-            { title: "Penerima" },
-            { title: "Tinjau & Terbitkan" },
-          ]}
-        />
-        {error && (
-          <Alert
-            style={{ marginTop: 16 }}
-            type="error"
-            showIcon
-            title={error}
-          />
-        )}
-        {step === 0 && (
-          <div className={`${styles.templateGrid} ${styles.body}`}>
-            <div className={styles.stack}>
-              <div className={styles.actions}>
-                <Typography.Title level={2} style={{ fontSize: 18, margin: 0 }}>
-                  Pilih desain
-                </Typography.Title>
-                {canManage && (
-                  <Link
-                    to={`/digital-certificate?create=1&returnTo=${encodeURIComponent(returnPath)}`}
+          {error && (
+            <Alert
+              style={{ marginTop: 16 }}
+              type="error"
+              showIcon
+              title={error}
+            />
+          )}
+          {step === 0 && (
+            <div className={`${styles.templateGrid} ${styles.body}`}>
+              <div className={styles.stack}>
+                <div className={styles.actions}>
+                  <Typography.Title
+                    level={2}
+                    style={{ fontSize: 18, margin: 0 }}
                   >
-                    <Button icon={<PlusOutlined />}>Buat desain</Button>
-                  </Link>
-                )}
-              </div>
-              <Input.Search
-                allowClear
-                aria-label="Cari template"
-                placeholder="Cari template yang dipublikasikan"
-                value={templateSearchInput}
-                onChange={(event) => setTemplateSearchInput(event.target.value)}
-              />
-              {templateError && (
-                <Alert
-                  type="error"
-                  title={templateError}
-                  action={
-                    <Button onClick={() => setRefresh((value) => value + 1)}>
-                      Coba lagi
-                    </Button>
+                    Pilih desain
+                  </Typography.Title>
+                  {canManage && (
+                    <Link
+                      to={`/digital-certificate?create=1&returnTo=${encodeURIComponent(returnPath)}`}
+                    >
+                      <Button icon={<PlusOutlined />}>Buat desain</Button>
+                    </Link>
+                  )}
+                </div>
+                <Input.Search
+                  allowClear
+                  aria-label="Cari template"
+                  placeholder="Cari template yang dipublikasikan"
+                  value={templateSearchInput}
+                  onChange={(event) =>
+                    setTemplateSearchInput(event.target.value)
                   }
                 />
-              )}
-              <Radio.Group
-                aria-label="Template sertifikat"
-                value={selectedTemplateId}
-                onChange={(event) => setSelectedTemplateId(event.target.value)}
-              >
-                <List
-                  loading={templatesLoading}
-                  dataSource={templates}
-                  locale={{
-                    emptyText:
-                      "Belum ada desain yang dipublikasikan. Buat desain untuk memulai.",
-                  }}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <Radio
-                        value={item.id}
-                        disabled={!canManage || !item.readiness?.ready}
-                      >
-                        {item.name}
-                      </Radio>
-                    </List.Item>
-                  )}
-                />
-              </Radio.Group>
-              <Pagination
-                size="small"
-                current={templatePage}
-                total={templateTotal}
-                pageSize={12}
-                showSizeChanger={false}
-                onChange={setTemplatePage}
-              />
-              {!canManage && (
-                <Typography.Text type="secondary">
-                  Anda dapat memakai desain yang dipilih admin. Perubahan desain
-                  memerlukan akses pengelolaan template.
-                </Typography.Text>
-              )}
-              {canManage && recipients?.template && (
-                <Button
-                  type="link"
-                  disabled={busy}
-                  onClick={async () => {
-                    setBusy(true);
-                    try {
-                      await assignCertificateTemplate(activityId, null);
-                      setSelectedTemplateId(null);
-                      setRefresh((value) => value + 1);
-                    } catch {
-                      setError("Template tidak dapat dilepas.");
-                    } finally {
-                      setBusy(false);
+                {templateError && (
+                  <Alert
+                    type="error"
+                    title={templateError}
+                    action={
+                      <Button onClick={() => setRefresh((value) => value + 1)}>
+                        Coba lagi
+                      </Button>
                     }
-                  }}
+                  />
+                )}
+                <Radio.Group
+                  aria-label="Template sertifikat"
+                  value={selectedTemplateId}
+                  onChange={(event) =>
+                    setSelectedTemplateId(event.target.value)
+                  }
                 >
-                  Lepaskan template kegiatan
-                </Button>
-              )}
+                  <List
+                    loading={templatesLoading}
+                    dataSource={templates}
+                    locale={{
+                      emptyText:
+                        "Belum ada desain yang dipublikasikan. Buat desain untuk memulai.",
+                    }}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <Radio
+                          value={item.id}
+                          disabled={!canManage || !item.readiness?.ready}
+                        >
+                          {item.name}
+                        </Radio>
+                      </List.Item>
+                    )}
+                  />
+                </Radio.Group>
+                <Pagination
+                  size="small"
+                  current={templatePage}
+                  total={templateTotal}
+                  pageSize={12}
+                  showSizeChanger={false}
+                  onChange={setTemplatePage}
+                />
+                {!canManage && (
+                  <Typography.Text type="secondary">
+                    Anda dapat memakai desain yang dipilih admin. Perubahan
+                    desain memerlukan akses pengelolaan template.
+                  </Typography.Text>
+                )}
+                {canManage && recipients?.template && (
+                  <Button
+                    type="link"
+                    disabled={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      try {
+                        await assignCertificateTemplate(activityId, null);
+                        setSelectedTemplateId(null);
+                        setRefresh((value) => value + 1);
+                      } catch {
+                        setError("Template tidak dapat dilepas.");
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    Lepaskan template kegiatan
+                  </Button>
+                )}
+              </div>
+              <Card
+                loading={templateLoading}
+                title={template?.name || "Pratinjau desain"}
+              >
+                {template ? (
+                  <>
+                    <CertificateArtwork
+                      template={template.template_data}
+                      backgroundImage={template.background_image}
+                      resolveText={resolveCertificateSampleText}
+                      verificationUrl={getCertificateVerificationUrl(
+                        CERTIFICATE_SAMPLE_CODE,
+                      )}
+                    />
+                    {!ready && (
+                      <Alert
+                        type="warning"
+                        title="Desain ini belum siap digunakan. Publikasikan desain yang siap terlebih dahulu."
+                      />
+                    )}
+                  </>
+                ) : (
+                  <Typography.Text type="secondary">
+                    Pilih desain untuk melihat contoh sertifikat.
+                  </Typography.Text>
+                )}
+              </Card>
             </div>
-            <Card
-              loading={templateLoading}
-              title={template?.name || "Pratinjau desain"}
-            >
-              {template ? (
+          )}
+          {step === 1 && (
+            <div className={`${styles.stack} ${styles.body}`}>
+              <Alert
+                type="info"
+                showIcon
+                title="Ingin menyertakan nilai pada halaman kedua?"
+                description={
+                  <>
+                    Terbitkan nilai peserta sebelum menerbitkan sertifikat atau
+                    meminta persetujuan. Nilai draf tidak disertakan. Tanpa
+                    nilai terbit, PDF hanya berisi 1 halaman.
+                    <div>
+                      <Link
+                        to={`/activity/${activityId}?tab=scoring`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          minHeight: 44,
+                        }}
+                      >
+                        Buka penilaian kegiatan
+                      </Link>
+                    </div>
+                  </>
+                }
+              />
+              <Radio.Group
+                value={selection}
+                onChange={(event) => setSelection(event.target.value)}
+                options={[
+                  {
+                    label: `Semua peserta yang memenuhi syarat (${recipients?.counts.eligible_not_issued ?? 0})`,
+                    value: "all",
+                  },
+                  { label: "Pilih peserta tertentu", value: "selected" },
+                ]}
+              />
+              <Typography.Text type="secondary">
+                Hanya peserta LULUS KEGIATAN yang belum pernah mendapat
+                sertifikat. Pilihan semua peserta mencakup seluruh kegiatan,
+                termasuk halaman lain.
+              </Typography.Text>
+              <Input.Search
+                allowClear
+                aria-label="Cari peserta sertifikat"
+                placeholder="Cari nama peserta"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+              />
+              <Typography.Text>{count} peserta dipilih</Typography.Text>
+              <Table
+                listId="pages/Activity/ActivityCertificates/index:1"
+                rowKey="registration_id"
+                columns={columns}
+                dataSource={recipients?.data}
+                loading={loading && !recipients}
+                scroll={{ x: 770 }}
+                rowSelection={
+                  selection === "selected"
+                    ? {
+                        selectedRowKeys: selectedIds,
+                        preserveSelectedRowKeys: true,
+                        onChange: (keys) => setSelectedIds(keys.map(Number)),
+                        getCheckboxProps: (row) => ({
+                          disabled: row.state !== "eligible_not_issued",
+                          "aria-label": `Pilih ${row.name}`,
+                        }),
+                      }
+                    : undefined
+                }
+                pagination={{
+                  current: page,
+                  pageSize: 50,
+                  total: recipients?.meta.total,
+                  showSizeChanger: false,
+                }}
+                onChange={(pagination, _filters, sorter, extra) => {
+                  if (extra.action === "sort" && !Array.isArray(sorter)) {
+                    setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
+                  }
+                  setPage(
+                    extra.action === "sort" ? 1 : pagination.current || 1,
+                  );
+                }}
+              />
+            </div>
+          )}
+          {step === 2 && plan && (
+            <div className={`${styles.stack} ${styles.body}`}>
+              <Typography.Title level={2} style={{ fontSize: 20, margin: 0 }}>
+                {hasRun
+                  ? "Hasil penerbitan"
+                  : `${plan.registration_ids.length} sertifikat siap diterbitkan`}
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                {plan.excluded.already_issued} sudah terbit ·{" "}
+                {plan.excluded.revoked} dicabut ·{" "}
+                {plan.excluded.not_eligible + plan.excluded.missing} tidak
+                memenuhi syarat. Data dan desain akan disimpan sebagai
+                sertifikat resmi.
+              </Typography.Text>
+              {plan.preview && !hasRun && (
                 <>
-                  <CertificateArtwork
-                    template={template.template_data}
-                    backgroundImage={template.background_image}
-                    resolveText={resolveCertificateSampleText}
+                  <Alert
+                    type={
+                      plan.preview.participant.scoring_result
+                        ? "info"
+                        : "warning"
+                    }
+                    showIcon
+                    title={`Contoh: ${plan.preview.participant.name} · ${plan.preview.participant.scoring_result ? "2 halaman" : "1 halaman"}`}
+                    description={
+                      plan.preview.participant.scoring_result
+                        ? "Contoh ini menyertakan nilai terbit. Jumlah halaman setiap peserta mengikuti ketersediaan nilainya. Nilai yang tersimpan di sertifikat tidak berubah setelah penerbitan."
+                        : "Peserta pada contoh ini belum memiliki nilai terbit. Terbitkan nilainya terlebih dahulu jika ingin menyertakan halaman kedua, lalu tinjau ulang. Jumlah halaman peserta lain mengikuti ketersediaan nilainya."
+                    }
+                  />
+                  <CertificatePreviewPages
+                    participant={plan.preview.participant}
+                    template={plan.preview.template.template_data}
+                    backgroundImage={plan.preview.template.background_image}
+                    resolveText={(element) =>
+                      resolveCertificateText(
+                        element,
+                        plan.preview!.participant,
+                        CERTIFICATE_SAMPLE_CODE,
+                      )
+                    }
                     verificationUrl={getCertificateVerificationUrl(
                       CERTIFICATE_SAMPLE_CODE,
                     )}
                   />
-                  {!ready && (
-                    <Alert
-                      type="warning"
-                      title="Desain ini belum siap digunakan. Publikasikan desain yang siap terlebih dahulu."
-                    />
-                  )}
                 </>
-              ) : (
-                <Typography.Text type="secondary">
-                  Pilih desain untuk melihat contoh sertifikat.
-                </Typography.Text>
               )}
-            </Card>
-          </div>
-        )}
-        {step === 1 && (
-          <div className={`${styles.stack} ${styles.body}`}>
-            <Radio.Group
-              value={selection}
-              onChange={(event) => setSelection(event.target.value)}
-              options={[
-                {
-                  label: `Semua peserta yang memenuhi syarat (${recipients?.counts.eligible_not_issued ?? 0})`,
-                  value: "all",
-                },
-                { label: "Pilih peserta tertentu", value: "selected" },
-              ]}
-            />
-            <Typography.Text type="secondary">
-              Hanya peserta LULUS KEGIATAN yang belum pernah mendapat
-              sertifikat. Pilihan semua peserta mencakup seluruh kegiatan,
-              termasuk halaman lain.
-            </Typography.Text>
-            <Input.Search
-              allowClear
-              aria-label="Cari peserta sertifikat"
-              placeholder="Cari nama peserta"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-            />
-            <Typography.Text>{count} peserta dipilih</Typography.Text>
-            <Table
-              listId="pages/Activity/ActivityCertificates/index:1"
-              rowKey="registration_id"
-              columns={columns}
-              dataSource={recipients?.data}
-              loading={loading && !recipients}
-              scroll={{ x: 770 }}
-              rowSelection={
-                selection === "selected"
-                  ? {
-                      selectedRowKeys: selectedIds,
-                      preserveSelectedRowKeys: true,
-                      onChange: (keys) => setSelectedIds(keys.map(Number)),
-                      getCheckboxProps: (row) => ({
-                        disabled: row.state !== "eligible_not_issued",
-                        "aria-label": `Pilih ${row.name}`,
-                      }),
+              {requiresApproval && !hasRun && canIssue && (
+                <ApprovalRequestForm
+                  plan={plan}
+                  onSubmitted={() => {
+                    message.success(
+                      "Permintaan tersimpan. Menunggu persetujuan penandatangan.",
+                    );
+                    setStep(1);
+                    setRefresh((value) => value + 1);
+                  }}
+                />
+              )}
+              {hasRun && (
+                <>
+                  <Typography.Text>
+                    {Object.entries(RESULT_LABELS)
+                      .map(
+                        ([state, label]) =>
+                          `${results.filter((item) => item.state === state).length} ${label.toLowerCase()}`,
+                      )
+                      .join(" · ")}
+                  </Typography.Text>
+                  <Progress
+                    percent={Math.round(
+                      (completed / Math.max(1, plan.registration_ids.length)) *
+                        100,
+                    )}
+                    status={
+                      running
+                        ? "active"
+                        : remaining.length ||
+                            results.some((item) => item.state === "failed")
+                          ? "normal"
+                          : "success"
                     }
-                  : undefined
-              }
-              pagination={{
-                current: page,
-                pageSize: 50,
-                total: recipients?.meta.total,
-                showSizeChanger: false,
-              }}
-              onChange={(pagination, _filters, sorter, extra) => {
-                if (extra.action === "sort" && !Array.isArray(sorter)) {
-                  setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
-                }
-                setPage(extra.action === "sort" ? 1 : pagination.current || 1);
-              }}
-            />
-          </div>
-        )}
-        {step === 2 && plan && (
-          <div className={`${styles.stack} ${styles.body}`}>
-            <Typography.Title level={2} style={{ fontSize: 20, margin: 0 }}>
-              {hasRun
-                ? "Hasil penerbitan"
-                : `${plan.registration_ids.length} sertifikat siap diterbitkan`}
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              {plan.excluded.already_issued} sudah terbit ·{" "}
-              {plan.excluded.revoked} dicabut ·{" "}
-              {plan.excluded.not_eligible + plan.excluded.missing} tidak
-              memenuhi syarat. Data dan desain akan disimpan sebagai sertifikat
-              resmi.
-            </Typography.Text>
-            {plan.preview && !hasRun && (
-              <CertificateArtwork
-                template={plan.preview.template.template_data}
-                backgroundImage={plan.preview.template.background_image}
-                resolveText={(element) =>
-                  resolveCertificateText(
-                    element,
-                    plan.preview!.participant,
-                    CERTIFICATE_SAMPLE_CODE,
-                  )
-                }
-                verificationUrl={getCertificateVerificationUrl(
-                  CERTIFICATE_SAMPLE_CODE,
-                )}
-              />
-            )}
-            {requiresApproval && !hasRun && canIssue && (
-              <ApprovalRequestForm
-                plan={plan}
-                onSubmitted={() => {
-                  message.success(
-                    "Permintaan tersimpan. Menunggu persetujuan penandatangan.",
-                  );
-                  setStep(1);
-                  setRefresh((value) => value + 1);
+                  />
+                  <span role="status">
+                    {running
+                      ? `${completed} dari ${plan.registration_ids.length} peserta diproses. Tetap buka halaman ini.`
+                      : runMessage}
+                  </span>
+                  <Table
+                    listId="pages/Activity/ActivityCertificates/index:2"
+                    rowKey="registration_id"
+                    dataSource={results}
+                    pagination={{ pageSize: 20 }}
+                    scroll={{ x: 560 }}
+                    columns={[
+                      { title: "Nama peserta", dataIndex: "name" },
+                      {
+                        title: "Hasil",
+                        dataIndex: "state",
+                        render: (state: IssuanceResult["state"]) =>
+                          RESULT_LABELS[state],
+                      },
+                      {
+                        title: "Keterangan",
+                        render: (_, item: IssuanceResult) =>
+                          item.certificate_id ? (
+                            <Link
+                              to={`/certificate-preview/${item.certificate_id}`}
+                            >
+                              Lihat sertifikat
+                            </Link>
+                          ) : item.reason ? (
+                            REASONS[item.reason] ||
+                            "Silakan periksa status peserta."
+                          ) : (
+                            "—"
+                          ),
+                      },
+                    ]}
+                  />
+                </>
+              )}
+              {!plan.registration_ids.length && (
+                <Alert
+                  type="info"
+                  showIcon
+                  title="Tidak ada sertifikat baru untuk diterbitkan"
+                  description="Peserta mungkin sudah menerima sertifikat atau belum memenuhi syarat."
+                />
+              )}
+            </div>
+          )}
+          <div className={styles.footer}>
+            {step > 0 && (
+              <Button
+                disabled={running || busy}
+                onClick={() => {
+                  setStep(step - 1);
+                  setHasRun(false);
                 }}
-              />
+              >
+                Kembali
+              </Button>
             )}
-            {hasRun && (
-              <>
-                <Typography.Text>
-                  {Object.entries(RESULT_LABELS)
-                    .map(
-                      ([state, label]) =>
-                        `${results.filter((item) => item.state === state).length} ${label.toLowerCase()}`,
-                    )
-                    .join(" · ")}
-                </Typography.Text>
-                <Progress
-                  percent={Math.round(
-                    (completed / Math.max(1, plan.registration_ids.length)) *
-                      100,
-                  )}
-                  status={
-                    running
-                      ? "active"
-                      : remaining.length ||
-                          results.some((item) => item.state === "failed")
-                        ? "normal"
-                        : "success"
-                  }
-                />
-                <span role="status">
-                  {running
-                    ? `${completed} dari ${plan.registration_ids.length} peserta diproses. Tetap buka halaman ini.`
-                    : runMessage}
-                </span>
-                <Table
-                  listId="pages/Activity/ActivityCertificates/index:2"
-                  rowKey="registration_id"
-                  dataSource={results}
-                  pagination={{ pageSize: 20 }}
-                  scroll={{ x: 560 }}
-                  columns={[
-                    { title: "Nama peserta", dataIndex: "name" },
-                    {
-                      title: "Hasil",
-                      dataIndex: "state",
-                      render: (state: IssuanceResult["state"]) =>
-                        RESULT_LABELS[state],
-                    },
-                    {
-                      title: "Keterangan",
-                      render: (_, item: IssuanceResult) =>
-                        item.certificate_id ? (
-                          <Link
-                            to={`/certificate-preview/${item.certificate_id}`}
-                          >
-                            Lihat sertifikat
-                          </Link>
-                        ) : item.reason ? (
-                          REASONS[item.reason] ||
-                          "Silakan periksa status peserta."
-                        ) : (
-                          "—"
-                        ),
-                    },
-                  ]}
-                />
-              </>
+            {step === 0 && (
+              <Button
+                type="primary"
+                disabled={
+                  !ready ||
+                  templateLoading ||
+                  (selectedTemplateId !== recipients?.template?.id &&
+                    !canManage)
+                }
+                loading={busy}
+                onClick={saveTemplate}
+              >
+                Lanjut ke penerima
+              </Button>
             )}
-            {!plan.registration_ids.length && (
-              <Alert
-                type="info"
-                showIcon
-                title="Tidak ada sertifikat baru untuk diterbitkan"
-                description="Peserta mungkin sudah menerima sertifikat atau belum memenuhi syarat."
-              />
+            {step === 1 && (
+              <Button
+                type="primary"
+                disabled={!canIssue || !count}
+                loading={busy}
+                onClick={() => review()}
+              >
+                Tinjau {count} sertifikat
+              </Button>
+            )}
+            {step === 2 && !hasRun && !requiresApproval && (
+              <Button
+                type="primary"
+                disabled={
+                  !canIssue || !plan?.registration_ids.length || reviewRequired
+                }
+                loading={running}
+                onClick={issue}
+              >
+                Terbitkan {plan?.registration_ids.length} sertifikat
+              </Button>
+            )}
+            {step === 2 && !hasRun && reviewRequired && (
+              <Button
+                loading={busy}
+                onClick={() => review(plan?.registration_ids)}
+              >
+                Tinjau ulang setelah kembali
+              </Button>
+            )}
+            {running && (
+              <Button
+                onClick={() => {
+                  stopRef.current = true;
+                  setRunMessage("Akan berhenti setelah batch ini.");
+                }}
+              >
+                Hentikan setelah batch ini
+              </Button>
+            )}
+            {step === 2 && hasRun && !running && retryIds.length > 0 && (
+              <Button
+                type="primary"
+                loading={busy}
+                onClick={() => review(retryIds, true)}
+              >
+                Tinjau {retryIds.length} peserta tersisa / gagal
+              </Button>
             )}
           </div>
-        )}
-        <div className={styles.footer}>
-          {step > 0 && (
-            <Button
-              disabled={running || busy}
-              onClick={() => {
-                setStep(step - 1);
-                setHasRun(false);
-              }}
-            >
-              Kembali
-            </Button>
-          )}
-          {step === 0 && (
-            <Button
-              type="primary"
-              disabled={
-                !ready ||
-                templateLoading ||
-                (selectedTemplateId !== recipients?.template?.id && !canManage)
-              }
-              loading={busy}
-              onClick={saveTemplate}
-            >
-              Lanjut ke penerima
-            </Button>
-          )}
-          {step === 1 && (
-            <Button
-              type="primary"
-              disabled={!canIssue || !count}
-              loading={busy}
-              onClick={() => review()}
-            >
-              Tinjau {count} sertifikat
-            </Button>
-          )}
-          {step === 2 && !hasRun && !requiresApproval && (
-            <Button
-              type="primary"
-              disabled={
-                !canIssue || !plan?.registration_ids.length || reviewRequired
-              }
-              loading={running}
-              onClick={issue}
-            >
-              Terbitkan {plan?.registration_ids.length} sertifikat
-            </Button>
-          )}
-          {step === 2 && !hasRun && reviewRequired && (
-            <Button
-              loading={busy}
-              onClick={() => review(plan?.registration_ids)}
-            >
-              Tinjau ulang setelah kembali
-            </Button>
-          )}
-          {running && (
-            <Button
-              onClick={() => {
-                stopRef.current = true;
-                setRunMessage("Akan berhenti setelah batch ini.");
-              }}
-            >
-              Hentikan setelah batch ini
-            </Button>
-          )}
-          {step === 2 && hasRun && !running && retryIds.length > 0 && (
-            <Button
-              type="primary"
-              loading={busy}
-              onClick={() => review(retryIds, true)}
-            >
-              Tinjau {retryIds.length} peserta tersisa / gagal
-            </Button>
-          )}
-        </div>
-      </Card>
-      <CertificateApprovals
-        activityId={activityId}
-        refreshKey={refresh}
-        onChanged={() => setRefresh((value) => value + 1)}
-      />
-    </main>
+        </Card>
+        <CertificateApprovals
+          activityId={activityId}
+          refreshKey={refresh}
+          onChanged={() => setRefresh((value) => value + 1)}
+        />
+      </main>
+    </ConfigProvider>
   );
 }

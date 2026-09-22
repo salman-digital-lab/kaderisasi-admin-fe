@@ -1,0 +1,65 @@
+.pages,
+.scoreDetails {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pages :global(.ant-tabs-tab) {
+  padding-block: 0;
+}
+.pages :global(.ant-tabs-tab-btn) {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+.scoreDetails {
+  font-size: 14px;
+}
+.total {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-block: 16px;
+  border-block: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+.criteria {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.criterion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex: 0 0 65%;
+  gap: 12px;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.metrics dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+.note {
+  white-space: pre-wrap;
+}
+@media (width < 600px) {
+  .criterion {
+    display: block;
+  }
+  .metrics {
+    margin-top: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pages :global(.ant-tabs-tab + .ant-tabs-tab) {
+    margin-left: 16px;
+  }
+}
