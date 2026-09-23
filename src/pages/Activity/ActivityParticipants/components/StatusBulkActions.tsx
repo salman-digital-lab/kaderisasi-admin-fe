@@ -24,6 +24,8 @@ import {
 } from "../../../../api/services/activity";
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../../constants/options";
 
+import { statusUpdateError } from "../status-update-error";
+
 const { TextArea } = Input;
 const { Text } = Typography;
 
@@ -75,7 +77,7 @@ const StatusBulkActions = ({
         onSuccess();
       },
       onError: (err) => {
-        message.error(`Gagal mengubah status: ${err.message}`);
+        message.error(statusUpdateError(err), 10);
       },
     },
   );
@@ -107,7 +109,7 @@ const StatusBulkActions = ({
         onSuccess();
       },
       onError: (err) => {
-        message.error(`Gagal mengubah status: ${err.message}`);
+        message.error(statusUpdateError(err, parsedEmails), 10);
       },
     },
   );
