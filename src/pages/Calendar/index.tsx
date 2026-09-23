@@ -189,7 +189,7 @@ export default function CalendarPage(): ReactElement {
         />
       ) : (
         <>
-          {!events.length && (
+          {view === "agenda" && !events.length && (
             <Empty description="Belum ada acara pada periode ini" />
           )}
           {view === "month" ? (
