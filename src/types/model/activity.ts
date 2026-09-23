@@ -68,7 +68,7 @@ export type Registrant = {
   user_id: number | null;
   activity_id: number;
   status: string;
-  questionnaire_answer: Record<string, string>;
+  questionnaire_answer: Record<string, unknown>;
   guest_data?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;

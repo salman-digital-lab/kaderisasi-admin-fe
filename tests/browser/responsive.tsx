@@ -178,7 +178,7 @@ function SelectionFixture(): ReactElement {
           columns={columns}
           defaultColumns={defaults}
           onColumnsChange={setColumns}
-          activityId="responsive-fixture"
+          storageId="responsive-fixture"
         />
       </Space>
       <output id="selection-state" style={{ display: "block" }}>

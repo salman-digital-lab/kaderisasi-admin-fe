@@ -44,6 +44,7 @@ import {
 import type { Registrant } from "../../../types/model/activity";
 import { getLinkedCourses } from "../../../api/services/linked-course";
 import { courseColumns } from "./constants/course-columns";
+import { answerColumns } from "./constants/answer-columns";
 import type { IssuedCertificate } from "../../../types/services/certificateTemplate";
 
 import { getCustomFormByFeature } from "../../../api/services/customForm";
@@ -52,7 +53,6 @@ import {
   ColumnConfig,
   generateTableColumns,
   loadColumnPreferences,
-  saveColumnPreferences,
 } from "./constants/columns";
 
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../constants/options";
@@ -164,26 +164,23 @@ const ActivityParticipants = () => {
   }, [customForm]);
 
   const availableColumns = useMemo(
-    () => [...formAllowedColumns, ...courseColumns(linkedCourses ?? [])],
-    [formAllowedColumns, linkedCourses],
+    () => [
+      ...formAllowedColumns,
+      ...answerColumns<Registrant>(
+        customForm?.id,
+        customForm?.form_schema,
+        (row) => row.questionnaire_answer,
+      ),
+      ...courseColumns(linkedCourses ?? []),
+    ],
+    [formAllowedColumns, customForm, linkedCourses],
   );
 
   // Load column preferences from localStorage, constrained to form-allowed columns
   useEffect(() => {
     if (!id || customFormLoading || coursesLoading || coursesError) return;
 
-    const savedVisibility = new Map(
-      (loadColumnPreferences(id, availableColumns) ?? []).map((c) => [
-        c.key,
-        c.visible,
-      ]),
-    );
-    setColumns(
-      availableColumns.map((col) => ({
-        ...col,
-        visible: savedVisibility.get(col.key) ?? col.visible,
-      })),
-    );
+    setColumns(loadColumnPreferences(id, availableColumns) ?? availableColumns);
   }, [id, customFormLoading, coursesLoading, coursesError, availableColumns]);
 
   // Fetch participants
@@ -235,15 +232,9 @@ const ActivityParticipants = () => {
   }, [issuedCertificates]);
 
   // Handle column changes
-  const handleColumnsChange = useCallback(
-    (newColumns: ColumnConfig[]) => {
-      setColumns(newColumns);
-      if (id) {
-        saveColumnPreferences(id, newColumns);
-      }
-    },
-    [id],
-  );
+  const handleColumnsChange = useCallback((newColumns: ColumnConfig[]) => {
+    setColumns(newColumns);
+  }, []);
 
   // Handle search
   const handleSearch = useCallback(() => {
@@ -680,7 +671,7 @@ const ActivityParticipants = () => {
               columns={columns}
               defaultColumns={availableColumns}
               onColumnsChange={handleColumnsChange}
-              activityId={id || ""}
+              storageId={id || ""}
             />
           </Space>
         </div>

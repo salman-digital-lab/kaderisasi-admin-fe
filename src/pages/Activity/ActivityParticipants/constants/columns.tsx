@@ -125,16 +125,17 @@ StatusBadge.displayName = "StatusBadge";
 const MemoizedProvinceRender = memo(ProvinceRender);
 const MemoizedUniversityRender = memo(UniversityRender);
 
-export interface ColumnConfig {
+export interface ColumnConfig<T extends object = Registrant> {
   key: string;
   title: string;
   dataIndex: string;
   visible: boolean;
   fixed?: "left" | "right" | boolean;
   width?: number;
+  wrap?: boolean;
   sortable?: boolean;
   filterable?: boolean;
-  render?: (value: unknown, record: Registrant) => React.ReactNode;
+  render?: (value: unknown, record: T) => React.ReactNode;
 }
 
 // All available columns for participant management
@@ -346,7 +347,7 @@ export const generateTableColumns = (
       key: col.key,
       fixed: col.fixed,
       width: col.width,
-      ellipsis: { showTitle: false },
+      ellipsis: col.wrap ? false : { showTitle: false },
       render: col.render,
     }));
 };
@@ -360,12 +361,12 @@ export const getDefaultColumns = (): ColumnConfig[] => {
 export const COLUMN_STORAGE_KEY = "participant_column_preferences";
 
 // Load column preferences from localStorage
-export const loadColumnPreferences = (
-  activityId: string,
-  availableColumns: ColumnConfig[] = ALL_COLUMNS,
-): ColumnConfig[] | null => {
+export const loadColumnPreferences = <T extends object>(
+  storageId: string,
+  availableColumns: ColumnConfig<T>[],
+): ColumnConfig<T>[] | null => {
   try {
-    const stored = localStorage.getItem(`${COLUMN_STORAGE_KEY}_${activityId}`);
+    const stored = localStorage.getItem(`${COLUMN_STORAGE_KEY}_${storageId}`);
     if (stored) {
       const parsed = JSON.parse(stored) as Array<{
         key: string;
@@ -380,6 +381,7 @@ export const loadColumnPreferences = (
         .sort((a, b) => {
           const aIndex = parsed.findIndex((p) => p.key === a.key);
           const bIndex = parsed.findIndex((p) => p.key === b.key);
+          if (aIndex === -1 && bIndex === -1) return 0;
           if (aIndex === -1) return 1;
           if (bIndex === -1) return -1;
           return aIndex - bIndex;
@@ -392,9 +394,9 @@ export const loadColumnPreferences = (
 };
 
 // Save column preferences to localStorage
-export const saveColumnPreferences = (
-  activityId: string,
-  columns: ColumnConfig[],
+export const saveColumnPreferences = <T extends object>(
+  storageId: string,
+  columns: ColumnConfig<T>[],
 ): void => {
   try {
     const toSave = columns.map((col) => ({
@@ -402,7 +404,7 @@ export const saveColumnPreferences = (
       visible: col.visible,
     }));
     localStorage.setItem(
-      `${COLUMN_STORAGE_KEY}_${activityId}`,
+      `${COLUMN_STORAGE_KEY}_${storageId}`,
       JSON.stringify(toSave),
     );
   } catch (e) {

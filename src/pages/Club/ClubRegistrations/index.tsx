@@ -1,7 +1,7 @@
 import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
 import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
   Button,
@@ -51,6 +51,12 @@ import MembersListModal from "./components/MembersListModal";
 import { CLUB_REGISTRATION_STATUS_OPTIONS } from "../../../constants/options";
 import { createRegistrationStatusPayload } from "../utils/mutation-payloads";
 import { formatRegistrationTime } from "../../../utils/registration-time";
+import ColumnManager from "../../Activity/ActivityParticipants/components/ColumnManager";
+import { answerColumns } from "../../Activity/ActivityParticipants/constants/answer-columns";
+import {
+  type ColumnConfig,
+  loadColumnPreferences,
+} from "../../Activity/ActivityParticipants/constants/columns";
 
 const { Text, Title } = Typography;
 
@@ -114,6 +120,25 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     null,
   );
   const [exporting, setExporting] = useState(false);
+  const answerDefaults = useMemo(
+    () =>
+      answerColumns<ClubRegistration>(
+        club.attachedCustomForm?.id,
+        club.attachedCustomForm?.form_schema,
+        (row) => row.additional_data,
+      ),
+    [club.attachedCustomForm],
+  );
+  const columnStorageId = `club_${club.id}`;
+  const [answerSettings, setAnswerSettings] = useState<
+    ColumnConfig<ClubRegistration>[]
+  >([]);
+
+  useEffect(() => {
+    setAnswerSettings(
+      loadColumnPreferences(columnStorageId, answerDefaults) ?? answerDefaults,
+    );
+  }, [columnStorageId, answerDefaults]);
 
   useEffect(() => {
     if (clubId) {
@@ -376,7 +401,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     return colors[status as keyof typeof colors] || "default";
   };
 
-  const columns: ColumnsType<ClubRegistration> = [
+  const baseColumns: ColumnsType<ClubRegistration> = [
     {
       title: "Nama Anggota",
       dataIndex: ["member", "profile", "name"],
@@ -507,6 +532,21 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     },
   ];
 
+  const visibleAnswers: ColumnsType<ClubRegistration> = answerSettings
+    .filter((column) => column.visible)
+    .map((column) => ({
+      title: column.title,
+      key: column.key,
+      width: column.width,
+      render: (_value: unknown, record: ClubRegistration) =>
+        column.render?.(undefined, record),
+    }));
+  const columns: ColumnsType<ClubRegistration> = [
+    ...baseColumns.slice(0, 3),
+    ...visibleAnswers,
+    ...baseColumns.slice(3),
+  ];
+
   const rowSelection = {
     selectedRowKeys,
     onChange: setSelectedRowKeys,
@@ -592,6 +632,16 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
                   <Button icon={<SearchOutlined />} htmlType="submit">
                     Terapkan Filter
                   </Button>
+                  {answerDefaults.length > 0 && (
+                    <ColumnManager
+                      columns={answerSettings}
+                      defaultColumns={answerDefaults}
+                      storageId={columnStorageId}
+                      onColumnsChange={(next) => {
+                        setAnswerSettings(next);
+                      }}
+                    />
+                  )}
                 </Space>
               </Form.Item>
             </Col>
@@ -623,7 +673,12 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
             setPageSize(pagination.pageSize || 20);
             setSelectedRowKeys([]);
           }}
-          scroll={{ x: 1200 }}
+          scroll={{
+            x: columns.reduce(
+              (width, column) => width + Number(column.width || 200),
+              48,
+            ),
+          }}
         />
       </Space>
 

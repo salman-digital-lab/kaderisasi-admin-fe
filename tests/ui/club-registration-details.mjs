@@ -159,6 +159,33 @@ try {
       });
     });
     await page.goto("http://127.0.0.1:3005/club/9999?section=people");
+    const list = page.locator(
+      '[data-list-id="pages/Club/ClubRegistrations/index:1"]',
+    );
+    if (width === 390)
+      await list.locator(".mobile-record-details summary").click();
+    await expect(list.getByText("Belajar bersama anggota klub.")).toBeVisible();
+    await expect(list.getByText("Bersedia")).toBeVisible();
+    await page.screenshot({
+      path: new URL(`table-${width}.png`, output).pathname,
+      fullPage: true,
+    });
+    await page.getByRole("button", { name: "Atur Kolom" }).click();
+    const manager = page.getByRole("dialog", { name: "Pengaturan Kolom" });
+    await manager
+      .getByRole("checkbox", { name: "Motivasi bergabung" })
+      .uncheck();
+    await manager.getByRole("button", { name: "Simpan" }).click();
+    await expect(list.getByText("Belajar bersama anggota klub.")).toHaveCount(
+      0,
+    );
+    await page.getByRole("button", { name: "Atur Kolom" }).click();
+    await manager.getByRole("button", { name: "Reset Default" }).click();
+    await manager.getByRole("button", { name: "Simpan" }).click();
+    await page.reload();
+    if (width === 390)
+      await list.locator(".mobile-record-details summary").click();
+    await expect(list.getByText("Belajar bersama anggota klub.")).toBeVisible();
     const open = page.getByRole("button", {
       name: "Lihat jawaban pendaftaran Pendaftar Uji",
     });

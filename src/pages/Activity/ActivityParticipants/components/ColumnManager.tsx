@@ -29,21 +29,21 @@ import { ColumnConfig, saveColumnPreferences } from "../constants/columns";
 
 const { Text } = Typography;
 
-interface SortableItemProps {
-  column: ColumnConfig;
+interface SortableItemProps<T extends object> {
+  column: ColumnConfig<T>;
   onToggleVisible: (key: string) => void;
   onMove: (direction: -1 | 1) => void;
   first: boolean;
   last: boolean;
 }
 
-const SortableItem = ({
+const SortableItem = <T extends object>({
   column,
   onToggleVisible,
   onMove,
   first,
   last,
-}: SortableItemProps) => {
+}: SortableItemProps<T>) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: column.key });
 
@@ -68,7 +68,16 @@ const SortableItem = ({
         <span
           {...attributes}
           {...listeners}
-          style={{ cursor: "grab", color: "#999" }}
+          aria-label={`Seret kolom ${column.title}`}
+          style={{
+            cursor: "grab",
+            color: "#595959",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: 44,
+            minHeight: 44,
+          }}
         >
           <DragOutlined />
         </span>
@@ -83,12 +92,14 @@ const SortableItem = ({
       <Space size={4}>
         <Button
           icon={<ArrowUpOutlined />}
+          style={{ minWidth: 44, minHeight: 44 }}
           aria-label={`Naikkan kolom ${column.title}`}
           disabled={first}
           onClick={() => onMove(-1)}
         />
         <Button
           icon={<ArrowDownOutlined />}
+          style={{ minWidth: 44, minHeight: 44 }}
           aria-label={`Turunkan kolom ${column.title}`}
           disabled={last}
           onClick={() => onMove(1)}
@@ -103,23 +114,23 @@ const SortableItem = ({
   );
 };
 
-interface ColumnManagerProps {
-  columns: ColumnConfig[];
-  defaultColumns: ColumnConfig[];
-  onColumnsChange: (columns: ColumnConfig[]) => void;
-  activityId: string;
+interface ColumnManagerProps<T extends object> {
+  columns: ColumnConfig<T>[];
+  defaultColumns: ColumnConfig<T>[];
+  onColumnsChange: (columns: ColumnConfig<T>[]) => void;
+  storageId: string;
   size?: "large" | "middle" | "small";
 }
 
-const ColumnManager = ({
+const ColumnManager = <T extends object>({
   columns,
   defaultColumns,
   onColumnsChange,
-  activityId,
+  storageId,
   size = "middle",
-}: ColumnManagerProps) => {
+}: ColumnManagerProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [localColumns, setLocalColumns] = useState<ColumnConfig[]>(columns);
+  const [localColumns, setLocalColumns] = useState<ColumnConfig<T>[]>(columns);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -139,7 +150,7 @@ const ColumnManager = ({
 
   const handleSave = () => {
     onColumnsChange(localColumns);
-    saveColumnPreferences(activityId, localColumns);
+    saveColumnPreferences(storageId, localColumns);
     message.success("Pengaturan kolom berhasil disimpan");
     setIsOpen(false);
   };
