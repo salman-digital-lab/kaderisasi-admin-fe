@@ -219,7 +219,7 @@ export default function CustomFormEdit(): ReactElement {
         setBasicDirty(false);
         markSchemaSaved();
       });
-      if (returnToSetup) navigate(`/activity/${activityId}/setup?step=2`);
+      if (returnToSetup) navigate(`/activity/${activityId}/setup?step=form`);
     } catch (error) {
       setFailure(actionError(error));
     }
@@ -275,7 +275,7 @@ export default function CustomFormEdit(): ReactElement {
                   onClick={() =>
                     navigate(
                       returnToSetup
-                        ? `/activity/${activityId}/setup?step=2`
+                        ? `/activity/${activityId}/setup?step=form`
                         : `/activity/${activityId}?tab=7`,
                     )
                   }

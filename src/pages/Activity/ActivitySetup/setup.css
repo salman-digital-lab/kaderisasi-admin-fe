@@ -47,6 +47,46 @@
 .activity-setup-form .ant-form-item-extra {
   color: #595959;
 }
+.activity-setup-page .ant-alert {
+  border-radius: 0;
+}
+
+.activity-setup-notice {
+  margin-block: 16px;
+}
+
+.activity-setup-notice .ant-alert-description {
+  max-width: 80ch;
+}
+
+.activity-setup-notice ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.activity-setup-notice .ant-btn-link {
+  text-align: left;
+}
+
+.activity-setup-publication {
+  margin-top: 24px;
+}
+.activity-registration-section {
+  min-width: 0;
+  padding-block: 24px;
+}
+
+.activity-registration-section + .activity-registration-section {
+  border-top: 1px solid #dedede;
+}
+
+.activity-registration-section > h4.ant-typography {
+  margin-top: 0;
+}
+
+.activity-registration-section > .ant-form-item {
+  margin-bottom: 0;
+}
 .activity-setup-page.guided-page {
   max-width: none;
   margin: 0;

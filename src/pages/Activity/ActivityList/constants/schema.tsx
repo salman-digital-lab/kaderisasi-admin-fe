@@ -8,7 +8,6 @@ import {
   renderActivityType,
 } from "../../../../constants/render";
 import { Activity } from "../../../../types/model/activity";
-import { usePermissions } from "../../../../stores/authStore";
 import type { ReactElement } from "react";
 
 const { Text } = Typography;
@@ -17,19 +16,10 @@ const toBoolean = (value: boolean | number | undefined): boolean =>
   Boolean(value);
 
 function ActivityAction({ activity }: { activity: Activity }): ReactElement {
-  const permissions = usePermissions();
-  const resume =
-    !activity.is_published && permissions.includes("activities.manage");
   return (
-    <Link
-      to={
-        resume
-          ? `/activity/${activity.id}/setup?step=resume`
-          : `/activity/${activity.id}`
-      }
-    >
+    <Link to={`/activity/${activity.id}`}>
       <Button size="small" icon={<EditOutlined />}>
-        {resume ? "Lanjutkan draf" : "Detail"}
+        Detail
       </Button>
     </Link>
   );
@@ -93,7 +83,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
           title={
             isPublished
               ? "Kegiatan ditampilkan di website"
-              : "Draf tersimpan. Lanjutkan pengaturan untuk menayangkan kegiatan."
+              : "Draf tersimpan. Gunakan tab Ringkasan untuk melengkapi pengaturan kegiatan."
           }
         >
           <Tag

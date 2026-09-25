@@ -111,9 +111,9 @@ const MainActivity = (): ReactElement => {
           style={{ marginBottom: 12 }}
           title={
             <>
-              Kegiatan yang belum selesai tetap tersimpan sebagai draf. Pilih
-              <strong> Lanjutkan draf</strong> untuk melengkapinya tanpa membuat
-              kegiatan baru.
+              Pilih <strong>Detail</strong>, lalu gunakan tab
+              <strong> Ringkasan</strong> sebagai panduan untuk melengkapi
+              pengaturan kegiatan.
             </>
           }
         />
