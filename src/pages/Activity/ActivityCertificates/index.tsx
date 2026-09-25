@@ -30,6 +30,7 @@ import {
   getTemplateSummaries,
   issueCertificateBatch,
   prepareIssuance,
+  saveCertificateGroup,
 } from "../../../api/services/certificateWorkflow";
 import { usePermissions } from "../../../stores/authStore";
 import type { CertificateTemplate } from "../../../types/services/certificateTemplate";
@@ -56,6 +57,7 @@ import { runCertificateBatches } from "./batch-runner";
 import { formatRegistrationTime } from "../../../utils/registration-time";
 import styles from "./index.module.css";
 import { ApprovalRequestForm } from "./ApprovalRequestForm";
+import { CertificateSettingsForm } from "./CertificateSettingsForm";
 import { CertificateApprovals } from "../../DigitalCertificate/components/CertificateApprovals";
 import { CERTIFICATE_APPROVAL_THEME } from "../../DigitalCertificate/constants/approval-theme";
 
@@ -72,6 +74,10 @@ const RESULT_LABELS = {
   failed: "Gagal",
 };
 const REASONS: Record<string, string> = {
+  CERTIFICATE_SETTINGS_REQUIRED:
+    "Simpan pengaturan isi sertifikat sebelum meninjau peserta.",
+  CERTIFICATE_SCORE_NOT_PUBLISHED:
+    "Daftar nilai aktif, tetapi nilai peserta belum diterbitkan.",
   REGISTRATION_NOT_ELIGIBLE: "Status peserta belum lulus.",
   REGISTRATION_NOT_FOUND: "Peserta tidak ditemukan.",
   CERTIFICATE_ALREADY_REVOKED: "Sertifikat sudah dicabut.",
@@ -302,10 +308,14 @@ export default function ActivityCertificates(): React.ReactElement {
       if (!retry) setResults([]);
       setStep(2);
     } catch (cause) {
+      const code = isAxiosError(cause)
+        ? (cause.response?.data as { message?: string } | undefined)?.message
+        : undefined;
       setError(
-        isAxiosError(cause) && cause.response?.status === 409
-          ? "Template berubah. Pilih ulang dan tinjau penerima kembali."
-          : "Penerbitan belum siap. Periksa template dan peserta, lalu coba lagi.",
+        REASONS[code ?? ""] ??
+          (isAxiosError(cause) && cause.response?.status === 409
+            ? "Template berubah. Pilih ulang dan tinjau penerima kembali."
+            : "Penerbitan belum siap. Periksa template dan peserta, lalu coba lagi."),
       );
     } finally {
       setBusy(false);
@@ -365,6 +375,38 @@ export default function ActivityCertificates(): React.ReactElement {
   ];
   const columns: TableColumnsType<CertificateRecipient> = [
     { title: "Nama peserta", dataIndex: "name" },
+    ...(template?.template_data.scoreSheetLayout === "salman-v1"
+      ? [
+          {
+            title: "Kelompok",
+            key: "certificate_group",
+            width: 170,
+            render: (_: unknown, row: CertificateRecipient) => (
+              <Input
+                key={`${row.registration_id}-${row.certificate_group ?? ""}`}
+                aria-label={`Kelompok ${row.name}`}
+                defaultValue={row.certificate_group ?? ""}
+                disabled={!canIssue || row.state !== "eligible_not_issued"}
+                maxLength={100}
+                onBlur={async (event: React.FocusEvent<HTMLInputElement>) => {
+                  const next = event.target.value.trim();
+                  if (next === (row.certificate_group ?? "")) return;
+                  try {
+                    await saveCertificateGroup(
+                      activityId,
+                      row.registration_id,
+                      next || null,
+                    );
+                    setRefresh((value) => value + 1);
+                  } catch {
+                    message.error(`Kelompok ${row.name} gagal disimpan.`);
+                  }
+                }}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       title: "Waktu Pendaftaran",
       dataIndex: "created_at",
@@ -591,15 +633,25 @@ export default function ActivityCertificates(): React.ReactElement {
           )}
           {step === 1 && (
             <div className={`${styles.stack} ${styles.body}`}>
+              {template?.template_data.scoreSheetLayout === "salman-v1" && (
+                <CertificateSettingsForm
+                  activityId={activityId}
+                  disabled={!canManage}
+                  onSaved={() => {
+                    message.success("Pengaturan sertifikat disimpan.");
+                    setRefresh((value) => value + 1);
+                  }}
+                />
+              )}
               <Alert
                 type="info"
                 showIcon
                 title="Ingin menyertakan nilai pada halaman kedua?"
                 description={
                   <>
-                    Terbitkan nilai peserta sebelum menerbitkan sertifikat atau
-                    meminta persetujuan. Nilai draf tidak disertakan. Tanpa
-                    nilai terbit, PDF hanya berisi 1 halaman.
+                    {template?.template_data.scoreSheetLayout === "salman-v1"
+                      ? "Jika daftar nilai diaktifkan, nilai setiap peserta harus lengkap dan terbit sebelum persetujuan."
+                      : "Nilai terbit akan disertakan pada halaman kedua bila tersedia."}
                     <div>
                       <Link
                         to={`/activity/${activityId}?tab=scoring`}
@@ -694,20 +746,29 @@ export default function ActivityCertificates(): React.ReactElement {
                 <>
                   <Alert
                     type={
-                      plan.preview.participant.scoring_result
+                      (plan.preview.activity.certificate_settings
+                        ?.include_scores ??
+                      plan.preview.participant.scoring_result)
                         ? "info"
                         : "warning"
                     }
                     showIcon
-                    title={`Contoh: ${plan.preview.participant.name} · ${plan.preview.participant.scoring_result ? "2 halaman" : "1 halaman"}`}
+                    title={`Contoh: ${plan.preview.participant.name} · ${(plan.preview.activity.certificate_settings?.include_scores ?? Boolean(plan.preview.participant.scoring_result)) ? "2 halaman" : "1 halaman"}`}
                     description={
-                      plan.preview.participant.scoring_result
-                        ? "Contoh ini menyertakan nilai terbit. Jumlah halaman setiap peserta mengikuti ketersediaan nilainya. Nilai yang tersimpan di sertifikat tidak berubah setelah penerbitan."
-                        : "Peserta pada contoh ini belum memiliki nilai terbit. Terbitkan nilainya terlebih dahulu jika ingin menyertakan halaman kedua, lalu tinjau ulang. Jumlah halaman peserta lain mengikuti ketersediaan nilainya."
+                      plan.preview.template.template_data.scoreSheetLayout ===
+                      "salman-v1"
+                        ? plan.preview.activity.certificate_settings
+                            ?.include_scores
+                          ? "Daftar nilai aktif untuk semua penerima. Nilai harus lengkap dan terbit sebelum permintaan persetujuan."
+                          : "Daftar nilai nonaktif. Setiap sertifikat akan berisi satu halaman."
+                        : plan.preview.participant.scoring_result
+                          ? "Contoh ini menyertakan nilai terbit. Jumlah halaman setiap peserta mengikuti ketersediaan nilainya. Nilai yang tersimpan di sertifikat tidak berubah setelah penerbitan."
+                          : "Peserta pada contoh ini belum memiliki nilai terbit. Terbitkan nilainya terlebih dahulu jika ingin menyertakan halaman kedua, lalu tinjau ulang. Jumlah halaman peserta lain mengikuti ketersediaan nilainya."
                     }
                   />
                   <CertificatePreviewPages
                     participant={plan.preview.participant}
+                    settings={plan.preview.activity.certificate_settings}
                     template={plan.preview.template.template_data}
                     backgroundImage={plan.preview.template.background_image}
                     resolveText={(element) =>
@@ -715,6 +776,8 @@ export default function ActivityCertificates(): React.ReactElement {
                         element,
                         plan.preview!.participant,
                         CERTIFICATE_SAMPLE_CODE,
+                        undefined,
+                        plan.preview!.activity.certificate_settings,
                       )
                     }
                     verificationUrl={getCertificateVerificationUrl(
@@ -723,18 +786,42 @@ export default function ActivityCertificates(): React.ReactElement {
                   />
                 </>
               )}
-              {requiresApproval && !hasRun && canIssue && (
-                <ApprovalRequestForm
-                  plan={plan}
-                  onSubmitted={() => {
-                    message.success(
-                      "Permintaan tersimpan. Menunggu persetujuan penandatangan.",
-                    );
-                    setStep(1);
-                    setRefresh((value) => value + 1);
-                  }}
+              {Boolean(plan.blocked?.length) && (
+                <Alert
+                  type="error"
+                  showIcon
+                  title={`${plan.blocked?.length} peserta belum memiliki nilai terbit`}
+                  description={
+                    <>
+                      {plan.blocked?.map((item) => (
+                        <div key={item.registration_id}>
+                          {item.name || `Pendaftaran ${item.registration_id}`}:
+                          nilai belum lengkap atau belum diterbitkan.
+                        </div>
+                      ))}
+                      <div>
+                        Terbitkan nilainya atau matikan halaman daftar nilai,
+                        lalu tinjau ulang.
+                      </div>
+                    </>
+                  }
                 />
               )}
+              {requiresApproval &&
+                !hasRun &&
+                canIssue &&
+                !plan.blocked?.length && (
+                  <ApprovalRequestForm
+                    plan={plan}
+                    onSubmitted={() => {
+                      message.success(
+                        "Permintaan tersimpan. Menunggu persetujuan penandatangan.",
+                      );
+                      setStep(1);
+                      setRefresh((value) => value + 1);
+                    }}
+                  />
+                )}
               {hasRun && (
                 <>
                   <Typography.Text>
@@ -849,7 +936,10 @@ export default function ActivityCertificates(): React.ReactElement {
               <Button
                 type="primary"
                 disabled={
-                  !canIssue || !plan?.registration_ids.length || reviewRequired
+                  !canIssue ||
+                  !plan?.registration_ids.length ||
+                  reviewRequired ||
+                  Boolean(plan.blocked?.length)
                 }
                 loading={running}
                 onClick={issue}

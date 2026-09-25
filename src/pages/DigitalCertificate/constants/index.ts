@@ -1,4 +1,9 @@
 export const VARIABLE_OPTIONS = [
+  { label: "Institusi", value: "{{institution}}" },
+  { label: "Peran peserta", value: "{{role}}" },
+  { label: "Pelaksanaan kegiatan", value: "{{event_details}}" },
+  { label: "Penyelenggara", value: "{{organizer}}" },
+  { label: "Tempat dan tanggal sertifikat", value: "{{document_place_date}}" },
   { label: "Persetujuan elektronik", value: "{{approval}}" },
   { label: "Nama Peserta / Tamu", value: "{{name}}" },
   { label: "Nama Kegiatan", value: "{{activity_name}}" },

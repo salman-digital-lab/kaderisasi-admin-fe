@@ -40,6 +40,7 @@ export interface CertificateTemplateElement {
 
 export interface CertificateTemplateData {
   backgroundUrl: string | null;
+  scoreSheetLayout?: "salman-v1";
   elements: CertificateTemplateElement[];
   canvasWidth: number;
   canvasHeight: number;
@@ -145,6 +146,7 @@ export interface GenerateCertificatesReq {
 
 export interface CertificateParticipant {
   scoring_result?: PublishedScoringResult;
+  certificate_group?: string | null;
   registration_id: number;
   user_id: number | null;
   name: string;
@@ -181,6 +183,7 @@ export interface CertificatePayload {
     id: number;
     name: string;
     activity_start: string | null;
+    certificate_settings?: CertificateSettings;
   };
   template: CertificateTemplateSnapshot;
   participant: CertificateParticipant;
@@ -195,6 +198,20 @@ export interface CertificatePayload {
     revoked_at: string | null;
     revoked_reason: string | null;
   };
+}
+
+export interface CertificateSettings {
+  version: 1;
+  institution: string;
+  role: string;
+  event_date: string;
+  hijri_date: string;
+  delivery_mode: string;
+  venue: string;
+  organizer: string;
+  document_place: string;
+  document_date: string;
+  include_scores: boolean;
 }
 
 export interface GenerateCertificatesResp {

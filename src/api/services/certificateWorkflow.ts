@@ -1,5 +1,41 @@
 import type { Pagination } from "../../types/services/base";
-import type { CertificateTemplate } from "../../types/services/certificateTemplate";
+import type {
+  CertificateSettings,
+  CertificateTemplate,
+} from "../../types/services/certificateTemplate";
+
+export async function getCertificateSettings(
+  activityId: number,
+  signal?: AbortSignal,
+): Promise<CertificateSettings> {
+  const response = await axios.get<{ data: CertificateSettings }>(
+    `/certificates/activities/${activityId}/settings`,
+    { signal },
+  );
+  return response.data.data;
+}
+
+export async function saveCertificateSettings(
+  activityId: number,
+  settings: CertificateSettings,
+): Promise<CertificateSettings> {
+  const response = await axios.put<{ data: CertificateSettings }>(
+    `/certificates/activities/${activityId}/settings`,
+    settings,
+  );
+  return response.data.data;
+}
+
+export async function saveCertificateGroup(
+  activityId: number,
+  registrationId: number,
+  certificateGroup: string | null,
+): Promise<void> {
+  await axios.put(
+    `/certificates/activities/${activityId}/recipients/${registrationId}/group`,
+    { certificate_group: certificateGroup },
+  );
+}
 import type {
   BatchResult,
   IssuancePlan,

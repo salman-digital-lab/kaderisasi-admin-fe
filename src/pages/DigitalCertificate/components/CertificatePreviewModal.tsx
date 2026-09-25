@@ -69,8 +69,13 @@ export default function CertificatePreviewModal({
         filename: "pratinjau-sertifikat.pdf",
         onProgress: setStage,
       });
-    } catch {
-      message.error("PDF gagal dibuat. Periksa gambar dan coba lagi.");
+    } catch (error) {
+      const { certificatePdfErrorMessage } =
+        await import("../utils/certificatePdf");
+      message.error(
+        certificatePdfErrorMessage(error) ??
+          "PDF gagal dibuat. Periksa gambar dan coba lagi.",
+      );
     } finally {
       downloading.current = false;
       setStage("");

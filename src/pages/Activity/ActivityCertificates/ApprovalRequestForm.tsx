@@ -16,6 +16,7 @@ import {
 } from "../../../api/services/certificateApproval";
 import type { IssuancePlan } from "../../../types/services/certificateWorkflow";
 import { CERTIFICATE_APPROVAL_THEME } from "../../DigitalCertificate/constants/approval-theme";
+import { preflightSalmanRecipients } from "./preflightSalman";
 import "../../DigitalCertificate/components/certificate-approval.css";
 
 export function ApprovalRequestForm({
@@ -57,6 +58,31 @@ export function ApprovalRequestForm({
     setBusy(true);
     setError("");
     try {
+      if (
+        plan.preview?.template.template_data.scoreSheetLayout === "salman-v1"
+      ) {
+        const signerName = signers.find(
+          (signer) => signer.id === values.signerId,
+        )?.name;
+        if (!signerName) {
+          setError(
+            "Penandatangan tidak tersedia. Muat ulang dan pilih kembali.",
+          );
+          return;
+        }
+        const overflow = await preflightSalmanRecipients(
+          plan.registration_ids,
+          signerName,
+          values.signerTitle.trim(),
+          setProgress,
+        );
+        if (overflow.length) {
+          setError(
+            `Tata letak harus diperbaiki sebelum persetujuan diminta: ${overflow.join("; ")}`,
+          );
+          return;
+        }
+      }
       let failures = 0;
       const reasons = new Set<string>();
       for (let index = 0; index < plan.registration_ids.length; index += 50) {

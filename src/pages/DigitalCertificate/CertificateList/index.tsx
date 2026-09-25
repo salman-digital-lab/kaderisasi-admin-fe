@@ -35,7 +35,9 @@ import {
   createCertificateTemplate,
   deleteCertificateTemplate,
   getCertificateTemplates,
+  updateCertificateTemplate,
   updateCertificateTemplateLifecycle,
+  uploadCertificateAsset,
 } from "../../../api/services/certificateTemplate";
 import { duplicateTemplate } from "../../../api/services/certificateWorkflow";
 import { usePermissions } from "../../../stores/authStore";
@@ -170,13 +172,45 @@ const CertificateList: React.FC = () => {
         status: "draft",
       });
       if (template) {
+        if (values.layout === "salman") {
+          const images = await Promise.all(
+            ["salman-logo", "salman-basmalah"].map(async (id) => {
+              const filename =
+                id === "salman-logo" ? "salman-logo.png" : "basmalah.png";
+              const response = await fetch(`/certificate/${filename}`);
+              if (!response.ok)
+                throw new Error("CERTIFICATE_ARTWORK_UNAVAILABLE");
+              const file = new File([await response.blob()], filename, {
+                type: "image/png",
+              });
+              const uploaded = await uploadCertificateAsset(template.id, file);
+              if (!uploaded.assetKey)
+                throw new Error("CERTIFICATE_ARTWORK_UPLOAD_FAILED");
+              return { id, key: uploaded.assetKey };
+            }),
+          );
+          await updateCertificateTemplate(template.id, {
+            expectedVersion: Number(template.version),
+            templateData: {
+              ...templateData,
+              elements: templateData.elements.map((element) => ({
+                ...element,
+                imageUrl:
+                  images.find((asset) => asset.id === element.id)?.key ??
+                  element.imageUrl,
+              })),
+            },
+          });
+        }
         message.success("Template berhasil dibuat");
         navigate(
           `/digital-certificate/${template.id}/edit${safeReturnTo ? `?returnTo=${encodeURIComponent(safeReturnTo)}` : ""}`,
         );
       }
     } catch {
-      // Error handled by handleError
+      message.error(
+        "Desain belum selesai dibuat. Periksa unggahan logo dan basmalah, lalu coba lagi.",
+      );
     } finally {
       setCreating(false);
     }
@@ -617,9 +651,9 @@ const CertificateList: React.FC = () => {
             preserve={false}
             layout="vertical"
             initialValues={{
-              name: "Template Baru",
-              preset: "a4-landscape",
-              layout: "basic",
+              name: "Standar Salman",
+              preset: "a4-portrait-salman",
+              layout: "salman",
             }}
             onFinish={handleCreate}
           >
@@ -651,7 +685,7 @@ const CertificateList: React.FC = () => {
                     <TemplateThumbnail
                       width={150}
                       templateData={buildStarterTemplate(
-                        "a4-landscape",
+                        "a4-portrait-salman",
                         layout.value,
                       )}
                     />

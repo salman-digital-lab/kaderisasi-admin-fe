@@ -19,7 +19,10 @@ import {
   getCertificateVerificationUrl,
   resolveCertificateText,
 } from "../DigitalCertificate/utils/certificate-content";
-import { saveCertificatePdf } from "../DigitalCertificate/utils/certificatePdf";
+import {
+  certificatePdfErrorMessage,
+  saveCertificatePdf,
+} from "../DigitalCertificate/utils/certificatePdf";
 import { CERTIFICATE_APPROVAL_THEME } from "../DigitalCertificate/constants/approval-theme";
 import "../DigitalCertificate/components/certificate-approval.css";
 
@@ -122,11 +125,13 @@ const CertificatePreview: React.FC = () => {
             authorized.participant,
             authorized.certificate?.certificate_code,
             authorized.certificate?.approval,
+            authorized.activity.certificate_settings,
           ),
       });
-    } catch {
+    } catch (error) {
       setDownloadError(
-        "PDF belum dapat diunduh. Periksa koneksi, lalu coba lagi.",
+        certificatePdfErrorMessage(error) ??
+          "PDF belum dapat diunduh. Periksa koneksi, lalu coba lagi.",
       );
     } finally {
       downloadingRef.current = false;
@@ -301,6 +306,8 @@ const CertificatePreview: React.FC = () => {
             artworkRef={certificateRef}
             scoreRef={scoreRef}
             participant={data.participant}
+            settings={data.activity.certificate_settings}
+            approval={data.certificate?.approval}
             certificateCode={data.certificate?.certificate_code}
             template={templateData}
             backgroundImage={data.template.background_image}
@@ -310,6 +317,7 @@ const CertificatePreview: React.FC = () => {
                 data.participant,
                 data.certificate?.certificate_code,
                 data.certificate?.approval,
+                data.activity.certificate_settings,
               )
             }
             verificationUrl={verificationUrl}

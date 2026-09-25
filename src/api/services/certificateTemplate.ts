@@ -52,6 +52,9 @@ function normalizeCertificateTemplateData(
   const value = templateData as Partial<CertificateTemplateData> | null;
 
   return {
+    ...(value?.scoreSheetLayout === "salman-v1"
+      ? { scoreSheetLayout: "salman-v1" as const }
+      : {}),
     backgroundUrl:
       typeof value?.backgroundUrl === "string" ? value.backgroundUrl : null,
     elements: Array.isArray(value?.elements)

@@ -1,6 +1,7 @@
 import type {
   CertificateApproval,
   CertificateParticipant,
+  CertificateSettings,
 } from "../../../types/services/certificateTemplate";
 import type { CertificateElement } from "../types";
 
@@ -68,10 +69,36 @@ export function resolveCertificateText(
   participant: CertificateParticipant,
   certificateCode?: string | null,
   approval?: CertificateApproval,
+  settings?: CertificateSettings,
 ): string {
   if (element.type === "static-text") return element.content || "";
 
   switch (element.variable) {
+    case "{{institution}}":
+      return settings?.institution ?? "YAYASAN PEMBINA MASJID (YPM) SALMAN ITB";
+    case "{{role}}":
+      return settings?.role ?? "PESERTA";
+    case "{{event_details}}":
+      return [
+        settings?.delivery_mode,
+        settings?.event_date ?? participant.activity_date,
+        settings?.hijri_date,
+        settings?.venue,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    case "{{organizer}}":
+      return (
+        settings?.organizer ??
+        "Bidang Mahasiswa, Kaderisasi, dan Alumni Salman ITB"
+      );
+    case "{{document_place_date}}":
+      return [
+        settings?.document_place ?? "Bandung",
+        settings?.document_date ?? "[Tanggal sertifikat]",
+      ]
+        .filter(Boolean)
+        .join(", ");
     case "{{approval}}": {
       if (!approval)
         return "Menunggu persetujuan\n[Nama penandatangan]\n[Jabatan]\n[Tanggal persetujuan]";
@@ -92,7 +119,9 @@ export function resolveCertificateText(
       return participant.activity_date;
     case "{{certificate_id}}":
     case "{{certificate_code}}":
-      return certificateCode || "";
+      return element.id === "salman-code"
+        ? `Nomor: ${certificateCode || "[Kode sertifikat]"}`
+        : certificateCode || "";
     case "{{university}}":
       return participant.university || "-";
     case "{{gender}}":

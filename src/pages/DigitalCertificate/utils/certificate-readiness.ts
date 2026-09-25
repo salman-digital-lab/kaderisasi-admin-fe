@@ -110,6 +110,18 @@ export function getCertificateReadiness(
     .map((element) => element.variable)
     .filter((variable): variable is string => Boolean(variable));
 
+  if (
+    template.scoreSheetLayout === "salman-v1" &&
+    !variables.includes("{{approval}}")
+  ) {
+    issues.push({
+      code: "SALMAN_APPROVAL_AND_QR_REQUIRED",
+      message:
+        "Desain Salman harus menampilkan persetujuan elektronik dan QR verifikasi.",
+      severity: "error",
+    });
+  }
+
   if (variables.includes("{{approval}}")) {
     const visible = (
       element: CertificateTemplateData["elements"][number],

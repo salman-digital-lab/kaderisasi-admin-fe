@@ -13,6 +13,7 @@ export interface CertificateRecipient {
   registration_id: number;
   created_at: string | null;
   name: string;
+  certificate_group: string | null;
   status: string;
   state: RecipientState;
   certificate_id: number | null;
@@ -41,6 +42,7 @@ export interface IssuancePlan {
     missing: number;
   };
   preview: CertificatePayload | null;
+  blocked?: { registration_id: number; name: string; reason: string }[];
 }
 export interface IssuanceResult {
   registration_id: number;

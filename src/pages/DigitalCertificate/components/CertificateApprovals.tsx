@@ -27,6 +27,8 @@ import type {
 } from "../../../api/services/certificateApproval";
 import { usePermissions, useUser } from "../../../stores/authStore";
 import { CertificatePreviewPages } from "./CertificatePreviewPages";
+import { SalmanScoreSheet, salmanScoreOverflow } from "./SalmanScoreSheet";
+import { salmanCertificateOverflow } from "../utils/certificatePdf";
 import {
   CERTIFICATE_SAMPLE_CODE,
   getCertificateVerificationUrl,
@@ -42,6 +44,8 @@ const LABELS: Record<ApprovalStatus, string> = {
   rejected: "Ditolak",
   cancelled: "Dibatalkan",
 };
+const SALMAN_PREVIEW_CODE =
+  "CERT-2026-2147483647-0123456789ABCDEF0123456789ABCDEF";
 
 export function CertificateApprovals({
   activityId,
@@ -73,6 +77,9 @@ export function CertificateApprovals({
   const [consent, setConsent] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [reviewedIds, setReviewedIds] = useState<number[]>([]);
+  const artworkRef = useRef<HTMLDivElement>(null);
+  const scoreRef = useRef<HTMLDivElement>(null);
   const reviewVersion = useRef(0);
   useEffect(() => {
     const controller = new AbortController();
@@ -112,6 +119,7 @@ export function CertificateApprovals({
     setReview([]);
     setReviewIndex(0);
     setReviewError("");
+    setReviewedIds([]);
     setReviewLoading(true);
     setConsent(false);
     setReason("");
@@ -170,6 +178,49 @@ export function CertificateApprovals({
     }
   }
   const current = review[reviewIndex];
+  useEffect(() => {
+    if (!open || !current) return;
+    if (
+      current.snapshot.template.template_data.scoreSheetLayout !== "salman-v1"
+    ) {
+      return;
+    }
+    let cancelled = false;
+    const check = async (): Promise<void> => {
+      await document.fonts.ready;
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      );
+      if (cancelled) return;
+      const certificate = artworkRef.current;
+      const score = scoreRef.current;
+      const errors = [
+        ...(certificate
+          ? salmanCertificateOverflow(certificate)
+          : ["sertifikat"]),
+        ...(current.snapshot.activity.certificate_settings?.include_scores
+          ? score
+            ? salmanScoreOverflow(score)
+            : ["daftar nilai"]
+          : []),
+      ];
+      if (errors.length) {
+        setReviewError(
+          `Tata letak ${current.snapshot.participant.name} melebihi halaman: ${errors.join(", ")}. Perbaiki desain dan ajukan persetujuan baru.`,
+        );
+        setReviewedIds((ids) => ids.filter((id) => id !== current.id));
+      } else {
+        setReviewError("");
+        setReviewedIds((ids) =>
+          ids.includes(current.id) ? ids : [...ids, current.id],
+        );
+      }
+    };
+    void check();
+    return () => {
+      cancelled = true;
+    };
+  }, [current, open]);
   const canDecide =
     review.length > 0 &&
     review.every(
@@ -321,7 +372,15 @@ export function CertificateApprovals({
                 <Button
                   type="primary"
                   loading={busy}
-                  disabled={!consent}
+                  disabled={
+                    !consent ||
+                    review.some(
+                      (item) =>
+                        item.snapshot.template.template_data
+                          .scoreSheetLayout === "salman-v1" &&
+                        !reviewedIds.includes(item.id),
+                    )
+                  }
                   onClick={() => void decide("approve")}
                 >
                   Setujui & terbitkan {review.length} sertifikat
@@ -365,7 +424,20 @@ export function CertificateApprovals({
                 </Typography.Paragraph>
                 <CertificatePreviewPages
                   key={current.id}
+                  artworkRef={artworkRef}
                   participant={current.snapshot.participant}
+                  settings={current.snapshot.activity.certificate_settings}
+                  signerName={current.signer_name}
+                  signerTitle={current.signer_title}
+                  approval={
+                    current.decided_at
+                      ? {
+                          signer_name: current.signer_name,
+                          signer_title: current.signer_title,
+                          approved_at: current.decided_at,
+                        }
+                      : undefined
+                  }
                   template={current.snapshot.template.template_data}
                   backgroundImage={current.snapshot.template.background_image}
                   resolveText={(element) =>
@@ -374,12 +446,54 @@ export function CertificateApprovals({
                       : resolveCertificateText(
                           element,
                           current.snapshot.participant,
+                          current.snapshot.template.template_data
+                            .scoreSheetLayout === "salman-v1"
+                            ? SALMAN_PREVIEW_CODE
+                            : undefined,
+                          undefined,
+                          current.snapshot.activity.certificate_settings,
                         )
                   }
                   verificationUrl={getCertificateVerificationUrl(
-                    CERTIFICATE_SAMPLE_CODE,
+                    current.snapshot.template.template_data.scoreSheetLayout ===
+                      "salman-v1"
+                      ? SALMAN_PREVIEW_CODE
+                      : CERTIFICATE_SAMPLE_CODE,
                   )}
                 />
+                {current.snapshot.template.template_data.scoreSheetLayout ===
+                  "salman-v1" &&
+                  current.snapshot.activity.certificate_settings
+                    ?.include_scores &&
+                  current.snapshot.participant.scoring_result && (
+                    <div
+                      aria-hidden="true"
+                      inert
+                      style={{
+                        position: "fixed",
+                        left: -20000,
+                        top: 0,
+                        width: 794,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <SalmanScoreSheet
+                        ref={scoreRef}
+                        participant={current.snapshot.participant}
+                        signerName={current.signer_name}
+                        signerTitle={current.signer_title}
+                        approval={
+                          current.decided_at
+                            ? {
+                                signer_name: current.signer_name,
+                                signer_title: current.signer_title,
+                                approved_at: current.decided_at,
+                              }
+                            : undefined
+                        }
+                      />
+                    </div>
+                  )}
                 <Typography.Text type="secondary">
                   Pratinjau permintaan. Kode dan waktu penerbitan ditetapkan
                   setelah persetujuan.
