@@ -49,24 +49,31 @@ const snapshot: CertificatePayload = {
     activity_date: "10 September 2026",
   },
 };
+const documentSigner = {
+  key: "oktofa-yudha-sudrajad",
+  name: "Oktofa Yudha Sudrajad, S.T., M.S.M., Ph.D.",
+  title: "Ketua Bidang Mahasiswa, Kaderisasi, dan Alumni",
+};
 const rows: ApprovalDetail[] = [1, 2].map((id) => ({
   id,
   registration_id: id,
   activity_id: 1,
   signer_id: 1,
   requested_by: mode === "cancel" ? 1 : 2,
-  signer_name: "Penandatangan Uji",
-  signer_title: "Ketua kegiatan",
+  signer_name: documentSigner.name,
+  signer_title: documentSigner.title,
   participant_name: `Peserta Uji ${id}`,
   activity_name: snapshot.activity.name,
   content_hash: String(id).repeat(64),
   status: "pending",
   decided_at: null,
+  decided_by: null,
   reason: null,
   certificate_id: null,
   created_at: "2026-09-10T03:00:00.000Z",
   snapshot: {
     ...snapshot,
+    document_signer: documentSigner,
     participant: {
       ...snapshot.participant,
       registration_id: id,
@@ -75,8 +82,8 @@ const rows: ApprovalDetail[] = [1, 2].map((id) => ({
   },
 }));
 const evidence: CertificateApproval = {
-  signer_name: "Penandatangan Uji",
-  signer_title: "Ketua kegiatan",
+  signer_name: documentSigner.name,
+  signer_title: documentSigner.title,
   approved_at: "2026-09-10T10:00:00.000+07:00",
 };
 useAuthStore.setState({
@@ -97,6 +104,7 @@ axios.defaults.adapter = async (config) => {
   if (mode === "error") throw new Error("Synthetic offline state");
   if (url === "/certificates/signers")
     data = mode === "empty" ? [] : [{ id: 1, name: "Penandatangan Uji" }];
+  else if (url === "/certificates/document-signers") data = [documentSigner];
   else if (url === "/certificates/approvals" && config.method === "get") {
     const matches =
       mode === "empty"

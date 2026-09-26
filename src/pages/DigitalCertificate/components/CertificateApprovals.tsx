@@ -414,6 +414,15 @@ export function CertificateApprovals({
                   Jabatan: {current.signer_title}
                   <br />
                   Diajukan: {formatRegistrationTime(current.created_at)}
+                  {current.snapshot.document_signer && (
+                    <>
+                      <br />
+                      Admin pemberi persetujuan: #{current.signer_id}
+                      {current.decided_by && (
+                        <> · Diproses oleh admin #{current.decided_by}</>
+                      )}
+                    </>
+                  )}
                 </Typography.Paragraph>
                 <Tag>{LABELS[current.status]}</Tag>
                 {current.reason && <Alert type="info" title={current.reason} />}
@@ -519,8 +528,10 @@ export function CertificateApprovals({
                     onChange={(event) => setConsent(event.target.checked)}
                   >
                     Saya telah meninjau isi dan daftar {review.length} penerima
-                    di atas, menyetujui jabatan yang dicantumkan, dan menyetujui
-                    penerbitan sertifikat ini atas nama saya.
+                    di atas dan menyetujui penerbitan atas nama penandatangan
+                    yang tercantum pada setiap sertifikat. Saya berwenang
+                    memberikan persetujuan tersebut dan memahami bahwa identitas
+                    admin saya dicatat.
                   </Checkbox>
                 )}
               </>

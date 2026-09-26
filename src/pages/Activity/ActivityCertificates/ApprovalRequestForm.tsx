@@ -3,7 +3,6 @@ import {
   Button,
   ConfigProvider,
   Form,
-  Input,
   Select,
   Space,
   Typography,
@@ -12,6 +11,8 @@ import { useEffect, useState } from "react";
 import {
   APPROVAL_ERRORS,
   getCertificateSigners,
+  getDocumentSigners,
+  type DocumentSigner,
   requestCertificateApprovals,
 } from "../../../api/services/certificateApproval";
 import type { IssuancePlan } from "../../../types/services/certificateWorkflow";
@@ -26,6 +27,12 @@ export function ApprovalRequestForm({
   plan: IssuancePlan;
   onSubmitted: () => void;
 }): React.ReactElement {
+  const [form] = Form.useForm();
+  const [documentSigners, setDocumentSigners] = useState<DocumentSigner[]>([]);
+  const documentSignerKey = Form.useWatch("documentSignerKey", form);
+  const selectedSigner = documentSigners.find(
+    (signer) => signer.key === documentSignerKey,
+  );
   const [signers, setSigners] = useState<Array<{ id: number; name: string }>>(
     [],
   );
@@ -38,9 +45,17 @@ export function ApprovalRequestForm({
     const controller = new AbortController();
     setLoading(true);
     setError("");
-    getCertificateSigners(controller.signal)
-      .then((data) => {
-        if (!controller.signal.aborted) setSigners(data);
+    Promise.all([
+      getCertificateSigners(controller.signal),
+      getDocumentSigners(controller.signal),
+    ])
+      .then(([admins, profiles]) => {
+        if (!controller.signal.aborted) {
+          setSigners(admins);
+          setDocumentSigners(profiles);
+          if (!form.getFieldValue("documentSignerKey"))
+            form.setFieldValue("documentSignerKey", profiles[0]?.key);
+        }
       })
       .catch(() => {
         if (!controller.signal.aborted)
@@ -50,30 +65,28 @@ export function ApprovalRequestForm({
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [retry]);
+  }, [retry, form]);
   async function submit(values: {
     signerId: number;
-    signerTitle: string;
+    documentSignerKey: string;
   }): Promise<void> {
     setBusy(true);
     setError("");
     try {
+      const profile = documentSigners.find(
+        (signer) => signer.key === values.documentSignerKey,
+      );
+      if (!profile) {
+        setError("Penandatangan tidak tersedia. Muat ulang halaman.");
+        return;
+      }
       if (
         plan.preview?.template.template_data.scoreSheetLayout === "salman-v1"
       ) {
-        const signerName = signers.find(
-          (signer) => signer.id === values.signerId,
-        )?.name;
-        if (!signerName) {
-          setError(
-            "Penandatangan tidak tersedia. Muat ulang dan pilih kembali.",
-          );
-          return;
-        }
         const overflow = await preflightSalmanRecipients(
           plan.registration_ids,
-          signerName,
-          values.signerTitle.trim(),
+          profile.name,
+          profile.title,
           setProgress,
         );
         if (overflow.length) {
@@ -90,7 +103,7 @@ export function ApprovalRequestForm({
           plan,
           plan.registration_ids.slice(index, index + 50),
           values.signerId,
-          values.signerTitle.trim(),
+          profile.key,
         );
         for (const item of result)
           if (item.status === "failed") {
@@ -120,6 +133,7 @@ export function ApprovalRequestForm({
   return (
     <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
       <Form
+        form={form}
         className="certificate-approval"
         layout="vertical"
         disabled={busy}
@@ -127,8 +141,9 @@ export function ApprovalRequestForm({
         style={{ maxWidth: 560 }}
       >
         <Typography.Paragraph>
-          Pilih satu penandatangan. Sertifikat diterbitkan setelah penandatangan
-          meninjau dan menyetujui permintaan ini.
+          Pilih penandatangan yang tercantum pada sertifikat dan admin yang akan
+          meninjau serta menyetujui atas namanya. Identitas admin dicatat dalam
+          riwayat persetujuan.
         </Typography.Paragraph>
         {error && (
           <Alert
@@ -148,14 +163,32 @@ export function ApprovalRequestForm({
         {!loading && !error && !signers.length && (
           <Alert
             type="info"
-            title="Belum ada penandatangan aktif"
+            title="Belum ada admin pemberi persetujuan aktif"
             description="Admin memerlukan nama tampilan dan akses persetujuan sertifikat."
           />
         )}
         <Form.Item
+          name="documentSignerKey"
+          label="Penandatangan pada sertifikat"
+          rules={[{ required: true, message: "Pilih penandatangan dokumen." }]}
+        >
+          <Select
+            loading={loading}
+            options={documentSigners.map((signer) => ({
+              value: signer.key,
+              label: signer.name,
+            }))}
+          />
+        </Form.Item>
+        {selectedSigner && (
+          <Typography.Paragraph>{selectedSigner.title}</Typography.Paragraph>
+        )}
+        <Form.Item
           name="signerId"
-          label="Penandatangan"
-          rules={[{ required: true, message: "Pilih penandatangan." }]}
+          label="Admin pemberi persetujuan"
+          rules={[
+            { required: true, message: "Pilih admin pemberi persetujuan." },
+          ]}
         >
           <Select
             loading={loading}
@@ -164,22 +197,8 @@ export function ApprovalRequestForm({
               value: signer.id,
               label: signer.name,
             }))}
-            placeholder="Pilih penandatangan"
+            placeholder="Pilih admin pemberi persetujuan"
           />
-        </Form.Item>
-        <Form.Item
-          name="signerTitle"
-          label="Jabatan pada sertifikat"
-          rules={[
-            {
-              required: true,
-              whitespace: true,
-              message: "Isi jabatan penandatangan.",
-            },
-            { max: 120 },
-          ]}
-        >
-          <Input maxLength={120} />
         </Form.Item>
         <Space orientation="vertical">
           <Button
@@ -187,7 +206,10 @@ export function ApprovalRequestForm({
             type="primary"
             loading={busy}
             disabled={
-              loading || !signers.length || !plan.registration_ids.length
+              loading ||
+              !signers.length ||
+              !documentSigners.length ||
+              !plan.registration_ids.length
             }
           >
             Kirim {plan.registration_ids.length} permintaan persetujuan

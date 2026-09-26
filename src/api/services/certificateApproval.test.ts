@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import axios from "../axios";
-import { getCertificateApproval } from "./certificateApproval";
+import {
+  getCertificateApproval,
+  requestCertificateApprovals,
+} from "./certificateApproval";
 
-vi.mock("../axios", () => ({ default: { get: vi.fn() } }));
+vi.mock("../axios", () => ({ default: { get: vi.fn(), post: vi.fn() } }));
 
 describe("certificate approval detail", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -31,5 +34,27 @@ describe("certificate approval detail", () => {
         "INVALID_CERTIFICATE_APPROVAL_SNAPSHOT",
       );
     },
+  );
+});
+
+it("sends a fixed document identity independently of the approving admin", async () => {
+  vi.mocked(axios.post).mockResolvedValue({ data: { data: [] } });
+  await requestCertificateApprovals(
+    { activity_id: 1, template_id: 2, template_version: 3 } as Parameters<
+      typeof requestCertificateApprovals
+    >[0],
+    [4],
+    9,
+    "oktofa-yudha-sudrajad",
+  );
+  expect(axios.post).toHaveBeenCalledWith(
+    "/certificates/approvals",
+    {
+      registration_ids: [4],
+      signer_id: 9,
+      document_signer_key: "oktofa-yudha-sudrajad",
+      expected: { activity_id: 1, template_id: 2, template_version: 3 },
+    },
+    { timeout: 60000 },
   );
 });
