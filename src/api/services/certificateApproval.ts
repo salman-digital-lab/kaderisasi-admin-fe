@@ -79,7 +79,15 @@ export async function getCertificateApproval(
   const response = await axios.get<{ data: ApprovalDetail }>(
     `/certificates/approvals/${id}`,
   );
-  return response.data.data;
+  const detail = response.data.data;
+  if (
+    !detail?.snapshot?.participant?.name ||
+    !detail.snapshot.activity?.name ||
+    !Array.isArray(detail.snapshot.template?.template_data?.elements)
+  ) {
+    throw new Error("INVALID_CERTIFICATE_APPROVAL_SNAPSHOT");
+  }
+  return detail;
 }
 export async function decideCertificateApprovals(
   items: Pick<ApprovalSummary, "id" | "content_hash">[],
