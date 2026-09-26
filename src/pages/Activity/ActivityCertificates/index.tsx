@@ -23,7 +23,10 @@ import {
 import { isAxiosError } from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useBeforeUnload, useBlocker, useParams } from "react-router-dom";
-import { getCertificateTemplate } from "../../../api/services/certificateTemplate";
+import {
+  getCertificateTemplate,
+  revokeCertificate,
+} from "../../../api/services/certificateTemplate";
 import {
   assignCertificateTemplate,
   getCertificateRecipients,
@@ -56,9 +59,9 @@ import {
 import { runCertificateBatches } from "./batch-runner";
 import { formatRegistrationTime } from "../../../utils/registration-time";
 import styles from "./index.module.css";
-import { ApprovalRequestForm } from "./ApprovalRequestForm";
+import { preflightSalmanRecipients } from "./preflightSalman";
+import { ResponsiveDialog } from "../../../components/common/Responsive/ResponsiveDialog";
 import { CertificateSettingsForm } from "./CertificateSettingsForm";
-import { CertificateApprovals } from "../../DigitalCertificate/components/CertificateApprovals";
 import { CERTIFICATE_APPROVAL_THEME } from "../../DigitalCertificate/constants/approval-theme";
 
 const LABELS = {
@@ -89,6 +92,9 @@ export default function ActivityCertificates(): React.ReactElement {
   const permissions = usePermissions();
   const canManage = canManageCertificateTemplates(permissions);
   const canIssue = canIssueCertificates(permissions);
+  const [confirmPublish, setConfirmPublish] = useState(false);
+  const [withdrawTarget, setWithdrawTarget] = useState<CertificateRecipient>();
+  const canWithdraw = permissions.includes("certificate.revoke");
   const [step, setStep] = useState(0);
   const [recipients, setRecipients] = useState<RecipientPage>();
   const [page, setPage] = useState(1);
@@ -269,10 +275,6 @@ export default function ActivityCertificates(): React.ReactElement {
 
   const ready =
     template?.status === "published" && template.readiness?.ready === true;
-  const requiresApproval = plan?.preview?.template.template_data.elements.some(
-    (element) =>
-      element.type === "variable-text" && element.variable === "{{approval}}",
-  );
   async function saveTemplate(): Promise<void> {
     if (!ready || !selectedTemplateId) return;
     setBusy(true);
@@ -332,9 +334,37 @@ export default function ActivityCertificates(): React.ReactElement {
     runningRef.current = true;
     stopRef.current = false;
     setRunning(true);
-    setHasRun(true);
     setRunMessage("");
     try {
+      const signer = plan.preview?.document_signer;
+      if (!signer) {
+        setError("Penandatangan belum tersedia. Tinjau ulang sertifikat.");
+        setConfirmPublish(false);
+        return;
+      }
+      if (
+        plan.preview?.template.template_data.scoreSheetLayout === "salman-v1"
+      ) {
+        const errors = await preflightSalmanRecipients(
+          plan.registration_ids,
+          signer.name,
+          signer.title,
+          setRunMessage,
+        );
+        if (errors.length) {
+          setError(
+            `Perbaiki tata letak sebelum diterbitkan: ${errors.join("; ")}`,
+          );
+          setConfirmPublish(false);
+          return;
+        }
+      }
+      if (reviewRequired || document.hidden || stopRef.current) {
+        setConfirmPublish(false);
+        return;
+      }
+      setConfirmPublish(false);
+      setHasRun(true);
       const outcome = await runCertificateBatches(plan, {
         issue: (ids) => issueCertificateBatch(plan, ids),
         shouldStop: () => stopRef.current || document.hidden,
@@ -360,6 +390,11 @@ export default function ActivityCertificates(): React.ReactElement {
             : "Penerbitan selesai. Periksa hasil di bawah.",
       );
       setRefresh((value) => value + 1);
+    } catch {
+      setConfirmPublish(false);
+      setError(
+        "Penerbitan belum selesai. Tinjau kembali sebelum mencoba lagi.",
+      );
     } finally {
       runningRef.current = false;
       if (aliveRef.current) setRunning(false);
@@ -440,9 +475,21 @@ export default function ActivityCertificates(): React.ReactElement {
       title: "Sertifikat",
       render: (_, row) =>
         row.certificate_id ? (
-          <Link to={`/certificate-preview/${row.certificate_id}`}>
-            Lihat sertifikat
-          </Link>
+          <div>
+            <Link to={`/certificate-preview/${row.certificate_id}`}>
+              Lihat sertifikat
+            </Link>
+            {canWithdraw && row.state === "issued_active" && (
+              <Button
+                type="link"
+                danger
+                disabled={running || busy}
+                onClick={() => setWithdrawTarget(row)}
+              >
+                Batalkan penerbitan
+              </Button>
+            )}
+          </div>
         ) : (
           "—"
         ),
@@ -759,7 +806,7 @@ export default function ActivityCertificates(): React.ReactElement {
                       "salman-v1"
                         ? plan.preview.activity.certificate_settings
                             ?.include_scores
-                          ? "Daftar nilai aktif untuk semua penerima. Nilai harus lengkap dan terbit sebelum permintaan persetujuan."
+                          ? "Daftar nilai aktif untuk semua penerima. Nilai harus lengkap dan terbit sebelum sertifikat diterbitkan."
                           : "Daftar nilai nonaktif. Setiap sertifikat akan berisi satu halaman."
                         : plan.preview.participant.scoring_result
                           ? "Contoh ini menyertakan nilai terbit. Jumlah halaman setiap peserta mengikuti ketersediaan nilainya. Nilai yang tersimpan di sertifikat tidak berubah setelah penerbitan."
@@ -767,18 +814,23 @@ export default function ActivityCertificates(): React.ReactElement {
                     }
                   />
                   <CertificatePreviewPages
+                    signerName={plan.preview.document_signer?.name}
+                    signerTitle={plan.preview.document_signer?.title}
                     participant={plan.preview.participant}
                     settings={plan.preview.activity.certificate_settings}
                     template={plan.preview.template.template_data}
                     backgroundImage={plan.preview.template.background_image}
                     resolveText={(element) =>
-                      resolveCertificateText(
-                        element,
-                        plan.preview!.participant,
-                        CERTIFICATE_SAMPLE_CODE,
-                        undefined,
-                        plan.preview!.activity.certificate_settings,
-                      )
+                      element.variable === "{{approval}}" &&
+                      plan.preview?.document_signer
+                        ? `Ditandatangani secara elektronik oleh\n${plan.preview.document_signer.name}\n${plan.preview.document_signer.title}\n[Tanggal penerbitan]`
+                        : resolveCertificateText(
+                            element,
+                            plan.preview!.participant,
+                            CERTIFICATE_SAMPLE_CODE,
+                            undefined,
+                            plan.preview!.activity.certificate_settings,
+                          )
                     }
                     verificationUrl={getCertificateVerificationUrl(
                       CERTIFICATE_SAMPLE_CODE,
@@ -807,21 +859,6 @@ export default function ActivityCertificates(): React.ReactElement {
                   }
                 />
               )}
-              {requiresApproval &&
-                !hasRun &&
-                canIssue &&
-                !plan.blocked?.length && (
-                  <ApprovalRequestForm
-                    plan={plan}
-                    onSubmitted={() => {
-                      message.success(
-                        "Permintaan tersimpan. Menunggu persetujuan penandatangan.",
-                      );
-                      setStep(1);
-                      setRefresh((value) => value + 1);
-                    }}
-                  />
-                )}
               {hasRun && (
                 <>
                   <Typography.Text>
@@ -932,7 +969,7 @@ export default function ActivityCertificates(): React.ReactElement {
                 Tinjau {count} sertifikat
               </Button>
             )}
-            {step === 2 && !hasRun && !requiresApproval && (
+            {step === 2 && !hasRun && (
               <Button
                 type="primary"
                 disabled={
@@ -942,7 +979,7 @@ export default function ActivityCertificates(): React.ReactElement {
                   Boolean(plan.blocked?.length)
                 }
                 loading={running}
-                onClick={issue}
+                onClick={() => setConfirmPublish(true)}
               >
                 Terbitkan {plan?.registration_ids.length} sertifikat
               </Button>
@@ -976,11 +1013,75 @@ export default function ActivityCertificates(): React.ReactElement {
             )}
           </div>
         </Card>
-        <CertificateApprovals
-          activityId={activityId}
-          refreshKey={refresh}
-          onChanged={() => setRefresh((value) => value + 1)}
-        />
+        <ResponsiveDialog
+          title="Terbitkan sertifikat?"
+          open={confirmPublish}
+          okText="Terbitkan dan tanda tangani"
+          cancelText="Batal"
+          confirmLoading={running}
+          onCancel={() => {
+            if (!running) setConfirmPublish(false);
+          }}
+          onOk={issue}
+          okButtonProps={{
+            disabled:
+              !canIssue || reviewRequired || Boolean(plan?.blocked?.length),
+          }}
+        >
+          <Typography.Paragraph>
+            {plan?.registration_ids.length} sertifikat akan langsung diterbitkan
+            dan ditandatangani secara elektronik atas nama{" "}
+            <strong>{plan?.preview?.document_signer?.name}</strong>
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            {plan?.preview?.document_signer?.title}
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            Dengan menerbitkan, Anda menyatakan berwenang bertindak atas nama
+            penandatangan. Identitas admin Anda dicatat. Sertifikat dapat
+            dibatalkan penerbitannya untuk diperbaiki.
+          </Typography.Paragraph>
+          {running && (
+            <span role="status">{runMessage || "Memeriksa sertifikat…"}</span>
+          )}
+        </ResponsiveDialog>
+        <ResponsiveDialog
+          title="Batalkan penerbitan sertifikat?"
+          open={Boolean(withdrawTarget)}
+          okText="Batalkan penerbitan"
+          cancelText="Kembali"
+          okButtonProps={{ danger: true, disabled: !canWithdraw }}
+          confirmLoading={busy}
+          onCancel={() => {
+            if (!busy) setWithdrawTarget(undefined);
+          }}
+          onOk={async () => {
+            if (!withdrawTarget?.certificate_id || !canWithdraw) return;
+            setBusy(true);
+            try {
+              await revokeCertificate(withdrawTarget.certificate_id, {
+                reason: "Dibatalkan penerbitannya untuk koreksi oleh admin",
+              });
+              setWithdrawTarget(undefined);
+              setPlan(undefined);
+              setHasRun(false);
+              setSelectedIds([]);
+              setStep(1);
+              setRefresh((value) => value + 1);
+              message.success(
+                "Penerbitan dibatalkan. Perbaiki data, lalu terbitkan kembali.",
+              );
+            } catch {
+              message.error("Penerbitan belum berhasil dibatalkan. Coba lagi.");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Sertifikat {withdrawTarget?.name} tidak lagi valid atau dapat diunduh
+          peserta. Setelah diperbaiki, penerbitan ulang membuat kode baru. Versi
+          lama tetap tersimpan dalam riwayat.
+        </ResponsiveDialog>
       </main>
     </ConfigProvider>
   );

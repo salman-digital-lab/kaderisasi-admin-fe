@@ -17,11 +17,6 @@ import type { CertificateElement } from "../../src/pages/DigitalCertificate/type
 const query = new URLSearchParams(location.search);
 const isEditor = query.get("mode") === "editor";
 const design = buildStarterTemplate("a4-landscape", "basic");
-// This fixture retains the legacy direct-issuance path; approval has its own lab.
-if (!isEditor)
-  design.elements = design.elements.filter(
-    (element) => element.variable !== "{{approval}}",
-  );
 if (isEditor)
   design.elements = [
     ...design.elements,
@@ -77,17 +72,20 @@ if (query.get("interrupt") === "1") {
   };
   document.body.append(returnButton);
 }
-const registrations = Array.from({ length: 1000 }, (_, i) => ({
-  registration_id: i + 1,
-  name:
-    i === 0
-      ? "Muhammad Abdurrahman Pratama Wiratama Kusumah"
-      : `Peserta ${String(i + 1).padStart(4, "0")}`,
-  status: "LULUS KEGIATAN",
-  state: "eligible_not_issued",
-  certificate_id: null,
-  certificate_code: null,
-}));
+const registrations = Array.from(
+  { length: Number(query.get("count") || 1000) },
+  (_, i) => ({
+    registration_id: i + 1,
+    name:
+      i === 0
+        ? "Muhammad Abdurrahman Pratama Wiratama Kusumah"
+        : `Peserta ${String(i + 1).padStart(4, "0")}`,
+    status: "LULUS KEGIATAN",
+    state: "eligible_not_issued",
+    certificate_id: null,
+    certificate_code: null,
+  }),
+);
 const metrics = document.createElement("output");
 metrics.id = "lab-metrics";
 metrics.style.cssText =
@@ -101,7 +99,7 @@ const report = (): void => {
     calls,
     interactionMs: durations,
     layers: design.elements.length,
-    recipients: 1000,
+    recipients: registrations.length,
     issued: issued.size,
     fixtureHidden,
     pdfDependenciesLoaded: performance
@@ -119,6 +117,7 @@ useAuthStore.setState({
   permissions: [
     "certificate.read",
     "certificate.issue",
+    "certificate.revoke",
     "certificate.template.manage",
   ],
   token: "isolated-fixture",
@@ -162,7 +161,7 @@ axios.defaults.adapter = async (config) => {
       activity,
       template,
       counts: {
-        eligible_not_issued: 1000 - issued.size,
+        eligible_not_issued: registrations.length - issued.size,
         issued_active: issued.size,
         issued_revoked: 0,
         not_eligible: 0,
@@ -173,6 +172,7 @@ axios.defaults.adapter = async (config) => {
         ...(issued.has(row.registration_id)
           ? {
               state: "issued_active",
+              certificate_id: row.registration_id,
               certificate_code: `LAB-${row.registration_id}`,
             }
           : {}),
@@ -197,6 +197,11 @@ axios.defaults.adapter = async (config) => {
         ? {
             activity,
             template,
+            document_signer: {
+              key: "oktofa-yudha-sudrajad",
+              name: "Oktofa Yudha Sudrajad, S.T., M.S.M., Ph.D.",
+              title: "Ketua Bidang Mahasiswa, Kaderisasi, dan Alumni",
+            },
             participant: {
               ...registrations[ids[0] - 1],
               activity_name: activity.name,
@@ -205,6 +210,10 @@ axios.defaults.adapter = async (config) => {
           }
         : null,
     };
+  } else if (url.endsWith("/revoke")) {
+    issued.delete(Number(url.split("/").slice(-2)[0]));
+    data = {};
+    report();
   } else if (url.includes("issue-bulk")) {
     data = {
       paused: false,

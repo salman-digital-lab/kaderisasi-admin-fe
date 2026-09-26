@@ -60,6 +60,7 @@ import { usePermissions } from "../../../stores/authStore";
 import {
   canAccessCertificates,
   canRevokeCertificates,
+  canIssueCertificates,
 } from "../../../utils/certificate-permissions";
 import { getCertificateVerificationUrl } from "../../DigitalCertificate/utils/certificate-content";
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
@@ -91,6 +92,7 @@ const ActivityParticipants = () => {
   const { id } = useParams<{ id: string }>();
   const permissions = usePermissions();
   const canAccessCertificateFeature = canAccessCertificates(permissions);
+  const canIssue = canIssueCertificates(permissions);
   const canRevoke = canRevokeCertificates(permissions);
 
   // Modal states
@@ -312,14 +314,16 @@ const ActivityParticipants = () => {
   );
 
   const handleRevokeCertificate = useCallback(async () => {
-    if (!revokeTarget || !canRevoke || !revokeReason.trim()) return;
+    if (!revokeTarget || !canRevoke) return;
     setRevokingCertificate(revokeTarget.id);
     try {
       await revokeCertificate(revokeTarget.id, {
-        reason: revokeReason.trim(),
+        reason:
+          revokeReason.trim() ||
+          "Dibatalkan penerbitannya untuk koreksi oleh admin",
       });
       fetchIssuedCertificates();
-      message.success("Sertifikat berhasil dicabut");
+      message.success("Penerbitan sertifikat dibatalkan");
       setRevokeTarget(null);
       setRevokeReason("");
     } catch {
@@ -380,7 +384,15 @@ const ActivityParticipants = () => {
             return (
               <Space direction="vertical" size={2}>
                 <Space size={4}>
-                  <Tag color="red">Dicabut</Tag>
+                  <Tag color="red">Tidak diterbitkan</Tag>
+                  {canIssue && (
+                    <Button
+                      type="link"
+                      onClick={() => navigate(`/activity/${id}/certificates`)}
+                    >
+                      Perbaiki dan terbitkan ulang
+                    </Button>
+                  )}
                   <Tooltip title="Lihat sertifikat yang dicabut">
                     <Button
                       type="text"
@@ -429,13 +441,13 @@ const ActivityParticipants = () => {
                   />
                 </Tooltip>
                 {canRevoke && (
-                  <Tooltip title="Cabut Sertifikat">
+                  <Tooltip title="Batalkan penerbitan">
                     <Button
                       type="text"
                       danger
                       icon={<StopOutlined />}
                       style={TOUCH_ACTION_STYLE}
-                      aria-label="Cabut sertifikat"
+                      aria-label="Batalkan penerbitan"
                       loading={revokingCertificate === issued.id}
                       onClick={() => {
                         setRevokeTarget(issued);
@@ -479,6 +491,7 @@ const ActivityParticipants = () => {
     activity,
     id,
     canAccessCertificateFeature,
+    canIssue,
     canRevoke,
     handleCopyVerificationLink,
     handleViewCertificate,
@@ -528,13 +541,14 @@ const ActivityParticipants = () => {
       />
 
       <Modal
-        title="Cabut sertifikat"
+        title="Batalkan penerbitan"
         open={Boolean(revokeTarget)}
-        okText="Cabut sertifikat"
+        okText="Batalkan penerbitan"
         cancelText="Batal"
         okButtonProps={{
           danger: true,
-          disabled: revokeReason.trim().length < 3,
+          disabled:
+            Boolean(revokeReason.trim()) && revokeReason.trim().length < 3,
         }}
         confirmLoading={Boolean(revokingCertificate)}
         onOk={handleRevokeCertificate}
@@ -553,7 +567,7 @@ const ActivityParticipants = () => {
         <Input.TextArea
           value={revokeReason}
           onChange={(event) => setRevokeReason(event.target.value)}
-          placeholder="Tuliskan alasan pencabutan"
+          placeholder="Alasan pembatalan (opsional)"
           aria-label="Alasan pencabutan sertifikat"
           autoSize={{ minRows: 3, maxRows: 6 }}
           maxLength={500}

@@ -179,6 +179,7 @@ export interface IssuedCertificate {
 }
 
 export interface CertificatePayload {
+  document_signer?: { key: string; name: string; title: string };
   activity: {
     id: number;
     name: string;
