@@ -83,6 +83,7 @@ import {
 import styles from "./CertificateDesigner.module.css";
 import { ReadinessChecklist } from "./ReadinessChecklist";
 import { ToolRail } from "./ToolRail";
+import { loadDesignerTemplate } from "./load-template";
 import {
   AUTOSAVE_STATUS_LABELS,
   CertificateAutosaveController,
@@ -324,13 +325,7 @@ const CertificateDesignerEditor: React.FC = () => {
         setServerVersion(nextServerVersion);
         autosaveRef.current?.setServerVersion(nextServerVersion);
         setBackgroundImagePath(data.background_image);
-        const nextTemplate = {
-          backgroundUrl:
-            data.background_image || data.template_data?.backgroundUrl || null,
-          elements: data.template_data?.elements || [],
-          canvasWidth: data.template_data?.canvasWidth || 800,
-          canvasHeight: data.template_data?.canvasHeight || 566,
-        };
+        const nextTemplate = loadDesignerTemplate(data);
         setTemplate(nextTemplate);
         setSavedRevision(0);
         setSavedMetadata(
@@ -1019,13 +1014,7 @@ const CertificateDesignerEditor: React.FC = () => {
   const handleLoadServerVersion = async (): Promise<void> => {
     try {
       const data = await getCertificateTemplate(templateId);
-      const nextTemplate = {
-        backgroundUrl:
-          data.background_image || data.template_data?.backgroundUrl || null,
-        elements: data.template_data?.elements || [],
-        canvasWidth: data.template_data?.canvasWidth || 800,
-        canvasHeight: data.template_data?.canvasHeight || 566,
-      };
+      const nextTemplate = loadDesignerTemplate(data);
       const nextMetadata = JSON.stringify({
         name: data.name.trim(),
         description: data.description || "",
