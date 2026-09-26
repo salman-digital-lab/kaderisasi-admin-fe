@@ -2,6 +2,7 @@ import { QRCode } from "antd";
 import { forwardRef, memo, useEffect, useRef, useState } from "react";
 import type { CertificateElement, CertificateTemplate } from "../types";
 import { getCertificateAssetUrl } from "../utils/certificate-content";
+import { FittedCertificateName } from "./FittedCertificateName";
 
 export interface CertificateArtworkProps {
   template: CertificateTemplate;
@@ -140,7 +141,14 @@ export const CertificateArtwork = memo(
                             wordBreak: "break-word",
                           }}
                         >
-                          {resolveText(element)}
+                          {element.variable === "{{name}}" ? (
+                            <FittedCertificateName
+                              text={resolveText(element)}
+                              fontSize={element.fontSize || 16}
+                            />
+                          ) : (
+                            resolveText(element)
+                          )}
                         </div>
                       ) : element.type === "qr-code" ? (
                         verificationUrl ? (

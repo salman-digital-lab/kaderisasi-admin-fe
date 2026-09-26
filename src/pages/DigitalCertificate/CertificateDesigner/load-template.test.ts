@@ -31,13 +31,11 @@ describe("loading a saved certificate design", () => {
     expect(reloaded.canvasWidth).toBe(794);
     expect(reloaded.canvasHeight).toBe(1123);
     expect(
-      reloaded.elements.find(
-        (element) => element.variable === "{{document_place_date}}",
-      )?.y,
+      reloaded.elements.find((element) => element.variable === "{{approval}}")
+        ?.y,
     ).toBe(
-      original.elements.find(
-        (element) => element.variable === "{{document_place_date}}",
-      )!.y + 1,
+      original.elements.find((element) => element.variable === "{{approval}}")!
+        .y + 1,
     );
   });
 

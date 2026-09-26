@@ -213,14 +213,6 @@ export const buildStarterTemplate = (
           17,
         ),
         variable(
-          "salman-document-date",
-          "{{document_place_date}}",
-          "Tempat dan tanggal sertifikat",
-          843,
-          34,
-          16,
-        ),
-        variable(
           "salman-approval",
           "{{approval}}",
           "Persetujuan elektronik",
