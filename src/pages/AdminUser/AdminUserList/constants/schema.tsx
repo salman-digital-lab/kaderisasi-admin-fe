@@ -6,6 +6,8 @@ import { assignedRoles } from "../../../../utils/admin-roles";
 export const TABLE_SCHEMA = (
   setEdittedRow: (val: AdminUser | undefined) => void,
   setPasswordRow: (val: AdminUser | undefined) => void,
+  isSuperAdmin: boolean,
+  viewTalentResult: (id: number) => void,
 ): TableProps<AdminUser>["columns"] => [
   {
     title: "Email",
@@ -36,6 +38,11 @@ export const TABLE_SCHEMA = (
       <Space>
         <Button onClick={() => setEdittedRow(record)}>Ubah Akun</Button>
         <Button onClick={() => setPasswordRow(record)}>Ubah Password</Button>
+        {isSuperAdmin && (
+          <Button onClick={() => viewTalentResult(record.id)}>
+            Lihat Hasil Bakat
+          </Button>
+        )}
       </Space>
     ),
   },

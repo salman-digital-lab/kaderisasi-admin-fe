@@ -16,6 +16,20 @@ const AccountNotificationInbox = (): ReactNode => {
   const user = useUser();
   return <NotificationInbox key={user?.id} />;
 };
+const TalentAssessment = lazy(
+  () => import("../features/talent-assessment/Assessment"),
+);
+const TalentResults = lazy(
+  () => import("../features/talent-assessment/Results"),
+);
+const AccountTalentAssessment = (): ReactNode => {
+  const user = useUser();
+  return <TalentAssessment key={user?.id} />;
+};
+const AccountTalentResults = (): ReactNode => {
+  const user = useUser();
+  return <TalentResults key={user?.id} />;
+};
 const ProfilePage = lazy(() => import("../pages/Profile"));
 const DashboardPage = lazy(() => import("../pages/Dashboard"));
 const MainMember = lazy(() => import("../pages/Member/MemberList"));
@@ -174,6 +188,30 @@ const routes = createBrowserRouter([
         element: (
           <Page>
             <ProfilePage />
+          </Page>
+        ),
+      },
+      {
+        path: "profile/talent-assessment",
+        element: (
+          <Page>
+            <AccountTalentAssessment />
+          </Page>
+        ),
+      },
+      {
+        path: "profile/talent-assessment/result",
+        element: (
+          <Page>
+            <AccountTalentResults />
+          </Page>
+        ),
+      },
+      {
+        path: "admin-users/:adminID/talent-assessment/result",
+        element: (
+          <Page>
+            <AccountTalentResults />
           </Page>
         ),
       },

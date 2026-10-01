@@ -1,0 +1,144 @@
+.talent-page {
+  padding: 12px;
+  max-width: 880px;
+}
+.talent-spaced {
+  margin-top: 20px;
+}
+.talent-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.talent-toolbar [role="status"] {
+  font-size: 0.875rem;
+}
+.talent-question-card {
+  margin-top: 20px;
+}
+.talent-question-heading {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin: 12px 0 24px;
+}
+.talent-question-heading:focus-visible {
+  outline: 2px solid var(--bmka-primary);
+  outline-offset: 4px;
+}
+.talent-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.talent-choices .talent-choice {
+  margin: 0;
+  border: 1px solid #d9d9d9;
+  border-radius: 0;
+  padding: 12px 16px;
+  min-height: 48px;
+  align-items: center;
+}
+.talent-choices .talent-choice-selected {
+  border-color: var(--bmka-primary);
+  background: #e6f7ff;
+}
+.talent-choices .talent-choice:focus-within {
+  outline: 2px solid var(--bmka-primary);
+  outline-offset: 2px;
+}
+.talent-question-navigation {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.talent-page .ant-btn {
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+.talent-question-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  gap: 8px;
+}
+.talent-instructions {
+  padding-left: 20px;
+  line-height: 1.7;
+}
+.talent-results-top {
+  padding-left: 24px;
+}
+.talent-results-top li {
+  padding: 8px 0;
+}
+.talent-domains {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.talent-score-list {
+  padding: 0;
+  list-style: none;
+}
+.talent-score-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.talent-score-list .ant-typography {
+  display: block;
+}
+@media (max-width: 575px) {
+  .talent-page {
+    padding: 8px;
+  }
+  .talent-page .ant-card-body {
+    padding: 16px;
+  }
+  .talent-domains {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .talent-question-heading {
+    font-size: 1.125rem;
+  }
+}
+
+.talent-page .talent-page-title {
+  font-size: 20px;
+  line-height: 1.4;
+}
+.talent-page .talent-section-title {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .talent-page *,
+  .talent-page *::before,
+  .talent-page *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* A darker shade of the BMKA accent keeps white action text above 4.5:1. */
+.talent-page .ant-btn-primary:not(:disabled),
+.talent-profile-section .ant-btn-primary:not(:disabled) {
+  background-color: #147ba4;
+  border-color: #147ba4;
+  color: #fff;
+}
+.talent-page > a {
+  color: #147ba4;
+}
+.talent-profile-section .ant-btn {
+  min-height: 44px;
+  height: auto;
+}

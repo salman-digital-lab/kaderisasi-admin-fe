@@ -13,6 +13,14 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   "/calendar": [{ path: "/calendar", title: "Kalender Kegiatan" }],
   "/announcements": [{ path: "/announcements", title: "Pengumuman" }],
   "/notifications": [{ path: "/notifications", title: "Notifikasi" }],
+  "/profile/talent-assessment": [
+    { path: "/profile", title: "Profil Saya" },
+    { path: "/profile/talent-assessment", title: "Asesmen Bakat" },
+  ],
+  "/profile/talent-assessment/result": [
+    { path: "/profile", title: "Profil Saya" },
+    { path: "/profile/talent-assessment/result", title: "Hasil Asesmen" },
+  ],
   "/profile": [{ path: "/profile", title: "Profil Saya" }],
   "/my-requests": [
     { path: "", title: "Akses & Tiket" },

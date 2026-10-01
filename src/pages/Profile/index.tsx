@@ -2,6 +2,7 @@ import { useState, type ReactElement } from "react";
 import { Alert, Button, Card, Form, Input, Typography, message } from "antd";
 import { updateProfile } from "../../api/services/profile";
 import { useRoles, useSetSession, useUser } from "../../stores/authStore";
+import TalentProfileSection from "../../features/talent-assessment/ProfileSection";
 import RoleTags from "../../components/common/RoleTags";
 import { Link } from "react-router-dom";
 
@@ -68,6 +69,7 @@ export default function ProfilePage(): ReactElement {
           </Button>
         </Form>
       </Card>
+      <TalentProfileSection key={user?.id} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 
+import { useNavigate } from "react-router-dom";
+import { useIsSuperAdmin } from "../../../../stores/authStore";
 import { TABLE_SCHEMA } from "../constants/schema";
 import EditAdminUser from "./modal/EditAdminUser";
 import { AdminUser } from "../../../../types/model/adminuser";
@@ -33,6 +35,8 @@ const AdminUserTable = ({
   setAdminUserParam,
   refresh,
 }: AdminUserTableProps) => {
+  const navigate = useNavigate();
+  const isSuperAdmin = useIsSuperAdmin();
   const [editedRow, setEditedRow] = useState<AdminUser | undefined>();
   const [passwordRow, setPasswordRow] = useState<AdminUser | undefined>();
 
@@ -47,7 +51,12 @@ const AdminUserTable = ({
       <Table
         listId="pages/AdminUser/AdminUserList/components/AdminUserTable:1"
         rowKey="id"
-        columns={TABLE_SCHEMA(setEditedRow, setPasswordRow)}
+        columns={TABLE_SCHEMA(
+          setEditedRow,
+          setPasswordRow,
+          isSuperAdmin,
+          (id) => navigate(`/admin-users/${id}/talent-assessment/result`),
+        )}
         dataSource={data?.data}
         pagination={{
           current: data?.meta.current_page,
