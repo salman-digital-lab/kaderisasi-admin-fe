@@ -20,7 +20,13 @@
 .talent-question-heading {
   font-size: 1.25rem;
   line-height: 1.6;
-  margin: 12px 0 24px;
+  margin: 12px 0;
+}
+.talent-page .talent-question-description {
+  color: #595959;
+  font-size: 1rem;
+  line-height: 1.65;
+  margin: 0 0 24px;
 }
 .talent-question-heading:focus-visible {
   outline: 2px solid var(--bmka-primary);

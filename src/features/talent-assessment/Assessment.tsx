@@ -129,6 +129,11 @@ export default function TalentAssessment(): ReactElement {
           Tidak ada jawaban benar atau salah. Pilih seberapa sesuai setiap
           pernyataan dengan diri Anda apa adanya, bukan diri yang ideal.
         </Typography.Paragraph>
+        <Typography.Paragraph>
+          Penjelasan dan contoh di bawah pernyataan membantu Anda memahami
+          maksudnya. Anda tidak harus pernah mengalami contoh yang sama; jawab
+          berdasarkan kebiasaan Anda sendiri.
+        </Typography.Paragraph>
         <ul className="talent-instructions">
           <li>
             170 pernyataan, satu per layar, dengan enam pilihan dari Sangat
@@ -208,6 +213,7 @@ function AssessmentRunner({
   }, [draft.current_question, review]);
   const count = draft.answers.filter(Boolean).length;
   const selected = draft.answers[draft.current_question - 1];
+  const question = definition.questions[draft.current_question - 1];
   const go = (question: number): void => {
     update([...draft.answers], question);
     setReview(false);
@@ -355,32 +361,47 @@ function AssessmentRunner({
               className="talent-question-heading"
               id="talent-statement"
             >
-              {definition.questions[draft.current_question - 1].statement}
+              {question.statement}
             </h2>
-            <Radio.Group
-              className="talent-choices"
+            {question.description && (
+              <Typography.Paragraph
+                id="talent-description"
+                className="talent-question-description"
+              >
+                {question.description}
+              </Typography.Paragraph>
+            )}
+            <div
+              role="radiogroup"
               aria-labelledby="talent-statement"
-              name={`question-${draft.current_question}`}
-              value={selected || undefined}
-              disabled={submitting || conflict}
-              onChange={(event) => {
-                const answers = [...draft.answers];
-                answers[draft.current_question - 1] = Number(
-                  event.target.value,
-                );
-                update(answers, draft.current_question);
-              }}
+              aria-describedby={
+                question.description ? "talent-description" : undefined
+              }
             >
-              {CHOICES.map((label, index) => (
-                <Radio
-                  key={label}
-                  value={index + 1}
-                  className={`talent-choice${selected === index + 1 ? " talent-choice-selected" : ""}`}
-                >
-                  {label}
-                </Radio>
-              ))}
-            </Radio.Group>
+              <Radio.Group
+                className="talent-choices"
+                name={`question-${draft.current_question}`}
+                value={selected || undefined}
+                disabled={submitting || conflict}
+                onChange={(event) => {
+                  const answers = [...draft.answers];
+                  answers[draft.current_question - 1] = Number(
+                    event.target.value,
+                  );
+                  update(answers, draft.current_question);
+                }}
+              >
+                {CHOICES.map((label, index) => (
+                  <Radio
+                    key={label}
+                    value={index + 1}
+                    className={`talent-choice${selected === index + 1 ? " talent-choice-selected" : ""}`}
+                  >
+                    {label}
+                  </Radio>
+                ))}
+              </Radio.Group>
+            </div>
             <div className="talent-question-navigation">
               <Button
                 disabled={draft.current_question === 1 || submitting}

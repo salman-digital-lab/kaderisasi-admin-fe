@@ -1,7 +1,7 @@
 import axios from "../axios";
 export interface TalentDefinition {
   version: string;
-  questions: { id: number; statement: string }[];
+  questions: { id: number; statement: string; description?: string }[];
 }
 export interface TalentDraft {
   draft_id: string;
