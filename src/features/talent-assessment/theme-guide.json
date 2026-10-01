@@ -7,8 +7,9 @@
   "themes": [
     {
       "name": "Futuristic",
+      "label": "Visioner",
       "summary": "Senang membayangkan dan memperkirakan masa depan.",
-      "characteristics": "Orang Futuristic suka berangan-angan tentang apa yang akan terjadi. Ia bisa menggambarkan masa depan dengan detail, seolah sudah terjadi di depan matanya. Ia juga bisa melihat pilihan-pilihan yang mungkin muncul di masa depan. Karena itu ia menjadi sosok visioner yang membantu orang lain mengantisipasi apa yang akan datang dan menangkap tren sebelum orang lain menyadarinya.",
+      "characteristics": "Orang Visioner suka berangan-angan tentang apa yang akan terjadi. Ia bisa menggambarkan masa depan dengan detail, seolah sudah terjadi di depan matanya. Ia juga bisa melihat pilihan-pilihan yang mungkin muncul di masa depan. Karena itu ia menjadi sosok visioner yang membantu orang lain mengantisipasi apa yang akan datang dan menangkap tren sebelum orang lain menyadarinya.",
       "activities": [
         "Menyusun rencana hidup lima atau sepuluh tahun ke depan, lengkap dengan gambaran ingin menjadi apa.",
         "Membaca dan membicarakan tren teknologi, bisnis, atau pendidikan yang akan datang.",
@@ -21,12 +22,13 @@
         "Membuat proyeksi pertumbuhan usaha atau organisasi untuk beberapa tahun ke depan.",
         "Menyiapkan keterampilan yang diperkirakan akan dibutuhkan di masa depan."
       ],
-      "support": "Mintalah pendapat orang Futuristic tentang apa yang mungkin terjadi ke depan sebelum mengambil keputusan besar. Luangkan waktu khusus untuk merenungkan rencana jangka panjang."
+      "support": "Mintalah pendapat orang Visioner tentang apa yang mungkin terjadi ke depan sebelum mengambil keputusan besar. Luangkan waktu khusus untuk merenungkan rencana jangka panjang."
     },
     {
       "name": "Strategic",
+      "label": "Strategis",
       "summary": "Mampu memilah masalah dan cepat menemukan jalan terbaik menuju tujuan.",
-      "characteristics": "Dari satu masalah, orang Strategic bisa melihat berbagai kemungkinan jalan keluar. Ia mampu melihat pola di tengah keadaan yang bagi orang lain tampak kacau. Dari pola itu ia bisa memperkirakan masalah yang akan muncul dan memilih jalan yang paling efektif. Jika satu jalan buntu, ia cepat mencari jalan lain, tidak memaksakan satu cara. Ia memakai strategi bahkan untuk urusan sehari-hari yang kecil.",
+      "characteristics": "Dari satu masalah, orang Strategis bisa melihat berbagai kemungkinan jalan keluar. Ia mampu melihat pola di tengah keadaan yang bagi orang lain tampak kacau. Dari pola itu ia bisa memperkirakan masalah yang akan muncul dan memilih jalan yang paling efektif. Jika satu jalan buntu, ia cepat mencari jalan lain, tidak memaksakan satu cara. Ia memakai strategi bahkan untuk urusan sehari-hari yang kecil.",
       "activities": [
         "Menyusun beberapa alternatif rencana (rencana A, B, dan C) sebelum memulai proyek.",
         "Mencari rute tercepat atau cara paling hemat untuk menyelesaikan suatu urusan.",
@@ -39,12 +41,13 @@
         "Menyederhanakan pilihan yang banyak menjadi beberapa opsi terbaik.",
         "Memperkirakan hambatan yang akan muncul lalu menyiapkan cara mengatasinya."
       ],
-      "support": "Orang dengan Strategic rendah biasanya baru memakai strategi untuk urusan besar, dan kadang perlu diingatkan. Libatkan rekan yang kuat di Strategic saat menyusun rencana penting."
+      "support": "Orang dengan Strategis rendah biasanya baru memakai strategi untuk urusan besar, dan kadang perlu diingatkan. Libatkan rekan yang kuat di Strategis saat menyusun rencana penting."
     },
     {
       "name": "Ideation",
+      "label": "Pencetus Ide",
       "summary": "Kreatif, kaya ide, dan senang dengan konsep baru.",
-      "characteristics": "Orang Ideation menyukai inovasi dan cara-cara baru. Jika harus mengerjakan sesuatu dengan cara yang sama terus-menerus, ia cepat bosan dan akan mencoba cara lain. Ia senang berkumpul untuk bertukar ide, baik memberi maupun mendapat ide. Ia mudah memahami konsep dan teori, lalu mengembangkannya menjadi gagasan baru. Ide-idenya akan jauh lebih bermanfaat bila ia juga melatih kemampuan menyampaikannya.",
+      "characteristics": "Orang Pencetus Ide menyukai inovasi dan cara-cara baru. Jika harus mengerjakan sesuatu dengan cara yang sama terus-menerus, ia cepat bosan dan akan mencoba cara lain. Ia senang berkumpul untuk bertukar ide, baik memberi maupun mendapat ide. Ia mudah memahami konsep dan teori, lalu mengembangkannya menjadi gagasan baru. Ide-idenya akan jauh lebih bermanfaat bila ia juga melatih kemampuan menyampaikannya.",
       "activities": [
         "Memimpin sesi curah gagasan (brainstorming) dan melontarkan banyak ide baru.",
         "Mencari cara baru untuk mengerjakan tugas rutin agar tidak membosankan.",
@@ -57,12 +60,13 @@
         "Membuat peta pikiran (mind map) untuk mengembangkan sebuah gagasan.",
         "Menulis cerita, puisi, atau konten dengan sudut pandang yang tidak biasa."
       ],
-      "support": "Libatkan orang Ideation dalam sesi curah gagasan, terutama saat tim buntu atau butuh pendekatan baru."
+      "support": "Libatkan orang Pencetus Ide dalam sesi curah gagasan, terutama saat tim buntu atau butuh pendekatan baru."
     },
     {
       "name": "Analytical",
+      "label": "Analitis",
       "summary": "Berpikir logis, hanya percaya pada sesuatu yang ada bukti dan datanya.",
-      "characteristics": "Orang Analytical tidak mau didoktrin dengan sesuatu yang tidak jelas buktinya. Ia selalu mencari alasan dan penyebab di balik suatu kejadian, sehingga sering bertanya dengan dalam dan detail. Ia berpikir terstruktur dan bisa memikirkan semua faktor yang memengaruhi suatu kondisi. Ia tidak mudah percaya gosip atau rumor, dan tertarik pada pembuktian, percobaan, serta hal-hal yang kuantitatif. Pada anak-anak, bakat ini terlihat dari kebiasaan bertanya \"kenapa\" setiap kali diberi nasihat. Orang tua perlu siap memberi penjelasan yang masuk akal.",
+      "characteristics": "Orang Analitis tidak mau didoktrin dengan sesuatu yang tidak jelas buktinya. Ia selalu mencari alasan dan penyebab di balik suatu kejadian, sehingga sering bertanya dengan dalam dan detail. Ia berpikir terstruktur dan bisa memikirkan semua faktor yang memengaruhi suatu kondisi. Ia tidak mudah percaya gosip atau rumor, dan tertarik pada pembuktian, percobaan, serta hal-hal yang kuantitatif. Pada anak-anak, bakat ini terlihat dari kebiasaan bertanya \"kenapa\" setiap kali diberi nasihat. Orang tua perlu siap memberi penjelasan yang masuk akal.",
       "activities": [
         "Membandingkan data atau angka sebelum memutuskan membeli atau memilih sesuatu.",
         "Memeriksa kebenaran sebuah berita atau informasi sebelum mempercayai dan menyebarkannya.",
@@ -75,12 +79,13 @@
         "Mengajukan pertanyaan kritis dalam diskusi untuk menguji sebuah pendapat.",
         "Menyusun daftar kelebihan dan kekurangan sebelum mengambil keputusan."
       ],
-      "support": "Ajak orang Analytical memeriksa data dan logika sebelum mengambil keputusan penting, terutama keputusan yang diambil berdasarkan intuisi."
+      "support": "Ajak orang Analitis memeriksa data dan logika sebelum mengambil keputusan penting, terutama keputusan yang diambil berdasarkan intuisi."
     },
     {
       "name": "Intellection",
+      "label": "Perenung",
       "summary": "Senang berpikir mendalam dan merenung untuk mencari hakikat sesuatu.",
-      "characteristics": "Orang Intellection adalah pemikir sejati. Ia tidak puas melihat permukaan dan selalu ingin tahu substansi dan makna di balik sesuatu. Dalam diskusi ia langsung masuk ke inti masalah, dan kurang menikmati obrolan basa-basi. Ia senang menyendiri untuk berpikir dan merenung. Karena itu ia pandai introspeksi, mengevaluasi diri, dan mengambil hikmah dari setiap kejadian. Ia menyukai filsafat, bacaan yang dalam, dan sastra.",
+      "characteristics": "Orang Perenung adalah pemikir sejati. Ia tidak puas melihat permukaan dan selalu ingin tahu substansi dan makna di balik sesuatu. Dalam diskusi ia langsung masuk ke inti masalah, dan kurang menikmati obrolan basa-basi. Ia senang menyendiri untuk berpikir dan merenung. Karena itu ia pandai introspeksi, mengevaluasi diri, dan mengambil hikmah dari setiap kejadian. Ia menyukai filsafat, bacaan yang dalam, dan sastra.",
       "activities": [
         "Merenung atau menulis jurnal untuk mengevaluasi diri di akhir hari.",
         "Berdiskusi panjang tentang makna hidup, filsafat, atau nilai-nilai.",
@@ -93,12 +98,13 @@
         "Menelaah makna sebuah ayat, kutipan, atau karya sastra secara mendalam.",
         "Mengajukan pertanyaan mendasar seperti \"apa sebenarnya tujuan dari hal ini?\""
       ],
-      "support": "Mintalah pandangan orang Intellection untuk mendapatkan sudut pandang yang lebih dalam tentang suatu persoalan."
+      "support": "Mintalah pandangan orang Perenung untuk mendapatkan sudut pandang yang lebih dalam tentang suatu persoalan."
     },
     {
       "name": "Learner",
+      "label": "Pembelajar",
       "summary": "Senang belajar dan menikmati proses dari tidak tahu menjadi tahu.",
-      "characteristics": "Yang paling dinikmati orang Learner adalah proses belajarnya, bukan sekadar hasilnya. Karena menikmatinya, ia belajar dengan cepat, menyerap ilmu seperti spons. Ia cepat menguasai teknologi dan keterampilan baru, dan selalu haus akan ilmu. Ia tidak perlu diatur-atur untuk belajar. Hal yang perlu ia jaga adalah fokus, supaya belajarnya punya arah dan hasilnya bisa menjadi karya yang bermanfaat.",
+      "characteristics": "Yang paling dinikmati orang Pembelajar adalah proses belajarnya, bukan sekadar hasilnya. Karena menikmatinya, ia belajar dengan cepat, menyerap ilmu seperti spons. Ia cepat menguasai teknologi dan keterampilan baru, dan selalu haus akan ilmu. Ia tidak perlu diatur-atur untuk belajar. Hal yang perlu ia jaga adalah fokus, supaya belajarnya punya arah dan hasilnya bisa menjadi karya yang bermanfaat.",
       "activities": [
         "Mengikuti kursus, pelatihan, atau kelas daring untuk keterampilan baru.",
         "Mencoba aplikasi atau teknologi baru lebih dulu daripada orang lain.",
@@ -111,12 +117,13 @@
         "Belajar dari ahli atau orang yang lebih berpengalaman.",
         "Mengikuti perkembangan ilmu di bidangnya melalui buku, jurnal, atau podcast."
       ],
-      "support": "Tetapkan tujuan belajar yang jelas dan terkait tugas. Orang dengan Learner rendah lebih mudah belajar jika tahu untuk apa ilmu itu dipakai."
+      "support": "Tetapkan tujuan belajar yang jelas dan terkait tugas. Orang dengan Pembelajar rendah lebih mudah belajar jika tahu untuk apa ilmu itu dipakai."
     },
     {
       "name": "Input",
+      "label": "Pengumpul",
       "summary": "Rasa ingin tahu besar, senang mengumpulkan informasi dan hal-hal menarik.",
-      "characteristics": "Orang Input ingin tahu banyak hal, kadang termasuk hal yang tampak tidak penting. Ia senang mengumpulkan informasi, buku, data, foto, dan dokumentasi. Ia juga suka mengoleksi barang yang menarik baginya, misalnya suvenir atau pernak-pernik dari berbagai tempat. Berbeda dengan Learner yang ingin mendalami, orang Input cukup tahu dan punya akses ke sumbernya. Informasi itu ia simpan untuk dipakai sewaktu-waktu saat dibutuhkan.",
+      "characteristics": "Orang Pengumpul ingin tahu banyak hal, kadang termasuk hal yang tampak tidak penting. Ia senang mengumpulkan informasi, buku, data, foto, dan dokumentasi. Ia juga suka mengoleksi barang yang menarik baginya, misalnya suvenir atau pernak-pernik dari berbagai tempat. Berbeda dengan Pembelajar yang ingin mendalami, orang Pengumpul cukup tahu dan punya akses ke sumbernya. Informasi itu ia simpan untuk dipakai sewaktu-waktu saat dibutuhkan.",
       "activities": [
         "Mengoleksi buku, artikel, foto, atau suvenir dari berbagai tempat.",
         "Menyimpan tautan, tangkapan layar, dan catatan yang mungkin berguna suatu saat.",
@@ -129,12 +136,13 @@
         "Menjelajahi toko buku, pasar loak, atau pameran untuk menemukan hal unik.",
         "Mencari tahu informasi selengkap mungkin sebelum bepergian ke tempat baru."
       ],
-      "support": "Minta bantuan orang Input saat butuh referensi atau informasi yang luas."
+      "support": "Minta bantuan orang Pengumpul saat butuh referensi atau informasi yang luas."
     },
     {
       "name": "Context",
+      "label": "Konteks",
       "summary": "Senang mempelajari masa lalu untuk memahami keadaan sekarang.",
-      "characteristics": "Orang Context sangat paham bahwa apa yang terjadi hari ini punya sejarah dan penyebab di masa lalu. Ia senang meneliti asal-usul sesuatu, sehingga bisa memahami masalah sekarang dengan lebih utuh. Saat mengajar atau belajar, ia merasa terbantu jika tahu konteks dan latar belakang suatu ilmu ditemukan.",
+      "characteristics": "Orang Konteks sangat paham bahwa apa yang terjadi hari ini punya sejarah dan penyebab di masa lalu. Ia senang meneliti asal-usul sesuatu, sehingga bisa memahami masalah sekarang dengan lebih utuh. Saat mengajar atau belajar, ia merasa terbantu jika tahu konteks dan latar belakang suatu ilmu ditemukan.",
       "activities": [
         "Membaca sejarah sebuah tempat, keluarga, atau organisasi sebelum terlibat di dalamnya.",
         "Mengunjungi museum, situs bersejarah, atau perpustakaan arsip.",
@@ -147,12 +155,13 @@
         "Membaca laporan atau notulen lama sebelum memulai jabatan baru.",
         "Membuat linimasa perkembangan sebuah organisasi atau proyek."
       ],
-      "support": "Sebelum mengambil keputusan, tanyakan kepada orang Context bagaimana hal serupa terjadi dan ditangani di masa lalu."
+      "support": "Sebelum mengambil keputusan, tanyakan kepada orang Konteks bagaimana hal serupa terjadi dan ditangani di masa lalu."
     },
     {
       "name": "Command",
+      "label": "Pengendali",
       "summary": "Senang mengambil alih situasi, tegas, dan berani menghadapi masalah.",
-      "characteristics": "Orang Command berani mendesak atau mengarahkan orang lain untuk mengikuti caranya tanpa merasa sungkan. Ia tidak menghindari masalah, tetapi menghadapinya langsung. Ia blak-blakan dalam menyampaikan kebenaran, meskipun tidak enak didengar. Karena itu orang lain mudah memahami apa yang ia mau. Kekuatan ini perlu dijaga dengan adab, supaya ketegasannya tetap dalam koridor yang baik dan tidak berubah menjadi pemaksaan yang menyakiti.",
+      "characteristics": "Orang Pengendali berani mendesak atau mengarahkan orang lain untuk mengikuti caranya tanpa merasa sungkan. Ia tidak menghindari masalah, tetapi menghadapinya langsung. Ia blak-blakan dalam menyampaikan kebenaran, meskipun tidak enak didengar. Karena itu orang lain mudah memahami apa yang ia mau. Kekuatan ini perlu dijaga dengan adab, supaya ketegasannya tetap dalam koridor yang baik dan tidak berubah menjadi pemaksaan yang menyakiti.",
       "activities": [
         "Mengambil alih kepemimpinan saat kelompok kebingungan atau tidak ada yang bergerak.",
         "Menegur dengan terus terang ketika ada yang melanggar aturan atau berbuat salah.",
@@ -165,12 +174,13 @@
         "Bernegosiasi dengan tegas untuk mempertahankan kepentingan kelompok.",
         "Menyampaikan keputusan yang tidak populer namun perlu diambil."
       ],
-      "support": "Latih keberanian untuk bersikap tegas pada saat penting. Libatkan orang Command untuk menghadapi situasi yang butuh konfrontasi."
+      "support": "Latih keberanian untuk bersikap tegas pada saat penting. Libatkan orang Pengendali untuk menghadapi situasi yang butuh konfrontasi."
     },
     {
       "name": "Self-Assurance",
+      "label": "Percaya Diri",
       "summary": "Percaya diri mengambil keputusan berdasarkan intuisi yang kuat.",
-      "characteristics": "Orang Self-Assurance punya pertimbangan dan sudut pandang yang unik. Ia bisa yakin pada keputusan yang bagi orang lain membingungkan, dan keputusannya sering tepat. Ia tidak perlu menunggu banyak data dan tidak mudah grogi. Ia berani mencoba tantangan baru, dan jika gagal ia mencoba lagi. Bedanya dengan Command: Command berani menghadapi masalah dan mengarahkan orang lain, sedangkan Self-Assurance yakin pada intuisinya sendiri dalam memutuskan.",
+      "characteristics": "Orang Percaya Diri punya pertimbangan dan sudut pandang yang unik. Ia bisa yakin pada keputusan yang bagi orang lain membingungkan, dan keputusannya sering tepat. Ia tidak perlu menunggu banyak data dan tidak mudah grogi. Ia berani mencoba tantangan baru, dan jika gagal ia mencoba lagi. Bedanya dengan Pengendali: Pengendali berani menghadapi masalah dan mengarahkan orang lain, sedangkan Percaya Diri yakin pada intuisinya sendiri dalam memutuskan.",
       "activities": [
         "Mengambil keputusan penting dengan yakin meskipun orang lain masih ragu.",
         "Mencoba usaha atau tantangan baru tanpa menunggu persetujuan banyak orang.",
@@ -183,12 +193,13 @@
         "Memimpin tim di situasi yang belum jelas arahnya.",
         "Memutuskan membeli atau menjual sesuatu dengan cepat berdasarkan keyakinan sendiri."
       ],
-      "support": "Bersinergilah dengan orang Self-Assurance saat perlu keputusan cepat. Sebaliknya, orang Self-Assurance juga baik bekerja sama dengan orang Analytical agar keputusannya teruji."
+      "support": "Bersinergilah dengan orang Percaya Diri saat perlu keputusan cepat. Sebaliknya, orang Percaya Diri juga baik bekerja sama dengan orang Analitis agar keputusannya teruji."
     },
     {
       "name": "Activator",
+      "label": "Penggerak",
       "summary": "Tidak sabar untuk segera bertindak dan mengubah ide menjadi aksi.",
-      "characteristics": "Orang Activator tidak suka berpikir terlalu lama sebelum memulai. Prinsipnya: mulai dulu, kalau salah nanti diperbaiki sambil jalan. Dalam kelompok, dialah yang mengajak semua orang untuk segera bergerak. Ia mencegah tim terlalu lama bersiap-siap atau ragu-ragu. Bedanya dengan Self-Assurance: Self-Assurance yakin dalam memutuskan, sedangkan Activator ingin segera memulai.",
+      "characteristics": "Orang Penggerak tidak suka berpikir terlalu lama sebelum memulai. Prinsipnya: mulai dulu, kalau salah nanti diperbaiki sambil jalan. Dalam kelompok, dialah yang mengajak semua orang untuk segera bergerak. Ia mencegah tim terlalu lama bersiap-siap atau ragu-ragu. Bedanya dengan Percaya Diri: Percaya Diri yakin dalam memutuskan, sedangkan Penggerak ingin segera memulai.",
       "activities": [
         "Menjadi orang pertama yang memulai proyek ketika yang lain masih berdiskusi.",
         "Mengajak teman untuk langsung mencoba ide yang baru dibicarakan.",
@@ -201,12 +212,13 @@
         "Memulai kebiasaan baru hari ini, bukan menunggu awal bulan.",
         "Mengajak tetangga atau teman untuk segera bergotong royong saat ada kebutuhan."
       ],
-      "support": "Orang Activator bisa menjadi pemicu agar rencana tidak tertunda. Orang Activator sendiri sebaiknya bekerja sama dengan orang Strategic dan Analytical supaya aksinya lebih terarah."
+      "support": "Orang Penggerak bisa menjadi pemicu agar rencana tidak tertunda. Orang Penggerak sendiri sebaiknya bekerja sama dengan orang Strategis dan Analitis supaya aksinya lebih terarah."
     },
     {
       "name": "Competition",
+      "label": "Kompetitif",
       "summary": "Senang bersaing dan terpacu untuk menjadi yang terbaik.",
-      "characteristics": "Orang Competition suka membandingkan dirinya dengan orang lain dan menjadikan banyak hal sebagai ajang kompetisi. Persaingan justru membuatnya semakin semangat. Ia kurang bersemangat jika mendapatkan sesuatu tanpa ada lawan. Karena itu ia cenderung mencari lawan yang menantang untuk dikalahkan. Sebaliknya, orang dengan Competition rendah biasanya tidak suka dibanding-bandingkan.",
+      "characteristics": "Orang Kompetitif suka membandingkan dirinya dengan orang lain dan menjadikan banyak hal sebagai ajang kompetisi. Persaingan justru membuatnya semakin semangat. Ia kurang bersemangat jika mendapatkan sesuatu tanpa ada lawan. Karena itu ia cenderung mencari lawan yang menantang untuk dikalahkan. Sebaliknya, orang dengan Kompetitif rendah biasanya tidak suka dibanding-bandingkan.",
       "activities": [
         "Mengikuti lomba, turnamen, atau kompetisi di bidang yang disukai.",
         "Membandingkan hasil kerja sendiri dengan orang lain untuk memacu diri.",
@@ -223,8 +235,9 @@
     },
     {
       "name": "Significance",
+      "label": "Pencari Pengakuan",
       "summary": "Ingin dikenal, diakui, dan dihargai orang lain.",
-      "characteristics": "Bagi orang Significance, dihargai sangat penting. Ia ingin dikenal sebagai orang yang profesional dan sukses, dan senang bergaul dengan orang yang punya kredibilitas. Ia senang tampil dan terlihat bekerja. Ini bukan soal pamer. Banyak peran justru menuntut seseorang terlihat, misalnya menjadi teladan. Bagaimana orang lain bisa meniru kebaikan kita jika kebaikan itu tidak terlihat?",
+      "characteristics": "Bagi orang Pencari Pengakuan, dihargai sangat penting. Ia ingin dikenal sebagai orang yang profesional dan sukses, dan senang bergaul dengan orang yang punya kredibilitas. Ia senang tampil dan terlihat bekerja. Ini bukan soal pamer. Banyak peran justru menuntut seseorang terlihat, misalnya menjadi teladan. Bagaimana orang lain bisa meniru kebaikan kita jika kebaikan itu tidak terlihat?",
       "activities": [
         "Mengambil peran yang terlihat, seperti ketua panitia, pembawa acara, atau juru bicara.",
         "Membangun nama baik dan citra profesional di media sosial atau lingkungan kerja.",
@@ -241,8 +254,9 @@
     },
     {
       "name": "Communication",
+      "label": "Komunikasi",
       "summary": "Mudah menyampaikan pikiran lewat kata-kata, baik lisan maupun tulisan.",
-      "characteristics": "Bagi orang Communication, berkomunikasi adalah hal yang alami. Ia pandai memilih kata yang mudah dimengerti. Ia tidak hanya lancar dalam diskusi, tetapi juga nyaman berbicara di depan umum, bahkan tanpa banyak persiapan. Ia bisa membuat topik sederhana menjadi menarik dengan kata-kata yang penuh warna. Jika dilatih, ia juga bisa menjadi penulis yang baik.",
+      "characteristics": "Bagi orang Komunikasi, berkomunikasi adalah hal yang alami. Ia pandai memilih kata yang mudah dimengerti. Ia tidak hanya lancar dalam diskusi, tetapi juga nyaman berbicara di depan umum, bahkan tanpa banyak persiapan. Ia bisa membuat topik sederhana menjadi menarik dengan kata-kata yang penuh warna. Jika dilatih, ia juga bisa menjadi penulis yang baik.",
       "activities": [
         "Berbicara di depan umum, misalnya memberi sambutan, presentasi, atau ceramah.",
         "Menulis artikel, unggahan media sosial, atau cerita yang enak dibaca.",
@@ -255,12 +269,13 @@
         "Mendongeng untuk anak-anak dengan suara dan ekspresi yang menarik.",
         "Merangkum hasil rapat menjadi pesan singkat yang mudah dipahami."
       ],
-      "support": "Hampir semua kegiatan profesional membutuhkan komunikasi yang baik. Orang dengan Communication rendah tetap bisa menyampaikan pikirannya dengan baik melalui latihan dan persiapan."
+      "support": "Hampir semua kegiatan profesional membutuhkan komunikasi yang baik. Orang dengan Komunikasi rendah tetap bisa menyampaikan pikirannya dengan baik melalui latihan dan persiapan."
     },
     {
       "name": "Maximizer",
+      "label": "Penyempurna",
       "summary": "Mengubah sesuatu yang sudah baik menjadi lebih baik lagi, hingga istimewa.",
-      "characteristics": "Orang Maximizer tidak puas dengan hasil biasa-biasa saja. Jika sesuatu sudah bagus, ia melihat bagaimana hal itu masih bisa dibuat lebih bagus. Karena itu ia sering dianggap perfeksionis. Ia sangat menghargai kekuatan, baik kekuatannya sendiri maupun orang lain. Ia senang bekerja dengan orang yang juga menghargai kekuatan, dan tidak mau membuat sesuatu dengan asal-asalan.",
+      "characteristics": "Orang Penyempurna tidak puas dengan hasil biasa-biasa saja. Jika sesuatu sudah bagus, ia melihat bagaimana hal itu masih bisa dibuat lebih bagus. Karena itu ia sering dianggap perfeksionis. Ia sangat menghargai kekuatan, baik kekuatannya sendiri maupun orang lain. Ia senang bekerja dengan orang yang juga menghargai kekuatan, dan tidak mau membuat sesuatu dengan asal-asalan.",
       "activities": [
         "Menyempurnakan hasil kerja yang sudah bagus sampai benar-benar istimewa.",
         "Melatih atau membimbing orang yang sudah berbakat agar menjadi luar biasa.",
@@ -273,12 +288,13 @@
         "Memoles detail kecil yang membuat sebuah karya terlihat profesional.",
         "Menolak menyerahkan pekerjaan yang hasilnya belum memuaskan."
       ],
-      "support": "Mintalah dorongan dari orang Maximizer untuk membawa hasil kerja ke tingkat yang lebih tinggi."
+      "support": "Mintalah dorongan dari orang Penyempurna untuk membawa hasil kerja ke tingkat yang lebih tinggi."
     },
     {
       "name": "Woo",
+      "label": "Pemikat",
       "summary": "Senang berkenalan dan cepat akrab dengan orang yang baru dikenal.",
-      "characteristics": "Bagi orang Woo, bertemu orang baru dan membuatnya dekat adalah hal yang menyenangkan. Ia ramah dan pandai mencairkan suasana, sehingga sangat cocok sebagai pemecah kebekuan (ice breaker). Ia senang menyapa dan tersenyum meskipun belum kenal. Ia tidak malu memulai percakapan dan tidak takut disambut dingin. Ia punya rasa ingin tahu terhadap orang-orang baru.",
+      "characteristics": "Bagi orang Pemikat, bertemu orang baru dan membuatnya dekat adalah hal yang menyenangkan. Ia ramah dan pandai mencairkan suasana, sehingga sangat cocok sebagai pemecah kebekuan (ice breaker). Ia senang menyapa dan tersenyum meskipun belum kenal. Ia tidak malu memulai percakapan dan tidak takut disambut dingin. Ia punya rasa ingin tahu terhadap orang-orang baru.",
       "activities": [
         "Menyapa dan berkenalan dengan orang baru di acara, seminar, atau perjalanan.",
         "Mencairkan suasana di awal pertemuan dengan obrolan ringan.",
@@ -291,12 +307,13 @@
         "Menawarkan produk atau ide kepada orang yang belum dikenal.",
         "Mengumpulkan banyak kontak baru setiap kali menghadiri pertemuan."
       ],
-      "support": "Libatkan orang Woo untuk membuka hubungan dengan orang-orang baru, misalnya dalam acara jejaring atau saat menyambut tamu."
+      "support": "Libatkan orang Pemikat untuk membuka hubungan dengan orang-orang baru, misalnya dalam acara jejaring atau saat menyambut tamu."
     },
     {
       "name": "Developer",
+      "label": "Pembina",
       "summary": "Menikmati membuat orang lain berkembang, paham, dan sukses.",
-      "characteristics": "Orang Developer merasakan kepuasan tersendiri saat orang yang ia bantu menjadi paham atau berhasil. Karena itu ia bisa mengajar dengan sabar dan telaten, mendampingi sampai orang itu benar-benar mengerti. Ia senang menggali potensi orang lain dan puas melihat setiap kemajuan kecil. Ia tetap senang meskipun orang yang ia bimbing kemudian menjadi lebih sukses darinya.",
+      "characteristics": "Orang Pembina merasakan kepuasan tersendiri saat orang yang ia bantu menjadi paham atau berhasil. Karena itu ia bisa mengajar dengan sabar dan telaten, mendampingi sampai orang itu benar-benar mengerti. Ia senang menggali potensi orang lain dan puas melihat setiap kemajuan kecil. Ia tetap senang meskipun orang yang ia bimbing kemudian menjadi lebih sukses darinya.",
       "activities": [
         "Mengajari adik, teman, atau rekan kerja sampai benar-benar paham.",
         "Menjadi mentor atau pendamping bagi orang yang baru bergabung di tim.",
@@ -309,12 +326,13 @@
         "Merekomendasikan orang lain untuk sebuah kesempatan karena melihat potensinya.",
         "Merasa bangga ketika murid atau anggota tim berhasil melampaui dirinya."
       ],
-      "support": "Minta bantuan orang Developer untuk membina anggota tim yang sedang belajar."
+      "support": "Minta bantuan orang Pembina untuk membina anggota tim yang sedang belajar."
     },
     {
       "name": "Individualization",
+      "label": "Pengenal Pribadi",
       "summary": "Peka terhadap keunikan setiap orang.",
-      "characteristics": "Orang Individualization tidak pernah memandang orang lain sebagai \"sama semua\". Ia cepat menangkap karakter, cara berpikir, gaya, dan motivasi setiap orang, bahkan sejak pertemuan pertama. Ia pandai mengajukan pertanyaan yang tepat untuk memahami seseorang. Ia bisa mendekati tiap orang dengan cara yang membuat orang itu nyaman. Ia juga tahu bagaimana orang-orang yang berbeda bisa bekerja sama secara produktif.",
+      "characteristics": "Orang Pengenal Pribadi tidak pernah memandang orang lain sebagai \"sama semua\". Ia cepat menangkap karakter, cara berpikir, gaya, dan motivasi setiap orang, bahkan sejak pertemuan pertama. Ia pandai mengajukan pertanyaan yang tepat untuk memahami seseorang. Ia bisa mendekati tiap orang dengan cara yang membuat orang itu nyaman. Ia juga tahu bagaimana orang-orang yang berbeda bisa bekerja sama secara produktif.",
       "activities": [
         "Memilih hadiah yang benar-benar sesuai dengan kepribadian penerimanya.",
         "Membagi tugas kelompok sesuai kelebihan masing-masing anggota.",
@@ -327,12 +345,13 @@
         "Menyusun pendekatan belajar yang berbeda untuk setiap anak atau murid.",
         "Menyadari perbedaan gaya kerja setiap rekan dan menyesuaikan diri."
       ],
-      "support": "Libatkan orang Individualization saat menempatkan orang pada tugas yang tepat atau saat perlu pendekatan pribadi."
+      "support": "Libatkan orang Pengenal Pribadi saat menempatkan orang pada tugas yang tepat atau saat perlu pendekatan pribadi."
     },
     {
       "name": "Empathy",
+      "label": "Empati",
       "summary": "Mampu merasakan perasaan orang lain seolah mengalaminya sendiri.",
-      "characteristics": "Orang Empathy perasaannya halus dan mudah terbawa oleh suasana di sekitarnya. Ia bisa menangkap perasaan yang tidak diungkapkan, misalnya keraguan, ketidaknyamanan, atau kesedihan, bahkan sebelum orang itu mengatakannya. Karena itu ia bisa bereaksi dengan tepat, misalnya mengubah sikap saat tahu seseorang sedang sedih. Anak dengan Empathy tinggi mungkin terlihat mudah menangis. Seiring waktu, ia akan tumbuh menjadi pribadi yang sangat peka terhadap orang lain.",
+      "characteristics": "Orang Empati perasaannya halus dan mudah terbawa oleh suasana di sekitarnya. Ia bisa menangkap perasaan yang tidak diungkapkan, misalnya keraguan, ketidaknyamanan, atau kesedihan, bahkan sebelum orang itu mengatakannya. Karena itu ia bisa bereaksi dengan tepat, misalnya mengubah sikap saat tahu seseorang sedang sedih. Anak dengan Empati tinggi mungkin terlihat mudah menangis. Seiring waktu, ia akan tumbuh menjadi pribadi yang sangat peka terhadap orang lain.",
       "activities": [
         "Mendengarkan curhat teman dengan sepenuh hati tanpa menghakimi.",
         "Menyadari ada teman yang sedang sedih walaupun ia tidak mengatakannya.",
@@ -345,12 +364,13 @@
         "Melayani keluhan pelanggan dengan sabar dan penuh pengertian.",
         "Memilih kata-kata yang lembut saat menyampaikan kabar buruk."
       ],
-      "support": "Belajarlah bertanya langsung tentang perasaan orang lain. Minta masukan orang Empathy dalam situasi yang sensitif."
+      "support": "Belajarlah bertanya langsung tentang perasaan orang lain. Minta masukan orang Empati dalam situasi yang sensitif."
     },
     {
       "name": "Relator",
+      "label": "Penjalin Keakraban",
       "summary": "Menikmati hubungan yang dekat dan tulus dengan orang lain.",
-      "characteristics": "Orang Relator senang bersahabat karena memang menikmatinya, bukan karena urusan pekerjaan atau kebutuhan. Ia ingin memahami hal-hal pribadi temannya, seperti impian dan perasaannya. Ia punya beberapa sahabat yang sangat dekat dan terus memperdalam hubungan itu. Ia lebih semangat bekerja dalam tim bersama teman-teman daripada bekerja sendirian.",
+      "characteristics": "Orang Penjalin Keakraban senang bersahabat karena memang menikmatinya, bukan karena urusan pekerjaan atau kebutuhan. Ia ingin memahami hal-hal pribadi temannya, seperti impian dan perasaannya. Ia punya beberapa sahabat yang sangat dekat dan terus memperdalam hubungan itu. Ia lebih semangat bekerja dalam tim bersama teman-teman daripada bekerja sendirian.",
       "activities": [
         "Menjaga persahabatan lama dengan rutin bertemu atau berkabar.",
         "Mengobrol mendalam dengan sahabat tentang impian dan masalah pribadi.",
@@ -367,8 +387,9 @@
     },
     {
       "name": "Includer",
+      "label": "Perangkul",
       "summary": "Merangkul semua orang agar tidak ada yang tertinggal.",
-      "characteristics": "Orang Includer bersifat inklusif, kebalikan dari eksklusif. Baginya pertemanan dan kelompok sebaiknya sebesar mungkin. Ia senang mengajak orang lain dalam kebaikan dan memperbesar kelompok. Jika melihat seseorang yang merasa terasing, ia akan dengan tulus membuat orang itu nyaman dan merasa menjadi bagian kelompok. Baginya semua orang penting dan tidak boleh diabaikan.",
+      "characteristics": "Orang Perangkul bersifat inklusif, kebalikan dari eksklusif. Baginya pertemanan dan kelompok sebaiknya sebesar mungkin. Ia senang mengajak orang lain dalam kebaikan dan memperbesar kelompok. Jika melihat seseorang yang merasa terasing, ia akan dengan tulus membuat orang itu nyaman dan merasa menjadi bagian kelompok. Baginya semua orang penting dan tidak boleh diabaikan.",
       "activities": [
         "Mengajak teman yang sendirian untuk bergabung dalam obrolan atau kegiatan.",
         "Memastikan semua anggota kelompok mendapat kesempatan berbicara.",
@@ -381,12 +402,13 @@
         "Menerjemahkan atau menjelaskan ulang agar semua orang bisa mengikuti pembicaraan.",
         "Membuka kesempatan bergabung bagi orang dari latar belakang yang berbeda."
       ],
-      "support": "Waspadai kecenderungan menjadi terlalu eksklusif. Libatkan orang Includer agar kelompok tetap terbuka."
+      "support": "Waspadai kecenderungan menjadi terlalu eksklusif. Libatkan orang Perangkul agar kelompok tetap terbuka."
     },
     {
       "name": "Connectedness",
+      "label": "Penghubung",
       "summary": "Yakin bahwa semua hal saling berkaitan dan punya sebab.",
-      "characteristics": "Orang Connectedness selalu mengaitkan satu peristiwa dengan peristiwa lain. Saat ada masalah, ia melihat faktor-faktor yang berhubungan, sehingga pandai mencari akar penyebab. Ia penuh pertimbangan dan tidak melihat sesuatu dari satu sisi saja. Karena yakin semua kejadian ada sebab dan hikmahnya, ia lebih mudah menerima keadaan. Ia cenderung bijak dan berpandangan luas.",
+      "characteristics": "Orang Penghubung selalu mengaitkan satu peristiwa dengan peristiwa lain. Saat ada masalah, ia melihat faktor-faktor yang berhubungan, sehingga pandai mencari akar penyebab. Ia penuh pertimbangan dan tidak melihat sesuatu dari satu sisi saja. Karena yakin semua kejadian ada sebab dan hikmahnya, ia lebih mudah menerima keadaan. Ia cenderung bijak dan berpandangan luas.",
       "activities": [
         "Mengaitkan kejadian sehari-hari dengan hikmah atau makna yang lebih besar.",
         "Melihat hubungan sebab-akibat antara berbagai masalah yang tampak terpisah.",
@@ -399,12 +421,13 @@
         "Membantu orang yang sedang kesusahan karena merasa sesama manusia saling terkait.",
         "Mengajak orang lain bersyukur dan mengambil pelajaran dari setiap peristiwa."
       ],
-      "support": "Bersinergilah dengan orang Connectedness agar bisa melihat masalah secara lebih luas."
+      "support": "Bersinergilah dengan orang Penghubung agar bisa melihat masalah secara lebih luas."
     },
     {
       "name": "Harmony",
+      "label": "Harmoni",
       "summary": "Mencari titik temu dan menjaga suasana tetap damai.",
-      "characteristics": "Orang Harmony menyukai kedamaian dan menghindari konflik. Saat ada perbedaan pendapat, ia cenderung mendamaikan dan menunjukkan kesamaan di antara pihak yang berbeda. Ia tidak memihak salah satu, tetapi berdiri di tengah untuk menyambungkan keduanya. Baginya konflik tidak produktif. Dalam organisasi ia menjadi perekat, \"bukan tipe kompor, tetapi tipe pendamai\".",
+      "characteristics": "Orang Harmoni menyukai kedamaian dan menghindari konflik. Saat ada perbedaan pendapat, ia cenderung mendamaikan dan menunjukkan kesamaan di antara pihak yang berbeda. Ia tidak memihak salah satu, tetapi berdiri di tengah untuk menyambungkan keduanya. Baginya konflik tidak produktif. Dalam organisasi ia menjadi perekat, \"bukan tipe kompor, tetapi tipe pendamai\".",
       "activities": [
         "Menengahi teman atau anggota keluarga yang sedang berselisih.",
         "Mencari titik temu ketika ada perbedaan pendapat dalam rapat.",
@@ -417,12 +440,13 @@
         "Mengusulkan aturan bersama agar tidak terjadi gesekan di kemudian hari.",
         "Membantu menyusun kesepakatan dalam musyawarah."
       ],
-      "support": "Libatkan orang Harmony ketika tim sedang berselisih dan perlu kesepakatan."
+      "support": "Libatkan orang Harmoni ketika tim sedang berselisih dan perlu kesepakatan."
     },
     {
       "name": "Adaptability",
+      "label": "Adaptabilitas",
       "summary": "Mudah dan senang beradaptasi dengan suasana serta perubahan baru.",
-      "characteristics": "Orang Adaptability hanya butuh waktu singkat untuk merasa nyaman di tempat atau lingkungan baru. Perubahan yang tidak direncanakan ia terima dengan senang hati, karena baginya perubahan adalah teman, bukan musuh. Ia bisa menikmati apa yang ada di depannya dan cenderung senang dengan kegiatan yang berpindah-pindah, karena proses beradaptasi itu sendiri menyenangkan baginya. Ia juga tidak keberatan bertemu orang yang berbeda-beda setiap hari.",
+      "characteristics": "Orang Adaptabilitas hanya butuh waktu singkat untuk merasa nyaman di tempat atau lingkungan baru. Perubahan yang tidak direncanakan ia terima dengan senang hati, karena baginya perubahan adalah teman, bukan musuh. Ia bisa menikmati apa yang ada di depannya dan cenderung senang dengan kegiatan yang berpindah-pindah, karena proses beradaptasi itu sendiri menyenangkan baginya. Ia juga tidak keberatan bertemu orang yang berbeda-beda setiap hari.",
       "activities": [
         "Menikmati perjalanan ke tempat baru tanpa jadwal yang kaku.",
         "Tetap tenang dan cepat menyesuaikan diri ketika rencana tiba-tiba berubah.",
@@ -435,12 +459,13 @@
         "Bekerja dengan rekan atau atasan baru tanpa butuh waktu lama untuk menyesuaikan diri.",
         "Menangani beberapa urusan yang datang tiba-tiba dalam satu waktu."
       ],
-      "support": "Orang dengan Adaptability rendah lebih suka menetap. Setelah pindah ke kota atau lingkungan baru, ia bisa butuh satu sampai beberapa bulan untuk kembali nyaman, sementara orang Adaptability tinggi bisa nyaman dalam sehari. Pilihlah aktivitas yang tidak menuntut perpindahan terus-menerus, dan beri diri waktu penyesuaian yang cukup saat menghadapi perubahan besar."
+      "support": "Orang dengan Adaptabilitas rendah lebih suka menetap. Setelah pindah ke kota atau lingkungan baru, ia bisa butuh satu sampai beberapa bulan untuk kembali nyaman, sementara orang Adaptabilitas tinggi bisa nyaman dalam sehari. Pilihlah aktivitas yang tidak menuntut perpindahan terus-menerus, dan beri diri waktu penyesuaian yang cukup saat menghadapi perubahan besar."
     },
     {
       "name": "Positivity",
+      "label": "Positif",
       "summary": "Antusias, ceria, optimis, dan menularkan semangat.",
-      "characteristics": "Kehadiran orang Positivity membuat suasana lebih segar dan hidup. Ia ramah, mudah tersenyum, dan selalu melihat sisi baik dari suatu keadaan. Ia sering memakai humor karena tidak suka suasana sepi dan ingin orang lain ikut ceria. Ia mampu membuat orang lain semangat dan percaya diri, bahkan di masa sulit.",
+      "characteristics": "Kehadiran orang Positif membuat suasana lebih segar dan hidup. Ia ramah, mudah tersenyum, dan selalu melihat sisi baik dari suatu keadaan. Ia sering memakai humor karena tidak suka suasana sepi dan ingin orang lain ikut ceria. Ia mampu membuat orang lain semangat dan percaya diri, bahkan di masa sulit.",
       "activities": [
         "Menghidupkan suasana kelas, rapat, atau acara dengan humor dan keceriaan.",
         "Melihat sisi baik dari kegagalan dan menyemangati orang lain untuk bangkit.",
@@ -453,12 +478,13 @@
         "Tertawa dan bercanda bersama keluarga atau rekan kerja.",
         "Menyampaikan hal-hal baik yang terjadi untuk membangkitkan suasana."
       ],
-      "support": "Bersinergilah dengan orang Positivity supaya suasana kerja lebih semangat, terutama untuk tugas yang berat atau monoton."
+      "support": "Bersinergilah dengan orang Positif supaya suasana kerja lebih semangat, terutama untuk tugas yang berat atau monoton."
     },
     {
       "name": "Deliberative",
+      "label": "Waspada",
       "summary": "Sangat berhati-hati dan mengantisipasi risiko sebelum mengambil keputusan.",
-      "characteristics": "Orang Deliberative melihat dulu sebelum melangkah. Ia waspada terhadap apa pun di depannya dan pandai mengantisipasi kondisi berbahaya. Dalam pertemanan ia mungkin agak berhati-hati terhadap orang baru. Ia teliti dan suka mengecek dua kali, sehingga jarang teledor. Anak yang Deliberative kadang tampak penakut, padahal sebenarnya ia berhati-hati. Kelemahannya, ia kurang cocok untuk peran yang menuntut gerak sangat cepat.",
+      "characteristics": "Orang Waspada melihat dulu sebelum melangkah. Ia waspada terhadap apa pun di depannya dan pandai mengantisipasi kondisi berbahaya. Dalam pertemanan ia mungkin agak berhati-hati terhadap orang baru. Ia teliti dan suka mengecek dua kali, sehingga jarang teledor. Anak yang Waspada kadang tampak penakut, padahal sebenarnya ia berhati-hati. Kelemahannya, ia kurang cocok untuk peran yang menuntut gerak sangat cepat.",
       "activities": [
         "Memeriksa ulang kunci, dompet, dan barang penting sebelum bepergian.",
         "Membaca syarat dan ketentuan dengan teliti sebelum menandatangani sesuatu.",
@@ -475,8 +501,9 @@
     },
     {
       "name": "Arranger",
+      "label": "Penata",
       "summary": "Pandai mengatur dan mengorganisasi banyak hal sekaligus agar berjalan lancar.",
-      "characteristics": "Orang Arranger telaten dan luwes dalam mengatur sesuatu, dari urusan besar sampai detail kecil. Ia selalu bisa mencari cara terbaik untuk menjalankan suatu proses, misalnya dengan merapikan prosedur kerja (SOP). Dalam kondisi sulit yang melibatkan banyak faktor, ia bisa menyusun semuanya hingga berjalan produktif. Ia tidak harus memerintah orang, tetapi memastikan semuanya mengalir dengan baik.",
+      "characteristics": "Orang Penata telaten dan luwes dalam mengatur sesuatu, dari urusan besar sampai detail kecil. Ia selalu bisa mencari cara terbaik untuk menjalankan suatu proses, misalnya dengan merapikan prosedur kerja (SOP). Dalam kondisi sulit yang melibatkan banyak faktor, ia bisa menyusun semuanya hingga berjalan produktif. Ia tidak harus memerintah orang, tetapi memastikan semuanya mengalir dengan baik.",
       "activities": [
         "Mengatur acara keluarga, pernikahan, atau kegiatan komunitas yang melibatkan banyak orang.",
         "Membagi tugas dan menyusun alur kerja agar semua bagian berjalan lancar.",
@@ -489,12 +516,13 @@
         "Menyusun ulang alur kerja supaya lebih cepat dan hemat.",
         "Mengoordinasikan beberapa pihak sekaligus dalam satu kegiatan."
       ],
-      "support": "Delegasikan pengaturan detail kepada orang Arranger, dan pakai alat bantu perencanaan."
+      "support": "Delegasikan pengaturan detail kepada orang Penata, dan pakai alat bantu perencanaan."
     },
     {
       "name": "Restorative",
+      "label": "Pemulih",
       "summary": "Senang memecahkan masalah dan mengembalikan sesuatu agar berfungsi kembali.",
-      "characteristics": "Orang Restorative adalah pemecah masalah alami. Baginya, masalah adalah sesuatu yang menunggu untuk dipecahkan. Ia punya kepekaan untuk menangkap sesuatu yang tidak beres, lalu langsung ingin memperbaikinya. Ia menikmati tantangan menganalisis gejala, menemukan letak kesalahan, dan mencari solusinya. Bakat ini berlaku untuk banyak hal: mesin, sistem, bisnis, hingga manusia yang sakit. Sebaliknya, orang dengan Restorative rendah cenderung membuang barang yang rusak daripada memperbaikinya.",
+      "characteristics": "Orang Pemulih adalah pemecah masalah alami. Baginya, masalah adalah sesuatu yang menunggu untuk dipecahkan. Ia punya kepekaan untuk menangkap sesuatu yang tidak beres, lalu langsung ingin memperbaikinya. Ia menikmati tantangan menganalisis gejala, menemukan letak kesalahan, dan mencari solusinya. Bakat ini berlaku untuk banyak hal: mesin, sistem, bisnis, hingga manusia yang sakit. Sebaliknya, orang dengan Pemulih rendah cenderung membuang barang yang rusak daripada memperbaikinya.",
       "activities": [
         "Memperbaiki barang yang rusak, seperti peralatan rumah, kendaraan, atau gawai.",
         "Mencari tahu penyebab masalah di sebuah sistem lalu memperbaikinya.",
@@ -507,12 +535,13 @@
         "Menangani keluhan pelanggan sampai masalahnya selesai.",
         "Mencari solusi atas kemacetan proses yang menghambat tim."
       ],
-      "support": "Serahkan urusan perbaikan kepada orang Restorative, dan fokuslah pada peran yang tidak banyak menuntut pemecahan masalah teknis."
+      "support": "Serahkan urusan perbaikan kepada orang Pemulih, dan fokuslah pada peran yang tidak banyak menuntut pemecahan masalah teknis."
     },
     {
       "name": "Discipline",
+      "label": "Disiplin",
       "summary": "Menyukai keteraturan, struktur, jadwal, dan rencana.",
-      "characteristics": "Orang Discipline nyaman dalam kondisi yang teratur dan prosedurnya jelas. Lingkungan yang tidak ada aturannya membuatnya tidak nyaman. Ia merencanakan apa yang akan dilakukan besok dan lusa dengan detail. Baginya dunia harus bisa diperkirakan, sehingga perubahan mendadak bisa membuatnya tidak nyaman. Ia terbiasa fokus pada jadwal dan tenggat. Anak dengan Discipline tinggi justru membutuhkan aturan yang jelas.",
+      "characteristics": "Orang Disiplin nyaman dalam kondisi yang teratur dan prosedurnya jelas. Lingkungan yang tidak ada aturannya membuatnya tidak nyaman. Ia merencanakan apa yang akan dilakukan besok dan lusa dengan detail. Baginya dunia harus bisa diperkirakan, sehingga perubahan mendadak bisa membuatnya tidak nyaman. Ia terbiasa fokus pada jadwal dan tenggat. Anak dengan Disiplin tinggi justru membutuhkan aturan yang jelas.",
       "activities": [
         "Membuat jadwal harian atau mingguan dan menjalankannya dengan tertib.",
         "Menyusun daftar tugas (to-do list) dan mencentangnya satu per satu.",
@@ -525,12 +554,13 @@
         "Membuat sistem pengarsipan yang mudah dicari.",
         "Datang tepat waktu ke setiap janji atau pertemuan."
       ],
-      "support": "Setiap orang bisa disiplin, tetapi yang Discipline-nya rendah butuh motivasi dan pengingat, dan biasanya hanya bertahan untuk saat-saat penting. Pakai pengingat, alarm, atau bantuan orang lain."
+      "support": "Setiap orang bisa disiplin, tetapi yang tingkat disiplinnya rendah butuh motivasi dan pengingat, dan biasanya hanya bertahan untuk saat-saat penting. Pakai pengingat, alarm, atau bantuan orang lain."
     },
     {
       "name": "Consistency",
+      "label": "Konsistensi",
       "summary": "Adil, objektif, dan memperlakukan semua orang sama.",
-      "characteristics": "Keadilan sangat penting bagi orang Consistency. Ia menilai secara objektif, melihat apa yang dilakukan, bukan siapa yang melakukannya. Ia jujur dan terus terang dalam menilai: yang bagus dibilang bagus, yang jelek dibilang jelek, meskipun menyangkut sahabatnya sendiri. Karena itu pendapatnya bisa dipercaya. Ia juga menyukai aturan yang jelas, karena aturan membuat semua orang diperlakukan sama.",
+      "characteristics": "Keadilan sangat penting bagi orang Konsistensi. Ia menilai secara objektif, melihat apa yang dilakukan, bukan siapa yang melakukannya. Ia jujur dan terus terang dalam menilai: yang bagus dibilang bagus, yang jelek dibilang jelek, meskipun menyangkut sahabatnya sendiri. Karena itu pendapatnya bisa dipercaya. Ia juga menyukai aturan yang jelas, karena aturan membuat semua orang diperlakukan sama.",
       "activities": [
         "Menerapkan aturan yang sama kepada semua orang, termasuk kepada teman dekat.",
         "Memberi penilaian yang jujur dan objektif terhadap hasil kerja orang lain.",
@@ -543,12 +573,13 @@
         "Mengingatkan aturan kepada siapa pun yang melanggarnya, tanpa pandang bulu.",
         "Menjaga konsistensi antara ucapan dan tindakan."
       ],
-      "support": "Kejujuran dan keadilan adalah kewajiban setiap orang, apa pun bakatnya. Orang dengan Consistency rendah perlu melatih diri untuk tetap objektif, terutama saat mengambil keputusan penting atau menjadi pemimpin."
+      "support": "Kejujuran dan keadilan adalah kewajiban setiap orang, apa pun bakatnya. Orang dengan Konsistensi rendah perlu melatih diri untuk tetap objektif, terutama saat mengambil keputusan penting atau menjadi pemimpin."
     },
     {
       "name": "Focus",
+      "label": "Fokus",
       "summary": "Menetapkan tujuan dan tetap berada di jalurnya.",
-      "characteristics": "Bagi orang Focus, tujuan adalah kompas yang menentukan prioritas. Ia tidak nyaman menjalankan sesuatu yang tujuannya tidak jelas. Bahkan jalan-jalan pun harus jelas mau ke mana. Ia biasa menetapkan tujuan secara berkala. Dalam tim, dialah yang mengingatkan ketika yang lain mulai melenceng dari tujuan. Bedanya dengan Achiever: Focus diarahkan oleh tujuan, sedangkan Achiever oleh target dan keberhasilan. Orang Focus lebih memikirkan hasil akhir daripada menikmati proses.",
+      "characteristics": "Bagi orang Fokus, tujuan adalah kompas yang menentukan prioritas. Ia tidak nyaman menjalankan sesuatu yang tujuannya tidak jelas. Bahkan jalan-jalan pun harus jelas mau ke mana. Ia biasa menetapkan tujuan secara berkala. Dalam tim, dialah yang mengingatkan ketika yang lain mulai melenceng dari tujuan. Bedanya dengan Pencapai: Fokus diarahkan oleh tujuan, sedangkan Pencapai oleh target dan keberhasilan. Orang Fokus lebih memikirkan hasil akhir daripada menikmati proses.",
       "activities": [
         "Menetapkan tujuan yang jelas sebelum memulai pekerjaan atau perjalanan.",
         "Mengingatkan tim agar kembali ke topik utama saat diskusi melenceng.",
@@ -561,12 +592,13 @@
         "Menolak ajakan yang tidak mendukung tujuan yang sedang dikejar.",
         "Mengarahkan tim agar setiap kegiatan selaras dengan visi bersama."
       ],
-      "support": "Orang dengan Focus rendah lebih menikmati proses, tetapi mudah teralihkan. Tuliskan tujuan dengan jelas dan libatkan orang Focus untuk menjaga arah tim."
+      "support": "Orang dengan Fokus rendah lebih menikmati proses, tetapi mudah teralihkan. Tuliskan tujuan dengan jelas dan libatkan orang Fokus untuk menjaga arah tim."
     },
     {
       "name": "Achiever",
+      "label": "Pencapai",
       "summary": "Senang bekerja keras dan terpacu oleh target dan keberhasilan.",
-      "characteristics": "Orang Achiever punya stamina tinggi dan kepuasan hidupnya datang dari kesibukan dan keberhasilan. Ia tidak bisa diam. Ia senang menetapkan target, dan setelah tercapai ia akan memasang target yang lebih tinggi lagi. Jika tidak ada target, semangatnya menurun, sehingga ia senang diberi target. Anak dengan Achiever tinggi akan lebih semangat jika diberi target yang jelas.",
+      "characteristics": "Orang Pencapai punya stamina tinggi dan kepuasan hidupnya datang dari kesibukan dan keberhasilan. Ia tidak bisa diam. Ia senang menetapkan target, dan setelah tercapai ia akan memasang target yang lebih tinggi lagi. Jika tidak ada target, semangatnya menurun, sehingga ia senang diberi target. Anak dengan Pencapai tinggi akan lebih semangat jika diberi target yang jelas.",
       "activities": [
         "Menyelesaikan banyak pekerjaan dalam satu hari dan merasa puas karenanya.",
         "Menetapkan target pribadi lalu menaikkannya setelah tercapai.",
@@ -579,12 +611,13 @@
         "Bangun pagi untuk memulai pekerjaan lebih awal.",
         "Merasa gelisah jika seharian tidak menghasilkan apa-apa."
       ],
-      "support": "Pecah pekerjaan besar menjadi target-target kecil yang bisa dicapai, dan pasangkan diri dengan orang Achiever dalam proyek yang menuntut kerja keras."
+      "support": "Pecah pekerjaan besar menjadi target-target kecil yang bisa dicapai, dan pasangkan diri dengan orang Pencapai dalam proyek yang menuntut kerja keras."
     },
     {
       "name": "Responsibility",
+      "label": "Bertanggung Jawab",
       "summary": "Memegang janji dan tanggung jawab sampai tuntas.",
-      "characteristics": "Orang Responsibility senang diberi tanggung jawab. Ia merasa tidak berarti jika berada dalam kelompok tanpa tugas khusus. Setelah menerima tugas, ia sangat amanah dan rela tidak tidur demi menyelesaikannya. Ia tidak membedakan tugas besar atau kecil, karena semua komitmen sama pentingnya dan mengikatnya secara emosional. Menuntaskan tugas dengan baik terasa sangat nikmat baginya.",
+      "characteristics": "Orang Bertanggung Jawab senang diberi tanggung jawab. Ia merasa tidak berarti jika berada dalam kelompok tanpa tugas khusus. Setelah menerima tugas, ia sangat amanah dan rela tidak tidur demi menyelesaikannya. Ia tidak membedakan tugas besar atau kecil, karena semua komitmen sama pentingnya dan mengikatnya secara emosional. Menuntaskan tugas dengan baik terasa sangat nikmat baginya.",
       "activities": [
         "Menepati janji sekecil apa pun yang sudah diucapkan.",
         "Mengajukan diri untuk memegang tugas penting dalam kelompok.",
@@ -597,12 +630,13 @@
         "Mengembalikan barang pinjaman tepat waktu dan dalam keadaan baik.",
         "Merasa gelisah sebelum tugas yang menjadi tanggung jawabnya selesai."
       ],
-      "support": "Bakat rendah bukan alasan untuk lari dari tanggung jawab penting, misalnya sebagai orang tua atau pemimpin. Latihlah diri dan bersinergilah dengan orang Responsibility untuk tugas-tugas yang menuntut ketuntasan."
+      "support": "Bakat rendah bukan alasan untuk lari dari tanggung jawab penting, misalnya sebagai orang tua atau pemimpin. Latihlah diri dan bersinergilah dengan orang Bertanggung Jawab untuk tugas-tugas yang menuntut ketuntasan."
     },
     {
       "name": "Belief",
+      "label": "Berprinsip",
       "summary": "Memegang nilai luhur dan senang melayani serta memberi manfaat bagi orang lain.",
-      "characteristics": "Orang Belief menganggap melayani sebagai hal yang mulia. Ia menolong dengan tulus tanpa mengharap imbalan dan rela berkorban demi kepentingan orang lain. Ia berpegang pada nilai-nilai luhur, sehingga tindakannya digerakkan oleh nilai, bukan oleh hitung-hitungan untung-rugi. Keinginannya yang utama adalah menjadi orang yang bermanfaat.",
+      "characteristics": "Orang Berprinsip menganggap melayani sebagai hal yang mulia. Ia menolong dengan tulus tanpa mengharap imbalan dan rela berkorban demi kepentingan orang lain. Ia berpegang pada nilai-nilai luhur, sehingga tindakannya digerakkan oleh nilai, bukan oleh hitung-hitungan untung-rugi. Keinginannya yang utama adalah menjadi orang yang bermanfaat.",
       "activities": [
         "Menjadi relawan dalam kegiatan sosial atau kemanusiaan.",
         "Membantu orang lain tanpa mengharapkan imbalan apa pun.",
@@ -615,7 +649,7 @@
         "Mendampingi orang tua, anak yatim, atau kaum yang membutuhkan.",
         "Bekerja dengan penuh dedikasi karena merasa pekerjaannya bermakna."
       ],
-      "support": "Kaitkan pekerjaan dengan nilai atau manfaat yang jelas agar lebih bermakna. Libatkan orang Belief dalam kegiatan pelayanan."
+      "support": "Kaitkan pekerjaan dengan nilai atau manfaat yang jelas agar lebih bermakna. Libatkan orang Berprinsip dalam kegiatan pelayanan."
     }
   ],
   "comparisons": [
@@ -624,56 +658,56 @@
         "Command",
         "Self-Assurance"
       ],
-      "description": "Command berani menghadapi masalah dan mengarahkan orang lain. Self-Assurance yakin pada intuisinya sendiri dalam memutuskan."
+      "description": "Pengendali berani menghadapi masalah dan mengarahkan orang lain. Percaya Diri yakin pada intuisinya sendiri dalam memutuskan."
     },
     {
       "themes": [
         "Self-Assurance",
         "Activator"
       ],
-      "description": "Self-Assurance yakin dalam memutuskan. Activator tidak sabar untuk segera memulai."
+      "description": "Percaya Diri yakin dalam memutuskan. Penggerak tidak sabar untuk segera memulai."
     },
     {
       "themes": [
         "Focus",
         "Achiever"
       ],
-      "description": "Focus digerakkan oleh tujuan dan arah. Achiever digerakkan oleh target dan keberhasilan."
+      "description": "Fokus digerakkan oleh tujuan dan arah. Pencapai digerakkan oleh target dan keberhasilan."
     },
     {
       "themes": [
         "Learner",
         "Input"
       ],
-      "description": "Learner menikmati proses mendalami ilmu. Input cukup tahu dan mengumpulkan sumber informasinya."
+      "description": "Pembelajar menikmati proses mendalami ilmu. Pengumpul cukup tahu dan mengumpulkan sumber informasinya."
     },
     {
       "themes": [
         "Discipline",
         "Consistency"
       ],
-      "description": "Discipline tentang keteraturan jadwal dan rencana. Consistency tentang keadilan dan objektivitas."
+      "description": "Disiplin tentang keteraturan jadwal dan rencana. Konsistensi tentang keadilan dan objektivitas."
     },
     {
       "themes": [
         "Woo",
         "Relator"
       ],
-      "description": "Woo senang berkenalan dengan orang baru. Relator senang memperdalam hubungan dengan teman dekat."
+      "description": "Pemikat senang berkenalan dengan orang baru. Penjalin Keakraban senang memperdalam hubungan dengan teman dekat."
     },
     {
       "themes": [
         "Developer",
         "Individualization"
       ],
-      "description": "Developer senang menumbuhkan orang lain. Individualization peka terhadap keunikan tiap orang."
+      "description": "Pembina senang menumbuhkan orang lain. Pengenal Pribadi peka terhadap keunikan tiap orang."
     },
     {
       "themes": [
         "Context",
         "Futuristic"
       ],
-      "description": "Context melihat ke masa lalu untuk memahami sekarang. Futuristic melihat ke masa depan."
+      "description": "Konteks melihat ke masa lalu untuk memahami sekarang. Visioner melihat ke masa depan."
     }
   ]
 }

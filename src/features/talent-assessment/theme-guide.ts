@@ -2,6 +2,7 @@ import source from "./theme-guide.json";
 
 export interface TalentGuide {
   name: string;
+  label: string;
   summary: string;
   characteristics: string;
   activities: string[];
@@ -41,6 +42,10 @@ export const REPORT_SOURCE = source.source;
 export const THEME_COMPARISONS = source.comparisons;
 export function getTalentGuide(name: string): TalentGuide | undefined {
   return guides.get(name);
+}
+// Scoring keys and stored results use the English theme name; show this label.
+export function getTalentLabel(name: string): string {
+  return guides.get(name)?.label ?? name;
 }
 export function rankBand(rank: number): { label: string; className: string } {
   if (rank <= 7) return { label: "Menonjol", className: "top" };

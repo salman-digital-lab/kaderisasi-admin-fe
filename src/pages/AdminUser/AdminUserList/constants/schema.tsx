@@ -38,7 +38,7 @@ export const TABLE_SCHEMA = (
       <Space>
         <Button onClick={() => setEdittedRow(record)}>Ubah Akun</Button>
         <Button onClick={() => setPasswordRow(record)}>Ubah Password</Button>
-        {isSuperAdmin && (
+        {isSuperAdmin && record.talent_assessment_completed && (
           <Button onClick={() => viewTalentResult(record.id)}>
             Lihat Hasil Bakat
           </Button>

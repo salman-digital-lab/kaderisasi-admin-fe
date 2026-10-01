@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   DOMAIN_GUIDES,
   getTalentGuide,
+  getTalentLabel,
   REPORT_SOURCE,
   THEME_COMPARISONS,
 } from "./theme-guide";
@@ -22,12 +23,14 @@ describe("PDF report reference coverage", () => {
       );
     expect(guides.themes).toHaveLength(34);
     expect(new Set(guides.themes.map((theme) => theme.name)).size).toBe(34);
+    expect(new Set(guides.themes.map((theme) => theme.label)).size).toBe(34);
     expect(DOMAIN_GUIDES.map((domain) => domain.name).sort()).toEqual(
       [...new Set(definition.talents.map((theme) => theme.domain))].sort(),
     );
     for (const theme of definition.talents) {
       const guide = getTalentGuide(theme.name);
       expect(guide, theme.name).toBeDefined();
+      expect(guide?.label.trim()).toBeTruthy();
       expect(guide?.activities).toHaveLength(10);
       expect(guide?.summary.trim()).toBeTruthy();
       expect(guide?.characteristics.trim()).toBeTruthy();
@@ -48,6 +51,8 @@ describe("PDF report reference coverage", () => {
       for (const theme of comparison.themes)
         expect(getTalentGuide(theme)).toBeDefined();
     }
+    expect(getTalentLabel("Communication")).toBe("Komunikasi");
+    expect(getTalentLabel("Unknown")).toBe("Unknown");
     expect(getTalentGuide("Communication")?.summary).toBe(
       "Mudah menyampaikan pikiran lewat kata-kata, baik lisan maupun tulisan.",
     );

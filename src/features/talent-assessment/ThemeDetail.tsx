@@ -1,8 +1,10 @@
 import type { ReactElement } from "react";
 import { Drawer } from "antd";
 import type { TalentScore } from "../../api/services/talent-assessment";
+import TalentName from "./TalentName";
 import {
   getTalentGuide,
+  getTalentLabel,
   rankBand,
   REPORT_SOURCE,
   THEME_COMPARISONS,
@@ -18,7 +20,15 @@ export default function ThemeDetail({
   const guide = theme ? getTalentGuide(theme.name) : undefined;
   return (
     <Drawer
-      title={theme ? `Kenali ${theme.name}` : "Penjelasan bakat"}
+      title={
+        theme ? (
+          <>
+            Kenali <TalentName name={theme.name} />
+          </>
+        ) : (
+          "Penjelasan bakat"
+        )
+      }
       open={Boolean(theme)}
       onClose={onClose}
       size="large"
@@ -36,6 +46,9 @@ export default function ThemeDetail({
               Urutan {theme.rank} · {theme.domain} · {theme.score}/100
             </span>
           </div>
+          <p className="talent-term-original">
+            Istilah asli: <strong>{theme.name}</strong>
+          </p>
           <p className="talent-detail-summary">{guide.summary}</p>
           <h2>Ciri khas tema</h2>
           <p>{guide.characteristics}</p>
@@ -55,7 +68,7 @@ export default function ThemeDetail({
             comparison.themes.includes(theme.name),
           ).map((comparison) => (
             <section key={comparison.themes.join("-")}>
-              <h2>{comparison.themes.join(" dan ")}</h2>
+              <h2>{comparison.themes.map(getTalentLabel).join(" dan ")}</h2>
               <p>{comparison.description}</p>
             </section>
           ))}

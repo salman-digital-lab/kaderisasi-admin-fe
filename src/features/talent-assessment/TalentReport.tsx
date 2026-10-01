@@ -7,9 +7,11 @@ import type {
 import {
   DOMAIN_GUIDES,
   getTalentGuide,
+  getTalentLabel,
   rankBand,
   REPORT_SOURCE,
 } from "./theme-guide";
+import TalentName from "./TalentName";
 import ThemeDetail from "./ThemeDetail";
 import "./report.css";
 
@@ -95,13 +97,15 @@ export default function TalentReport({
                       <button
                         type="button"
                         onClick={() => setSelected(theme)}
-                        aria-label={`Kenali ${theme.name}, urutan ${theme.rank}`}
+                        aria-label={`Kenali ${getTalentLabel(theme.name)}, urutan ${theme.rank}`}
                       >
                         <span className="talent-top-rank">
                           {String(theme.rank).padStart(2, "0")}
                         </span>
                         <span className="talent-top-copy">
-                          <strong>{theme.name}</strong>
+                          <strong>
+                            <TalentName name={theme.name} />
+                          </strong>
                           <span>{getTalentGuide(theme.name)?.summary}</span>
                           <small>
                             {theme.domain}
@@ -208,10 +212,12 @@ export default function TalentReport({
                                   type="button"
                                   className={`talent-map-theme talent-map-${rankBand(theme.rank).className}`}
                                   onClick={() => setSelected(theme)}
-                                  aria-label={`Penjelasan ${theme.name}, urutan ${theme.rank}, ${rankBand(theme.rank).label}`}
+                                  aria-label={`Penjelasan ${getTalentLabel(theme.name)}, urutan ${theme.rank}, ${rankBand(theme.rank).label}`}
                                 >
                                   <span>{theme.rank}</span>
-                                  <strong>{theme.name}</strong>
+                                  <strong>
+                                    <TalentName name={theme.name} />
+                                  </strong>
                                   <small>{theme.score}/100</small>
                                 </button>
                               </li>
@@ -250,7 +256,7 @@ export default function TalentReport({
                     <article key={theme.name}>
                       <h3>
                         <span>{String(theme.rank).padStart(2, "0")}</span>
-                        {theme.name}
+                        <TalentName name={theme.name} />
                       </h3>
                       <ul>
                         {getTalentGuide(theme.name)
@@ -264,7 +270,7 @@ export default function TalentReport({
                         className="talent-text-action"
                         onClick={() => setSelected(theme)}
                       >
-                        Lihat 10 contoh {theme.name}
+                        Lihat 10 contoh <TalentName name={theme.name} />
                       </button>
                     </article>
                   ))}
@@ -290,7 +296,7 @@ export default function TalentReport({
                           className="talent-text-action"
                           onClick={() => setSelected(theme)}
                         >
-                          {theme.rank}. {theme.name}
+                          {theme.rank}. <TalentName name={theme.name} />
                         </button>
                         <p>{getTalentGuide(theme.name)?.support}</p>
                       </article>
@@ -328,7 +334,7 @@ export default function TalentReport({
                           className="talent-text-action"
                           onClick={() => setSelected(theme)}
                         >
-                          {theme.rank}. {theme.name}
+                          {theme.rank}. <TalentName name={theme.name} />
                         </button>
                         <span className="talent-ranking-meta">
                           {theme.domain} · {rankBand(theme.rank).label}

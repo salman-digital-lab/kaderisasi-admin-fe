@@ -14,4 +14,6 @@ export type AdminUser = {
   authentication_methods: string[];
   is_super_admin: boolean;
   google_linked: boolean;
+  // Sent only to Super Admins on the account list.
+  talent_assessment_completed?: boolean;
 };
