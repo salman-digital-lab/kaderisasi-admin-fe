@@ -142,7 +142,9 @@ try {
           await expect(
             page.getByRole("textbox", { name: "Nama Lengkap", exact: true }),
           ).toHaveValue("Audit Member");
-          const edit = page.getByRole("button", { name: /^(edit )?Ubah$/ });
+          const edit = page.getByRole("button", {
+            name: /^(edit )?Ubah profil$/,
+          });
           if (role.permissions.includes("members.manage"))
             await expect(edit).toBeVisible();
           else {
@@ -154,8 +156,8 @@ try {
           const credentials = page.getByRole("button", {
             name:
               screen === "member-no-account"
-                ? "Buat Akun"
-                : "Ubah Email dan Password",
+                ? "Buat akun"
+                : "Ubah email dan kata sandi",
             exact: true,
           });
           if (role.permissions.includes("members.credentials.manage"))

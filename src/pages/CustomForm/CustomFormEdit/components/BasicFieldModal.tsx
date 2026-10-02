@@ -16,6 +16,7 @@ import {
   Tooltip,
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -81,7 +82,7 @@ export const BasicFieldModal = ({
       open={visible}
       onCancel={onCancel}
       footer={null}
-      width={900}
+      width={DIALOG_WIDTH.large}
       destroyOnHidden
       className="builder-profile-picker"
     >
@@ -94,7 +95,7 @@ export const BasicFieldModal = ({
           <UserOutlined
             style={{
               fontSize: "48px",
-              color: "#d9d9d9",
+              color: "var(--app-color-border)",
               marginBottom: 16,
             }}
           />
@@ -167,8 +168,8 @@ export const BasicFieldModal = ({
                                 ? "not-allowed"
                                 : "pointer",
                               borderColor: isProvinceBlocked
-                                ? "#d9d9d9"
-                                : "#1890ff",
+                                ? "var(--app-color-border)"
+                                : "var(--app-color-primary)",
                               opacity: isProvinceBlocked ? 0.5 : 1,
                             }}
                             onClick={() =>
@@ -185,7 +186,7 @@ export const BasicFieldModal = ({
                             }}
                           >
                             <Space
-                              direction="vertical"
+                              orientation="vertical"
                               style={{
                                 width: "100%",
                                 textAlign: "center",
@@ -194,7 +195,7 @@ export const BasicFieldModal = ({
                               <Avatar
                                 style={{
                                   backgroundColor: isProvinceBlocked
-                                    ? "#d9d9d9"
+                                    ? "var(--app-color-border)"
                                     : category.color,
                                 }}
                               >

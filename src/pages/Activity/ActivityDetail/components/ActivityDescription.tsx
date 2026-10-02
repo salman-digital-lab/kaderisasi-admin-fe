@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, notification, Flex, Alert, Skeleton } from "antd";
+import { Button, Typography, Flex, Alert, Skeleton, message } from "antd";
 import { useParams } from "react-router-dom";
 import { SaveOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
@@ -40,10 +40,7 @@ const ActivityDescription = () => {
             icon={<SaveOutlined />}
             onClick={async () => {
               await runAsync(Number(id), { description: description });
-              notification.success({
-                message: "Berhasil",
-                description: "Data berhasil diubah",
-              });
+              message.success("Data berhasil diubah");
             }}
           >
             Simpan

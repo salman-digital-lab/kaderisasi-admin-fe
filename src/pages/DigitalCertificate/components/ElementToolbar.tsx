@@ -64,8 +64,8 @@ const toolbarStyle: React.CSSProperties = {
   alignItems: "center",
   gap: 8,
   padding: "8px 12px",
-  backgroundColor: "#fafafa",
-  borderBottom: "1px solid #f0f0f0",
+  backgroundColor: "var(--app-color-fill-header)",
+  borderBottom: "1px solid var(--app-color-border-secondary)",
   flexWrap: "nowrap",
   flex: "none",
   overflowX: "auto",
@@ -124,7 +124,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         {showPanelControls && (
           <Space.Compact>
             <Button icon={<OrderedListOutlined />} onClick={onOpenLayers}>
-              Layer
+              Lapisan
             </Button>
             <Button
               icon={<ControlOutlined />}
@@ -165,9 +165,9 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           onChange={handleBackgroundChange}
           disabled={uploadingBackground}
         >
-          <Tooltip title="Upload Background">
+          <Tooltip title="Unggah latar">
             <Button
-              aria-label="Upload Background"
+              aria-label="Unggah latar"
               icon={<PictureOutlined />}
               loading={uploadingBackground}
             >
@@ -178,7 +178,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         <Tooltip title="Ukuran Kanvas">
           <Button
-            aria-label="Ukuran Kanvas"
+            aria-label="Ukuran kanvas"
             icon={<ExpandOutlined />}
             onClick={onOpenCanvasSettings}
           >
@@ -192,20 +192,20 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         <Space.Compact>
           <Tooltip title="Tambah Teks Statis">
             <Button
-              aria-label="Tambah Teks Statis"
+              aria-label="Tambah teks statis"
               icon={<FontSizeOutlined />}
               onClick={() => onAddElement("static-text")}
             >
-              Teks Statis
+              Teks statis
             </Button>
           </Tooltip>
           <Tooltip title="Tambah Teks Variabel">
             <Button
-              aria-label="Tambah Teks Variabel"
+              aria-label="Tambah teks variabel"
               icon={<FieldStringOutlined />}
               onClick={() => onAddElement("variable-text")}
             >
-              Teks Variabel
+              Teks variabel
             </Button>
           </Tooltip>
         </Space.Compact>
@@ -218,16 +218,16 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
               icon={<QrcodeOutlined />}
               onClick={() => onAddElement("qr-code")}
             >
-              QR Verifikasi
+              QR verifikasi
             </Button>
           </Tooltip>
           <Tooltip title="Tambah Tanda Tangan">
             <Button
-              aria-label="Tambah Tanda Tangan"
+              aria-label="Tambah tanda tangan"
               icon={<EditOutlined />}
               onClick={() => onAddElement("signature")}
             >
-              Tanda Tangan
+              Tanda tangan
             </Button>
           </Tooltip>
         </Space.Compact>
@@ -241,7 +241,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
         >
           <Tooltip title="Tambah Gambar (Logo, dll)">
             <Button
-              aria-label="Tambah Gambar (Logo, dll)"
+              aria-label="Tambah gambar (Logo, dll)"
               icon={<FileImageOutlined />}
               loading={uploadingAsset}
             >

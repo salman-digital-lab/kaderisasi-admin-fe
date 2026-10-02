@@ -4,7 +4,6 @@ import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useState } from "react";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -68,7 +67,11 @@ export default function LifetimeLeaderboardFilter({
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 onPressEnter={apply}
-                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: "var(--app-color-text-secondary)" }}
+                  />
+                }
               />
 
               <Input
@@ -80,8 +83,8 @@ export default function LifetimeLeaderboardFilter({
               />
 
               <Button
+                aria-label="Cari"
                 icon={<SearchOutlined />}
-                type="primary"
                 onClick={apply}
               />
             </Space>
@@ -91,8 +94,9 @@ export default function LifetimeLeaderboardFilter({
         {/* Right: Actions */}
         <Space size={8} wrap>
           {refresh && (
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

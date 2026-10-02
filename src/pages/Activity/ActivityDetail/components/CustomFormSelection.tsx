@@ -12,6 +12,7 @@ import {
   Card,
   Tooltip,
   Alert,
+  message,
 } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
@@ -28,6 +29,7 @@ import {
 } from "../../../../api/services/customForm";
 import type { CustomForm } from "../../../../types/model/customForm";
 import { getActivity } from "../../../../api/services/activity";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 const { Title, Text } = Typography;
 
@@ -93,10 +95,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
         refreshCurrentForm();
         setIsModalOpen(false);
         setSelectedFormId(undefined);
-        notification.success({
-          message: "Berhasil",
-          description: "Form berhasil dilampirkan ke kegiatan",
-        });
+        message.success("Formulir berhasil dilampirkan ke kegiatan");
       },
     },
   );
@@ -112,7 +111,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
 
       const newForm = await createCustomForm({
         formName: `Pendaftaran ${activityData.name}`.slice(0, 100),
-        formDescription: `Form pendaftaran untuk kegiatan ${activityData.name}`,
+        formDescription: `Formulir pendaftaran untuk kegiatan ${activityData.name}`,
         featureType: "activity_registration",
         featureId: Number(id),
         isActive: false,
@@ -122,7 +121,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
       });
 
       if (!newForm?.id) {
-        throw new Error("Failed to create form");
+        throw new Error("Failed to create formulir");
       }
 
       refreshCurrentForm();
@@ -130,10 +129,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
       navigate(
         `/activity/${id}/form/${newForm.id}/edit${setup ? "?setup=1" : ""}`,
       );
-      notification.success({
-        message: "Berhasil",
-        description: "Form berhasil dibuat",
-      });
+      message.success("Formulir berhasil dibuat");
       return newForm;
     },
     {
@@ -168,22 +164,22 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
             style={{
               padding: "48px 24px",
               textAlign: "center",
-              background: "#fafafa",
-              borderRadius: 8,
-              border: "1px dashed #d9d9d9",
+              background: "var(--app-color-fill-header)",
+              border: "1px dashed var(--app-color-border)",
             }}
           >
-            <Space direction="vertical" size="large">
+            <Space orientation="vertical" size="large">
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
-                  <Space direction="vertical" size="small">
+                  <Space orientation="vertical" size="small">
                     <Text strong style={{ fontSize: 16 }}>
-                      Belum Ada Form Pendaftaran
+                      Belum Ada Formulir Pendaftaran
                     </Text>
                     <Text type="secondary" style={{ maxWidth: 400 }}>
-                      Kegiatan ini belum memiliki form pendaftaran. Anda dapat
-                      membuat form baru atau memilih dari form yang sudah ada.
+                      Kegiatan ini belum memiliki formulir pendaftaran. Anda
+                      dapat membuat form baru atau memilih dari form yang sudah
+                      ada.
                     </Text>
                   </Space>
                 }
@@ -194,12 +190,12 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
                 size="large"
                 onClick={() => setIsModalOpen(true)}
               >
-                Buat atau Pilih Form
+                Buat atau pilih formulir
               </Button>
             </Space>
           </div>
         ) : (
-          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          <Space orientation="vertical" size="large" style={{ width: "100%" }}>
             <div
               style={{
                 display: "flex",
@@ -208,7 +204,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
               }}
             >
               <Title level={4} style={{ margin: 0 }}>
-                Form Terlampir
+                Formulir Terlampir
               </Title>
               {/* If we want to allow replacing the form, we can adding a change button later */}
             </div>
@@ -223,9 +219,9 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
                   <Tag color={currentForm.is_active ? "success" : "default"}>
                     {currentForm.is_active ? "Aktif" : "Tidak Aktif"}
                   </Tag>
-                  <Tooltip title="Edit Form & Pertanyaan">
+                  <Tooltip title="Ubah formulir & pertanyaan">
                     <Button
-                      aria-label="Edit Form & Pertanyaan"
+                      aria-label="Ubah formulir & pertanyaan"
                       icon={<EditOutlined />}
                       onClick={() =>
                         navigate(
@@ -240,7 +236,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
               }
               style={{
                 boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
-                borderRadius: 8,
               }}
             >
               <Space
@@ -250,7 +245,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
               >
                 <div>
                   <Text type="secondary" style={{ fontSize: 13 }}>
-                    Deskripsi Form
+                    Deskripsi Formulir
                   </Text>
                   <div style={{ marginTop: 4 }}>
                     {currentForm.form_description ? (
@@ -288,10 +283,9 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
 
                 <div
                   style={{
-                    background: "#f9f9f9",
+                    background: "var(--app-color-fill-header)",
                     padding: "12px 16px",
-                    borderRadius: 6,
-                    border: "1px solid #f0f0f0",
+                    border: "1px solid var(--app-color-border-secondary)",
                   }}
                 >
                   <Space size="middle" split={<Divider type="vertical" />}>
@@ -326,16 +320,16 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
         )}
 
         <Modal
-          title="Tambah Form Pendaftaran"
+          title="Tambah Formulir Pendaftaran"
           open={isModalOpen}
           onCancel={() => {
             setIsModalOpen(false);
             setSelectedFormId(undefined);
           }}
           footer={null}
-          width={500}
+          width={DIALOG_WIDTH.small}
         >
-          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <Space orientation="vertical" size="middle" style={{ width: "100%" }}>
             {(attachError || createError) && (
               <Alert
                 type="error"
@@ -345,9 +339,8 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
             )}
             <div
               style={{
-                background: "#f5f5f5",
+                background: "var(--app-color-fill-header)",
                 padding: 16,
-                borderRadius: 8,
                 marginBottom: 8,
               }}
             >
@@ -358,14 +351,14 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
                 type="secondary"
                 style={{ fontSize: 13, display: "block", marginBottom: 12 }}
               >
-                Gunakan form yang sudah pernah dibuat tetapi belum digunakan
+                Gunakan formulir yang sudah pernah dibuat tetapi belum digunakan
                 dimanapun.
               </Text>
               <Space.Compact style={{ width: "100%" }}>
                 <Select
                   showSearch
                   style={{ width: "100%" }}
-                  placeholder="Cari nama form..."
+                  placeholder="Cari nama formulir..."
                   loading={unattachedLoading}
                   value={selectedFormId}
                   onChange={setSelectedFormId}
@@ -381,7 +374,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
                   notFoundContent={
                     <Empty
                       image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="Tidak ada form tersedia"
+                      description="Tidak ada formulir tersedia"
                     />
                   }
                 />
@@ -396,7 +389,12 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
               </Space.Compact>
             </div>
 
-            <div style={{ textAlign: "center", color: "#999" }}>
+            <div
+              style={{
+                textAlign: "center",
+                color: "var(--app-color-text-secondary)",
+              }}
+            >
               <Text type="secondary" style={{ fontSize: 12 }}>
                 ATAU
               </Text>
@@ -404,10 +402,9 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
 
             <div
               style={{
-                background: "#e6f7ff",
+                background: "var(--app-color-primary-bg)",
                 padding: 16,
-                borderRadius: 8,
-                border: "1px solid #91d5ff",
+                border: "1px solid var(--app-color-primary)",
               }}
             >
               <Text strong style={{ display: "block", marginBottom: 8 }}>
@@ -417,7 +414,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
                 type="secondary"
                 style={{ fontSize: 13, display: "block", marginBottom: 12 }}
               >
-                Buat form pendaftaran baru khusus untuk kegiatan ini secara
+                Buat formulir pendaftaran baru khusus untuk kegiatan ini secara
                 otomatis.
               </Text>
               <Button
@@ -428,7 +425,7 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
                 disabled={!activityData}
                 block
               >
-                Buat Form Baru Sekarang
+                Buat formulir baru sekarang
               </Button>
             </div>
           </Space>

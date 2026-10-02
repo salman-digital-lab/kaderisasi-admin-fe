@@ -35,7 +35,7 @@ const QuestionButton = () => {
       <Flex vertical gap={12} style={{ marginBottom: "16px" }}>
         <Row gutter={16}>
           <Col className="gutter-row" span={8} offset={4}>
-            <Tooltip title="Add">
+            <Tooltip title="Tambah">
               <DeleteOutlined />
             </Tooltip>
             <Text type="secondary">Required</Text>

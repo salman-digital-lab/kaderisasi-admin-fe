@@ -77,7 +77,7 @@ export default function TalentResults(): ReactElement {
               type="primary"
               onClick={() => navigate("/profile/talent-assessment")}
             >
-              Mulai Asesmen
+              Mulai asesmen
             </Button>
           )}
         </Card>
@@ -106,7 +106,7 @@ export default function TalentResults(): ReactElement {
           {!adminID && (
             <Space wrap className="talent-spaced">
               <Button onClick={() => navigate("/profile/talent-assessment")}>
-                {hasDraft ? "Lanjutkan Asesmen" : "Ulangi Asesmen"}
+                {hasDraft ? "Lanjutkan asesmen" : "Ulangi asesmen"}
               </Button>
               <Typography.Text type="secondary">
                 Hasil lama diganti saat asesmen baru dikirim. Riwayat tidak

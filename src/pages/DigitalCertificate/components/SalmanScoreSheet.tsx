@@ -98,7 +98,7 @@ export const SalmanScoreSheet = forwardRef<
     : "Menunggu persetujuan";
   return (
     <section
-      aria-label="Halaman 2: Daftar Nilai"
+      aria-label="Halaman 2: Daftar nilai"
       style={{ width: "100%", marginTop: 24 }}
     >
       <div

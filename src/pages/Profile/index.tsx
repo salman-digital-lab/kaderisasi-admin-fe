@@ -5,6 +5,8 @@ import { useRoles, useSetSession, useUser } from "../../stores/authStore";
 import TalentProfileSection from "../../features/talent-assessment/ProfileSection";
 import RoleTags from "../../components/common/RoleTags";
 import { Link } from "react-router-dom";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
 
 export default function ProfilePage(): ReactElement {
   const user = useUser();
@@ -25,8 +27,8 @@ export default function ProfilePage(): ReactElement {
     }
   };
   return (
-    <div style={{ padding: 12 }}>
-      <Typography.Title level={4}>Profil Saya</Typography.Title>
+    <div className="page-container">
+      <PageHeader title={NAV_LABELS.profile} />
       <Card style={{ maxWidth: 640 }}>
         <section style={{ marginBottom: 24 }}>
           <Typography.Title level={5}>Peran Anda</Typography.Title>
@@ -65,7 +67,7 @@ export default function ProfilePage(): ReactElement {
             <Input maxLength={255} autoComplete="name" />
           </Form.Item>
           <Button type="primary" htmlType="submit" loading={saving}>
-            Simpan Nama
+            Simpan nama
           </Button>
         </Form>
       </Card>

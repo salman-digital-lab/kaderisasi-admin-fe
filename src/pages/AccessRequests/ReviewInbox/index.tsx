@@ -1,12 +1,15 @@
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import { useRequest } from "ahooks";
-import { Card, Segmented, Typography } from "antd";
+import { Segmented } from "antd";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { getReviewTickets } from "../../../api/services/access";
 import type { AccessTicket } from "../../../types/model/access";
 import TicketStatus from "../components/TicketStatus";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import { DATE_TIME_FORMAT } from "../../../utils/date-format";
 
 export default function ReviewInboxPage() {
   const [status, setStatus] = useState<string>("open");
@@ -15,17 +18,13 @@ export default function ReviewInboxPage() {
     { refreshDeps: [status] },
   );
   return (
-    <div className="access-ticket-page" style={{ padding: 12 }}>
-      <Card
-        className="access-ticket-list-header"
-        size="small"
-        title={
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            Tinjau Permintaan
-          </Typography.Title>
-        }
+    <div className="access-ticket-page page-container">
+      <PageHeader
+        title={NAV_LABELS.ticketReview}
+        description="Tinjau pengajuan akses dari admin lain."
         extra={
           <Segmented
+            aria-label="Filter status permintaan"
             value={status}
             onChange={(value) => setStatus(String(value))}
             options={[
@@ -36,12 +35,8 @@ export default function ReviewInboxPage() {
             ]}
           />
         }
-        styles={{
-          header: { padding: 0, minHeight: 32 },
-          body: { display: "none" },
-        }}
       />
-      <div style={{ marginTop: 12 }}>
+      <div>
         <Table<AccessTicket>
           listId="pages/AccessRequests/ReviewInbox/index:1"
           rowKey="id"
@@ -82,8 +77,7 @@ export default function ReviewInboxPage() {
             {
               title: "Dibuat",
               dataIndex: "created_at",
-              render: (value: string) =>
-                dayjs(value).format("DD MMM YYYY HH:mm"),
+              render: (value: string) => dayjs(value).format(DATE_TIME_FORMAT),
             },
           ]}
         />

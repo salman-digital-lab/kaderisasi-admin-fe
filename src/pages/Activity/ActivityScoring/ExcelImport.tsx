@@ -6,6 +6,7 @@ import type {
   ScoringRubric,
 } from "../../../types/services/scoring";
 import { actionError } from "../../../utils/action-error";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 export default function ExcelImport({
   activityId,
@@ -71,7 +72,7 @@ export default function ExcelImport({
       <Modal
         open={!!file}
         title="Tinjau impor nilai"
-        width={1000}
+        width={DIALOG_WIDTH.large}
         onCancel={() => {
           if (!busy) {
             setFile(undefined);

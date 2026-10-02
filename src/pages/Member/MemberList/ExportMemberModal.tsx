@@ -20,6 +20,7 @@ import type {
   MemberExportFilters,
   MemberExportFormat,
 } from "../../../api/services/member-export";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 type Props = {
   filters: MemberExportFilters;
@@ -59,7 +60,7 @@ export default function ExportMemberModal({
     <ResponsiveDialog
       title="Unduh Data Anggota"
       open
-      width={640}
+      width={DIALOG_WIDTH.medium}
       okText="Unduh"
       cancelText="Batal"
       onCancel={onClose}
@@ -81,7 +82,7 @@ export default function ExportMemberModal({
         <Alert
           type="error"
           title="Jumlah anggota gagal dimuat."
-          action={<Button onClick={refresh}>Coba Lagi</Button>}
+          action={<Button onClick={refresh}>Coba lagi</Button>}
         />
       ) : data ? (
         <Form layout="vertical">

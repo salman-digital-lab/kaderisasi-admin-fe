@@ -10,7 +10,6 @@ import {
 import { GENDER } from "../../../../types/constants/profile";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -96,7 +95,11 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 onPressEnter={apply}
-                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: "var(--app-color-text-secondary)" }}
+                  />
+                }
               />
 
               <Select
@@ -118,8 +121,8 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
               />
 
               <Button
+                aria-label="Cari"
                 icon={<SearchOutlined />}
-                type="primary"
                 onClick={apply}
               />
             </Space>
@@ -129,8 +132,9 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
         {/* Right: Actions */}
         <Space size={8} wrap>
           {refresh && (
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

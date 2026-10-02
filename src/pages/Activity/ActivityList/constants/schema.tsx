@@ -27,7 +27,7 @@ function ActivityAction({ activity }: { activity: Activity }): ReactElement {
 
 export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
   {
-    title: "Judul Aktivitas/Kegiatan",
+    title: "Judul Kegiatan",
     dataIndex: "name",
     key: "name",
     render: (name, record) => (
@@ -49,7 +49,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     width: 340,
   },
   {
-    title: "Tipe Aktivitas",
+    title: "Tipe Kegiatan",
     dataIndex: "activity_type",
     width: 150,
     render: (value) => (
@@ -57,7 +57,7 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
     ),
   },
   {
-    title: "Kategori Aktivitas",
+    title: "Kategori Kegiatan",
     dataIndex: "activity_category",
     width: 150,
     render: (value) => (
@@ -89,7 +89,6 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
           <Tag
             color={isPublished ? "success" : "default"}
             style={{
-              borderRadius: "6px",
               fontWeight: 500,
               border: "none",
               cursor: "help",
@@ -118,7 +117,6 @@ export const TABLE_SCHEMA: TableProps<Activity>["columns"] = [
           <Tag
             color={isRegistrationOpen ? "success" : "default"}
             style={{
-              borderRadius: "6px",
               fontWeight: 500,
               border: "none",
               cursor: "help",

@@ -31,16 +31,16 @@ export const TABLE_SCHEMA = (
     ),
   },
   {
-    title: "Tindakan",
+    title: "Aksi",
     key: "actions",
     dataIndex: "id",
     render: (_, record) => (
       <Space>
-        <Button onClick={() => setEdittedRow(record)}>Ubah Akun</Button>
-        <Button onClick={() => setPasswordRow(record)}>Ubah Password</Button>
+        <Button onClick={() => setEdittedRow(record)}>Ubah akun</Button>
+        <Button onClick={() => setPasswordRow(record)}>Ubah kata sandi</Button>
         {isSuperAdmin && record.talent_assessment_completed && (
           <Button onClick={() => viewTalentResult(record.id)}>
-            Lihat Hasil Bakat
+            Lihat hasil bakat
           </Button>
         )}
       </Space>

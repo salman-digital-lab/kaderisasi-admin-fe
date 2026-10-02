@@ -10,7 +10,7 @@ import {
   PutRuangCurhatResp,
 } from "../../types/services/ruangcurhat";
 import { removeEmptyValueFromObj } from "../../functions";
-import { notification } from "antd";
+import { message } from "antd";
 import { renderNotification } from "../../constants/render";
 
 export const getRuangCurhats = async (props: GetRuangCurhatsReq) => {
@@ -57,10 +57,7 @@ export const putRuangCurhat = async (props: PutRuangCurhatReq) => {
       bodyData,
     );
 
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);

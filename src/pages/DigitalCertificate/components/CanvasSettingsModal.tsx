@@ -1,6 +1,7 @@
 import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import React, { useState, useEffect } from "react";
 import { InputNumber, Select, Space, Typography } from "antd";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 const { Text } = Typography;
 
@@ -61,9 +62,9 @@ export const CanvasSettingsModal: React.FC<CanvasSettingsModalProps> =
         onCancel={onCancel}
         okText="Simpan"
         cancelText="Batal"
-        width={400}
+        width={DIALOG_WIDTH.small}
       >
-        <Space direction="vertical" style={{ width: "100%" }} size="middle">
+        <Space orientation="vertical" style={{ width: "100%" }} size="middle">
           <div>
             <Text
               type="secondary"
@@ -121,8 +122,7 @@ export const CanvasSettingsModal: React.FC<CanvasSettingsModalProps> =
           <div
             style={{
               padding: 12,
-              backgroundColor: "#fafafa",
-              borderRadius: 4,
+              backgroundColor: "var(--app-color-fill-header)",
               textAlign: "center",
             }}
           >
@@ -159,7 +159,7 @@ export const CanvasSettingsModal: React.FC<CanvasSettingsModalProps> =
                     return maxHeight;
                   })(),
                   backgroundColor: "#fff",
-                  border: "1px solid #d9d9d9",
+                  border: "1px solid var(--app-color-border)",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                   transition: "all 0.2s ease",
                 }}

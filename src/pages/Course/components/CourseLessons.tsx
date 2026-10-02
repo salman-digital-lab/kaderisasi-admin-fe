@@ -26,6 +26,7 @@ import {
 import type { CourseDetail, CourseLesson } from "../../../types/model/course";
 import { lessonsWithoutVideo, moveLessonIds } from "../utils/course-editor";
 import LessonEditor from "./LessonEditor";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 type Props = {
   course: CourseDetail;
@@ -145,11 +146,7 @@ export default function CourseLessons({
       {modalContext}
       <header className="course-section-header">
         <div>
-          <Typography.Title
-            level={3}
-            id="course-lessons-title"
-            style={{ fontSize: 20 }}
-          >
+          <Typography.Title level={3} id="course-lessons-title">
             Materi kelas
           </Typography.Title>
           <p>
@@ -349,7 +346,7 @@ export default function CourseLessons({
         open={preview !== null}
         onCancel={() => setPreview(null)}
         footer={null}
-        width={900}
+        width={DIALOG_WIDTH.large}
         destroyOnHidden
         className="course-editor"
       >

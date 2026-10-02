@@ -37,8 +37,8 @@ const ActivityTable = ({
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description={
-        <span style={{ color: "#999" }}>
-          Belum ada data aktivitas yang tersedia
+        <span style={{ color: "var(--app-color-text-secondary)" }}>
+          Belum ada data kegiatan yang tersedia
         </span>
       }
     />
@@ -48,7 +48,7 @@ const ActivityTable = ({
   if (error && !loading) {
     return (
       <Alert
-        message="Gagal memuat data aktivitas"
+        message="Gagal memuat data kegiatan"
         description={
           error.message ||
           "Terjadi kesalahan saat memuat data. Silakan coba lagi."
@@ -59,7 +59,7 @@ const ActivityTable = ({
         action={
           onRetry && (
             <Button size="small" onClick={onRetry} icon={<ReloadOutlined />}>
-              Coba Lagi
+              Coba lagi
             </Button>
           )
         }
@@ -81,7 +81,7 @@ const ActivityTable = ({
         showQuickJumper: true,
         total: data?.meta.total,
         showTotal: (total, range) =>
-          `Menampilkan ${range[0]}-${range[1]} dari ${total} aktivitas`,
+          `Menampilkan ${range[0]}-${range[1]} dari ${total} kegiatan`,
         pageSizeOptions: ["10", "20", "50", "100"],
         showLessItems: window.innerWidth < 768, // Responsive pagination
       }}

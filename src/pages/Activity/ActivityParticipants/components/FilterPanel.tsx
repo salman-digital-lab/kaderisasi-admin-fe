@@ -204,10 +204,9 @@ const FilterPanel = ({
                         icon={<ClearOutlined />}
                         disabled={activeFilters.length === 0}
                       >
-                        Hapus Filter
+                        Hapus filter
                       </Button>
                       <Button
-                        type="primary"
                         htmlType="submit"
                         icon={<SearchOutlined />}
                         loading={loading}
@@ -223,11 +222,16 @@ const FilterPanel = ({
                     style={{
                       marginTop: 16,
                       paddingTop: 16,
-                      borderTop: "1px solid #f0f0f0",
+                      borderTop: "1px solid var(--app-color-border-secondary)",
                     }}
                   >
                     <Space size={4} wrap>
-                      <span style={{ color: "#666", marginRight: 8 }}>
+                      <span
+                        style={{
+                          color: "var(--app-color-text-secondary)",
+                          marginRight: 8,
+                        }}
+                      >
                         Filter aktif:
                       </span>
                       {activeFilters.map((key) => (

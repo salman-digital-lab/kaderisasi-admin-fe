@@ -57,6 +57,7 @@ import {
   type ColumnConfig,
   loadColumnPreferences,
 } from "../../Activity/ActivityParticipants/constants/columns";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 const { Text, Title } = Typography;
 
@@ -79,7 +80,7 @@ type RoleFormType = {
 type BulkStatus = Extract<ClubRegistration["status"], "APPROVED" | "REJECTED">;
 
 const getMemberName = (registration: ClubRegistration): string =>
-  registration.member?.profile?.name || registration.member?.email || "N/A";
+  registration.member?.profile?.name || registration.member?.email || "-";
 
 type ClubRegistrationsPageProps = {
   club: Club;
@@ -407,7 +408,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
       dataIndex: ["member", "profile", "name"],
       key: "memberName",
       render: (name: string, record: ClubRegistration) =>
-        name || record.member?.email || "N/A",
+        name || record.member?.email || "-",
     },
     {
       title: "Email",
@@ -441,23 +442,25 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
       render: (_, record) => {
         if (record.status !== "APPROVED") {
           return (
-            <span style={{ color: "#8c8c8c" }}>Belum menjadi anggota</span>
+            <span style={{ color: "var(--app-color-text-secondary)" }}>
+              Belum menjadi anggota
+            </span>
           );
         }
 
         return record.roles?.length ? (
-          <Space direction="vertical" size={4}>
+          <Space orientation="vertical" size={4}>
             {record.roles.map((role) => (
               <Space key={role.id} size={4} wrap>
                 <Tag color={role.is_primary ? "blue" : "default"}>
                   {role.role_name}
                 </Tag>
-                <Tooltip title="Edit peran">
+                <Tooltip title="Ubah peran">
                   <Button
                     size="small"
                     icon={<EditOutlined />}
                     onClick={() => openEditRole(record, role)}
-                    aria-label={`Edit peran ${role.role_name} untuk ${getMemberName(record)}`}
+                    aria-label={`Ubah peran ${role.role_name} untuk ${getMemberName(record)}`}
                   />
                 </Tooltip>
                 <Tooltip title="Hapus peran">
@@ -510,7 +513,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
               />
             </Tooltip>
           ) : null}
-          <Tooltip title="Edit pendaftaran">
+          <Tooltip title="Ubah pendaftaran">
             <Button
               icon={<EditOutlined />}
               onClick={() => handleEditRegistration(record)}
@@ -556,7 +559,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     <>
       {modalContextHolder}
       {messageContextHolder}
-      <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+      <Space orientation="vertical" size="middle" style={{ display: "flex" }}>
         <Title level={4} style={{ margin: 0 }}>
           Daftar Pendaftar
         </Title>
@@ -627,10 +630,10 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
                     Export XLSX
                   </Button>
                   <Button onClick={handleAddMember} icon={<PlusOutlined />}>
-                    Tambahkan Pendaftar
+                    Tambahkan pendaftar
                   </Button>
                   <Button icon={<SearchOutlined />} htmlType="submit">
-                    Terapkan Filter
+                    Terapkan filter
                   </Button>
                   {answerDefaults.length > 0 && (
                     <ColumnManager
@@ -702,7 +705,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         confirmLoading={savingRegistration}
         cancelButtonProps={{ disabled: savingRegistration }}
         closable={!savingRegistration}
-        width={600}
+        width={DIALOG_WIDTH.small}
         destroyOnHidden
       >
         <Form

@@ -10,8 +10,9 @@ import {
   Typography,
   Divider,
   theme,
+  message,
 } from "antd";
-import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
+import { MailOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 import { loginUser, loginWithGoogle } from "../../../api/auth";
@@ -65,25 +66,18 @@ const LoginForm = () => {
 
       finishLogin(resp.data);
 
-      notification.success({
-        message: "Berhasil Login",
-        description: renderNotification(resp.message),
-        placement: "topRight",
-        duration: 4,
-      });
+      message.success(renderNotification(resp.message));
     } catch (error) {
       if (error instanceof Error)
         notification.error({
-          message: "Login Gagal",
+          title: "Gagal masuk",
           description: renderNotification(error.message),
-          placement: "topRight",
           duration: 6,
         });
       else
         notification.error({
-          message: "Login Gagal",
-          description: "Silahkan coba kembali setelah beberapa saat.",
-          placement: "topRight",
+          title: "Gagal masuk",
+          description: "Silakan coba kembali setelah beberapa saat.",
           duration: 6,
         });
     } finally {
@@ -102,18 +96,14 @@ const LoginForm = () => {
           try {
             const response = await loginWithGoogle(credential);
             finishLogin(response.data);
-            notification.success({
-              message: "Berhasil Login",
-              placement: "topRight",
-            });
+            message.success("Berhasil masuk");
           } catch (error) {
             notification.error({
-              message: "Login Google Gagal",
+              title: "Gagal masuk dengan Google",
               description:
                 error instanceof Error
                   ? renderNotification(error.message)
                   : "Silakan coba lagi.",
-              placement: "topRight",
             });
           } finally {
             setLoading(false);
@@ -165,7 +155,7 @@ const LoginForm = () => {
           <Card className="login-card">
             <div style={formStyle} className="login-form-content">
               {/* Logo and Branding Section */}
-              <div style={logoContainerStyle} className="logo-container">
+              <div style={logoContainerStyle}>
                 <div style={{ marginBottom: "16px" }}>
                   <img
                     src="/BMKA_logo.svg"
@@ -184,7 +174,7 @@ const LoginForm = () => {
                     fontWeight: 600,
                   }}
                 >
-                  Admin Portal
+                  Portal Admin
                 </Title>
                 <Text type="secondary" style={{ fontSize: "16px" }}>
                   Sistem Kaderisasi BMKA
@@ -215,7 +205,7 @@ const LoginForm = () => {
                     autoComplete="username"
                     inputMode="email"
                     prefix={
-                      <UserOutlined
+                      <MailOutlined
                         style={{ color: token.colorTextTertiary }}
                       />
                     }
@@ -225,10 +215,10 @@ const LoginForm = () => {
 
                 <Form.Item
                   name="password"
-                  label="Password"
+                  label="Kata sandi"
                   rules={[
-                    { required: true, message: "Password wajib diisi" },
-                    { min: 6, message: "Password minimal 6 karakter" },
+                    { required: true, message: "Kata sandi wajib diisi" },
+                    { min: 6, message: "Kata sandi minimal 6 karakter" },
                   ]}
                   style={{ marginBottom: "32px" }}
                 >
@@ -238,7 +228,7 @@ const LoginForm = () => {
                         style={{ color: token.colorTextTertiary }}
                       />
                     }
-                    placeholder="Masukkan password Anda"
+                    placeholder="Masukkan kata sandi Anda"
                     autoComplete="current-password"
                   />
                 </Form.Item>
@@ -253,7 +243,7 @@ const LoginForm = () => {
                       width: "100%",
                     }}
                   >
-                    {loading ? "Sedang Login..." : "Login"}
+                    Masuk
                   </Button>
                 </Form.Item>
               </Form>
@@ -276,14 +266,14 @@ const LoginForm = () => {
                 }}
               >
                 <Text type="secondary" style={{ fontSize: "14px" }}>
-                  Lupa password atau belum punya akun?{" "}
+                  Lupa kata sandi atau belum punya akun?{" "}
                   <a
                     href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ color: "#25D366", fontWeight: 500 }}
+                    style={{ fontWeight: 500 }}
                   >
-                    Hubungi tim support Web BMKA via WhatsApp
+                    Hubungi tim dukungan Web BMKA via WhatsApp
                   </a>
                 </Text>
               </div>

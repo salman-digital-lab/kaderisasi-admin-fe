@@ -10,7 +10,7 @@ const SaveButton = ({ onSave }: FieldData) => {
     <Row justify="end">
       <Col>
         <Button onClick={onSave} icon={<SaveFilled />}>
-          Save Question
+          Simpan pertanyaan
         </Button>
       </Col>
     </Row>

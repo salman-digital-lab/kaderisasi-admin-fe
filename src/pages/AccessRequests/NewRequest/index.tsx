@@ -15,6 +15,8 @@ import UnsavedChangesGuard from "../../../components/common/UnsavedChangesGuard"
 import { actionError } from "../../../utils/action-error";
 import RoleSummary from "../components/RoleSummary";
 import "../../../styles/guided-workflows.css";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 const tasks: Record<string, string> = {
   activity_manager: "Menyiapkan program atau kegiatan dan mengelola peserta",
@@ -87,17 +89,14 @@ export default function NewRequestPage(): ReactElement {
   };
   return (
     <main className="guided-page">
-      <Link to="/my-requests">← Akses Saya</Link>
-      <div className="guided-intro">
-        <Typography.Title level={2}>
-          Akses apa yang Anda butuhkan?
-        </Typography.Title>
-        <p>
-          Pilih tugas Anda, lalu jelaskan kebutuhan akses. Super Admin akan
-          meninjau pengajuan Anda. Setiap pengajuan menambahkan satu peran;
-          peran yang sudah dimiliki tetap tersedia.
-        </p>
-      </div>
+      <PageHeader
+        back={{
+          to: "/my-requests",
+          label: `Kembali ke ${NAV_LABELS.myRequests}`,
+        }}
+        title="Akses apa yang Anda butuhkan?"
+        description="Pilih tugas Anda, lalu jelaskan kebutuhan akses. Super Admin akan meninjau pengajuan Anda. Setiap pengajuan menambahkan satu peran; peran yang sudah dimiliki tetap tersedia."
+      />
       <div className="guided-content">
         <section className="guided-section" aria-label="Peran saat ini">
           <Typography.Title level={3}>Peran Anda saat ini</Typography.Title>

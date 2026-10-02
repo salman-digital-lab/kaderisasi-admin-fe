@@ -4,6 +4,7 @@ import { useRequest } from "ahooks";
 
 import { addProvince, updateProvince } from "../../../api/services/province";
 import { useEffect } from "react";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 interface ProvinceFormProps {
   open: boolean;
@@ -57,7 +58,7 @@ const ProvinceForm = ({ open, onClose, initialValues }: ProvinceFormProps) => {
   return (
     <Modal
       title={initialValues ? "Edit Provinsi" : "Tambah Provinsi"}
-      width={720}
+      width={DIALOG_WIDTH.medium}
       open={open}
       onCancel={onClose}
       footer={[

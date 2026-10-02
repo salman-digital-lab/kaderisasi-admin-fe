@@ -10,6 +10,8 @@ import {
   type SavedFormResponse,
 } from "../../../../api/services/form-responses";
 import { actionError } from "../../../../utils/action-error";
+import { formatDateTime } from "../../../../utils/date-format";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 export function ResponsesTab({ formId }: { formId: number }): ReactElement {
   const [page, setPage] = useState(1);
@@ -87,7 +89,7 @@ export function ResponsesTab({ formId }: { formId: number }): ReactElement {
           {
             title: "Dikirim",
             dataIndex: "created_at",
-            render: (value: string) => new Date(value).toLocaleString("id-ID"),
+            render: (value: string) => formatDateTime(value),
           },
           {
             title: "Responden",
@@ -107,7 +109,7 @@ export function ResponsesTab({ formId }: { formId: number }): ReactElement {
       <ResponsiveDialog
         open={!!selected}
         title="Jawaban formulir"
-        width={800}
+        width={DIALOG_WIDTH.medium}
         footer={null}
         onCancel={() => setSelected(undefined)}
       >

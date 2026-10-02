@@ -9,6 +9,7 @@ import {
   type Club,
   type ClubType,
 } from "../../../../types/model/club";
+import { MONTH_SHORT_FORMAT } from "../../../../utils/date-format";
 
 const CLUB_TYPE_COLORS: Record<ClubType, string> = {
   UNIT: "blue",
@@ -37,7 +38,7 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     dataIndex: "name",
     key: "name",
     render: (name, record) => (
-      <Space direction="vertical" size={2}>
+      <Space orientation="vertical" size={2}>
         <Link to={`/club/${record.id}?section=overview`}>{name}</Link>
         <Tag color={CLUB_TYPE_COLORS[record.club_type]}>
           {CLUB_TYPE_LABELS[record.club_type]}
@@ -53,10 +54,10 @@ export const createTableSchema = (): TableProps<Club>["columns"] => [
     render: (_, record) => {
       if (!record.start_period && !record.end_period) return "Belum ditentukan";
       const start = record.start_period
-        ? dayjs(record.start_period).format("MMM YYYY")
+        ? dayjs(record.start_period).format(MONTH_SHORT_FORMAT)
         : "-";
       const end = record.end_period
-        ? dayjs(record.end_period).format("MMM YYYY")
+        ? dayjs(record.end_period).format(MONTH_SHORT_FORMAT)
         : "-";
       return `${start} – ${end}`;
     },

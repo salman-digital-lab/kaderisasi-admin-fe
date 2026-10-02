@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { flushSync } from "react-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
 import {
   Alert,
@@ -45,6 +44,8 @@ import FormStep from "./FormStep";
 import { ACTIVITY_CREATION_STEPS } from "./steps";
 import "../../../styles/guided-workflows.css";
 import "./setup.css";
+import PageHeader from "../../../components/common/PageHeader";
+import { DATE_FORMAT } from "../../../utils/date-format";
 type Values = Pick<
   Activity,
   "name" | "activity_type" | "activity_category" | "minimum_level" | "club_id"
@@ -166,21 +167,15 @@ function ActivityCreation(): ReactElement {
   const values: Values = form.getFieldsValue(true);
   return (
     <main className="guided-page activity-setup-page">
-      <header className="activity-setup-header">
-        <Button
-          type="text"
-          className="activity-setup-back"
-          icon={<ArrowLeftOutlined aria-hidden />}
-          disabled={busy}
-          onClick={() => navigate("/activity")}
-        >
-          Daftar kegiatan
-        </Button>
-        <Typography.Title level={2} className="activity-setup-title">
-          Buat kegiatan
-        </Typography.Title>
-        <p>Siapkan informasi, poster, dan jadwal pendaftaran kegiatan.</p>
-      </header>
+      <PageHeader
+        back={{
+          to: "/activity",
+          label: "Kembali ke daftar kegiatan",
+          disabled: busy,
+        }}
+        title="Buat kegiatan"
+        description="Siapkan informasi, poster, dan jadwal pendaftaran kegiatan."
+      />
       <Alert
         className="activity-setup-notice"
         role="note"
@@ -439,7 +434,7 @@ function ActivityCreation(): ReactElement {
                 <dt>Tanggal kegiatan</dt>
                 <dd>
                   {values.activity_date
-                    ?.map((date) => date.format("DD MMM YYYY"))
+                    ?.map((date) => date.format(DATE_FORMAT))
                     .join(" – ") || "Belum ditentukan"}
                 </dd>
                 <dt>Deskripsi</dt>
@@ -451,7 +446,7 @@ function ActivityCreation(): ReactElement {
                 <dt>Tanggal pendaftaran</dt>
                 <dd>
                   {values.registration_date
-                    ?.map((date) => date.format("DD MMM YYYY"))
+                    ?.map((date) => date.format(DATE_FORMAT))
                     .join(" – ") || "Belum ditentukan"}
                 </dd>
                 {activityType === ACTIVITY_TYPE_ENUM.REGISTRATION_ONLY && (
@@ -503,11 +498,11 @@ function ActivityCreation(): ReactElement {
         ) : (
           <Button
             type="primary"
-            aria-label="Simpan & Lanjutkan"
+            aria-label="Simpan & lanjutkan"
             loading={busy}
             onClick={() => void save()}
           >
-            Simpan & Lanjutkan
+            Simpan & lanjutkan
           </Button>
         )}
       </footer>

@@ -24,6 +24,7 @@ import { usePermissions } from "../../../stores/authStore";
 import UnsavedChangesGuard from "../../../components/common/UnsavedChangesGuard";
 import { actionError } from "../../../utils/action-error";
 import { ACTIVITY_CREATION_STEPS } from "./steps";
+import PageHeader from "../../../components/common/PageHeader";
 
 type Values = { name: string; formId?: number };
 
@@ -105,12 +106,10 @@ export default function FormStep(): ReactElement {
   };
   return (
     <main className="guided-page activity-setup-page">
-      <header className="activity-setup-header">
-        <Typography.Title level={2} className="activity-setup-title">
-          {data?.activity.name ?? "Formulir pendaftaran"}
-        </Typography.Title>
-        <p>Siapkan formulir pendaftaran atau lanjutkan nanti dari Ringkasan.</p>
-      </header>
+      <PageHeader
+        title={data?.activity.name ?? "Formulir pendaftaran"}
+        description="Siapkan formulir pendaftaran atau lanjutkan nanti dari Ringkasan."
+      />
       <Steps
         current={5}
         size="small"
@@ -276,9 +275,9 @@ export default function FormStep(): ReactElement {
           onClick={() => void finish()}
         >
           {mode === "new" && !data?.currentForm
-            ? "Simpan & Atur Pertanyaan"
+            ? "Simpan & atur pertanyaan"
             : mode === "existing" && !data?.currentForm
-              ? "Simpan & Selesai"
+              ? "Simpan & selesai"
               : "Selesai"}
         </Button>
       </footer>

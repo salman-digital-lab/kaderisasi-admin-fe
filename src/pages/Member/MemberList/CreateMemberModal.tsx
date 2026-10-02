@@ -4,6 +4,7 @@ import { useRequest } from "ahooks";
 import { Form, Input, Select } from "antd";
 import { createMember } from "../../../api/services/member";
 import { GENDER_OPTION } from "../../../constants/options";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 type CreateMemberModalProps = {
   isOpen: boolean;
@@ -27,7 +28,7 @@ export default function CreateMemberModal({
       confirmLoading={loading}
       okText="Simpan"
       cancelText="Batal"
-      width={640}
+      width={DIALOG_WIDTH.medium}
       onOk={async () => {
         const data = await validateFieldsAndFocus(form);
         const result = await runAsync(data);

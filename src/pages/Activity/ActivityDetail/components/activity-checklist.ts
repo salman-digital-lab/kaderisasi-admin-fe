@@ -61,7 +61,7 @@ const REGISTRATION_ITEMS: ChecklistDefinition[] = [
   },
   {
     key: "form",
-    label: "Form Pendaftaran",
+    label: "Formulir Pendaftaran",
     description: "Formulir valid dan aktif untuk menerima jawaban peserta.",
     tab: "7",
     codes: ["registration_form"],

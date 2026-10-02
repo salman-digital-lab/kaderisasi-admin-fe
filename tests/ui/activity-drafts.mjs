@@ -215,7 +215,7 @@ try {
     const next = () =>
       page.getByRole("button", { name: "Lanjut", exact: true }).click();
     const saveButton = () =>
-      page.getByRole("button", { name: "Simpan & Lanjutkan", exact: true });
+      page.getByRole("button", { name: "Simpan & lanjutkan", exact: true });
     const prepare = async (name) => {
       await page.goto("/activity/new");
       await page.getByLabel("Nama kegiatan", { exact: true }).fill(name);
@@ -225,7 +225,7 @@ try {
         .fill("Deskripsi kegiatan uji");
       await next();
       await expect(
-        page.getByRole("button", { name: "Buat atau Pilih Form" }),
+        page.getByRole("button", { name: "Buat atau pilih formulir" }),
       ).toHaveCount(0);
       await next();
     };
@@ -364,7 +364,7 @@ try {
     await page.getByText("Form tersedia", { exact: true }).click();
     assert.equal(formWrites.length, 0);
     await page
-      .getByRole("button", { name: "Simpan & Selesai", exact: true })
+      .getByRole("button", { name: "Simpan & selesai", exact: true })
       .click();
     await expect(page).toHaveURL(/\/activity\/8$/);
     assert.equal(formWrites.length, 1);
@@ -396,7 +396,7 @@ try {
       .fill("Form kegiatan baru");
     assert.equal(formWrites.length, 1);
     await page
-      .getByRole("button", { name: "Simpan & Atur Pertanyaan", exact: true })
+      .getByRole("button", { name: "Simpan & atur pertanyaan", exact: true })
       .click();
     await expect(page).toHaveURL(/\/activity\/9\/form\/41\/edit\?setup=1/);
     assert.equal(formWrites.length, 2);

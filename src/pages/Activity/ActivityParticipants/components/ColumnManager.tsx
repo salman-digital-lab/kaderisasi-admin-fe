@@ -26,6 +26,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ColumnConfig, saveColumnPreferences } from "../constants/columns";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 const { Text } = Typography;
 
@@ -52,14 +53,13 @@ const SortableItem = <T extends object>({
     transition,
     padding: "8px 12px",
     marginBottom: "4px",
-    backgroundColor: "#fafafa",
-    borderRadius: "6px",
+    backgroundColor: "var(--app-color-fill-header)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     flexWrap: "wrap" as const,
     gap: 8,
-    border: "1px solid #e8e8e8",
+    border: "1px solid var(--app-color-border-secondary)",
   };
 
   return (
@@ -71,7 +71,7 @@ const SortableItem = <T extends object>({
           aria-label={`Seret kolom ${column.title}`}
           style={{
             cursor: "grab",
-            color: "#595959",
+            color: "var(--app-color-text-secondary)",
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
@@ -184,18 +184,18 @@ const ColumnManager = <T extends object>({
   return (
     <>
       <Button icon={<SettingOutlined />} onClick={handleOpen} size={size}>
-        Atur Kolom
+        Atur kolom
       </Button>
 
       <Modal
         title="Pengaturan Kolom"
         open={isOpen}
         onCancel={handleClose}
-        width={500}
+        width={DIALOG_WIDTH.small}
         footer={
           <Space>
             <Button onClick={handleReset} icon={<ReloadOutlined />}>
-              Reset Default
+              Kembalikan bawaan
             </Button>
             <Button onClick={handleClose}>Batal</Button>
             <Button type="primary" onClick={handleSave}>

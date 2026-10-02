@@ -43,6 +43,8 @@ import {
 import CalendarForm from "./CalendarForm";
 import { getCertificatePublicBaseUrl } from "../DigitalCertificate/utils/certificate-content";
 import styles from "./Calendar.module.css";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
 
 export default function CalendarPage(): ReactElement {
   const { token } = theme.useToken();
@@ -126,10 +128,10 @@ export default function CalendarPage(): ReactElement {
     <main className={styles.page} style={calendarTheme}>
       {modalContext}
       {notificationContext}
-      <Typography.Title level={2}>Kalender Kegiatan</Typography.Title>
-      <Typography.Paragraph className={styles.lead}>
-        Jadwal kegiatan bersama BMKA.
-      </Typography.Paragraph>
+      <PageHeader
+        title={NAV_LABELS.calendar}
+        description="Jadwal kegiatan bersama BMKA."
+      />
       <Card styles={{ body: { padding: 12 } }} className={styles.toolbar}>
         <div className={styles.controls}>
           <Space size={12} wrap>
@@ -249,7 +251,7 @@ export default function CalendarPage(): ReactElement {
               const daily = eventsOnDay(events, day);
               return daily.length ? (
                 <section key={day} className={styles.agenda}>
-                  <Typography.Title level={3} style={{ fontSize: 16 }}>
+                  <Typography.Title level={3}>
                     {dateLabel(day)}
                   </Typography.Title>
                   {daily.map(eventButton)}

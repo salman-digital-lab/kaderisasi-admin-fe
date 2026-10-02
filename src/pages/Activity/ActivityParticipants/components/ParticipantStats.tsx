@@ -102,7 +102,7 @@ const ParticipantStats = ({
                   <Statistic
                     title="Total Peserta"
                     value={total}
-                    valueStyle={{ color: "#1890ff", fontSize: 28 }}
+                    styles={{ content: { color: "var(--app-color-primary)" } }}
                     prefix={<UserOutlined />}
                   />
                 </Col>
@@ -126,7 +126,12 @@ const ParticipantStats = ({
                         <Statistic
                           value={count}
                           suffix={
-                            <span style={{ fontSize: 14, color: "#999" }}>
+                            <span
+                              style={{
+                                fontSize: 14,
+                                color: "var(--app-color-text-secondary)",
+                              }}
+                            >
                               ({percentage}%)
                             </span>
                           }
@@ -148,10 +153,15 @@ const ParticipantStats = ({
                   style={{
                     marginTop: 16,
                     paddingTop: 16,
-                    borderTop: "1px solid #f0f0f0",
+                    borderTop: "1px solid var(--app-color-border-secondary)",
                   }}
                 >
-                  <div style={{ marginBottom: 8, color: "#666" }}>
+                  <div
+                    style={{
+                      marginBottom: 8,
+                      color: "var(--app-color-text-secondary)",
+                    }}
+                  >
                     Status Kustom:
                   </div>
                   <Row gutter={[16, 8]}>
@@ -165,7 +175,12 @@ const ParticipantStats = ({
                           <Tag color="default">{status}</Tag>
                           <div style={{ marginTop: 4 }}>
                             <span style={{ fontWeight: 500 }}>{count}</span>
-                            <span style={{ color: "#999", marginLeft: 4 }}>
+                            <span
+                              style={{
+                                color: "var(--app-color-text-secondary)",
+                                marginLeft: 4,
+                              }}
+                            >
                               ({percentage}%)
                             </span>
                           </div>

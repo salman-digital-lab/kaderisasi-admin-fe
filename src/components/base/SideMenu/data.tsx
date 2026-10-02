@@ -1,8 +1,10 @@
 import {
+  AuditOutlined,
+  CalendarOutlined,
   DatabaseOutlined,
   LinkOutlined,
+  NotificationOutlined,
   ReadOutlined,
-  FileTextOutlined,
   FormOutlined,
   HomeOutlined,
   SafetyCertificateOutlined,
@@ -17,6 +19,7 @@ import { Badge } from "antd";
 import type { MenuProps } from "antd";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../../stores/authStore";
+import { NAV_LABELS as L } from "../../../constants/navigation";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -24,28 +27,28 @@ export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 
 export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
   const items: MenuItem[] = [];
-  if (permissions.includes("announcements.manage")) {
-    items.push({
-      key: "/announcements",
-      icon: <FileTextOutlined />,
-      label: <Link to="/announcements">Pengumuman</Link>,
-    });
-  }
   if (permissions.includes("dashboard.read")) {
     items.push({
       key: "/dashboard",
       icon: <HomeOutlined />,
-      label: <Link to="/dashboard">Dashboard</Link>,
+      label: <Link to="/dashboard">{L.dashboard}</Link>,
+    });
+  }
+  if (permissions.includes("announcements.manage")) {
+    items.push({
+      key: "/announcements",
+      icon: <NotificationOutlined />,
+      label: <Link to="/announcements">{L.announcements}</Link>,
     });
   }
   items.push({
     key: "/access-tickets",
-    icon: <FileTextOutlined />,
-    label: "Akses & Tiket",
+    icon: <AuditOutlined />,
+    label: L.accessGroup,
     children: [
       {
         key: "/my-requests",
-        label: <Link to="/my-requests">Akses Saya</Link>,
+        label: <Link to="/my-requests">{L.myRequests}</Link>,
       },
       ...(permissions.includes("tickets.review")
         ? [
@@ -55,8 +58,13 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
                 <Link
                   to="/ticket-review"
                   style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  aria-label={
+                    reviewCount > 0
+                      ? `${L.ticketReview}, ${reviewCount} menunggu`
+                      : undefined
+                  }
                 >
-                  <span>Tinjau Permintaan</span>
+                  <span>{L.ticketReview}</span>
                   <Badge count={reviewCount} size="small" />
                 </Link>
               ),
@@ -68,26 +76,26 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
   if (permissions.includes("calendar.read"))
     items.push({
       key: "/calendar",
-      icon: <ScheduleOutlined />,
-      label: <Link to="/calendar">Kalender Kegiatan</Link>,
+      icon: <CalendarOutlined />,
+      label: <Link to="/calendar">{L.calendar}</Link>,
     });
   if (permissions.includes("activities.read"))
     items.push({
       key: "/activity",
       icon: <ScheduleOutlined />,
-      label: <Link to="/activity">Kegiatan</Link>,
+      label: <Link to="/activity">{L.activities}</Link>,
     });
   if (permissions.includes("members.read"))
     items.push({
       key: "/member",
       icon: <UserOutlined />,
-      label: <Link to="/member">Anggota</Link>,
+      label: <Link to="/member">{L.members}</Link>,
     });
   if (permissions.includes("counseling.read"))
     items.push({
       key: "/ruang-curhat",
       icon: <WechatOutlined />,
-      label: <Link to="/ruang-curhat">Ruang Curhat</Link>,
+      label: <Link to="/ruang-curhat">{L.counseling}</Link>,
     });
   if (
     permissions.includes("achievements.read") ||
@@ -96,13 +104,13 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
     items.push({
       key: "/leaderboard",
       icon: <TrophyOutlined />,
-      label: "Leaderboard",
+      label: L.leaderboardGroup,
       children: [
         ...(permissions.includes("achievements.read")
           ? [
               {
                 key: "/achievement",
-                label: <Link to="/achievement">Prestasi</Link>,
+                label: <Link to="/achievement">{L.achievements}</Link>,
               },
             ]
           : []),
@@ -110,12 +118,16 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
           ? [
               {
                 key: "/monthly-leaderboard",
-                label: <Link to="/monthly-leaderboard">Peringkat Bulanan</Link>,
+                label: (
+                  <Link to="/monthly-leaderboard">{L.monthlyLeaderboard}</Link>
+                ),
               },
               {
                 key: "/lifetime-leaderboard",
                 label: (
-                  <Link to="/lifetime-leaderboard">Peringkat Seumur Hidup</Link>
+                  <Link to="/lifetime-leaderboard">
+                    {L.lifetimeLeaderboard}
+                  </Link>
                 ),
               },
             ]
@@ -127,42 +139,42 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
     items.push({
       key: "/custom-form",
       icon: <FormOutlined />,
-      label: <Link to="/custom-form">Form Digital</Link>,
+      label: <Link to="/custom-form">{L.customForms}</Link>,
     });
   if (permissions.includes("short_links.read"))
     items.push({
       key: "/short-links",
       icon: <LinkOutlined />,
-      label: <Link to="/short-links">Tautan Pendek</Link>,
+      label: <Link to="/short-links">{L.shortLinks}</Link>,
     });
   if (permissions.includes("clubs.read"))
     items.push({
       key: "/club",
       icon: <TeamOutlined />,
-      label: <Link to="/club">Klub</Link>,
+      label: <Link to="/club">{L.clubs}</Link>,
     });
   if (permissions.includes("courses.read"))
     items.push({
       key: "/courses",
       icon: <ReadOutlined />,
-      label: <Link to="/courses">Kelas</Link>,
+      label: <Link to="/courses">{L.courses}</Link>,
     });
   if (permissions.includes("certificate.read"))
     items.push({
       key: "/digital-certificate",
       icon: <SafetyCertificateOutlined />,
-      label: <Link to="/digital-certificate">Sertifikat Digital</Link>,
+      label: <Link to="/digital-certificate">{L.certificates}</Link>,
     });
   if (permissions.includes("reference_data.manage")) {
     items.push({
       key: "/data-center",
       icon: <DatabaseOutlined />,
-      label: "Pusat Data",
+      label: L.dataCenterGroup,
       children: [
-        { key: "/province", label: <Link to="/province">Provinsi</Link> },
+        { key: "/province", label: <Link to="/province">{L.provinces}</Link> },
         {
           key: "/universities",
-          label: <Link to="/universities">Perguruan Tinggi</Link>,
+          label: <Link to="/universities">{L.universities}</Link>,
         },
       ],
     });
@@ -174,13 +186,13 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
     items.push({
       key: "setting",
       icon: <SettingOutlined />,
-      label: "Pengaturan",
+      label: L.settingsGroup,
       children: [
         ...(permissions.includes("admin_users.read")
           ? [
               {
                 key: "/admin-users",
-                label: <Link to="/admin-users">Akun Admin</Link>,
+                label: <Link to="/admin-users">{L.adminUsers}</Link>,
               },
             ]
           : []),
@@ -188,7 +200,7 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
           ? [
               {
                 key: "/rbac/roles",
-                label: <Link to="/rbac/roles">Role & Permission</Link>,
+                label: <Link to="/rbac/roles">{L.roles}</Link>,
               },
             ]
           : []),

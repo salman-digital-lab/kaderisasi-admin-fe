@@ -57,18 +57,18 @@ describe("Activity overview", () => {
   it("shows publication and registration readiness without wizard steps", () => {
     const html = renderOverview(false);
     expect(html).toContain("Ringkasan Pengaturan");
-    expect(html).toContain("Tayangkan Kegiatan");
-    expect(html).toContain("Kelola Form Pendaftaran");
+    expect(html).toContain("Tayangkan kegiatan");
+    expect(html).toContain("Kelola formulir pendaftaran");
     expect(html).not.toContain("ant-steps");
     expect(html).not.toContain("Hapus Kegiatan");
   });
 
   it("requires publication before registration can open", () => {
     expect(renderOverview(false)).toMatch(
-      /<button[^>]*disabled[^>]*>(?:(?!<\/button>)[\s\S])*Buka Pendaftaran/,
+      /<button[^>]*disabled[^>]*>(?:(?!<\/button>)[\s\S])*Buka pendaftaran/,
     );
     expect(renderOverview(true)).not.toMatch(
-      /<button[^>]*disabled[^>]*>(?:(?!<\/button>)[\s\S])*Buka Pendaftaran/,
+      /<button[^>]*disabled[^>]*>(?:(?!<\/button>)[\s\S])*Buka pendaftaran/,
     );
   });
 
@@ -77,7 +77,7 @@ describe("Activity overview", () => {
     const html = renderOverview(false);
     expect(html).toContain("Penghapusan kegiatan bersifat permanen");
     expect(html.indexOf("Hapus Kegiatan")).toBeGreaterThan(
-      html.indexOf("Kelola Form Pendaftaran"),
+      html.indexOf("Kelola formulir pendaftaran"),
     );
   });
 
@@ -88,7 +88,11 @@ describe("Activity overview", () => {
       can_manage_registration: false,
     };
     const html = renderOverview(false);
-    expect(html).not.toContain("Tayangkan Kegiatan");
-    expect(html).not.toContain("Buka Pendaftaran");
+    expect(html).not.toMatch(
+      /<button[^>]*>(?:(?!<\/button>)[\s\S])*Tayangkan kegiatan/,
+    );
+    expect(html).not.toMatch(
+      /<button[^>]*>(?:(?!<\/button>)[\s\S])*Buka pendaftaran/,
+    );
   });
 });

@@ -1,4 +1,4 @@
-import { notification } from "antd";
+import { message } from "antd";
 
 import {
   createMemberReq,
@@ -64,10 +64,7 @@ export const putProfile = async (id: string, props: putProfileReq) => {
   try {
     const bodyData = removeEmptyValueFromObj(props.data);
     const res = await axios.put<putProfileResp>(`/profiles/${id}`, bodyData);
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -81,10 +78,7 @@ export const putProfileAuth = async (id: string, props: putProfileAuthReq) => {
       `/profiles/auth/${id}`,
       bodyData,
     );
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -94,10 +88,7 @@ export const putProfileAuth = async (id: string, props: putProfileAuthReq) => {
 export const createMember = async (props: createMemberReq) => {
   try {
     const res = await axios.post<createMemberResp>("/members", props);
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -113,10 +104,7 @@ export const generateAccount = async (
       `/members/${id}/generate-account`,
       props,
     );
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -132,10 +120,7 @@ export const putRegionalAssignment = async (
       `/profiles/${id}/regional-assignment`,
       { alumni_regional_assignment },
     );
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);

@@ -14,6 +14,7 @@ import {
   renderActivityType,
 } from "../../../constants/render";
 import type { Activity } from "../../../types/model/activity";
+import { DATE_FORMAT } from "../../../utils/date-format";
 
 const { Title } = Typography;
 const pageSize = 10;
@@ -44,7 +45,7 @@ const ClubActivitiesPage = () => {
       title: "Kegiatan",
       key: "name",
       render: (_, record) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>{record.name}</span>
           <small>{renderActivityType(record.activity_type)}</small>
         </Space>
@@ -61,7 +62,7 @@ const ClubActivitiesPage = () => {
       key: "activity_date",
       render: (_, record) =>
         record.activity_start
-          ? dayjs(record.activity_start).format("DD MMM YYYY")
+          ? dayjs(record.activity_start).format(DATE_FORMAT)
           : "-",
     },
     {
@@ -80,7 +81,11 @@ const ClubActivitiesPage = () => {
       width: 100,
       render: (_, record) => (
         <Link to={`/activity/${record.id}`}>
-          <Button size="small" icon={<EditOutlined />} />
+          <Button
+            size="small"
+            aria-label="Ubah kegiatan"
+            icon={<EditOutlined />}
+          />
         </Link>
       ),
     },
@@ -89,7 +94,7 @@ const ClubActivitiesPage = () => {
   if (!canReadActivities) return null;
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+    <Space orientation="vertical" size="middle" style={{ display: "flex" }}>
       <Title level={4} style={{ margin: 0 }}>
         Kegiatan Klub
       </Title>
@@ -106,11 +111,15 @@ const ClubActivitiesPage = () => {
             setSearch(value);
             setCurrentPage(1);
           }}
-          prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          prefix={
+            <SearchOutlined
+              style={{ color: "var(--app-color-text-secondary)" }}
+            />
+          }
         />
         {permissions.includes("activities.manage") && (
           <Link to="/activity">
-            <Button type="primary">Tambah di Kegiatan</Button>
+            <Button type="primary">Tambah di kegiatan</Button>
           </Link>
         )}
       </Space>

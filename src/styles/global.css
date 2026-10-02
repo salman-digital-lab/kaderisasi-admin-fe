@@ -1,16 +1,28 @@
-/* Global Styles for Enhanced UI */
+/*
+ * Global styles. Component appearance (colors, radius, table/card headers)
+ * comes from the antd theme in src/theme/tokens.ts; do not override antd
+ * component classes here.
+ */
 
-/* Import Inter font for better typography */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
-/* Root variables */
+/* Mirrors APP_COLORS in src/theme/tokens.ts. */
 :root {
-  --bmka-primary: #1f99cb;
-  --bmka-secondary: #229acc;
-  --bmka-accent: #2199cc;
+  --app-color-primary: #087da7;
+  --app-color-primary-strong: #075d80;
+  --app-color-primary-bg: #f0f8fc;
+  --app-color-brand: #1f99cb;
+  --app-color-success: #389e0d;
+  --app-color-warning: #d48806;
+  --app-color-error: #cf1322;
+  --app-color-text: rgba(0, 0, 0, 0.88);
+  --app-color-text-secondary: rgba(0, 0, 0, 0.65);
+  --app-color-border: #d9d9d9;
+  --app-color-border-secondary: #f0f0f0;
+  --app-color-fill-header: #fafafa;
+  --app-color-bg-container: #ffffff;
 }
 
-/* Global body styles */
 body {
   font-family:
     "Inter",
@@ -18,292 +30,133 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     "Roboto",
-    "Oxygen",
-    "Ubuntu",
-    "Cantarell",
-    "Fira Sans",
-    "Droid Sans",
     "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Login page specific styles */
-.login-card {
-  transition: all 0.3s ease;
+/* Visible keyboard focus for custom interactive elements. */
+:focus-visible {
+  outline: 2px solid var(--app-color-primary-strong);
+  outline-offset: 2px;
 }
 
-.logo-container {
-  animation: logoFloat 3s ease-in-out infinite;
-}
-
-/* Button hover effects */
-.ant-btn-primary {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Input focus effects */
-.ant-input:focus,
-.ant-input-password:focus,
-.ant-input-affix-wrapper:focus {
-  border-color: var(--bmka-primary);
-}
-
-/* Form item styles cleaned up */
-
-/* Loading spinner customization */
-.ant-spin-dot-item {
-  background-color: var(--bmka-primary);
-}
-
-/* Notification styles */
-.ant-notification {
-  border-radius: 0px;
-}
-
-/* Responsive enhancements */
-@media (max-width: 768px) {
-  .login-card {
-    margin: 10px;
-    border-radius: 0px;
-  }
-
-  .ant-form-item {
-    margin-bottom: 20px;
-  }
-}
-
-/* Removed unused IN transition keyframes */
-
-@keyframes logoFloat {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-/* Custom scrollbar */
+/* Thin neutral scrollbar. */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 0px;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--bmka-primary);
-  border-radius: 0px;
+  background: rgba(0, 0, 0, 0.25);
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bmka-secondary);
+  background: rgba(0, 0, 0, 0.4);
 }
 
-/* Focus indicators for accessibility */
-.ant-btn:focus,
-.ant-input:focus,
-.ant-input-password:focus {
-  /* outline: 2px solid var(--bmka-primary);
-  outline-offset: 2px; */
-  box-shadow: 0 0 0 2px rgba(31, 153, 203, 0.2);
+/* Table pagination: total on the left, pager on the right. */
+.ant-table-pagination .ant-pagination-total-text {
+  margin-right: auto;
+  color: var(--app-color-text-secondary);
 }
 
-/* High contrast mode support */
+/* App shell header */
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--app-color-border-secondary);
+  line-height: 48px;
+}
+.admin-header-divider {
+  height: 24px;
+  width: 1px;
+  margin: 0 8px;
+  background-color: var(--app-color-border-secondary);
+}
+.header-profile-btn .anticon-down {
+  font-size: 12px;
+  color: var(--app-color-text-secondary);
+  transition: transform 0.2s;
+}
+.header-profile-btn[aria-expanded="true"] .anticon-down {
+  transform: rotate(180deg);
+}
+
+/* Standard page header (components/common/PageHeader) */
+.page-header {
+  margin-bottom: 16px;
+}
+.page-header-back {
+  margin-bottom: 4px;
+  padding-inline: 0;
+}
+@media (min-width: 768px) {
+  .page-header .page-header-back.ant-btn {
+    min-height: 32px;
+    height: 32px;
+  }
+}
+.page-header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.page-header-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.page-header-heading h1.ant-typography {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.page-header-description.ant-typography {
+  margin: 4px 0 0;
+  max-width: 760px;
+}
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Standard page container */
+.page-container {
+  padding: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Read-only form view: disabled inputs keep normal text contrast. */
+.readonly-form .ant-input[disabled],
+.readonly-form .ant-input-affix-wrapper-disabled,
+.readonly-form .ant-input-number-disabled,
+.readonly-form .ant-input-number-disabled input,
+.readonly-form .ant-picker-disabled input,
+.readonly-form .ant-select-disabled .ant-select-selector,
+.readonly-form .ant-select-disabled .ant-select-content,
+.readonly-form .ant-radio-wrapper-disabled,
+.readonly-form .ant-checkbox-wrapper-disabled {
+  color: var(--app-color-text) !important;
+  cursor: default;
+}
+
+/* Login page */
+.login-card {
+  border: 1px solid var(--app-color-border-secondary);
+}
 @media (prefers-contrast: high) {
   .login-card {
     border: 2px solid #000;
-  }
-
-  .ant-btn-primary {
-    border: 2px solid #000;
-  }
-}
-
-/* Enhanced Layout Styles */
-.layout-content-wrapper {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
-  transition: all 0.3s ease;
-}
-
-.content-card {
-  background: #ffffff;
-  border-radius: 0px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* Enhanced Button Styles */
-.ant-btn {
-  border-radius: 0px;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.ant-btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--bmka-primary) 0%,
-    var(--bmka-secondary) 100%
-  );
-  border: 1px solid transparent;
-}
-
-.ant-btn-primary:hover {
-  background: linear-gradient(
-    135deg,
-    var(--bmka-secondary) 0%,
-    var(--bmka-accent) 100%
-  ) !important;
-  border-color: transparent !important;
-}
-
-/* Enhanced Table Styles */
-.ant-table {
-  border-radius: 0px;
-  overflow: hidden;
-}
-
-/* Pagination styling */
-.ant-table-pagination {
-  display: flex !important;
-  justify-content: flex-end; /* Keep default but allow spreading */
-  width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-top: none; /* Merge with table */
-  padding: 12px 8px;
-  background: #ffffff;
-  border-radius: 0px;
-  margin: 0 !important; /* Remove gap */
-  font-size: 13px;
-}
-
-.ant-table-pagination .ant-pagination-total-text {
-  flex: 1 1 auto;
-  text-align: left;
-  margin-right: auto !important;
-  padding-left: 0 !important; /* Remove any default padding if needed */
-  order: -1;
-  color: #00000080;
-}
-
-.ant-table-thead > tr > th {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-bottom: 2px solid #e1e5e9;
-  font-weight: 600;
-  color: #495057;
-}
-
-.ant-table-tbody > tr:hover > td {
-  background-color: #f8f9ff !important;
-}
-
-/* Enhanced Card Styles */
-.ant-card {
-  border-radius: 0px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.ant-card-head {
-  border-bottom: 1px solid #f0f0f0;
-  background: linear-gradient(135deg, #fafbfc 0%, #f1f3f5 100%);
-}
-
-/* Enhanced Modal Styles */
-.ant-modal {
-  border-radius: 0px;
-  overflow: hidden;
-}
-
-.ant-modal-content {
-  border-radius: 0px;
-}
-
-.ant-modal-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-bottom: 1px solid #e1e5e9;
-  padding: 20px 24px;
-}
-
-.ant-modal-body {
-  padding: 24px;
-}
-
-/* Loading and Skeleton Enhancements */
-.ant-skeleton {
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Enhanced Badge and Tag Styles */
-.ant-badge {
-  transition: all 0.3s ease;
-}
-
-.ant-tag {
-  border-radius: 0px;
-  padding: 4px 12px;
-  font-weight: 500;
-  border: none;
-  transition: all 0.2s ease;
-}
-
-/* Mobile Optimizations */
-@media (max-width: 768px) {
-  .ant-table {
-    font-size: 12px;
-  }
-
-  .ant-card {
-    margin: 8px;
-    border-radius: 0px;
-  }
-
-  .ant-modal {
-    margin: 16px;
-    max-width: calc(100vw - 32px);
-  }
-
-  .content-card {
-    border-radius: 0px;
-    margin: 0;
-  }
-}
-
-/* Tablet Optimizations */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .ant-table {
-    font-size: 13px;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .layout-content-wrapper {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  }
-
-  .content-card {
-    background: #262626;
-    border-color: #434343;
   }
 }
 
@@ -316,6 +169,7 @@ body {
   }
 }
 
+/* Access request pages */
 @media (max-width: 575px) {
   .access-ticket-page .ant-card-head-wrapper {
     flex-wrap: wrap;
@@ -340,6 +194,7 @@ body {
 
 .access-ticket-page .ant-card-head {
   border-bottom: none;
+  background: transparent;
 }
 
 .access-capabilities {

@@ -9,7 +9,6 @@ import {
   Typography,
   Select,
   Divider,
-  notification,
   Tooltip,
   Collapse,
   Skeleton,
@@ -17,6 +16,7 @@ import {
   Space,
   Alert,
   Switch,
+  message,
 } from "antd";
 import { SaveOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
@@ -168,10 +168,7 @@ const ActivityDetail = () => {
               },
               description: description,
             });
-            notification.success({
-              message: "Berhasil",
-              description: "Data berhasil diubah",
-            });
+            message.success("Data berhasil diubah");
             setIsChanged(false);
           }}
           onValuesChange={() => setIsChanged(true)}
@@ -263,7 +260,7 @@ const ActivityDetail = () => {
                         {option.data.title && (
                           <InfoCircleOutlined
                             style={{
-                              color: "#1890ff",
+                              color: "var(--app-color-primary)",
                               fontSize: "12px",
                               opacity: 0.6,
                             }}
@@ -288,7 +285,7 @@ const ActivityDetail = () => {
               <Form.Item
                 name="activity_category"
                 label="Kategori Kegiatan"
-                tooltip="Jika bingung memilih kategori, silahkan konsultasikan dengan Asmen atau Admin IT"
+                tooltip="Jika bingung memilih kategori, silakan konsultasikan dengan Asmen atau Admin IT"
                 required
               >
                 <Select
@@ -301,7 +298,7 @@ const ActivityDetail = () => {
               <Form.Item
                 name="activity_type"
                 label="Tipe Kegiatan"
-                extra="Jika belum tahu, silahkan pilih Umum-Hanya Pendaftaran"
+                extra="Jika belum tahu, silakan pilih Umum-Hanya Pendaftaran"
                 tooltip="Pilihan tipe mempengaruhi jenjang pendaftar, Tolong baca Guideline atau tolong konsultasikan dengan Asmen atau Admin IT jika perlu"
                 required
               >
@@ -321,7 +318,7 @@ const ActivityDetail = () => {
                         {option.data.title && (
                           <InfoCircleOutlined
                             style={{
-                              color: "#1890ff",
+                              color: "var(--app-color-primary)",
                               fontSize: "12px",
                               opacity: 0.6,
                             }}

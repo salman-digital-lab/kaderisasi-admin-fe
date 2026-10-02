@@ -190,7 +190,7 @@ try {
     const status = page.getByRole("status", { name: "Status penyimpanan" });
     const save = async () => {
       await page
-        .getByRole("button", { name: "Simpan Perubahan", exact: true })
+        .getByRole("button", { name: "Simpan perubahan", exact: true })
         .click();
       await expect(status).toHaveText("Semua perubahan tersimpan");
     };
@@ -623,7 +623,7 @@ try {
     await select("Penutup");
     const count = writes.length;
     await page
-      .getByRole("button", { name: "Simpan Perubahan", exact: true })
+      .getByRole("button", { name: "Simpan perubahan", exact: true })
       .click();
     await expect(page.locator("#builder-section-section-0")).toBeVisible();
     await expect(
@@ -641,7 +641,7 @@ try {
       .fill("20");
     failSave = true;
     await page
-      .getByRole("button", { name: "Simpan Perubahan", exact: true })
+      .getByRole("button", { name: "Simpan perubahan", exact: true })
       .click();
     await expect(
       page.getByText("Perubahan belum disimpan", { exact: true }),

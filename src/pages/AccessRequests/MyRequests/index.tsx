@@ -12,6 +12,9 @@ import { ResponsiveTable } from "../../../components/common/Responsive/Responsiv
 import TicketStatus from "../components/TicketStatus";
 import type { AccessTicket } from "../../../types/model/access";
 import "../../../styles/guided-workflows.css";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import { DATE_TIME_FORMAT } from "../../../utils/date-format";
 
 export default function MyRequestsPage(): ReactElement {
   const roles = useRoles();
@@ -43,14 +46,14 @@ export default function MyRequestsPage(): ReactElement {
   }, [pending.length, refresh]);
   return (
     <main className="guided-page">
-      <div className="guided-intro">
-        <Typography.Title level={2}>Akses Saya</Typography.Title>
-        <p>
-          {roles.length
+      <PageHeader
+        title={NAV_LABELS.myRequests}
+        description={
+          roles.length
             ? "Hak akses Anda merupakan gabungan dari seluruh peran yang dimiliki. Ajukan peran tambahan jika tugas Anda memerlukan akses lain."
-            : "Akun Anda sudah siap. Ajukan akses sesuai tugas agar Anda dapat mulai bekerja."}
-        </p>
-      </div>
+            : "Akun Anda sudah siap. Ajukan akses sesuai tugas agar Anda dapat mulai bekerja."
+        }
+      />
       <section className="guided-section">
         <Typography.Title level={3}>Peran Anda saat ini</Typography.Title>
         <RoleTags roles={roles} />
@@ -130,7 +133,7 @@ export default function MyRequestsPage(): ReactElement {
                 {
                   title: "Diajukan",
                   render: (_, ticket) =>
-                    dayjs(ticket.created_at).format("DD MMM YYYY, HH:mm"),
+                    dayjs(ticket.created_at).format(DATE_TIME_FORMAT),
                 },
               ]}
             />

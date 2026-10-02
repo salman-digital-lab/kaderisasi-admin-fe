@@ -7,6 +7,8 @@ import { getProvinces } from "../../api/services/province";
 import { Province } from "../../types/model/province";
 import ProvinceTable from "./components/ProvinceTable";
 import ProvinceForm from "./components/ProvinceForm";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
 
 const MainProvince = () => {
   const [parameters, setParameters] = useState({
@@ -42,12 +44,15 @@ const MainProvince = () => {
   };
 
   const cardStyle = {
-    borderRadius: 0,
     boxShadow: "none",
   };
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.provinces}
+        description="Kelola daftar provinsi yang dipakai pada data anggota."
+      />
       {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
@@ -70,7 +75,7 @@ const MainProvince = () => {
               onPressEnter={handleSearch}
             />
             <Button
-              type="primary"
+              aria-label="Cari"
               icon={<SearchOutlined />}
               onClick={handleSearch}
             />
@@ -78,8 +83,9 @@ const MainProvince = () => {
 
           {/* Right: Actions */}
           <Space size={8} wrap>
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

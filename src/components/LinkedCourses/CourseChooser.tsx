@@ -24,6 +24,7 @@ import {
   COURSE_STATUS_LABELS,
 } from "../../types/model/course";
 import { actionError } from "../../utils/action-error";
+import { DIALOG_WIDTH } from "../../theme/tokens";
 
 export function CourseDetails({
   course,
@@ -119,7 +120,7 @@ export default function CourseChooser({
     <ResponsiveDialog
       open
       title="Pilih kelas online terkait"
-      width={800}
+      width={DIALOG_WIDTH.medium}
       onCancel={() => {
         if (!saving) onClose();
       }}

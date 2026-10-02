@@ -35,6 +35,7 @@ import {
 import type { ClubMemberRole } from "../../../types/model/clubMemberRole";
 import type { ClubRegistration } from "../../../types/model/clubRegistration";
 import { formatRegistrationTime } from "../../../utils/registration-time";
+import { DATE_FORMAT } from "../../../utils/date-format";
 
 type RoleFormType = {
   role_name: string;
@@ -48,7 +49,7 @@ const { Title } = Typography;
 const pageSize = 20;
 
 const getMemberName = (registration: ClubRegistration): string =>
-  registration.member?.profile?.name || registration.member?.email || "N/A";
+  registration.member?.profile?.name || registration.member?.email || "-";
 
 const ClubMembersPage = () => {
   const { id: clubId } = useParams<{ id: string }>();
@@ -196,15 +197,15 @@ const ClubMembersPage = () => {
       key: "roles",
       render: (_, record) =>
         record.roles?.length ? (
-          <Space direction="vertical" size={4}>
+          <Space orientation="vertical" size={4}>
             {record.roles.map((role) => (
               <Space key={role.id} size={4} wrap>
                 <Tag color={role.is_primary ? "blue" : "default"}>
                   {role.role_name}
                 </Tag>
-                <Tooltip title="Edit peran">
+                <Tooltip title="Ubah peran">
                   <Button
-                    aria-label="Edit peran"
+                    aria-label="Ubah peran"
                     size="small"
                     icon={<EditOutlined />}
                     onClick={() => openEditRole(record, role)}
@@ -240,7 +241,7 @@ const ClubMembersPage = () => {
       title: "Tanggal Diterima",
       dataIndex: "updated_at",
       key: "updated_at",
-      render: (value: string) => dayjs(value).format("DD MMM YYYY"),
+      render: (value: string) => dayjs(value).format(DATE_FORMAT),
     },
     {
       title: "Aksi",
@@ -259,7 +260,7 @@ const ClubMembersPage = () => {
   ];
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+    <Space orientation="vertical" size="middle" style={{ display: "flex" }}>
       <Title level={4} style={{ margin: 0 }}>
         Daftar Anggota Klub
       </Title>
@@ -272,7 +273,11 @@ const ClubMembersPage = () => {
             setSearch(value);
             setCurrentPage(1);
           }}
-          prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+          prefix={
+            <SearchOutlined
+              style={{ color: "var(--app-color-text-secondary)" }}
+            />
+          }
         />
       </Space>
 

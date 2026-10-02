@@ -1,6 +1,7 @@
-import { TableProps, Tag } from "antd";
+import { TableProps, Tag, Typography } from "antd";
 import dayjs from "dayjs";
 import { MonthlyLeaderboardType } from "../../../../types/services/leaderboard";
+import { MONTH_FORMAT } from "../../../../utils/date-format";
 
 export const TABLE_SCHEMA: TableProps<
   MonthlyLeaderboardType & { rank: number }
@@ -47,30 +48,27 @@ export const TABLE_SCHEMA: TableProps<
   {
     title: "Bulan",
     dataIndex: "month",
-    render: (value) => dayjs(value).locale("id").format("MMMM YYYY"),
+    render: (value) => dayjs(value).format(MONTH_FORMAT),
   },
   {
     title: "Total Skor",
     dataIndex: "score",
-    render: (value) => (
-      <Tag color="blue" style={{ fontSize: "14px", fontWeight: "bold" }}>
-        {value}
-      </Tag>
-    ),
+    align: "right",
+    render: (value) => <Typography.Text strong>{value}</Typography.Text>,
   },
   {
     title: "Skor Akademik",
     dataIndex: "score_academic",
-    render: (value) => <span style={{ color: "#52c41a" }}>{value}</span>,
+    align: "right",
   },
   {
     title: "Skor Kompetisi",
     dataIndex: "score_competition",
-    render: (value) => <span style={{ color: "#1890ff" }}>{value}</span>,
+    align: "right",
   },
   {
     title: "Skor Organisasi",
     dataIndex: "score_organizational",
-    render: (value) => <span style={{ color: "#fa8c16" }}>{value}</span>,
+    align: "right",
   },
 ];

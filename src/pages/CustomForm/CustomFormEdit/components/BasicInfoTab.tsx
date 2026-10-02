@@ -15,6 +15,7 @@ import type { FormInstance } from "antd";
 import { useEffect, useState } from "react";
 import { getAvailableActivities } from "../../../../api/services/customForm";
 import { RichTextEditor } from "../../../../components";
+import { formatDateTime } from "../../../../utils/date-format";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -98,7 +99,7 @@ export const BasicInfoTab = ({
     >
       <section className="guided-section">
         <Form.Item
-          label="Nama Form"
+          label="Nama Formulir"
           name="formName"
           rules={[
             { required: true, message: "Isi nama formulir." },
@@ -112,17 +113,17 @@ export const BasicInfoTab = ({
             },
           ]}
         >
-          <Input placeholder="Masukkan nama form" />
+          <Input placeholder="Masukkan nama formulir" />
         </Form.Item>
 
         <Row gutter={24}>
           <Col xs={24} lg={12}>
             <Form.Item
-              label="Informasi Awal Pengisian Form (Opsional)"
+              label="Informasi Awal Pengisian Formulir (Opsional)"
               name="formDescription"
             >
               <TextArea
-                placeholder="Masukkan informasi awal pengisian form"
+                placeholder="Masukkan informasi awal pengisian formulir"
                 autoSize={{ minRows: 8, maxRows: 12 }}
                 showCount
               />
@@ -130,12 +131,12 @@ export const BasicInfoTab = ({
           </Col>
           <Col xs={24} lg={12}>
             <Form.Item
-              label="Informasi Pasca Pengisian Form (Opsional)"
+              label="Informasi Pasca Pengisian Formulir (Opsional)"
               name="postSubmissionInfo"
-              tooltip="Informasi ini akan ditampilkan setelah pengguna berhasil mengisi form"
+              tooltip="Informasi ini akan ditampilkan setelah pengguna berhasil mengisi formulir"
             >
               <RichTextEditor
-                placeholder="Masukkan informasi pasca pengisian form (opsional)"
+                placeholder="Masukkan informasi pasca pengisian formulir (opsional)"
                 minHeight="164px"
                 maxHeight="280px"
               />
@@ -155,23 +156,30 @@ export const BasicInfoTab = ({
               ),
               children: (
                 <>
-                  <Form.Item label="Tipe Form" name="featureType">
+                  <Form.Item label="Tipe Formulir" name="featureType">
                     <Select
                       placeholder="Pilih tipe fitur"
                       onChange={handleFeatureTypeChange}
-                    >
-                      <Select.Option value="activity_registration">
-                        Pendaftaran Aktivitas
-                      </Select.Option>
-                      {initialData.feature_type === "club_registration" && (
-                        <Select.Option value="club_registration" disabled>
-                          Pendaftaran Klub
-                        </Select.Option>
-                      )}
-                      <Select.Option value="independent_form">
-                        Form Independen
-                      </Select.Option>
-                    </Select>
+                      options={[
+                        {
+                          value: "activity_registration",
+                          label: "Pendaftaran Kegiatan",
+                        },
+                        ...(initialData.feature_type === "club_registration"
+                          ? [
+                              {
+                                value: "club_registration",
+                                label: "Pendaftaran Klub",
+                                disabled: true,
+                              },
+                            ]
+                          : []),
+                        {
+                          value: "independent_form",
+                          label: "Formulir Independen",
+                        },
+                      ]}
+                    />
                   </Form.Item>
 
                   {featureType === "activity_registration" &&
@@ -193,7 +201,7 @@ export const BasicInfoTab = ({
                     )}
                   {featureType === "activity_registration" && (
                     <Form.Item
-                      label="Pilih Aktivitas"
+                      label="Pilih Kegiatan"
                       name="featureId"
                       rules={[
                         {
@@ -204,24 +212,22 @@ export const BasicInfoTab = ({
                       ]}
                     >
                       <Select
-                        placeholder="Pilih aktivitas"
+                        placeholder="Pilih kegiatan"
                         loading={loadingActivities}
                         showSearch
-                        optionFilterProp="children"
-                      >
-                        {availableActivities.map((activity) => (
-                          <Select.Option key={activity.id} value={activity.id}>
-                            {activity.name}
-                          </Select.Option>
-                        ))}
-                      </Select>
+                        optionFilterProp="label"
+                        options={availableActivities.map((activity) => ({
+                          value: activity.id,
+                          label: activity.name,
+                        }))}
+                      />
                     </Form.Item>
                   )}
 
                   {featureType === "independent_form" && (
                     <Form.Item
                       label="ID Fitur"
-                      help="Form independen tidak memerlukan ID fitur"
+                      help="Formulir independen tidak memerlukan ID fitur"
                     >
                       <Input value="Tidak ada" disabled />
                     </Form.Item>
@@ -232,7 +238,7 @@ export const BasicInfoTab = ({
           ]}
         />
       </section>
-      <dl className="builder-form-metadata" aria-label="Informasi form">
+      <dl className="builder-form-metadata" aria-label="Informasi formulir">
         <div>
           <dt>Status</dt>
           <dd>
@@ -257,28 +263,12 @@ export const BasicInfoTab = ({
 
         <div>
           <dt>Dibuat</dt>
-          <dd>
-            {new Date(initialData.created_at).toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </dd>
+          <dd>{formatDateTime(initialData.created_at)}</dd>
         </div>
 
         <div>
           <dt>Terakhir diperbarui</dt>
-          <dd>
-            {new Date(initialData.updated_at).toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </dd>
+          <dd>{formatDateTime(initialData.updated_at)}</dd>
         </div>
       </dl>
     </Form>

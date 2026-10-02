@@ -88,7 +88,7 @@ export default function ActivityOverview({
           title="Kesiapan kegiatan gagal dimuat"
           action={
             <Button onClick={() => void refreshAsync().catch(() => undefined)}>
-              Coba Lagi
+              Coba lagi
             </Button>
           }
         />
@@ -171,12 +171,14 @@ export default function ActivityOverview({
                             avatar={
                               item.complete ? (
                                 <CheckCircleFilled
-                                  style={{ color: "#52c41a" }}
+                                  style={{ color: "var(--app-color-success)" }}
                                   aria-label="Selesai"
                                 />
                               ) : (
                                 <ClockCircleOutlined
-                                  style={{ color: "#8c8c8c" }}
+                                  style={{
+                                    color: "var(--app-color-text-secondary)",
+                                  }}
                                   aria-label="Belum selesai"
                                 />
                               )
@@ -234,11 +236,11 @@ export default function ActivityOverview({
                     >
                       {publication
                         ? active
-                          ? "Sembunyikan Kegiatan"
-                          : "Tayangkan Kegiatan"
+                          ? "Sembunyikan kegiatan"
+                          : "Tayangkan kegiatan"
                         : active
-                          ? "Tutup Pendaftaran"
-                          : "Buka Pendaftaran"}
+                          ? "Tutup pendaftaran"
+                          : "Buka pendaftaran"}
                     </Button>
                   )}
                   <Button
@@ -248,8 +250,8 @@ export default function ActivityOverview({
                     onClick={() => onNavigate(publication ? "1" : "7")}
                   >
                     {publication
-                      ? "Edit Detail Kegiatan"
-                      : "Kelola Form Pendaftaran"}
+                      ? "Ubah detail kegiatan"
+                      : "Kelola formulir pendaftaran"}
                   </Button>
                 </Space>
               </Card>

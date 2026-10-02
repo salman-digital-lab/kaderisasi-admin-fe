@@ -5,29 +5,21 @@ import { getRoles } from "../../../api/services/access";
 import type { RbacRole } from "../../../types/model/access";
 import type { ReactElement } from "react";
 import RoleSummary from "../../AccessRequests/components/RoleSummary";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 export default function RbacRolesPage(): ReactElement {
   const { data: roles = [], loading, error } = useRequest(getRoles);
 
   return (
-    <div style={{ padding: 12 }}>
-      <Card
-        size="small"
-        title={
-          <div style={{ whiteSpace: "normal", paddingBlock: 8 }}>
-            <Typography.Title level={4} style={{ margin: 0 }}>
-              Peran & Akses
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              Satu akun dapat memiliki beberapa peran. Hak akses dari seluruh
-              peran digabungkan. Tetapkan peran melalui Akun Admin atau ajukan
-              peran tambahan melalui Akses Saya.
-            </Typography.Text>
-          </div>
-        }
-      >
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.roles}
+        description={`Satu akun dapat memiliki beberapa peran. Hak akses dari seluruh peran digabungkan. Tetapkan peran melalui ${NAV_LABELS.adminUsers} atau ajukan peran tambahan melalui ${NAV_LABELS.myRequests}.`}
+      />
+      <Card size="small">
         {error && (
-          <Alert type="error" title="Daftar role gagal dimuat" showIcon />
+          <Alert type="error" title="Daftar peran gagal dimuat" showIcon />
         )}
         <Table<RbacRole>
           listId="pages/Rbac/Roles/index:1"

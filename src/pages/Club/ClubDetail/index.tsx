@@ -1,7 +1,7 @@
 import LinkedCoursesTab from "../../../components/LinkedCourses/LinkedCoursesTab";
 import { usePermissions } from "../../../stores/authStore";
 import { useState } from "react";
-import { Alert, Button, Skeleton, Space, Tabs, Tag, Typography } from "antd";
+import { Alert, Button, Skeleton, Tabs } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useRequest } from "ahooks";
@@ -20,8 +20,11 @@ import {
   resolveClubSection,
   type ClubSection,
 } from "../utils/club-workspace";
-
-const { Paragraph, Title } = Typography;
+import PageHeader from "../../../components/common/PageHeader";
+import {
+  PublicationTag,
+  RegistrationTag,
+} from "../../../components/common/StatusTags";
 
 const MainClubDetail = () => {
   const permissions = usePermissions();
@@ -71,7 +74,7 @@ const MainClubDetail = () => {
           description="Periksa koneksi atau layanan API, lalu coba kembali."
           action={
             <Button icon={<ReloadOutlined />} onClick={refresh}>
-              Coba Lagi
+              Coba lagi
             </Button>
           }
         />
@@ -132,48 +135,35 @@ const MainClubDetail = () => {
   }
 
   return (
-    <main style={{ minWidth: 0, width: "100%", padding: 12 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: 16,
-          marginBottom: 8,
-        }}
-      >
-        <div>
-          <Space size="small" wrap>
-            <Title level={2} style={{ margin: 0 }}>
-              {club.name}
-            </Title>
-            <Tag color={club.is_show ? "success" : "default"}>
-              {club.is_show ? "Tayang" : "Draf"}
-            </Tag>
-            <Tag color={club.is_registration_open ? "processing" : "default"}>
-              {club.is_registration_open
-                ? "Pendaftaran Dibuka"
-                : "Pendaftaran Ditutup"}
-            </Tag>
-          </Space>
-          <Paragraph type="secondary" style={{ margin: "4px 0 0" }}>
-            Kelola profil publik, pendaftaran, anggota, dan kegiatan dari satu
-            tempat.
-          </Paragraph>
-        </div>
-        <Space wrap>
-          <Button icon={<ReloadOutlined />} loading={loading} onClick={refresh}>
-            Muat Ulang
-          </Button>
-          <DeleteFeatureButton
-            kind="club"
-            id={club.id}
-            name={club.name}
-            disabled={loading}
-          />
-        </Space>
-      </header>
+    <main className="page-container">
+      <PageHeader
+        back={{ to: "/club", label: "Kembali ke daftar klub" }}
+        title={club.name}
+        tags={
+          <>
+            <PublicationTag published={club.is_show} />
+            <RegistrationTag open={club.is_registration_open} />
+          </>
+        }
+        description="Kelola profil publik, pendaftaran, anggota, dan kegiatan dari satu tempat."
+        extra={
+          <>
+            <Button
+              icon={<ReloadOutlined />}
+              loading={loading}
+              onClick={refresh}
+            >
+              Muat ulang
+            </Button>
+            <DeleteFeatureButton
+              kind="club"
+              id={club.id}
+              name={club.name}
+              disabled={loading}
+            />
+          </>
+        }
+      />
 
       <Tabs
         activeKey={activeSection}

@@ -177,7 +177,7 @@ try {
     ).toBeVisible();
     await expect(page.getByText("Konselor", { exact: true })).toBeVisible();
     await capture("admin-list");
-    await page.getByRole("button", { name: "Ubah Akun", exact: true }).click();
+    await page.getByRole("button", { name: "Ubah akun", exact: true }).click();
     let dialog = page.getByRole("dialog");
     const select = dialog.getByRole("combobox", { name: "Peran", exact: true });
     await select.fill("Pengelola Komunitas");
@@ -204,7 +204,7 @@ try {
       "konselor",
       "club_manager",
     ]);
-    await page.getByRole("button", { name: "Ubah Akun", exact: true }).click();
+    await page.getByRole("button", { name: "Ubah akun", exact: true }).click();
     dialog = page.getByRole("dialog");
     const clearInput = dialog.getByRole("combobox", {
       name: "Peran",
@@ -227,7 +227,7 @@ try {
     await dialog
       .getByRole("textbox", { name: /Email$/ })
       .fill("baru@example.test");
-    await dialog.getByLabel(/Password$/).fill("Fixture-password-2026!");
+    await dialog.getByLabel(/Kata sandi$/).fill("Fixture-password-2026!");
     const addSelect = dialog.getByRole("combobox", {
       name: "Peran",
       exact: true,
@@ -285,7 +285,7 @@ try {
     await page.goto("/ticket-review/11");
     await expect(page.getByText("Peran pemohon saat ini")).toBeVisible();
     await expect(page.getByText("Konselor", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: /Setujui Permintaan$/ }).click();
+    await page.getByRole("button", { name: /Setujui permintaan$/ }).click();
     dialog = page.getByRole("dialog");
     await expect(dialog).toContainText("tidak melepas peran lain");
     await capture("review-approval");
@@ -319,7 +319,7 @@ try {
     currentId = 1;
     failRoles = true;
     await page.goto("/admin-users");
-    await page.getByRole("button", { name: "Ubah Akun", exact: true }).click();
+    await page.getByRole("button", { name: "Ubah akun", exact: true }).click();
     dialog = page.getByRole("dialog");
     await expect(
       dialog.getByText("Daftar peran belum berhasil dimuat"),

@@ -66,6 +66,8 @@ import { getCertificateVerificationUrl } from "../../DigitalCertificate/utils/ce
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
+import PageHeader from "../../../components/common/PageHeader";
+import { DATE_TIME_FORMAT } from "../../../utils/date-format";
 
 interface FilterValues {
   search?: string;
@@ -75,7 +77,6 @@ interface FilterValues {
 type ParticipantRow = Registrant & { activity_id: number };
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -350,10 +351,10 @@ const ActivityParticipants = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        message.success("Export berhasil");
+        message.success("Ekspor berhasil");
       }
     } catch {
-      message.error("Export gagal");
+      message.error("Ekspor gagal");
     } finally {
       setIsExporting(false);
     }
@@ -382,7 +383,7 @@ const ActivityParticipants = () => {
 
           if (issued?.revoked_at) {
             return (
-              <Space direction="vertical" size={2}>
+              <Space orientation="vertical" size={2}>
                 <Space size={4}>
                   <Tag color="red">Tidak diterbitkan</Tag>
                   {canIssue && (
@@ -405,7 +406,7 @@ const ActivityParticipants = () => {
                 </Space>
                 <Text type="secondary" style={{ fontSize: 11 }}>
                   {issued.revoked_reason || "Tanpa alasan"} ·{" "}
-                  {dayjs(issued.revoked_at).format("DD MMM YYYY HH:mm")}
+                  {dayjs(issued.revoked_at).format(DATE_TIME_FORMAT)}
                   {issued.revoked_by_name
                     ? ` · ${issued.revoked_by_name}`
                     : issued.revoked_by
@@ -526,14 +527,19 @@ const ActivityParticipants = () => {
 
   if (activityLoading || customFormLoading) {
     return (
-      <div style={{ padding: 24 }}>
+      <div className="page-container">
         <Skeleton active />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        back={{ to: `/activity/${id}`, label: "Kembali ke kegiatan" }}
+        title="Kelola Peserta"
+        description={activity?.name}
+      />
       {/* Add Participant Modal */}
       <MembersListModal
         open={addParticipantModal}
@@ -610,7 +616,11 @@ const ActivityParticipants = () => {
                   onChange={(e) => setSearchInput(e.target.value)}
                   onSearch={apply}
                   aria-label="Cari peserta berdasarkan nama atau email"
-                  prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                  prefix={
+                    <SearchOutlined
+                      style={{ color: "var(--app-color-text-secondary)" }}
+                    />
+                  }
                 />
 
                 <Select
@@ -672,7 +682,7 @@ const ActivityParticipants = () => {
               Tambah
             </Button>
 
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={handleRefresh}

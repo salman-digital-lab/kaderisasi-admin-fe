@@ -30,7 +30,7 @@ export default function GenerateAccountModal({
       title="Buat Akun"
       open={isOpen}
       confirmLoading={loading}
-      okText="Buat Akun"
+      okText="Buat akun"
       cancelText="Batal"
       onOk={async () => {
         const data = await validateFieldsAndFocus(form);
@@ -56,21 +56,21 @@ export default function GenerateAccountModal({
           label="Email"
           name="email"
           rules={[
-            { required: true, message: "Email tidak boleh kosong" },
+            { required: true, message: "Email wajib diisi" },
             { type: "email", message: "Format email tidak valid" },
           ]}
         >
           <Input placeholder="Email" />
         </Form.Item>
         <Form.Item
-          label="Password"
+          label="Kata sandi"
           name="password"
           rules={[
-            { required: true, message: "Password tidak boleh kosong" },
-            { min: 8, message: "Password minimal 8 karakter" },
+            { required: true, message: "Kata sandi wajib diisi" },
+            { min: 8, message: "Kata sandi minimal 8 karakter" },
           ]}
         >
-          <Input.Password placeholder="Password" />
+          <Input.Password placeholder="Kata sandi" />
         </Form.Item>
       </Form>
     </Modal>

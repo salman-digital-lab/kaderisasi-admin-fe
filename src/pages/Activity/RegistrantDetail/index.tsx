@@ -1,6 +1,6 @@
 import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
 import FormAnswerFiles from "../../../components/common/FormAnswerFiles";
-import { DescriptionsProps, Image, Flex, Typography, Divider, Tag } from "antd";
+import { Card, DescriptionsProps, Image, Flex, Tag } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import type { ReactNode } from "react";
@@ -18,8 +18,7 @@ import {
   formatWorkHistory,
   formatProfileValue,
 } from "../../../utils/education";
-
-const { Title } = Typography;
+import PageHeader from "../../../components/common/PageHeader";
 
 const GENDER_MAP: Record<string, string> = {
   M: "Laki-Laki",
@@ -95,6 +94,11 @@ const RegistrantDetail = () => {
   );
 
   const profile = profileData?.profile[0];
+  const guestName =
+    isGuest && registrantData?.guest_data
+      ? String(registrantData.guest_data["name"] ?? "")
+      : "";
+  const participantName = isGuest ? guestName : profile?.name;
   const profileSection = customFormData?.is_active
     ? customFormData.form_schema.fields[0]
     : undefined;
@@ -234,55 +238,58 @@ const RegistrantDetail = () => {
   }
 
   return (
-    <Flex vertical gap="large" style={{ padding: 12 }}>
-      <div>
-        <Title level={5} style={{ marginBottom: 12 }}>
-          Info Peserta
-          {isGuest && (
-            <Tag color="orange" style={{ marginLeft: 8, fontWeight: "normal" }}>
-              Tamu
-            </Tag>
-          )}
-        </Title>
-        <Flex gap="middle" align="start">
-          {!isGuest && (
-            <Image
-              width={120}
-              style={{ borderRadius: 8 }}
-              src={
-                profileData?.profile[0]?.picture
-                  ? `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${profileData.profile[0].picture}`
-                  : undefined
+    <div className="page-container">
+      <PageHeader
+        back={
+          registrantData?.activity_id
+            ? {
+                to: `/activity/${registrantData.activity_id}/participants`,
+                label: "Kembali ke daftar peserta",
               }
-              fallback="https://placehold.co/200x200?text=Tidak ada gambar"
+            : undefined
+        }
+        title={participantName || "Detail Peserta"}
+        tags={isGuest ? <Tag color="orange">Tamu</Tag> : undefined}
+        description={activityData?.name}
+      />
+      <Flex vertical gap={12}>
+        <Card title="Info Peserta">
+          <Flex gap="middle" align="start" wrap>
+            {!isGuest && (
+              <Image
+                width={120}
+                alt={
+                  participantName ? `Foto ${participantName}` : "Foto peserta"
+                }
+                src={
+                  profileData?.profile[0]?.picture
+                    ? `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${profileData.profile[0].picture}`
+                    : undefined
+                }
+                fallback="/placeholder-image.svg"
+              />
+            )}
+            <Descriptions
+              bordered
+              items={userInfoDescription}
+              size="small"
+              style={{ flex: "1 1 320px", minWidth: 0 }}
             />
-          )}
-          <Descriptions
-            bordered
-            items={userInfoDescription}
-            size="small"
-            style={{ flex: 1 }}
-          />
-        </Flex>
-      </div>
+          </Flex>
+        </Card>
 
-      {(questionnaireAnswerDescription?.length ?? 0) > 0 && (
-        <>
-          <Divider style={{ margin: 0 }} />
-          <div>
-            <Title level={5} style={{ marginBottom: 12 }}>
-              Jawaban Questionnaire
-            </Title>
+        {(questionnaireAnswerDescription?.length ?? 0) > 0 && (
+          <Card title="Jawaban Kuesioner">
             <Descriptions
               bordered
               items={questionnaireAnswerDescription}
               column={1}
               size="small"
             />
-          </div>
-        </>
-      )}
-    </Flex>
+          </Card>
+        )}
+      </Flex>
+    </div>
   );
 };
 

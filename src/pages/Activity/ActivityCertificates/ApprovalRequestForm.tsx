@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Button,
-  ConfigProvider,
-  Form,
-  Select,
-  Space,
-  Typography,
-} from "antd";
+import { Alert, Button, Form, Select, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
 import {
   APPROVAL_ERRORS,
@@ -16,9 +8,7 @@ import {
   requestCertificateApprovals,
 } from "../../../api/services/certificateApproval";
 import type { IssuancePlan } from "../../../types/services/certificateWorkflow";
-import { CERTIFICATE_APPROVAL_THEME } from "../../DigitalCertificate/constants/approval-theme";
 import { preflightSalmanRecipients } from "./preflightSalman";
-import "../../DigitalCertificate/components/certificate-approval.css";
 
 export function ApprovalRequestForm({
   plan,
@@ -131,7 +121,7 @@ export function ApprovalRequestForm({
     }
   }
   return (
-    <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
+    <>
       <Form
         form={form}
         className="certificate-approval"
@@ -217,6 +207,6 @@ export function ApprovalRequestForm({
           <span role="status">{progress}</span>
         </Space>
       </Form>
-    </ConfigProvider>
+    </>
   );
 }

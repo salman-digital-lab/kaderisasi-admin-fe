@@ -2,7 +2,7 @@ import axios from "../axios";
 import { handleError } from "../errorHandling";
 
 import { removeEmptyValueFromObj } from "../../functions";
-import { notification } from "antd";
+import { message } from "antd";
 import { renderNotification } from "../../constants/render";
 import {
   GetAdminsUserReq,
@@ -41,10 +41,7 @@ export const postAdminUser = async (
 
   const res = await axios.post<PostAdminUserResp>("/admin-users", bodyData);
 
-  notification.success({
-    message: "Berhasil",
-    description: renderNotification(res.data.message),
-  });
+  message.success(renderNotification(res.data.message));
   return res.data.data;
 };
 
@@ -58,10 +55,7 @@ export const putAdminUser = async (
     bodyData,
   );
 
-  notification.success({
-    message: "Berhasil",
-    description: renderNotification(res.data.message),
-  });
+  message.success(renderNotification(res.data.message));
   return res.data.data;
 };
 
@@ -74,10 +68,7 @@ export const putAdminUserPassword = async (props: PutAdminUserPasswordReq) => {
       bodyData,
     );
 
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return;
   } catch (error) {
     handleError(error);

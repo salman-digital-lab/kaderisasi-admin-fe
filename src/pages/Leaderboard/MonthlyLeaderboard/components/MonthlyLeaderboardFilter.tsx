@@ -3,9 +3,9 @@ import { Input, Card, Button, DatePicker, Space, Tooltip } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useState } from "react";
+import { MONTH_FORMAT } from "../../../../utils/date-format";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -82,7 +82,11 @@ export default function MonthlyLeaderboardFilter({
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 onPressEnter={apply}
-                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: "var(--app-color-text-secondary)" }}
+                  />
+                }
               />
 
               <Input
@@ -96,15 +100,15 @@ export default function MonthlyLeaderboardFilter({
               <DatePicker.MonthPicker
                 placeholder="Pilih bulan dan tahun"
                 style={{ width: 180 }}
-                format="MMMM YYYY"
+                format={MONTH_FORMAT}
                 allowClear
                 value={monthYear}
                 onChange={setMonthYear}
               />
 
               <Button
+                aria-label="Cari"
                 icon={<SearchOutlined />}
-                type="primary"
                 onClick={apply}
               />
             </Space>
@@ -114,8 +118,9 @@ export default function MonthlyLeaderboardFilter({
         {/* Right: Actions */}
         <Space size={8} wrap>
           {refresh && (
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

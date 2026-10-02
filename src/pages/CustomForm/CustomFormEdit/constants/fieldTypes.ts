@@ -72,19 +72,19 @@ export const FIELD_CATEGORIES = [
     key: "all",
     label: "Semua Field",
     icon: DatabaseOutlined,
-    color: "#666",
+    color: "var(--app-color-text-secondary)",
   },
   {
     key: "text",
     label: "Field Teks",
     icon: FontSizeOutlined,
-    color: "#1890ff",
+    color: "var(--app-color-primary)",
   },
   {
     key: "number",
     label: "Field Angka",
     icon: NumberOutlined,
-    color: "#52c41a",
+    color: "var(--app-color-success)",
   },
   {
     key: "selection",

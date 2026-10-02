@@ -11,6 +11,7 @@ import {
   type Preview,
 } from "./types";
 import styles from "./Composer.module.css";
+import { DIALOG_WIDTH } from "../../theme/tokens";
 
 const messageFields = ["title", "body", "link_label", "link_url"];
 
@@ -190,7 +191,7 @@ export default function AnnouncementComposer({
       <Modal
         open
         centered
-        width={680}
+        width={DIALOG_WIDTH.medium}
         rootClassName={styles.dialog}
         title={
           <span ref={title} tabIndex={-1}>

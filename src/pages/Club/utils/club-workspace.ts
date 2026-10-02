@@ -145,23 +145,23 @@ export const getClubReadiness = (
     {
       key: "registration-info",
       label: "Informasi pendaftaran",
-      description: "Berikan petunjuk sebelum calon anggota mengisi form.",
+      description: "Berikan petunjuk sebelum calon anggota mengisi formulir.",
       complete: hasRichText(club.registration_info?.registration_info),
       section: "registration",
       priority: "registration",
     },
     {
       key: "registration-form",
-      label: "Form pendaftaran terhubung",
-      description: "Buat form baru atau hubungkan form yang sudah ada.",
+      label: "Formulir pendaftaran terhubung",
+      description: "Buat formulir baru atau hubungkan formulir yang sudah ada.",
       complete: Boolean(attachedForm),
       section: "registration",
       priority: "registration",
     },
     {
       key: "registration-form-active",
-      label: "Form pendaftaran aktif",
-      description: "Form harus aktif sebelum pendaftaran dapat dibuka.",
+      label: "Formulir pendaftaran aktif",
+      description: "Formulir harus aktif sebelum pendaftaran dapat dibuka.",
       complete: attachedForm?.is_active === true,
       section: "registration",
       priority: "registration",
@@ -184,10 +184,10 @@ export const getClubReadiness = (
   let registrationBlockingReason: string | undefined;
   if (!attachedForm) {
     registrationBlockingReason =
-      "Buat atau hubungkan form pendaftaran terlebih dahulu.";
+      "Buat atau hubungkan formulir pendaftaran terlebih dahulu.";
   } else if (!attachedForm.is_active) {
     registrationBlockingReason =
-      "Aktifkan form pendaftaran sebelum membuka pendaftaran.";
+      "Aktifkan formulir pendaftaran sebelum membuka pendaftaran.";
   } else if (registrationDateExpired) {
     registrationBlockingReason =
       "Pilih tanggal penutupan hari ini atau setelahnya.";

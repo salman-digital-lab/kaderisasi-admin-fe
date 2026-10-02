@@ -103,9 +103,7 @@ export default function CourseForm({
           aria-label="Informasi kelas"
         >
           {initial && (
-            <Typography.Title level={3} style={{ fontSize: 20 }}>
-              Informasi kelas
-            </Typography.Title>
+            <Typography.Title level={3}>Informasi kelas</Typography.Title>
           )}
           <Form.Item
             name="title"
@@ -142,9 +140,7 @@ export default function CourseForm({
           aria-label="Akses dan penayangan"
         >
           {initial && (
-            <Typography.Title level={3} style={{ fontSize: 20 }}>
-              Akses dan penayangan
-            </Typography.Title>
+            <Typography.Title level={3}>Akses dan penayangan</Typography.Title>
           )}
           <Form.Item
             name="minimum_level"

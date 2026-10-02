@@ -1,61 +1,54 @@
 import React from "react";
-import { Card, Col, Row, Statistic, Typography } from "antd";
+import { Card, Col, Row, Statistic } from "antd";
+import LoadErrorAlert from "../../components/common/LoadErrorAlert";
 import { useRequest } from "ahooks";
 import {
   UserOutlined,
-  AppstoreOutlined,
-  MessageOutlined,
+  ScheduleOutlined,
+  WechatOutlined,
 } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import { getDashboardStats } from "../../api/services/dashboard";
-
-const { Text } = Typography;
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
+import { usePermissions } from "../../stores/authStore";
+import { APP_COLORS } from "../../theme/tokens";
 
 interface StatsCardProps {
   title: string;
   value: number | undefined;
   loading: boolean;
   icon: React.ReactNode;
+  /** Destination with the full list; omitted when the user cannot open it. */
+  to?: string;
+  linkLabel: string;
 }
 
-// Extracted outside DashboardPage to prevent recreation on every render
 const StatsCard = React.memo(
-  ({ title, value, loading, icon }: StatsCardProps) => (
+  ({ title, value, loading, icon, to, linkLabel }: StatsCardProps) => (
     <Card
-      variant="outlined"
-      style={{
-        height: "100%",
-        borderRadius: 0,
-      }}
-      styles={{ body: { padding: "16px" } }}
+      style={{ height: "100%" }}
+      actions={
+        to
+          ? [
+              <Link key="open" to={to}>
+                {linkLabel}
+              </Link>,
+            ]
+          : undefined
+      }
     >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-        }}
-      >
-        <div>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            {title}
-          </Text>
-          <div style={{ marginTop: 4 }}>
-            <Statistic
-              value={value}
-              loading={loading}
-              valueStyle={{ fontWeight: 600, fontSize: 24, color: "#1f1f1f" }}
-            />
-          </div>
-        </div>
-        <div
-          style={{
-            color: "#8c8c8c",
-            fontSize: 20,
-          }}
-        >
-          {icon}
-        </div>
-      </div>
+      <Statistic
+        title={title}
+        value={value}
+        loading={loading}
+        prefix={
+          <span style={{ color: APP_COLORS.primary, marginRight: 4 }}>
+            {icon}
+          </span>
+        }
+        styles={{ content: { fontWeight: 600 } }}
+      />
     </Card>
   ),
 );
@@ -63,28 +56,31 @@ const StatsCard = React.memo(
 StatsCard.displayName = "StatsCard";
 
 const DashboardPage = () => {
-  // Single API call with caching
-  const { data, loading } = useRequest(getDashboardStats, {
+  const permissions = usePermissions();
+  const { data, loading, refresh } = useRequest(getDashboardStats, {
     cacheKey: "dashboard-stats",
-    staleTime: 60000, // 60 seconds - data considered fresh, no refetch
+    staleTime: 60000,
   });
+  const failed = !loading && !data;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 16,
-        padding: 12,
-      }}
-    >
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.dashboard}
+        description="Ringkasan data utama Sistem Kaderisasi BMKA."
+      />
+      {failed && (
+        <LoadErrorAlert title="Ringkasan gagal dimuat" onRetry={refresh} />
+      )}
       <Row gutter={[12, 12]}>
         <Col xs={24} sm={12} md={8}>
           <StatsCard
-            title="Total Pengguna"
+            title="Total Anggota"
             value={data?.totalProfiles}
             loading={loading}
             icon={<UserOutlined />}
+            to={permissions.includes("members.read") ? "/member" : undefined}
+            linkLabel="Lihat anggota"
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -92,15 +88,25 @@ const DashboardPage = () => {
             title="Total Kegiatan"
             value={data?.totalActivities}
             loading={loading}
-            icon={<AppstoreOutlined />}
+            icon={<ScheduleOutlined />}
+            to={
+              permissions.includes("activities.read") ? "/activity" : undefined
+            }
+            linkLabel="Lihat kegiatan"
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
           <StatsCard
-            title="Total Request Curhat"
+            title="Total Permintaan Curhat"
             value={data?.totalRuangCurhats}
             loading={loading}
-            icon={<MessageOutlined />}
+            icon={<WechatOutlined />}
+            to={
+              permissions.includes("counseling.read")
+                ? "/ruang-curhat"
+                : undefined
+            }
+            linkLabel="Lihat permintaan"
           />
         </Col>
       </Row>

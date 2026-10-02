@@ -57,6 +57,7 @@ const QuestionField = ({
       id={question.name}
       extra={
         <Button
+          aria-label="Hapus pertanyaan"
           icon={<DeleteFilled />}
           type="primary"
           onClick={onDelete}

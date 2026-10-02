@@ -1,4 +1,4 @@
-import { TableProps, Tag } from "antd";
+import { TableProps, Tag, Typography } from "antd";
 import { LifetimeLeaderboardType } from "../../../../types/services/leaderboard";
 
 export const TABLE_SCHEMA: TableProps<
@@ -46,25 +46,22 @@ export const TABLE_SCHEMA: TableProps<
   {
     title: "Total Skor",
     dataIndex: "score",
-    render: (value) => (
-      <Tag color="blue" style={{ fontSize: "14px", fontWeight: "bold" }}>
-        {value}
-      </Tag>
-    ),
+    align: "right",
+    render: (value) => <Typography.Text strong>{value}</Typography.Text>,
   },
   {
     title: "Skor Akademik",
     dataIndex: "score_academic",
-    render: (value) => <span style={{ color: "#52c41a" }}>{value}</span>,
+    align: "right",
   },
   {
     title: "Skor Kompetisi",
     dataIndex: "score_competition",
-    render: (value) => <span style={{ color: "#1890ff" }}>{value}</span>,
+    align: "right",
   },
   {
     title: "Skor Organisasi",
     dataIndex: "score_organizational",
-    render: (value) => <span style={{ color: "#fa8c16" }}>{value}</span>,
+    align: "right",
   },
 ];

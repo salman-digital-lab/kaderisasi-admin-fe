@@ -12,6 +12,8 @@ import { getUniversities } from "../../api/services/university";
 
 import UniversityForm from "./components/UniversityForm";
 import UniversitiesTable from "./components/UniversityTable";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
 
 const MainUniversity = () => {
   const [parameters, setParameters] = useState({
@@ -62,12 +64,15 @@ const MainUniversity = () => {
   };
 
   const cardStyle = {
-    borderRadius: 0,
     boxShadow: "none",
   };
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.universities}
+        description="Kelola daftar perguruan tinggi yang dipakai pada data anggota."
+      />
       {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
@@ -90,7 +95,7 @@ const MainUniversity = () => {
               onPressEnter={handleSearch}
             />
             <Button
-              type="primary"
+              aria-label="Cari"
               icon={<SearchOutlined />}
               onClick={handleSearch}
             />
@@ -99,10 +104,11 @@ const MainUniversity = () => {
           {/* Right: Actions */}
           <Space size={8} wrap>
             <Button onClick={() => openModal()} icon={<PlusOutlined />}>
-              Tambah Universitas
+              Tambah universitas
             </Button>
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

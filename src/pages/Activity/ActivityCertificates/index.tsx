@@ -1,15 +1,10 @@
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import {
-  ArrowLeftOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { TableColumnsType } from "antd";
 import {
   Alert,
   Button,
   Card,
-  ConfigProvider,
   Input,
   List,
   Pagination,
@@ -62,7 +57,7 @@ import styles from "./index.module.css";
 import { preflightSalmanRecipients } from "./preflightSalman";
 import { ResponsiveDialog } from "../../../components/common/Responsive/ResponsiveDialog";
 import { CertificateSettingsForm } from "./CertificateSettingsForm";
-import { CERTIFICATE_APPROVAL_THEME } from "../../DigitalCertificate/constants/approval-theme";
+import PageHeader from "../../../components/common/PageHeader";
 
 const LABELS = {
   eligible_not_issued: "Siap diterbitkan",
@@ -505,35 +500,24 @@ export default function ActivityCertificates(): React.ReactElement {
   ).length;
   const returnPath = `/activity/${activityId}/certificates`;
   return (
-    <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
-      <main className={`${styles.page} certificate-workflow`}>
-        <Card>
-          <div className={styles.header}>
-            <div>
-              <Link to={`/activity/${activityId}`}>
-                <ArrowLeftOutlined /> Kembali ke kegiatan
-              </Link>
-              <Typography.Title
-                ref={headingRef}
-                tabIndex={-1}
-                level={1}
-                style={{ fontSize: 24, margin: "8px 0" }}
-              >
-                Sertifikat kegiatan
-              </Typography.Title>
-              <Typography.Text type="secondary">
-                {recipients?.activity.name}
-              </Typography.Text>
-            </div>
+    <>
+      <main className={`page-container ${styles.page}`}>
+        <PageHeader
+          back={{ to: `/activity/${activityId}`, label: "Kembali ke kegiatan" }}
+          headingRef={headingRef}
+          title="Sertifikat kegiatan"
+          description={recipients?.activity.name}
+          extra={
             <Button
               icon={<ReloadOutlined />}
-              aria-label="Muat ulang sertifikat"
               disabled={running}
               onClick={() => setRefresh((value) => value + 1)}
-            />
-          </div>
-        </Card>
-        <Card className={styles.body}>
+            >
+              Muat ulang
+            </Button>
+          }
+        />
+        <Card>
           <Steps
             current={step}
             items={[
@@ -554,10 +538,7 @@ export default function ActivityCertificates(): React.ReactElement {
             <div className={`${styles.templateGrid} ${styles.body}`}>
               <div className={styles.stack}>
                 <div className={styles.actions}>
-                  <Typography.Title
-                    level={2}
-                    style={{ fontSize: 18, margin: 0 }}
-                  >
+                  <Typography.Title level={2} style={{ margin: 0 }}>
                     Pilih desain
                   </Typography.Title>
                   {canManage && (
@@ -777,7 +758,7 @@ export default function ActivityCertificates(): React.ReactElement {
           )}
           {step === 2 && plan && (
             <div className={`${styles.stack} ${styles.body}`}>
-              <Typography.Title level={2} style={{ fontSize: 20, margin: 0 }}>
+              <Typography.Title level={2} style={{ margin: 0 }}>
                 {hasRun
                   ? "Hasil penerbitan"
                   : `${plan.registration_ids.length} sertifikat siap diterbitkan`}
@@ -1083,6 +1064,6 @@ export default function ActivityCertificates(): React.ReactElement {
           lama tetap tersimpan dalam riwayat.
         </ResponsiveDialog>
       </main>
-    </ConfigProvider>
+    </>
   );
 }

@@ -1,292 +1,214 @@
 import { Breadcrumb as AntBreadcrumb } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAdminViewport } from "../../../hooks/useAdminViewport";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 interface BreadcrumbItem {
+  /** Empty for the current page or for non-navigable menu groups. */
   path: string;
   title: string;
 }
 
-// Hardcoded breadcrumb mappings for all routes
+const L = NAV_LABELS;
+
+const crumb = (path: string, title: string): BreadcrumbItem => ({
+  path,
+  title,
+});
+const current = (title: string): BreadcrumbItem => crumb("", title);
+
+const ACCESS = crumb("", L.accessGroup);
+const LEADERBOARD = crumb("", L.leaderboardGroup);
+const DATA_CENTER = crumb("", L.dataCenterGroup);
+const SETTINGS = crumb("", L.settingsGroup);
+
+// Labels match the side menu (constants/navigation.ts).
 const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
-  "/": [{ path: "/", title: "Beranda" }],
-  "/calendar": [{ path: "/calendar", title: "Kalender Kegiatan" }],
-  "/announcements": [{ path: "/announcements", title: "Pengumuman" }],
-  "/notifications": [{ path: "/notifications", title: "Notifikasi" }],
+  "/": [current(L.dashboard)],
+  "/dashboard": [current(L.dashboard)],
+  "/calendar": [current(L.calendar)],
+  "/announcements": [current(L.announcements)],
+  "/notifications": [current(L.notifications)],
+  "/profile": [current(L.profile)],
   "/profile/talent-assessment": [
-    { path: "/profile", title: "Profil Saya" },
-    { path: "/profile/talent-assessment", title: "Asesmen Bakat" },
+    crumb("/profile", L.profile),
+    current("Asesmen Bakat"),
   ],
   "/profile/talent-assessment/result": [
-    { path: "/profile", title: "Profil Saya" },
-    { path: "/profile/talent-assessment/result", title: "Hasil Asesmen" },
+    crumb("/profile", L.profile),
+    current("Hasil Asesmen"),
   ],
-  "/profile": [{ path: "/profile", title: "Profil Saya" }],
-  "/my-requests": [
-    { path: "", title: "Akses & Tiket" },
-    { path: "/my-requests", title: "Akses Saya" },
+  "/my-requests": [ACCESS, current(L.myRequests)],
+  "/my-requests/new": [
+    ACCESS,
+    crumb("/my-requests", L.myRequests),
+    current("Ajukan Akses"),
   ],
-  "/ticket-review": [
-    { path: "", title: "Akses & Tiket" },
-    { path: "/ticket-review", title: "Tinjau Permintaan" },
-  ],
-  "/dashboard": [{ path: "/", title: "Beranda" }],
-  "/member": [{ path: "/member", title: "Daftar Anggota" }],
-  "/activity": [{ path: "/activity", title: "Daftar Kegiatan" }],
-  "/universities": [
-    {
-      path: "/universities",
-      title: "Daftar Perguruan Tinggi",
-    },
-  ],
-  "/province": [{ path: "/province", title: "Daftar Provinsi" }],
-  "/ruang-curhat": [{ path: "/ruang-curhat", title: "Daftar Ruang Curhat" }],
-  "/admin-users": [{ path: "/admin-users", title: "Daftar Akun Admin" }],
-  "/achievement": [{ path: "/achievement", title: "Daftar Prestasi" }],
-  "/monthly-leaderboard": [
-    {
-      path: "/monthly-leaderboard",
-      title: "Daftar Peringkat Bulanan",
-    },
-  ],
-  "/lifetime-leaderboard": [
-    {
-      path: "/lifetime-leaderboard",
-      title: "Daftar Peringkat Seumur Hidup",
-    },
-  ],
-  "/club": [{ path: "/club", title: "Daftar Klub" }],
-  "/courses": [{ path: "/courses", title: "Daftar Kelas" }],
-  "/short-links": [{ path: "/short-links", title: "Tautan Pendek" }],
-  "/rbac/roles": [{ path: "/rbac/roles", title: "Role & Permission" }],
-  "/digital-certificate": [
-    { path: "/digital-certificate", title: "Template Sertifikat" },
-  ],
-  "/custom-form": [{ path: "/custom-form", title: "Daftar Form Kustom" }],
+  "/ticket-review": [ACCESS, current(L.ticketReview)],
+  "/member": [current(L.members)],
+  "/activity": [current(L.activities)],
+  "/activity/new": [crumb("/activity", L.activities), current("Buat Kegiatan")],
+  "/universities": [DATA_CENTER, current(L.universities)],
+  "/province": [DATA_CENTER, current(L.provinces)],
+  "/ruang-curhat": [current(L.counseling)],
+  "/admin-users": [SETTINGS, current(L.adminUsers)],
+  "/rbac/roles": [SETTINGS, current(L.roles)],
+  "/achievement": [LEADERBOARD, current(L.achievements)],
+  "/monthly-leaderboard": [LEADERBOARD, current(L.monthlyLeaderboard)],
+  "/lifetime-leaderboard": [LEADERBOARD, current(L.lifetimeLeaderboard)],
+  "/club": [current(L.clubs)],
+  "/courses": [current(L.courses)],
+  "/short-links": [current(L.shortLinks)],
+  "/digital-certificate": [current(L.certificates)],
+  "/custom-form": [current(L.customForms)],
+  "/forbidden": [current("Akses Ditolak")],
 };
 
-// Helper function to get breadcrumbs for dynamic routes
+interface BreadcrumbState {
+  activityId?: number | string;
+}
+
 const getDynamicBreadcrumbs = (
   pathname: string,
-  state?: any,
+  state?: BreadcrumbState | null,
 ): BreadcrumbItem[] => {
-  if (pathname === "/my-requests/new")
-    return [
-      ...breadcrumbMap["/my-requests"],
-      { path: "", title: "Ajukan akses" },
-    ];
-  if (pathname === "/activity/new" || /^\/activity\/\d+\/setup$/.test(pathname))
-    return [
-      ...breadcrumbMap["/activity"],
-      {
-        path: "",
-        title:
-          pathname === "/activity/new" ? "Buat kegiatan" : "Siapkan kegiatan",
-      },
-    ];
-  if (/^\/(my-requests|ticket-review)\/[^/]+$/.test(pathname)) {
-    const parent = pathname.startsWith("/my-requests")
-      ? "/my-requests"
-      : "/ticket-review";
-    return [...breadcrumbMap[parent], { path: "", title: "Detail Permintaan" }];
-  }
-  // Member detail pages
-  if (pathname.match(/^\/member\/\d+$/)) {
-    return [
-      { path: "/member", title: "Daftar Anggota" },
-      { path: "", title: "Detail Anggota" },
-    ];
-  }
+  const segments = pathname.split("/");
+  const activityRoot = crumb("/activity", L.activities);
 
-  // Activity detail pages
-  if (pathname.match(/^\/activity\/\d+$/)) {
-    return [
-      { path: "/activity", title: "Daftar Kegiatan" },
-      { path: "", title: "Detail Kegiatan" },
-    ];
-  }
+  if (/^\/activity\/\d+\/setup$/.test(pathname))
+    return [activityRoot, current("Siapkan Kegiatan")];
 
-  // Registrant detail pages
-  if (pathname.match(/^\/registrant\/\d+$/)) {
+  if (/^\/my-requests\/[^/]+$/.test(pathname))
+    return [
+      ACCESS,
+      crumb("/my-requests", L.myRequests),
+      current("Detail Permintaan"),
+    ];
+  if (/^\/ticket-review\/[^/]+$/.test(pathname))
+    return [
+      ACCESS,
+      crumb("/ticket-review", L.ticketReview),
+      current("Detail Permintaan"),
+    ];
+
+  if (/^\/member\/\d+$/.test(pathname))
+    return [crumb("/member", L.members), current("Detail Anggota")];
+
+  if (/^\/activity\/\d+$/.test(pathname))
+    return [activityRoot, current("Detail Kegiatan")];
+
+  if (/^\/activity\/\d+\/certificates$/.test(pathname))
+    return [
+      activityRoot,
+      crumb(`/activity/${segments[2]}`, "Detail Kegiatan"),
+      current("Sertifikat"),
+    ];
+
+  if (/^\/registrant\/\d+$/.test(pathname)) {
     if (state?.activityId) {
       return [
-        { path: "/activity", title: "Daftar Kegiatan" },
-        { path: `/activity/${state.activityId}`, title: "Detail Kegiatan" },
-        {
-          path: `/activity/${state.activityId}/participants`,
-          title: "Kelola Peserta",
-        },
-        { path: "", title: "Detail Peserta" },
+        activityRoot,
+        crumb(`/activity/${state.activityId}`, "Detail Kegiatan"),
+        crumb(`/activity/${state.activityId}/participants`, "Kelola Peserta"),
+        current("Detail Peserta"),
       ];
     }
-    return [
-      { path: "/activity", title: "Daftar Kegiatan" },
-      { path: "", title: "Detail Kegiatan" },
-      { path: "", title: "Detail Peserta" },
-    ];
+    return [activityRoot, current("Detail Peserta")];
   }
 
-  // Activity participants management page
-  if (pathname.match(/^\/activity\/\d+\/participants$/)) {
-    const activityId = pathname.split("/")[2];
+  if (/^\/activity\/\d+\/participants$/.test(pathname))
     return [
-      { path: "/activity", title: "Daftar Kegiatan" },
-      { path: `/activity/${activityId}`, title: "Detail Kegiatan" },
-      { path: "", title: "Kelola Peserta" },
+      activityRoot,
+      crumb(`/activity/${segments[2]}`, "Detail Kegiatan"),
+      current("Kelola Peserta"),
     ];
-  }
 
-  // Registrant detail pages (Nested URL)
-  if (pathname.match(/^\/activity\/\d+\/participants\/\d+$/)) {
-    const activityId = pathname.split("/")[2];
+  if (/^\/activity\/\d+\/participants\/\d+$/.test(pathname))
     return [
-      { path: "/activity", title: "Daftar Kegiatan" },
-      { path: `/activity/${activityId}`, title: "Detail Kegiatan" },
-      {
-        path: `/activity/${activityId}/participants`,
-        title: "Kelola Peserta",
-      },
-      { path: "", title: "Detail Peserta" },
+      activityRoot,
+      crumb(`/activity/${segments[2]}`, "Detail Kegiatan"),
+      crumb(`/activity/${segments[2]}/participants`, "Kelola Peserta"),
+      current("Detail Peserta"),
     ];
-  }
 
-  // Ruang Curhat detail pages
-  if (pathname.match(/^\/ruang-curhat\/\d+$/)) {
+  if (/^\/ruang-curhat\/\d+$/.test(pathname))
+    return [crumb("/ruang-curhat", L.counseling), current("Detail Curhat")];
+
+  if (/^\/achievement\/\d+$/.test(pathname))
     return [
-      { path: "/ruang-curhat", title: "Daftar Ruang Curhat" },
-      { path: "", title: "Detail Ruang Curhat" },
+      LEADERBOARD,
+      crumb("/achievement", L.achievements),
+      current("Detail Prestasi"),
     ];
-  }
 
-  // Achievement detail pages
-  if (pathname.match(/^\/achievement\/\d+$/)) {
+  if (/^\/admin-users\/\d+\/talent-assessment\/result$/.test(pathname))
     return [
-      { path: "/achievement", title: "Daftar Prestasi" },
-      { path: "", title: "Detail Prestasi" },
+      SETTINGS,
+      crumb("/admin-users", L.adminUsers),
+      current("Hasil Asesmen"),
     ];
-  }
 
-  if (/^\/courses\/\d+$/.test(pathname)) {
+  if (/^\/courses\/\d+$/.test(pathname))
+    return [crumb("/courses", L.courses), current("Detail Kelas")];
+
+  if (/^\/club\/\d+$/.test(pathname))
+    return [crumb("/club", L.clubs), current("Detail Klub")];
+
+  if (/^\/club\/\d+\/form\/\d+\/edit$/.test(pathname))
     return [
-      { path: "/courses", title: "Daftar Kelas" },
-      { path: "", title: "Detail Kelas" },
+      crumb("/club", L.clubs),
+      crumb(`/club/${segments[2]}?section=registration`, "Pendaftaran"),
+      current("Ubah Formulir Pendaftaran"),
     ];
-  }
 
-  // Club detail pages
-  if (pathname.match(/^\/club\/\d+$/)) {
+  if (/^\/custom-form\/\d+\/edit$/.test(pathname))
+    return [crumb("/custom-form", L.customForms), current("Ubah Formulir")];
+
+  if (/^\/custom-form\/\d+\/files\/[^/]+$/.test(pathname))
+    return [crumb("/custom-form", L.customForms), current("Berkas Jawaban")];
+
+  if (/^\/activity\/\d+\/form\/\d+\/edit$/.test(pathname))
     return [
-      { path: "/club", title: "Daftar Klub" },
-      { path: "", title: "Detail Klub" },
+      activityRoot,
+      crumb(`/activity/${segments[2]}?tab=7`, "Detail Kegiatan"),
+      current("Ubah Formulir Pendaftaran"),
     ];
-  }
 
-  // Custom form edit pages (from club registration info)
-  if (pathname.match(/^\/club\/\d+\/form\/\d+\/edit$/)) {
-    const clubId = pathname.split("/")[2];
-    return [
-      { path: "/club", title: "Daftar Klub" },
-      {
-        path: `/club/${clubId}?section=registration`,
-        title: "Pendaftaran",
-      },
-      { path: "", title: "Ubah Form Pendaftaran" },
-    ];
-  }
-
-  // Custom form edit pages (standalone)
-  if (pathname.match(/^\/custom-form\/\d+\/edit$/)) {
-    return [
-      { path: "/custom-form", title: "Daftar Form Kustom" },
-      { path: "", title: "Ubah Form Kustom" },
-    ];
-  }
-
-  // Custom form edit pages (from activity)
-  if (pathname.match(/^\/activity\/\d+\/form\/\d+\/edit$/)) {
-    const activityId = pathname.split("/")[2];
-    return [
-      { path: "/activity", title: "Daftar Kegiatan" },
-      { path: `/activity/${activityId}?tab=7`, title: "Detail Kegiatan" },
-      { path: "", title: "Ubah Form Pendaftaran" },
-    ];
-  }
-
-  // Default fallback
-  return [{ path: "/", title: "Beranda" }];
+  return [current("Halaman Tidak Ditemukan")];
 };
 
 const Breadcrumb: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { drawerNavigation: isMobile } = useAdminViewport();
 
-  // Get breadcrumbs for current path
-  const getBreadcrumbs = (): BreadcrumbItem[] => {
-    // First check if it's a static route
-    if (breadcrumbMap[location.pathname]) {
-      return breadcrumbMap[location.pathname];
-    }
+  const breadcrumbs =
+    breadcrumbMap[location.pathname] ??
+    getDynamicBreadcrumbs(
+      location.pathname,
+      location.state as BreadcrumbState | null,
+    );
 
-    // Then check for dynamic routes
-    return getDynamicBreadcrumbs(location.pathname, location.state);
-  };
+  // On small screens keep the parent and the current page.
+  const visible = isMobile ? breadcrumbs.slice(-2) : breadcrumbs;
 
-  const breadcrumbs = getBreadcrumbs();
-
-  const handleBreadcrumbClick = (path: string) => {
-    if (path) {
-      // Only navigate if path is not empty
-      navigate(path);
-    }
-  };
-
-  // On mobile, show only the last 2 items
-  const displayBreadcrumbs = isMobile ? breadcrumbs.slice(-1) : breadcrumbs;
-
-  const items = displayBreadcrumbs.map((crumb, index) => {
-    const isLast = index === displayBreadcrumbs.length - 1;
-
-    const isClickable = crumb.path && crumb.path !== "";
-
+  const items = visible.map((item, index) => {
+    const isLast = index === visible.length - 1;
     return {
-      title: isLast ? (
-        <span style={{ color: "#666" }}>{crumb.title}</span>
-      ) : (
-        <span
-          style={{
-            cursor: isClickable ? "pointer" : "default",
-            color: isClickable ? "#1890ff" : "#666",
-            transition: isClickable ? "color 0.3s" : "none",
-          }}
-          onClick={() => handleBreadcrumbClick(crumb.path)}
-          onMouseEnter={(e) => {
-            if (isClickable) {
-              e.currentTarget.style.color = "#40a9ff";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (isClickable) {
-              e.currentTarget.style.color = "#1890ff";
-            }
-          }}
-        >
-          {crumb.title}
-        </span>
-      ),
+      key: `${index}-${item.title}`,
+      title:
+        !isLast && item.path ? (
+          <Link to={item.path}>{item.title}</Link>
+        ) : (
+          item.title
+        ),
     };
   });
 
   return (
     <AntBreadcrumb
+      aria-label="Breadcrumb"
       items={items}
-      style={{
-        margin: 0,
-        fontSize: "13px",
-        minWidth: 0,
-        overflowWrap: "anywhere",
-      }}
-      separator=">"
+      style={{ fontSize: 13, minWidth: 0, overflowWrap: "anywhere" }}
     />
   );
 };

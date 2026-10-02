@@ -168,14 +168,14 @@ export default function TalentAssessment(): ReactElement {
                 title: "Ulangi asesmen?",
                 content:
                   "Hasil lama diganti saat asesmen baru selesai dikirim. Riwayat hasil tidak disimpan.",
-                okText: "Ulangi Asesmen",
+                okText: "Ulangi asesmen",
                 cancelText: "Batal",
                 onOk: start,
               });
             else void start();
           }}
         >
-          {state.result ? "Ulangi Asesmen" : "Mulai Asesmen"}
+          {state.result ? "Ulangi asesmen" : "Mulai asesmen"}
         </Button>
       </Card>
     </div>
@@ -269,13 +269,13 @@ function AssessmentRunner({
                     title: "Muat draf terbaru?",
                     content:
                       "Perubahan yang belum tersimpan di layar ini akan dibuang. Draf tersimpan di server akan dimuat.",
-                    okText: "Muat Draf",
+                    okText: "Muat draf",
                     cancelText: "Batal",
                     onOk: reload,
                   })
                 }
               >
-                Muat Draf Terbaru
+                Muat draf terbaru
               </Button>
             ) : (
               <Button
@@ -284,7 +284,7 @@ function AssessmentRunner({
                   void flush();
                 }}
               >
-                Coba Simpan Lagi
+                Coba simpan lagi
               </Button>
             )
           }
@@ -301,13 +301,13 @@ function AssessmentRunner({
                 Modal.confirm({
                   title: "Muat draf terbaru?",
                   content: "Perubahan belum tersimpan akan dibuang.",
-                  okText: "Muat Draf",
+                  okText: "Muat draf",
                   cancelText: "Batal",
                   onOk: reload,
                 })
               }
             >
-              Muat Draf Terbaru
+              Muat draf terbaru
             </Button>
           }
         />
@@ -336,7 +336,7 @@ function AssessmentRunner({
             )}
             <Space wrap className="talent-spaced">
               <Button onClick={() => setNavigatorOpen(true)}>
-                Tinjau Jawaban
+                Tinjau jawaban
               </Button>
               <Button
                 type="primary"
@@ -346,7 +346,7 @@ function AssessmentRunner({
                   void submit();
                 }}
               >
-                Kirim Asesmen
+                Kirim asesmen
               </Button>
             </Space>
           </>
@@ -418,7 +418,7 @@ function AssessmentRunner({
                 }}
               >
                 {draft.current_question === 170
-                  ? "Periksa Jawaban"
+                  ? "Periksa jawaban"
                   : "Berikutnya"}
               </Button>
             </div>
@@ -427,10 +427,10 @@ function AssessmentRunner({
       </Card>
       <Space wrap className="talent-spaced">
         <Button disabled={submitting} onClick={() => setNavigatorOpen(true)}>
-          Daftar Pertanyaan
+          Daftar pertanyaan
         </Button>
         {count === 170 && !review && (
-          <Button onClick={() => setReview(true)}>Periksa Jawaban</Button>
+          <Button onClick={() => setReview(true)}>Periksa jawaban</Button>
         )}
         <Button
           loading={saving}
@@ -439,7 +439,7 @@ function AssessmentRunner({
             if (await flush()) navigate("/profile");
           }}
         >
-          Simpan &amp; Keluar
+          Simpan &amp; keluar
         </Button>
       </Space>
       <Drawer
@@ -472,8 +472,8 @@ function AssessmentRunner({
       <Modal
         open={blocker.state === "blocked"}
         title="Jawaban belum tersimpan"
-        okText="Simpan & Keluar"
-        cancelText="Tetap Mengisi"
+        okText="Simpan & keluar"
+        cancelText="Tetap mengisi"
         confirmLoading={saving}
         onCancel={() => {
           if (blocker.state === "blocked") blocker.reset();
@@ -489,7 +489,7 @@ function AssessmentRunner({
                 if (blocker.state === "blocked") blocker.proceed();
               }}
             >
-              Keluar Tanpa Menyimpan
+              Keluar tanpa menyimpan
             </Button>
             <CancelBtn />
             <OkBtn />

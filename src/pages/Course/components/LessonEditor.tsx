@@ -16,6 +16,7 @@ import {
   youtubeVideoId,
 } from "../utils/course-editor";
 import LessonDocuments from "./LessonDocuments";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 type Props = {
   courseId: number;
@@ -126,7 +127,7 @@ export default function LessonEditor({
             : "Tambah materi"
       }
       open
-      width={1040}
+      width={DIALOG_WIDTH.large}
       className="course-editor"
       onCancel={close}
       maskClosable={false}
@@ -264,11 +265,7 @@ export default function LessonEditor({
           className="course-editor-documents"
           aria-labelledby="course-lesson-documents-title"
         >
-          <Typography.Title
-            level={3}
-            id="course-lesson-documents-title"
-            style={{ fontSize: 18 }}
-          >
+          <Typography.Title level={3} id="course-lesson-documents-title">
             Dokumen pendamping
           </Typography.Title>
           {currentLesson ? (

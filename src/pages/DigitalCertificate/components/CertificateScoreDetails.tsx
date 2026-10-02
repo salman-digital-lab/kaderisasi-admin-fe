@@ -22,7 +22,7 @@ export function CertificateScoreDetails({
   const hasGrades = score.rubric.grades.length > 0;
   return (
     <Card className={styles.scoreDetails} data-certificate-score-details>
-      <Typography.Title level={2} style={{ fontSize: 20, marginTop: 0 }}>
+      <Typography.Title level={2} style={{ marginTop: 0 }}>
         Hasil penilaian
       </Typography.Title>
       <Typography.Paragraph>
@@ -46,7 +46,7 @@ export function CertificateScoreDetails({
       </div>
       {score.rubric.groups.map((group) => (
         <section key={group.id} aria-label={group.name}>
-          <Typography.Title level={3} style={{ fontSize: 18, marginTop: 24 }}>
+          <Typography.Title level={3} style={{ marginTop: 24 }}>
             {group.name}
           </Typography.Title>
           <ul className={styles.criteria}>
@@ -89,9 +89,7 @@ export function CertificateScoreDetails({
       ].map(([label, note]) =>
         note ? (
           <section key={label}>
-            <Typography.Title level={3} style={{ fontSize: 18 }}>
-              {label}
-            </Typography.Title>
+            <Typography.Title level={3}>{label}</Typography.Title>
             <Typography.Paragraph className={styles.note}>
               {note}
             </Typography.Paragraph>

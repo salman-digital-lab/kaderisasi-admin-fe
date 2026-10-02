@@ -243,10 +243,10 @@ export default function TalentReport({
                   <span className="talent-section-number">03</span>
                   <div>
                     <h2 id="talent-development-title">
-                      Dari Bakat ke Aktivitas
+                      Dari Bakat ke Kegiatan
                     </h2>
                     <p>
-                      Contoh aktivitas dari referensi untuk dibahas dan dicoba
+                      Contoh kegiatan dari referensi untuk dibahas dan dicoba
                       sesuai kebutuhan Anda.
                     </p>
                   </div>

@@ -57,15 +57,16 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
           <div style={{ display: "flex", gap: "8px" }}>
             <Link to={`/custom-form/${record.id}/edit`}>
               <Button icon={<EditOutlined />} size="small">
-                Edit
+                Ubah
               </Button>
             </Link>
             <Popconfirm
-              title="Hapus Form"
-              description="Apakah Anda yakin ingin menghapus form ini?"
+              title="Hapus Formulir"
+              description="Apakah Anda yakin ingin menghapus formulir ini?"
               onConfirm={() => handleDelete(record.id)}
-              okText="Ya"
-              cancelText="Tidak"
+              okText="Hapus"
+              cancelText="Batal"
+              okButtonProps={{ danger: true }}
             >
               <Button danger icon={<DeleteOutlined />} size="small">
                 Hapus
@@ -91,7 +92,7 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
         showQuickJumper: true,
         total: data?.meta.total,
         showTotal: (total, range) =>
-          `Menampilkan ${range[0]}-${range[1]} dari ${total} form`,
+          `Menampilkan ${range[0]}-${range[1]} dari ${total} formulir`,
         pageSizeOptions: ["10", "20", "50", "100"],
       }}
       loading={loading}

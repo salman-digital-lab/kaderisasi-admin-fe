@@ -17,7 +17,6 @@ import {
 import type { AchievementListParameters } from "../index";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -59,7 +58,7 @@ const AchievementFilter = ({
       const data = await exportAchievements();
 
       if (!data) {
-        message.error("Download gagal");
+        message.error("Unduhan gagal");
         return;
       }
 
@@ -74,7 +73,7 @@ const AchievementFilter = ({
       link.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
-      message.success("Download berhasil");
+      message.success("Unduhan berhasil");
     } finally {
       setExportLoading(false);
     }
@@ -117,7 +116,11 @@ const AchievementFilter = ({
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 onPressEnter={apply}
-                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: "var(--app-color-text-secondary)" }}
+                  />
+                }
               />
 
               <Select
@@ -139,8 +142,8 @@ const AchievementFilter = ({
               />
 
               <Button
+                aria-label="Cari"
                 icon={<SearchOutlined />}
-                type="primary"
                 onClick={apply}
               />
             </Space>
@@ -154,11 +157,12 @@ const AchievementFilter = ({
             onClick={handleExport}
             loading={exportLoading}
           >
-            Download All
+            Unduh semua
           </Button>
           {refresh && (
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

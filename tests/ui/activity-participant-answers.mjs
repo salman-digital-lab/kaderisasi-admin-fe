@@ -108,7 +108,7 @@ try {
       list.getByText("Ingin belajar bersama peserta lain."),
     ).toBeVisible();
     await expect(list.getByText("Bersedia")).toBeVisible();
-    await page.getByRole("button", { name: "Atur Kolom" }).click();
+    await page.getByRole("button", { name: "Atur kolom" }).click();
     const manager = page.getByRole("dialog", { name: "Pengaturan Kolom" });
     await expect(
       manager.getByRole("button", { name: "Seret kolom Alasan mengikuti" }),
@@ -134,8 +134,8 @@ try {
     await expect(
       list.getByText("Ingin belajar bersama peserta lain."),
     ).toHaveCount(0);
-    await page.getByRole("button", { name: "Atur Kolom" }).click();
-    await manager.getByRole("button", { name: "Reset Default" }).click();
+    await page.getByRole("button", { name: "Atur kolom" }).click();
+    await manager.getByRole("button", { name: "Kembalikan bawaan" }).click();
     await manager.getByRole("button", { name: "Simpan" }).click();
     await expect(
       list.getByText("Ingin belajar bersama peserta lain."),

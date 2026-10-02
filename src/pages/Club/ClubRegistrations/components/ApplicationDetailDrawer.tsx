@@ -11,6 +11,7 @@ import type { ClubRegistration } from "../../../../types/model/clubRegistration"
 import type { FormSchema } from "../../../../types/model/customForm";
 import { buildApplicationAnswerSections } from "../utils/application-answers";
 import { buildApplicationProfileItems } from "../utils/application-profile";
+import { DATE_TIME_FORMAT } from "../../../../utils/date-format";
 
 const { Text, Title } = Typography;
 
@@ -70,7 +71,7 @@ const ApplicationDetailDrawer = ({
       {
         key: "submittedAt",
         label: "Tanggal pendaftaran",
-        children: dayjs(registration.created_at).format("DD MMM YYYY, HH:mm"),
+        children: dayjs(registration.created_at).format(DATE_TIME_FORMAT),
       },
     ];
   }, [registration, formSchema]);
@@ -134,7 +135,7 @@ const ApplicationDetailDrawer = ({
       }
     >
       {registration ? (
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Space orientation="vertical" size="large" style={{ width: "100%" }}>
           <section aria-labelledby="applicant-identity-heading">
             <Title id="applicant-identity-heading" level={5}>
               Informasi Pendaftar
@@ -166,7 +167,7 @@ const ApplicationDetailDrawer = ({
             </Title>
             {answerSections.length > 0 ? (
               <Space
-                direction="vertical"
+                orientation="vertical"
                 size="middle"
                 style={{ width: "100%" }}
               >
@@ -175,7 +176,7 @@ const ApplicationDetailDrawer = ({
 
                   return (
                     <section key={section.key} aria-labelledby={headingId}>
-                      <Title id={headingId} level={5} style={{ fontSize: 14 }}>
+                      <Title id={headingId} level={5}>
                         {section.title}
                       </Title>
                       <Descriptions

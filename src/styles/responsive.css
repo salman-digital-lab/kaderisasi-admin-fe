@@ -44,7 +44,7 @@
 }
 .mobile-record-fields dt {
   font-size: 12px;
-  color: #595959;
+  color: var(--app-color-text-secondary);
   margin-bottom: 2px;
 }
 .mobile-record-fields dd {
@@ -61,7 +61,7 @@
   min-height: 44px;
   align-items: center;
   cursor: pointer;
-  color: #096a94;
+  color: var(--app-color-primary-strong);
 }
 .responsive-page-header,
 .responsive-page-actions {
@@ -269,7 +269,7 @@
   }
   .responsive-record-list-cards .ant-table-tbody > tr > td {
     background: #fff;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--app-color-border-secondary);
     padding: 12px;
     vertical-align: top;
   }

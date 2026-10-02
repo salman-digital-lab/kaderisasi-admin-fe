@@ -24,9 +24,10 @@ import {
   ACTIVITY_TYPE_ENUM,
 } from "../../../types/constants/activity";
 import { CLUB_TYPE_LABELS } from "../../../types/model/club";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -103,7 +104,11 @@ const MainActivity = (): ReactElement => {
   };
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.activities}
+        description="Kelola kegiatan, pendaftaran, dan peserta."
+      />
       {permissions.includes("activities.manage") && (
         <Alert
           type="info"
@@ -159,7 +164,7 @@ const MainActivity = (): ReactElement => {
             {({ apply }) => (
               <Space size={12} wrap>
                 <Input
-                  placeholder="Cari nama aktivitas"
+                  placeholder="Cari nama kegiatan"
                   allowClear
                   style={{ width: 240 }}
                   value={searchInput}
@@ -212,7 +217,6 @@ const MainActivity = (): ReactElement => {
                 />
 
                 <Button
-                  type="primary"
                   aria-label="Terapkan filter kegiatan"
                   icon={<SearchOutlined />}
                   onClick={apply}
@@ -229,12 +233,13 @@ const MainActivity = (): ReactElement => {
                 icon={<PlusOutlined />}
                 onClick={() => navigate("/activity/new")}
               >
-                Buat Kegiatan
+                Buat kegiatan
               </Button>
             )}
 
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

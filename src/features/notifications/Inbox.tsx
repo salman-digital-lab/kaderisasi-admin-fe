@@ -8,7 +8,6 @@ import {
 import {
   Alert,
   Button,
-  ConfigProvider,
   Empty,
   Flex,
   Modal,
@@ -24,13 +23,15 @@ import {
   type NotificationItem,
 } from "./api";
 import "../../styles/guided-workflows.css";
-import { notificationTheme } from "./theme";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
+import { formatDateTime } from "../../utils/date-format";
 
 export default function Inbox(): ReactElement {
   return (
-    <ConfigProvider theme={notificationTheme}>
+    <>
       <InboxContent />
-    </ConfigProvider>
+    </>
   );
 }
 
@@ -131,7 +132,7 @@ function InboxContent(): ReactElement {
   };
   return (
     <div className="guided-page">
-      <Typography.Title level={2}>Notifikasi</Typography.Title>
+      <PageHeader title={NAV_LABELS.notifications} />
       <Flex wrap gap={12} justify="space-between" style={{ marginBottom: 20 }}>
         <Segmented
           aria-label="Filter notifikasi"
@@ -182,7 +183,7 @@ function InboxContent(): ReactElement {
                 </Typography.Text>
               </Button>
               <Typography.Text type="secondary">
-                {new Date(entry.published_at).toLocaleString("id-ID")}
+                {formatDateTime(entry.published_at)}
                 {!entry.read_at ? " · Belum dibaca" : ""}
               </Typography.Text>
               {!entry.read_at && (

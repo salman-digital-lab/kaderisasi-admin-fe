@@ -9,6 +9,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { getProfiles } from "../../../../api/services/member";
 import { createClubRegistration } from "../../../../api/services/clubRegistration";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 type MembersListModalProps = {
   open: boolean;
@@ -92,10 +93,10 @@ const MembersListModal = ({
         okButtonProps={{ disabled: !selected.length }}
         cancelButtonProps={{ disabled: addLoading }}
         closable={!addLoading}
-        width={720}
+        width={DIALOG_WIDTH.medium}
         destroyOnHidden
       >
-        <Space direction="vertical" style={{ width: "100%" }}>
+        <Space orientation="vertical" style={{ width: "100%" }}>
           <Typography.Text type="secondary">
             Anggota yang dipilih akan masuk sebagai pendaftar dengan status
             Menunggu.
@@ -122,7 +123,7 @@ const MembersListModal = ({
               {
                 title: "Email",
                 dataIndex: ["publicUser", "email"],
-                render: (email: string) => email || "N/A",
+                render: (email: string) => email || "-",
               },
             ]}
             dataSource={data?.data}

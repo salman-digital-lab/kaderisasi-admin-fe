@@ -142,7 +142,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               disabled={disabled}
             />
 
-            <div style={{ width: 1, height: 24, backgroundColor: "#d9d9d9" }} />
+            <div
+              style={{
+                width: 1,
+                height: 24,
+                backgroundColor: "var(--app-color-border)",
+              }}
+            />
 
             <Button
               size="small"
@@ -161,7 +167,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               disabled={disabled}
             />
 
-            <div style={{ width: 1, height: 24, backgroundColor: "#d9d9d9" }} />
+            <div
+              style={{
+                width: 1,
+                height: 24,
+                backgroundColor: "var(--app-color-border)",
+              }}
+            />
 
             <Button
               size="small"
@@ -196,7 +208,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               disabled={disabled}
             />
 
-            <div style={{ width: 1, height: 24, backgroundColor: "#d9d9d9" }} />
+            <div
+              style={{
+                width: 1,
+                height: 24,
+                backgroundColor: "var(--app-color-border)",
+              }}
+            />
 
             <Tooltip title="Tambah Link">
               <Button
@@ -209,7 +227,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               />
             </Tooltip>
 
-            <div style={{ width: 1, height: 24, backgroundColor: "#d9d9d9" }} />
+            <div
+              style={{
+                width: 1,
+                height: 24,
+                backgroundColor: "var(--app-color-border)",
+              }}
+            />
 
             <Button
               size="small"

@@ -12,47 +12,53 @@ import {
   Layout,
   Drawer,
   Button,
-  theme,
   Typography,
   Dropdown,
   MenuProps,
   message,
   Flex,
   Avatar,
-  Badge,
 } from "antd";
 import SideMenu from "./SideMenu";
 import { Outlet, useLocation } from "react-router-dom";
 import { logout } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
-import { useUser, useClearAuth } from "../../stores/authStore";
+import { useUser, useClearAuth, useRoles } from "../../stores/authStore";
 import Breadcrumb from "../common/Breadcrumb";
 import NotificationBell from "../../features/notifications/NotificationBell";
+import { APP_COLORS } from "../../theme/tokens";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
 
+const HELP_URL = "https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV";
+
 const items: MenuProps["items"] = [
   { label: "Profil Saya", key: "profile", icon: <UserOutlined /> },
-  {
-    label: "Logout",
-    key: "1",
-    icon: <LogoutOutlined />,
-  },
+  { type: "divider" },
+  { label: "Keluar", key: "logout", icon: <LogoutOutlined />, danger: true },
 ];
 
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { compact: isMobile, drawerNavigation } = useAdminViewport();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
 
   const user = useUser();
+  const roles = useRoles();
   const clearAuth = useClearAuth();
   const navigate = useNavigate();
 
   const displayName = user?.display_name || "Admin";
+  const roleLabel =
+    roles.length === 0
+      ? "Belum memiliki peran"
+      : roles.length === 1
+        ? roles[0].name
+        : `${roles[0].name} +${roles.length - 1}`;
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -60,27 +66,17 @@ const AppLayout = () => {
 
   const handleMenuClick: MenuProps["onClick"] = async (e) => {
     if (e.key === "profile") navigate("/profile");
-    if (e.key === "1") {
+    if (e.key === "logout") {
       try {
         await logout();
-        // Clear auth state when user logs out
         clearAuth();
-        message.success("Logout successful");
+        message.success("Anda telah keluar");
         navigate("/login");
       } catch {
-        message.error("An error occured");
+        message.error("Gagal keluar. Coba lagi.");
       }
     }
   };
-
-  const menuProps = {
-    items,
-    onClick: handleMenuClick,
-  };
-
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
 
   const handleCollapse = (collapsed: boolean) => {
     setCollapsed(collapsed);
@@ -92,7 +88,8 @@ const AppLayout = () => {
         <Drawer
           title="BMKA Admin"
           placement="left"
-          width="min(320px, 90vw)"
+          size={320}
+          styles={{ wrapper: { maxWidth: "90vw" } }}
           open={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
           afterOpenChange={(open) => {
@@ -113,24 +110,12 @@ const AppLayout = () => {
       <Layout
         style={{
           marginLeft: drawerNavigation ? 0 : collapsed ? 64 : 220,
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "margin-left 0.2s",
           position: "relative",
           minWidth: 0,
         }}
       >
-        <Header
-          className="admin-header"
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 1000,
-            padding: "0 16px",
-            background: colorBgContainer,
-            borderBottom: "1px solid #f0f0f0",
-            height: "48px",
-            lineHeight: "48px",
-          }}
-        >
+        <Header className="admin-header">
           <Flex
             justify="space-between"
             align="center"
@@ -150,119 +135,73 @@ const AppLayout = () => {
                     ? setMobileMenuOpen(true)
                     : setCollapsed(!collapsed)
                 }
-                style={{
-                  fontSize: "16px",
-                  width: 32,
-                  height: 32,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s",
-                }}
                 className="header-menu-btn"
               />
-              {!isMobile && (
-                <div
-                  style={{
-                    height: "32px",
-                    width: "1px",
-                    backgroundColor: "#f0f0f0",
-                    margin: "0 8px",
-                  }}
-                />
-              )}
+              {!isMobile && <div className="admin-header-divider" />}
               <Breadcrumb />
             </Flex>
 
             <Flex align="center" gap={8}>
               <NotificationBell key={user?.id} />
-              <Badge dot={false}>
-                <Button
-                  type="text"
-                  icon={<WhatsAppOutlined />}
-                  href="https://chat.whatsapp.com/G4qpf2oFwtBJjaQb5YwDiV"
-                  target="_blank"
-                  style={{
-                    fontSize: "14px",
-                    height: 32,
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    padding: "0 12px",
-                    transition: "all 0.2s",
-                  }}
-                  className="header-help-btn"
-                  title="Bantuan & Dukungan"
-                >
-                  Bantuan
-                </Button>
-              </Badge>
+              <Button
+                type="text"
+                icon={<WhatsAppOutlined />}
+                href={HELP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="header-help-btn"
+                aria-label={isMobile ? "Bantuan dan dukungan" : undefined}
+              >
+                {!isMobile && "Bantuan"}
+              </Button>
 
               <Dropdown
-                menu={menuProps}
+                menu={{ items, onClick: handleMenuClick }}
                 placement="bottomRight"
                 trigger={["click"]}
+                open={accountMenuOpen}
+                onOpenChange={setAccountMenuOpen}
               >
                 <Button
                   type="text"
                   style={{
-                    height: 36,
+                    height: 40,
                     padding: "0 8px",
-                    borderRadius: "8px",
                     display: "flex",
                     alignItems: "center",
-                    gap: "8px",
-                    transition: "all 0.2s",
-                    border: "1px solid transparent",
+                    gap: 8,
                   }}
                   aria-label={`Menu akun ${displayName}`}
+                  aria-expanded={accountMenuOpen}
                   className="header-profile-btn"
                 >
                   <Avatar
                     size={24}
                     icon={<UserOutlined />}
                     style={{
-                      backgroundColor: "#1F99CB",
+                      backgroundColor: APP_COLORS.primary,
                       flexShrink: 0,
                     }}
                   />
                   {!isMobile && (
                     <Flex vertical align="start" style={{ minWidth: 0 }}>
                       <Text
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 500,
-                          lineHeight: 1.2,
-                          color: "#262626",
-                          textOverflow: "ellipsis",
-                          overflow: "hidden",
-                          whiteSpace: "nowrap",
-                          maxWidth: "120px",
-                        }}
+                        strong
+                        ellipsis
+                        style={{ fontSize: 13, lineHeight: 1.2, maxWidth: 140 }}
                       >
-                        {displayName || "Admin"}
+                        {displayName}
                       </Text>
                       <Text
-                        style={{
-                          fontSize: "11px",
-                          color: "#8c8c8c",
-                          lineHeight: 1.2,
-                        }}
+                        type="secondary"
+                        ellipsis
+                        style={{ fontSize: 12, lineHeight: 1.2, maxWidth: 140 }}
                       >
-                        Administrator
+                        {roleLabel}
                       </Text>
                     </Flex>
                   )}
-                  <DownOutlined
-                    style={{
-                      fontSize: "12px",
-                      color: "#8c8c8c",
-                      transition: "transform 0.2s",
-                    }}
-                  />
+                  <DownOutlined />
                 </Button>
               </Dropdown>
             </Flex>
@@ -274,7 +213,6 @@ const AppLayout = () => {
             minHeight: "calc(100vh - 48px)",
             overflow: "auto",
             minWidth: 0,
-            backgroundColor: "white",
           }}
         >
           <Outlet />
@@ -285,37 +223,3 @@ const AppLayout = () => {
 };
 
 export default AppLayout;
-
-// Add custom styles
-const styles = `
-  .header-menu-btn:hover {
-    background-color: #f5f5f5 !important;
-  }
-  
-  .header-help-btn:hover {
-    background-color: #e6f7ff !important;
-    color: #1890ff !important;
-  }
-  
-  .header-profile-btn:hover {
-    background-color: #f5f5f5 !important;
-    border-color: #d9d9d9 !important;
-  }
-  
-  .header-profile-btn:hover .anticon-down {
-    transform: rotate(180deg);
-  }
-  
-  @media (max-width: 768px) {
-    .header-profile-btn {
-      padding: 0 8px !important;
-    }
-  }
-`;
-
-// Inject styles
-if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = styles;
-  document.head.appendChild(styleSheet);
-}

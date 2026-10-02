@@ -50,7 +50,7 @@ const ClubForm = ({ open, onClose }: ClubFormProps) => {
       open={open}
       onCancel={handleCancel}
       onOk={() => form.submit()}
-      okText="Buat dan Lanjutkan"
+      okText="Buat dan lanjutkan"
       cancelText="Batal"
       confirmLoading={loading}
       cancelButtonProps={{ disabled: loading }}

@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import { getCourseLearners } from "../../../api/services/course";
 import { ResponsiveTable } from "../../../components/common/Responsive/ResponsiveTable";
 import type { CourseLearner } from "../../../types/model/course";
+import { DATE_TIME_FORMAT } from "../../../utils/date-format";
 
 export default function CourseLearners({
   courseId,
@@ -21,11 +22,7 @@ export default function CourseLearners({
     <section className="course-panel" aria-labelledby="course-learners-title">
       <header className="course-section-header">
         <div>
-          <Typography.Title
-            id="course-learners-title"
-            level={3}
-            style={{ fontSize: 20 }}
-          >
+          <Typography.Title id="course-learners-title" level={3}>
             Progres peserta
           </Typography.Title>
           <p>
@@ -123,14 +120,12 @@ export default function CourseLearners({
             {
               title: "Mulai belajar",
               dataIndex: "started_at",
-              render: (value: string) =>
-                dayjs(value).format("DD MMM YYYY HH:mm"),
+              render: (value: string) => dayjs(value).format(DATE_TIME_FORMAT),
             },
             {
               title: "Aktivitas terakhir",
               dataIndex: "last_activity_at",
-              render: (value: string) =>
-                dayjs(value).format("DD MMM YYYY HH:mm"),
+              render: (value: string) => dayjs(value).format(DATE_TIME_FORMAT),
             },
           ]}
         />

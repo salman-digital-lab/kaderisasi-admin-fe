@@ -14,7 +14,6 @@ import { FilterType } from "../constants/type";
 import { createCustomForm } from "../../../../api/services/customForm";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -97,7 +96,7 @@ const CustomFormFilter = ({
         isActive: false,
       });
 
-      message.success("Form berhasil dibuat!");
+      message.success("Formulir berhasil dibuat!");
       setIsModalVisible(false);
       createForm.resetFields();
       // Refresh the form list
@@ -143,14 +142,18 @@ const CustomFormFilter = ({
             {({ apply }) => (
               <Space size={12} wrap>
                 <Input.Search
-                  placeholder="Cari nama form"
+                  placeholder="Cari nama formulir"
                   allowClear
                   style={{ width: 200 }}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onSearch={apply}
                   onPressEnter={apply}
-                  prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                  prefix={
+                    <SearchOutlined
+                      style={{ color: "var(--app-color-text-secondary)" }}
+                    />
+                  }
                 />
 
                 <Select
@@ -160,9 +163,9 @@ const CustomFormFilter = ({
                   value={featureType}
                   onChange={setFeatureType}
                   options={[
-                    { label: "Form mandiri", value: "independent_form" },
+                    { label: "Formulir mandiri", value: "independent_form" },
                     {
-                      label: "Pendaftaran Aktivitas",
+                      label: "Pendaftaran Kegiatan",
                       value: "activity_registration",
                     },
                   ]}
@@ -188,11 +191,7 @@ const CustomFormFilter = ({
                   ]}
                 />
 
-                <Button
-                  icon={<SearchOutlined />}
-                  type="primary"
-                  onClick={apply}
-                >
+                <Button icon={<SearchOutlined />} onClick={apply}>
                   Cari
                 </Button>
               </Space>
@@ -202,11 +201,12 @@ const CustomFormFilter = ({
           {/* Right: Actions */}
           <Space size={8} wrap>
             <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-              Tambah Form
+              Tambah formulir
             </Button>
             {refresh && (
-              <Tooltip placement="left" title="Refresh Data">
+              <Tooltip placement="left" title="Muat ulang data">
                 <Button
+                  aria-label="Muat ulang data"
                   icon={<ReloadOutlined />}
                   onClick={refresh}
                   loading={loading}
@@ -218,11 +218,11 @@ const CustomFormFilter = ({
       </Card>
 
       <Modal
-        title="Buat Form Baru"
+        title="Buat Formulir Baru"
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           scrollToFirstError={{ focus: true }}
@@ -241,33 +241,33 @@ const CustomFormFilter = ({
               options={[
                 {
                   value: "independent_form",
-                  label: "Form mandiri (tanpa kegiatan atau klub)",
+                  label: "Formulir mandiri (tanpa kegiatan atau klub)",
                 },
                 {
                   value: "activity_registration",
-                  label: "Pendaftaran aktivitas",
+                  label: "Pendaftaran kegiatan",
                 },
               ]}
             />
           </Form.Item>
           <Form.Item
-            label="Nama Form"
+            label="Nama Formulir"
             name="formName"
             rules={[
-              { required: true, message: "Nama form harus diisi" },
-              { min: 3, message: "Nama form minimal 3 karakter" },
+              { required: true, message: "Nama formulir harus diisi" },
+              { min: 3, message: "Nama formulir minimal 3 karakter" },
             ]}
           >
-            <Input placeholder="Masukkan nama form" />
+            <Input placeholder="Masukkan nama formulir" />
           </Form.Item>
 
           <Form.Item
-            label="Deskripsi Form"
+            label="Deskripsi Formulir"
             name="formDescription"
             rules={[{ max: 500, message: "Deskripsi maksimal 500 karakter" }]}
           >
             <Input.TextArea
-              placeholder="Masukkan deskripsi form (opsional)"
+              placeholder="Masukkan deskripsi formulir (opsional)"
               rows={4}
               showCount
               maxLength={500}
@@ -278,7 +278,7 @@ const CustomFormFilter = ({
             <Space>
               <Button onClick={handleCancel}>Batal</Button>
               <Button type="primary" htmlType="submit" loading={isCreating}>
-                Buat Form
+                Buat formulir
               </Button>
             </Space>
           </Form.Item>

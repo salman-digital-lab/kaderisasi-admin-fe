@@ -131,7 +131,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
         <Space size="small">
           <Tooltip title="Pindah Ke Atas">
             <Button
-              aria-label="Pindah Ke Atas"
+              aria-label="Pindah ke atas"
               type="text"
               size="small"
               icon={<ArrowUpOutlined />}
@@ -141,7 +141,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
           </Tooltip>
           <Tooltip title="Pindah Ke Bawah">
             <Button
-              aria-label="Pindah Ke Bawah"
+              aria-label="Pindah ke bawah"
               type="text"
               size="small"
               icon={<ArrowDownOutlined />}
@@ -151,7 +151,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
           </Tooltip>
           <Tooltip title="Hapus Grup">
             <Button
-              aria-label="Hapus Grup"
+              aria-label="Hapus grup"
               type="text"
               size="small"
               danger
@@ -162,7 +162,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
         </Space>
       }
     >
-      <Space direction="vertical" style={{ width: "100%" }}>
+      <Space orientation="vertical" style={{ width: "100%" }}>
         {customFields.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
             <Text type="secondary">Belum ada pertanyaan kustom</Text>
@@ -215,7 +215,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                   <Space size="small">
                     <Tooltip title="Pindah Ke Atas">
                       <Button
-                        aria-label="Pindah Ke Atas"
+                        aria-label="Pindah ke atas"
                         type="text"
                         size="small"
                         icon={<ArrowUpOutlined />}
@@ -225,7 +225,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     </Tooltip>
                     <Tooltip title="Pindah Ke Bawah">
                       <Button
-                        aria-label="Pindah Ke Bawah"
+                        aria-label="Pindah ke bawah"
                         type="text"
                         size="small"
                         icon={<ArrowDownOutlined />}
@@ -242,9 +242,9 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                         onClick={() => onDuplicateField(field)}
                       />
                     </Tooltip>
-                    <Tooltip title="Edit">
+                    <Tooltip title="Ubah">
                       <Button
-                        aria-label="Edit"
+                        aria-label="Ubah"
                         type="text"
                         size="small"
                         icon={<EditOutlined />}
@@ -276,7 +276,7 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
           onClick={onAddField}
           style={{ marginTop: customFields.length > 0 ? "8px" : "0" }}
         >
-          Tambah Pertanyaan
+          Tambah pertanyaan
         </Button>
       </Space>
     </Card>

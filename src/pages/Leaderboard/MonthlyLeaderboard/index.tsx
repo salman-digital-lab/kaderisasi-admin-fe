@@ -3,6 +3,9 @@ import { useState } from "react";
 import { getMonthlyLeaderboard } from "../../../api/services/leaderboard";
 import MonthlyLeaderboardTable from "./components/MonthlyLeaderboardTable";
 import MonthlyLeaderboardFilter from "./components/MonthlyLeaderboardFilter";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import LoadErrorAlert from "../../../components/common/LoadErrorAlert";
 
 export default function MonthlyLeaderboard() {
   const [parameters, setParameters] = useState({
@@ -14,7 +17,7 @@ export default function MonthlyLeaderboard() {
     name: "",
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getMonthlyLeaderboard({
         page: String(parameters.page),
@@ -30,7 +33,17 @@ export default function MonthlyLeaderboard() {
   );
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.monthlyLeaderboard}
+        description="Peringkat anggota berdasarkan poin prestasi setiap bulan."
+      />
+      {(error || (!loading && !data)) && (
+        <LoadErrorAlert
+          title="Peringkat bulanan gagal dimuat"
+          onRetry={refresh}
+        />
+      )}
       <MonthlyLeaderboardFilter
         setParameter={setParameters}
         refresh={refresh}

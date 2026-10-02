@@ -151,13 +151,13 @@ export const PROFILE_DATA_CATEGORIES = [
     key: "personal",
     label: "Pribadi",
     icon: UserOutlined,
-    color: "#1890ff",
+    color: "var(--app-color-primary)",
   },
   {
     key: "contact",
     label: "Kontak",
     icon: PhoneOutlined,
-    color: "#52c41a",
+    color: "var(--app-color-success)",
   },
   {
     key: "location",

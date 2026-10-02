@@ -83,6 +83,7 @@ const CertificateDesigner = lazy(
 );
 const CertificatePreview = lazy(() => import("../pages/CertificatePreview"));
 const ForbiddenPage = lazy(() => import("../pages/Forbidden"));
+const NotFoundPage = lazy(() => import("../pages/NotFound"));
 const MyRequestsPage = lazy(() => import("../pages/AccessRequests/MyRequests"));
 const RequestDetailPage = lazy(
   () => import("../pages/AccessRequests/RequestDetail"),
@@ -375,7 +376,14 @@ const routes = createBrowserRouter([
         path: "digital-certificate",
         element: guarded(<DigitalCertificate />, "certificate.read"),
       },
-      { path: "*", element: <Navigate to="/forbidden" replace /> },
+      {
+        path: "*",
+        element: (
+          <Page>
+            <NotFoundPage />
+          </Page>
+        ),
+      },
     ],
   },
 ]);

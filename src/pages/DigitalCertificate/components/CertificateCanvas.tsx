@@ -535,7 +535,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
             trigger="click"
             placement="topLeft"
             content={
-              <Space direction="vertical" size="small">
+              <Space orientation="vertical" size="small">
                 <Typography.Text strong>Tampilan & snap</Typography.Text>
                 <Divider style={{ margin: 0 }} />
                 <Switch

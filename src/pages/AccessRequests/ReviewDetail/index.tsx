@@ -13,12 +13,8 @@ import {
   Typography,
   message,
 } from "antd";
-import {
-  ArrowLeftOutlined,
-  CheckOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
-import { useNavigate, useParams } from "react-router-dom";
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { useParams } from "react-router-dom";
 import type { ReactElement } from "react";
 import {
   approveReviewTicket,
@@ -32,10 +28,11 @@ import RoleCapabilitiesTable from "../components/RoleCapabilitiesTable";
 import RoleTags from "../../../components/common/RoleTags";
 import { getAdminUser } from "../../../api/services/adminuser";
 import { assignedRoles } from "../../../utils/admin-roles";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 export default function ReviewDetailPage(): ReactElement {
   const { id = "" } = useParams();
-  const navigate = useNavigate();
   const user = useUser();
   const [decision, setDecision] = useState<"approved" | "rejected" | null>(
     null,
@@ -124,14 +121,14 @@ export default function ReviewDetailPage(): ReactElement {
   };
 
   return (
-    <div className="access-ticket-page" style={{ padding: 12 }}>
-      <Button
-        icon={<ArrowLeftOutlined />}
-        onClick={() => navigate("/ticket-review")}
-        style={{ marginBottom: 12 }}
-      >
-        Kembali ke Daftar
-      </Button>
+    <div className="access-ticket-page page-container">
+      <PageHeader
+        back={{
+          to: "/ticket-review",
+          label: `Kembali ke ${NAV_LABELS.ticketReview}`,
+        }}
+        title="Detail Permintaan"
+      />
       {loading && !data ? (
         <Skeleton active />
       ) : error || !data ? (
@@ -139,7 +136,7 @@ export default function ReviewDetailPage(): ReactElement {
           type="error"
           showIcon
           title="Permintaan gagal dimuat"
-          action={<Button onClick={refresh}>Coba Lagi</Button>}
+          action={<Button onClick={refresh}>Coba lagi</Button>}
         />
       ) : (
         <div>
@@ -189,7 +186,7 @@ export default function ReviewDetailPage(): ReactElement {
                 <Alert
                   type="warning"
                   title="Cakupan akses belum dapat dimuat"
-                  action={<Button onClick={retryRoles}>Coba Lagi</Button>}
+                  action={<Button onClick={retryRoles}>Coba lagi</Button>}
                 />
               ) : role ? (
                 <>
@@ -261,14 +258,14 @@ export default function ReviewDetailPage(): ReactElement {
                       }
                       onClick={() => setDecision("approved")}
                     >
-                      Setujui Permintaan
+                      Setujui permintaan
                     </Button>
                     <Button
                       danger
                       icon={<CloseOutlined />}
                       onClick={() => setDecision("rejected")}
                     >
-                      Tolak Permintaan
+                      Tolak permintaan
                     </Button>
                   </Space>
                 </>

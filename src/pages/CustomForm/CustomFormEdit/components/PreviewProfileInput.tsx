@@ -113,7 +113,7 @@ export function PreviewEducation({
       {entries.map((entry, index) => (
         <fieldset
           key={index}
-          style={{ border: "1px solid #d9d9d9", padding: 16 }}
+          style={{ border: "1px solid var(--app-color-border)", padding: 16 }}
         >
           <legend>Pendidikan {multiple ? index + 1 : "sekarang"}</legend>
           <Space orientation="vertical" style={{ width: "100%" }}>

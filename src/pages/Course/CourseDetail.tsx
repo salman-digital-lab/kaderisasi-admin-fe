@@ -23,6 +23,7 @@ import CourseForm from "./components/CourseForm";
 import CourseLessons from "./components/CourseLessons";
 import CourseLearners from "./components/CourseLearners";
 import "./course-detail.css";
+import PageHeader from "../../components/common/PageHeader";
 
 export default function CourseDetail(): ReactElement {
   const { id = "" } = useParams<{ id: string }>();
@@ -105,21 +106,16 @@ export default function CourseDetail(): ReactElement {
       {contextHolder}
       {modalContext}
       <UnsavedChangesGuard dirty={dirty || busy} includeSearchChanges />
-      <Link to="/courses">Kembali ke daftar kelas</Link>
-      <header className="course-header">
-        <div className="course-header-copy">
-          <div className="course-header-title">
-            <Typography.Title
-              level={2}
-              style={{ margin: 0, overflowWrap: "anywhere" }}
-            >
-              {course.title}
-            </Typography.Title>
-            <Tag color={course.status === "published" ? "success" : "default"}>
-              {COURSE_STATUS_LABELS[course.status]}
-            </Tag>
-          </div>
-          <div className="course-metadata">
+      <PageHeader
+        back={{ to: "/courses", label: "Kembali ke daftar kelas" }}
+        title={course.title}
+        tags={
+          <Tag color={course.status === "published" ? "success" : "default"}>
+            {COURSE_STATUS_LABELS[course.status]}
+          </Tag>
+        }
+        description={
+          <span className="course-metadata">
             <span>
               Mulai jenjang{" "}
               {
@@ -136,19 +132,21 @@ export default function CourseDetail(): ReactElement {
               )}{" "}
               PDF pendamping
             </span>
-          </div>
-        </div>
-        <Button
-          onClick={() => {
-            discardBefore(() => void refresh());
-          }}
-          loading={loading}
-          disabled={busy}
-          icon={<ReloadOutlined aria-hidden />}
-        >
-          Muat ulang
-        </Button>
-      </header>
+          </span>
+        }
+        extra={
+          <Button
+            onClick={() => {
+              discardBefore(() => void refresh());
+            }}
+            loading={loading}
+            disabled={busy}
+            icon={<ReloadOutlined aria-hidden />}
+          >
+            Muat ulang
+          </Button>
+        }
+      />
       {error && (
         <Alert
           className="course-feedback"

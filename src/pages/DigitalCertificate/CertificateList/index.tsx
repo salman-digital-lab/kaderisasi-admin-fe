@@ -8,7 +8,6 @@ import {
   InboxOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SafetyCertificateOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import {
@@ -58,8 +57,11 @@ import {
   CANVAS_PRESETS,
   STARTER_LAYOUTS,
 } from "../utils/starter-templates";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import { DATE_FORMAT } from "../../../utils/date-format";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const TOUCH_ACTION_STYLE: React.CSSProperties = {
   minWidth: 44,
@@ -292,7 +294,7 @@ const CertificateList: React.FC = () => {
 
   const columns: TableProps<CertificateTemplate>["columns"] = [
     {
-      title: "Preview",
+      title: "Pratinjau",
       dataIndex: "template_data",
       width: 150,
       render: (_value, record) => (
@@ -335,7 +337,7 @@ const CertificateList: React.FC = () => {
               ? "Diarsipkan"
               : "Draf";
         return (
-          <Space direction="vertical" size={2}>
+          <Space orientation="vertical" size={2}>
             <Tag
               color={
                 status === "published"
@@ -358,8 +360,7 @@ const CertificateList: React.FC = () => {
       title: "Tanggal Dibuat",
       dataIndex: "created_at",
       width: 160,
-      render: (value: string) =>
-        dayjs(value).locale("id").format("DD MMMM YYYY"),
+      render: (value: string) => dayjs(value).format(DATE_FORMAT),
     },
     {
       title: "Aksi",
@@ -384,7 +385,7 @@ const CertificateList: React.FC = () => {
 
         return (
           <Space size={4} wrap>
-            <Tooltip title="Edit template">
+            <Tooltip title="Ubah template">
               <Button
                 size="small"
                 icon={<EditOutlined />}
@@ -478,36 +479,12 @@ const CertificateList: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 12 }}>
-      {/* Header */}
-      <Card
-        variant="outlined"
-        style={{ borderRadius: 0, marginBottom: 12 }}
-        styles={{ body: { padding: "12px 16px" } }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <SafetyCertificateOutlined
-              style={{ fontSize: 24, color: "#1890ff" }}
-            />
-            <div>
-              <Title level={1} style={{ fontSize: 18, margin: 0 }}>
-                Sertifikat Digital
-              </Title>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                Kelola template sertifikat digital
-              </Text>
-            </div>
-          </div>
-          {canManage && (
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.certificates}
+        description="Kelola template sertifikat digital untuk kegiatan."
+        extra={
+          canManage ? (
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -516,9 +493,9 @@ const CertificateList: React.FC = () => {
             >
               Buat desain
             </Button>
-          )}
-        </div>
-      </Card>
+          ) : undefined
+        }
+      />
 
       {/* Filter */}
       <Card
@@ -543,14 +520,14 @@ const CertificateList: React.FC = () => {
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               onPressEnter={applySearch}
-              prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+              prefix={
+                <SearchOutlined
+                  style={{ color: "var(--app-color-text-secondary)" }}
+                />
+              }
               aria-label="Cari template sertifikat"
             />
-            <Button
-              icon={<SearchOutlined />}
-              type="primary"
-              onClick={applySearch}
-            >
+            <Button icon={<SearchOutlined />} onClick={applySearch}>
               Cari
             </Button>
             <Select
@@ -566,7 +543,7 @@ const CertificateList: React.FC = () => {
               }}
             />
           </Space>
-          <Tooltip title="Refresh Data">
+          <Tooltip title="Muat ulang data">
             <Button
               icon={<ReloadOutlined />}
               style={TOUCH_ACTION_STYLE}

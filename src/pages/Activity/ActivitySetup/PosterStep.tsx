@@ -9,6 +9,7 @@ import UnsavedChangesGuard from "../../../components/common/UnsavedChangesGuard"
 import { actionError } from "../../../utils/action-error";
 import DraftPosters from "./DraftPosters";
 import { ACTIVITY_CREATION_STEPS } from "./steps";
+import PageHeader from "../../../components/common/PageHeader";
 
 export default function PosterStep(): ReactElement {
   const { id } = useParams();
@@ -69,14 +70,10 @@ export default function PosterStep(): ReactElement {
   };
   return (
     <main className="guided-page activity-setup-page">
-      <header className="activity-setup-header">
-        <Typography.Title level={2} className="activity-setup-title">
-          {activity?.name ?? "Unggah poster kegiatan"}
-        </Typography.Title>
-        <p>
-          Pilih poster, lalu simpan untuk melanjutkan ke formulir pendaftaran.
-        </p>
-      </header>
+      <PageHeader
+        title={activity?.name ?? "Unggah poster kegiatan"}
+        description="Pilih poster, lalu simpan untuk melanjutkan ke formulir pendaftaran."
+      />
       <Alert
         className="activity-setup-notice"
         role="status"
@@ -143,12 +140,12 @@ export default function PosterStep(): ReactElement {
         </Button>
         <Button
           type="primary"
-          aria-label="Simpan & Lanjutkan"
+          aria-label="Simpan & lanjutkan"
           loading={busy}
           disabled={loading || !!error}
           onClick={() => void save()}
         >
-          Simpan & Lanjutkan
+          Simpan & lanjutkan
         </Button>
       </footer>
       <UnsavedChangesGuard

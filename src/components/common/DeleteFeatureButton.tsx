@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactElement } from "react";
-import { Alert, Button, Input, Modal, Typography, notification } from "antd";
+import { Alert, Button, Input, Modal, Typography, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 import { useRoles } from "../../stores/authStore";
@@ -51,7 +51,7 @@ export default function DeleteFeatureButton({
         },
       );
       setOpen(false);
-      notification.success({ title: `${label} berhasil dihapus` });
+      message.success(`${label} berhasil dihapus`);
       onDeleted?.();
       navigate(`/${kind}`, { replace: true });
     } catch (cause) {

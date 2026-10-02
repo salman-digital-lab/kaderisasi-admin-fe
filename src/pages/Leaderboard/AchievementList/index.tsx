@@ -14,6 +14,9 @@ import type {
   AchievementSortBy,
   SortOrder,
 } from "../../../types/services/achievement";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import LoadErrorAlert from "../../../components/common/LoadErrorAlert";
 
 export type AchievementListParameters = {
   page: number;
@@ -38,7 +41,7 @@ export default function AchievementList() {
     sort_order: "desc",
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getAchievements({
         page: String(parameters.page),
@@ -56,7 +59,17 @@ export default function AchievementList() {
   );
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.achievements}
+        description="Tinjau dan setujui prestasi yang diajukan anggota."
+      />
+      {(error || (!loading && !data)) && (
+        <LoadErrorAlert
+          title="Daftar prestasi gagal dimuat"
+          onRetry={refresh}
+        />
+      )}
       <AchievementFilter
         setParameter={setParameters}
         refresh={refresh}

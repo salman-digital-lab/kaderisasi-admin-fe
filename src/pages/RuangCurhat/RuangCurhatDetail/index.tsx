@@ -8,10 +8,10 @@ import {
   MenuProps,
   Space,
   Tag,
-  Typography,
   Input,
-  Divider,
+  Card,
 } from "antd";
+import PageHeader from "../../../components/common/PageHeader";
 import { useParams } from "react-router-dom";
 import { DownOutlined } from "@ant-design/icons";
 import { useState } from "react";
@@ -31,9 +31,9 @@ import {
 import { UPDATE_STATUS_MENU } from "./utils/constants";
 import EditCounselorModal from "./components/EditCounselorModal";
 import { usePermissions } from "../../../stores/authStore";
+import { DATE_FORMAT } from "../../../utils/date-format";
 
 const { TextArea } = Input;
-const { Title } = Typography;
 
 export function RuangCurhatDetail() {
   const { id } = useParams<{ id: string }>();
@@ -87,7 +87,7 @@ export function RuangCurhatDetail() {
       key: "8",
       label: "Tanggal Lahir",
       children: profile?.birth_date
-        ? dayjs(profile.birth_date).locale("id").format("DD MMMM YYYY")
+        ? dayjs(profile.birth_date).format(DATE_FORMAT)
         : "-",
     },
     {
@@ -161,45 +161,15 @@ export function RuangCurhatDetail() {
   ];
 
   return (
-    <Flex vertical gap="large" style={{ padding: 12 }}>
-      {canManage && (
-        <EditCounselorModal
-          counselorId={data?.counselor_id}
-          isOpen={modalIsOpen}
-          run={runAsync}
-          toggle={toggleModal}
-          dataRefresh={refresh}
-        />
-      )}
-      <div>
-        <Title level={5} style={{ marginBottom: 12 }}>
-          Informasi Pendaftar
-        </Title>
-        <Descriptions items={basicInfo} bordered size="small" />
-      </div>
-      <Divider style={{ margin: 0 }} />
-
-      <div>
-        <Title level={5} style={{ marginBottom: 12 }}>
-          Informasi Masalah
-        </Title>
-        <Descriptions items={problemOwnerData} bordered size="small" />
-      </div>
-
-      <Divider style={{ margin: 0 }} />
-
-      <div>
-        <Flex
-          justify="space-between"
-          align="center"
-          style={{ marginBottom: 12 }}
-        >
-          <Title level={5} style={{ margin: 0 }}>
-            Konselor
-          </Title>
-          {canManage && (
-            <Space>
+    <div className="page-container">
+      <PageHeader
+        back={{ to: "/ruang-curhat", label: "Kembali ke daftar curhat" }}
+        title={profile?.name ? `Curhat ${profile.name}` : "Detail Curhat"}
+        extra={
+          canManage ? (
+            <>
               <Dropdown
+                trigger={["click"]}
                 menu={{
                   items: UPDATE_STATUS_MENU?.map((item) => ({
                     ...item,
@@ -213,52 +183,67 @@ export function RuangCurhatDetail() {
               >
                 <Button loading={editLoading}>
                   <Space>
-                    Ubah Status
+                    Ubah status
                     <DownOutlined />
                   </Space>
                 </Button>
               </Dropdown>
               <Button type="primary" onClick={() => toggleModal()}>
-                Ubah Konselor
+                Ubah konselor
               </Button>
-            </Space>
-          )}
-        </Flex>
-        <Descriptions items={counselorData} bordered size="small" />
-      </div>
-      <Divider style={{ margin: 0 }} />
-
-      <div>
-        <Title level={5} style={{ marginBottom: 12 }}>
-          Catatan
-        </Title>
-        <TextArea
-          rows={4}
-          value={additionalNotes}
-          readOnly={!canManage}
-          onChange={(e) => setAdditionalNotes(e.target.value)}
-        />
+            </>
+          ) : undefined
+        }
+      />
+      <Flex vertical gap={12}>
         {canManage && (
-          <Button
-            type="primary"
-            style={{ marginTop: "1rem" }}
-            loading={editLoading}
-            onClick={() =>
-              runAsync({
-                id: id || "",
-                data: {
-                  status: data?.status,
-                  additional_notes: additionalNotes,
-                },
-              }).finally(refresh)
-            }
-          >
-            {additionalNotes && additionalNotes.length
-              ? "Ubah Catatan"
-              : "Tambahkan Catatan"}
-          </Button>
+          <EditCounselorModal
+            counselorId={data?.counselor_id}
+            isOpen={modalIsOpen}
+            run={runAsync}
+            toggle={toggleModal}
+            dataRefresh={refresh}
+          />
         )}
-      </div>
-    </Flex>
+        <Card title="Informasi Pendaftar">
+          <Descriptions items={basicInfo} bordered size="small" />
+        </Card>
+        <Card title="Informasi Masalah">
+          <Descriptions items={problemOwnerData} bordered size="small" />
+        </Card>
+        <Card title="Konselor">
+          <Descriptions items={counselorData} bordered size="small" />
+        </Card>
+        <Card title="Catatan">
+          <TextArea
+            aria-label="Catatan"
+            rows={4}
+            value={additionalNotes}
+            readOnly={!canManage}
+            onChange={(e) => setAdditionalNotes(e.target.value)}
+          />
+          {canManage && (
+            <Button
+              type="primary"
+              style={{ marginTop: "1rem" }}
+              loading={editLoading}
+              onClick={() =>
+                runAsync({
+                  id: id || "",
+                  data: {
+                    status: data?.status,
+                    additional_notes: additionalNotes,
+                  },
+                }).finally(refresh)
+              }
+            >
+              {additionalNotes && additionalNotes.length
+                ? "Simpan catatan"
+                : "Tambahkan catatan"}
+            </Button>
+          )}
+        </Card>
+      </Flex>
+    </div>
   );
 }

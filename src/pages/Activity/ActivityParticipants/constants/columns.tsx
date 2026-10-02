@@ -1,4 +1,4 @@
-import { TableProps, Tooltip, Tag, Button } from "antd";
+import { TableProps, Tooltip, Button } from "antd";
 import { Link } from "react-router-dom";
 import { EyeOutlined } from "@ant-design/icons";
 import { memo } from "react";
@@ -11,6 +11,7 @@ import {
   formatCurrentEducation,
 } from "../../../../utils/education";
 import { formatRegistrationTime } from "../../../../utils/registration-time";
+import { RegistrationStatusTag } from "../../../../components/common/StatusTags";
 
 // Memoized text cell component
 const TextCell = memo(
@@ -78,7 +79,7 @@ const NameLink = memo(
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
                 fontSize: "11px",
-                color: "#8c8c8c",
+                color: "var(--app-color-text-secondary)",
                 marginTop: "2px",
                 lineHeight: "1.2",
               }}
@@ -89,37 +90,17 @@ const NameLink = memo(
         )}
       </div>
       <Link to={`/activity/${activityId}/participants/${recordId}`}>
-        <Button size="small" icon={<EyeOutlined />} />
+        <Button
+          size="small"
+          aria-label="Lihat detail peserta"
+          icon={<EyeOutlined />}
+        />
       </Link>
     </div>
   ),
 );
 
 NameLink.displayName = "NameLink";
-
-// Status badge with colors
-const StatusBadge = memo(({ status }: { status: string }) => {
-  const getStatusColor = (status: string) => {
-    switch (status?.toUpperCase()) {
-      case "DITERIMA":
-        return "green";
-      case "DITOLAK":
-      case "TIDAK DITERIMA":
-      case "TIDAK LULUS":
-        return "red";
-      case "TERDAFTAR":
-        return "blue";
-      case "LULUS KEGIATAN":
-        return "purple";
-      default:
-        return "default";
-    }
-  };
-
-  return <Tag color={getStatusColor(status)}>{status}</Tag>;
-});
-
-StatusBadge.displayName = "StatusBadge";
 
 // Memoized render components
 const MemoizedProvinceRender = memo(ProvinceRender);
@@ -175,7 +156,7 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     width: 150,
     sortable: true,
     filterable: true,
-    render: (status) => <StatusBadge status={status as string} />,
+    render: (status) => <RegistrationStatusTag status={status as string} />,
   },
   {
     key: "gender",

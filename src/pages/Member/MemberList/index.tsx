@@ -16,6 +16,8 @@ import CreateMemberModal from "./CreateMemberModal";
 import { useIsSuperAdmin, usePermissions } from "../../../stores/authStore";
 import ExportMemberModal from "./ExportMemberModal";
 import type { MemberExportFilters } from "../../../api/services/member-export";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 const MemberListPage = () => {
   const canManage = usePermissions().includes("members.manage");
@@ -72,7 +74,11 @@ const MemberListPage = () => {
   const cardStyle = { borderRadius: 0, boxShadow: "none" };
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.members}
+        description="Cari, tambahkan, dan kelola data anggota."
+      />
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
           style={{
@@ -141,7 +147,6 @@ const MemberListPage = () => {
                   onPressEnter={apply}
                 />
                 <Button
-                  type="primary"
                   icon={<SearchOutlined />}
                   onClick={apply}
                   aria-label="Terapkan pencarian anggota"
@@ -163,7 +168,7 @@ const MemberListPage = () => {
                   })
                 }
               >
-                Unduh Data
+                Unduh data
               </Button>
             )}
             {canManage && (
@@ -172,10 +177,10 @@ const MemberListPage = () => {
                 icon={<PlusOutlined />}
                 onClick={() => setIsCreateOpen(true)}
               >
-                Tambah Anggota
+                Tambah anggota
               </Button>
             )}
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
                 icon={<ReloadOutlined />}
                 onClick={refresh}

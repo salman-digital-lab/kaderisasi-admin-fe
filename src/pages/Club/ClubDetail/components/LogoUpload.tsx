@@ -61,7 +61,7 @@ const LogoUpload = ({ club, onUpdated }: LogoUploadProps) => {
   return (
     <>
       {messageContextHolder}
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
         <div>
           <Title level={4} style={{ margin: 0 }}>
             Logo Klub
@@ -86,7 +86,7 @@ const LogoUpload = ({ club, onUpdated }: LogoUploadProps) => {
         )}
 
         <div>
-          <Text strong>Upload Logo Baru:</Text>
+          <Text strong>Unggah logo baru</Text>
           <div style={{ marginTop: 8 }}>
             <Upload
               fileList={fileList}
@@ -97,7 +97,7 @@ const LogoUpload = ({ club, onUpdated }: LogoUploadProps) => {
               disabled={uploadLoading}
             >
               <Button icon={<UploadOutlined />} disabled={uploadLoading}>
-                Pilih File
+                Pilih berkas
               </Button>
             </Upload>
             <div style={{ marginTop: 8 }}>
@@ -115,7 +115,7 @@ const LogoUpload = ({ club, onUpdated }: LogoUploadProps) => {
               onClick={handleUpload}
               loading={uploadLoading}
             >
-              Upload Logo
+              Unggah logo
             </Button>
             <Button onClick={() => setFileList([])}>Batal</Button>
           </Space>

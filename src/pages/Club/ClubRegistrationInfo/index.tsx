@@ -111,7 +111,7 @@ const ClubRegistrationInfo = ({
       title: "Tutup pendaftaran klub?",
       content:
         "Calon anggota tidak dapat lagi mengirim pendaftaran sampai dibuka kembali.",
-      okText: "Tutup Pendaftaran",
+      okText: "Tutup pendaftaran",
       cancelText: "Batal",
       okButtonProps: { danger: true },
       onOk: async () => {
@@ -129,7 +129,7 @@ const ClubRegistrationInfo = ({
   };
 
   return (
-    <Space direction="vertical" size="large" style={{ display: "flex" }}>
+    <Space orientation="vertical" size="large" style={{ display: "flex" }}>
       {modalContextHolder}
       <div>
         <Title level={3} style={{ marginBottom: 4 }}>
@@ -163,7 +163,7 @@ const ClubRegistrationInfo = ({
           registrationExpired
             ? "Perbarui tanggal penutupan atau tutup pendaftaran agar status sesuai."
             : club.is_registration_open
-              ? "Pendaftar dapat mengisi form selama pendaftaran tersedia."
+              ? "Pendaftar dapat mengisi formulir selama pendaftaran tersedia."
               : readiness.registrationBlockingReason ||
                 "Semua persyaratan utama sudah terpenuhi."
         }
@@ -178,7 +178,7 @@ const ClubRegistrationInfo = ({
             loading={savingDescription}
             onClick={() => void handleSaveDescription()}
           >
-            Simpan Informasi
+            Simpan informasi
           </Button>
         }
       >
@@ -191,7 +191,7 @@ const ClubRegistrationInfo = ({
           <Form.Item
             name="registration_info"
             label="Petunjuk pendaftaran (Disarankan)"
-            extra="Informasi ini tampil sebelum calon anggota mulai mengisi form."
+            extra="Informasi ini tampil sebelum calon anggota mulai mengisi formulir."
             style={{ marginBottom: 0 }}
           >
             <RichTextEditor
@@ -206,7 +206,7 @@ const ClubRegistrationInfo = ({
         </Form>
       </Card>
 
-      <div aria-label="Langkah 2: Form pendaftaran">
+      <div aria-label="Langkah 2: Formulir pendaftaran">
         <CustomFormAttachment club={club} onUpdated={onUpdated} />
       </div>
 
@@ -252,7 +252,7 @@ const ClubRegistrationInfo = ({
               disabled={changingStatus}
               onClick={() => void handleSaveSchedule()}
             >
-              Simpan Jadwal
+              Simpan jadwal
             </Button>
             {club.is_registration_open ? (
               <Button
@@ -261,7 +261,7 @@ const ClubRegistrationInfo = ({
                 loading={changingStatus}
                 onClick={confirmCloseRegistration}
               >
-                Tutup Pendaftaran
+                Tutup pendaftaran
               </Button>
             ) : (
               <Button
@@ -271,7 +271,7 @@ const ClubRegistrationInfo = ({
                 disabled={!canOpenRegistration}
                 onClick={() => void handleOpenRegistration()}
               >
-                Buka Pendaftaran
+                Buka pendaftaran
               </Button>
             )}
           </Space>
@@ -283,7 +283,7 @@ const ClubRegistrationInfo = ({
             >
               <Text strong>Belum dapat dibuka:</Text>{" "}
               {!hasActiveForm
-                ? "hubungkan dan aktifkan form pendaftaran pada langkah 2."
+                ? "hubungkan dan aktifkan formulir pendaftaran pada langkah 2."
                 : "perbaiki tanggal penutupan terlebih dahulu."}
             </Paragraph>
           ) : null}

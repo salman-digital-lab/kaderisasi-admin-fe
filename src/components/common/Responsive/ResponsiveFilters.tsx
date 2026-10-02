@@ -58,7 +58,7 @@ export function ResponsiveFilters({
                 setAppliedCount(0);
               }}
             >
-              Reset
+              Atur ulang
             </Button>
             <Button type="primary" onClick={apply}>
               Terapkan

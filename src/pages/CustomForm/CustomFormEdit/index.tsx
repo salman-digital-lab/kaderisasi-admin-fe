@@ -51,9 +51,8 @@ import "../../../styles/guided-workflows.css";
 import "./builder.css";
 
 type Values = BuilderRecovery["values"];
-const BUILDER_THEME = {
-  token: { motion: false, colorPrimary: "#087da7", colorLink: "#096c92" },
-};
+// The builder reorders many elements; disable motion to keep it responsive.
+const BUILDER_THEME = { token: { motion: false } };
 
 export default function CustomFormEdit(): ReactElement {
   const [form] = Form.useForm<Values>();
@@ -270,8 +269,8 @@ export default function CustomFormEdit(): ReactElement {
               {activityId && (
                 <Button
                   className="builder-back"
-                  type="text"
-                  icon={<ArrowLeftOutlined />}
+                  type="link"
+                  icon={<ArrowLeftOutlined aria-hidden />}
                   onClick={() =>
                     navigate(
                       returnToSetup
@@ -286,16 +285,26 @@ export default function CustomFormEdit(): ReactElement {
               {clubId && (
                 <Button
                   className="builder-back"
-                  type="text"
-                  icon={<ArrowLeftOutlined />}
+                  type="link"
+                  icon={<ArrowLeftOutlined aria-hidden />}
                   onClick={() =>
                     navigate(`/club/${clubId}?section=registration`)
                   }
                 >
-                  Kembali ke Pendaftaran Klub
+                  Kembali ke pendaftaran klub
                 </Button>
               )}
-              <Typography.Title level={2} className="builder-form-title">
+              {!activityId && !clubId && (
+                <Button
+                  className="builder-back"
+                  type="link"
+                  icon={<ArrowLeftOutlined aria-hidden />}
+                  onClick={() => navigate("/custom-form")}
+                >
+                  Kembali ke daftar formulir
+                </Button>
+              )}
+              <Typography.Title level={1} className="builder-form-title">
                 {watched?.formName || initialData.form_name}
               </Typography.Title>
               <Typography.Text
@@ -327,14 +336,14 @@ export default function CustomFormEdit(): ReactElement {
                 Pratinjau
               </Button>
               <Button
-                aria-label="Simpan Perubahan"
+                aria-label="Simpan perubahan"
                 type="primary"
                 icon={<SaveOutlined />}
                 loading={updateLoading}
                 disabled={!!recovery}
                 onClick={() => void handleSave()}
               >
-                Simpan Perubahan
+                Simpan perubahan
               </Button>
             </div>
           </header>
@@ -445,10 +454,7 @@ export default function CustomFormEdit(): ReactElement {
                         </p>
                       </>
                     )}
-                    <Typography.Title
-                      level={3}
-                      style={{ fontSize: 16, marginTop: 0 }}
-                    >
+                    <Typography.Title level={3} style={{ marginTop: 0 }}>
                       Status formulir
                     </Typography.Title>
                     <p role="status">

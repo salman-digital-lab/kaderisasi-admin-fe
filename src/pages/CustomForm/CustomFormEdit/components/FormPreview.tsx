@@ -23,6 +23,7 @@ import {
 } from "../../../../utils/form-routing";
 import { validateCustomFormFields } from "../utils/form-validation";
 import { PreviewEducation, PreviewLocation } from "./PreviewProfileInput";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 function PreviewQuestion({
   field,
@@ -330,7 +331,7 @@ export function FormPreview({
     <ResponsiveDialog
       open
       title="Pratinjau formulir"
-      width={960}
+      width={DIALOG_WIDTH.large}
       footer={null}
       onCancel={onClose}
     >

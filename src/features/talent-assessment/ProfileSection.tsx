@@ -68,16 +68,16 @@ export default function TalentProfileSection(): ReactElement {
               }
             >
               {state.draft
-                ? "Lanjutkan Asesmen"
+                ? "Lanjutkan asesmen"
                 : state.result
-                  ? "Lihat Hasil"
-                  : "Mulai Asesmen"}
+                  ? "Lihat hasil"
+                  : "Mulai asesmen"}
             </Button>
             {state.draft && state.result && (
               <Button
                 onClick={() => navigate("/profile/talent-assessment/result")}
               >
-                Lihat Hasil Sebelumnya
+                Lihat hasil sebelumnya
               </Button>
             )}
           </Space>

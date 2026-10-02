@@ -57,7 +57,7 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
   onMoveCustomField,
 }) => {
   return (
-    <Space direction="vertical" style={{ width: "100%" }}>
+    <Space orientation="vertical" style={{ width: "100%" }}>
       <ProfileFieldsSection
         selectedBasicFields={selectedBasicFields}
         profileDataTemplates={profileDataTemplates}
@@ -110,7 +110,7 @@ export const SchemaTab: React.FC<SchemaTabProps> = ({
         size="large"
         style={{ marginTop: customFieldSections.length > 0 ? "8px" : "0" }}
       >
-        Tambah Grup Pertanyaan
+        Tambah grup pertanyaan
       </Button>
     </Space>
   );

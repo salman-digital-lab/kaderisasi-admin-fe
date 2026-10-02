@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { FormOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { FormField } from "../../../../types/model/customForm";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 const { Text } = Typography;
 
@@ -80,9 +81,9 @@ export const FieldModal: React.FC<FieldModalProps> = ({
       open={visible}
       onCancel={onCancel}
       onOk={handleOk}
-      okText="Simpan Pertanyaan"
+      okText="Simpan pertanyaan"
       cancelText="Batal"
-      width={800}
+      width={DIALOG_WIDTH.medium}
       destroyOnHidden
     >
       <Form
@@ -129,17 +130,17 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                 <Select
                   placeholder="Pilih tipe pertanyaan"
                   onChange={handleFieldTypeChange}
-                >
-                  {fieldTypes.map((type) => (
-                    <Select.Option key={type.value} value={type.value}>
+                  options={fieldTypes.map((type) => ({
+                    value: type.value,
+                    label: (
                       <Space>
                         <type.icon />
                         {type.label}
                         <Text type="secondary">{type.description}</Text>
                       </Space>
-                    </Select.Option>
-                  ))}
-                </Select>
+                    ),
+                  }))}
+                />
               </Form.Item>
             </Col>
 
@@ -167,9 +168,8 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         {fieldType && hasOptionsField(fieldType) && (
           <div
             style={{
-              backgroundColor: "#f5f5f5",
+              backgroundColor: "var(--app-color-fill-header)",
               padding: "20px",
-              borderRadius: "8px",
               marginBottom: 24,
             }}
           >
@@ -194,8 +194,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                         marginBottom: 12,
                         backgroundColor: "white",
                         padding: "12px",
-                        borderRadius: "6px",
-                        border: "1px solid #e8e8e8",
+                        border: "1px solid var(--app-color-border-secondary)",
                       }}
                     >
                       <Col flex="none" style={{ width: 40 }}>
@@ -264,7 +263,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                       icon={<PlusOutlined />}
                       style={{ width: "100%" }}
                     >
-                      Tambah Opsi
+                      Tambah opsi
                     </Button>
                   </Form.Item>
                 </>

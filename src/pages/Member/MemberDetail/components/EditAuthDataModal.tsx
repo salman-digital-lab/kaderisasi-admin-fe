@@ -27,7 +27,7 @@ export default function EditAuthDataModal({
 
   return (
     <Modal
-      title="Ubah Email dan Password"
+      title="Ubah email dan kata sandi"
       open={isOpen}
       confirmLoading={loading}
       okText="Ubah"
@@ -55,16 +55,19 @@ export default function EditAuthDataModal({
         <Form.Item
           label="Email"
           name="email"
-          rules={[{ required: true, message: "Email tidak boleh kosong" }]}
+          rules={[{ required: true, message: "Email wajib diisi" }]}
         >
           <Input placeholder="Email" />
         </Form.Item>
         <Form.Item
-          label="Password"
+          label="Kata sandi"
           name="password"
-          rules={[{ required: true, message: "Password tidak boleh kosong" }]}
+          rules={[{ required: true, message: "Kata sandi wajib diisi" }]}
         >
-          <Input placeholder="Password" />
+          <Input.Password
+            placeholder="Kata sandi"
+            autoComplete="new-password"
+          />
         </Form.Item>
       </Form>
     </Modal>

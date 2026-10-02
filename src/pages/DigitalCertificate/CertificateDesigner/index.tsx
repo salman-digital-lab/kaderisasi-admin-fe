@@ -102,6 +102,7 @@ import {
   type ViewportPoint,
 } from "./editor-state";
 import { getCentredElementPosition } from "./viewport-math";
+import { formatDateTime } from "../../../utils/date-format";
 const CertificatePreviewModal = lazy(
   () => import("../components/CertificatePreviewModal"),
 );
@@ -346,7 +347,7 @@ const CertificateDesignerEditor: React.FC = () => {
             title: "Pulihkan perubahan yang belum disimpan?",
             content: conflict
               ? "Template di server berubah sejak snapshot lokal dibuat. Tinjau hasil pemulihan dengan hati-hati; perubahan tidak akan disimpan otomatis."
-              : `Snapshot lokal dari ${new Date(recovery.timestamp).toLocaleString("id-ID")} tersedia.`,
+              : `Snapshot lokal dari ${formatDateTime(recovery.timestamp)} tersedia.`,
             okText: "Pulihkan",
             cancelText: "Buang snapshot",
             onOk: () => {
@@ -1069,7 +1070,7 @@ const CertificateDesignerEditor: React.FC = () => {
           >
             Kembali
           </Button>
-          <Typography.Title level={1} style={{ margin: 0, fontSize: 24 }}>
+          <Typography.Title level={1} style={{ margin: 0 }}>
             {templateName}
           </Typography.Title>
           <Tag>
@@ -1274,7 +1275,7 @@ const CertificateDesignerEditor: React.FC = () => {
                   onClick={() =>
                     setActiveDrawer(activeDrawer === "layers" ? null : "layers")
                   }
-                  aria-label="Buka Layers"
+                  aria-label="Buka lapisan"
                 />
                 <Button
                   icon={<ControlOutlined />}
@@ -1283,7 +1284,7 @@ const CertificateDesignerEditor: React.FC = () => {
                       activeDrawer === "inspector" ? null : "inspector",
                     )
                   }
-                  aria-label="Buka Inspector"
+                  aria-label="Buka properti"
                 />
               </>
             ) : null}
@@ -1327,7 +1328,7 @@ const CertificateDesignerEditor: React.FC = () => {
           type="error"
           showIcon
           title="Versi server berubah"
-          description={`Perubahan lokal tetap aman. Versi server ${autosaveState.conflict?.currentVersion ?? ""} diperbarui ${autosaveState.conflict?.updatedAt ? new Date(autosaveState.conflict.updatedAt).toLocaleString("id-ID") : ""}.`}
+          description={`Perubahan lokal tetap aman. Versi server ${autosaveState.conflict?.currentVersion ?? ""} diperbarui ${autosaveState.conflict?.updatedAt ? formatDateTime(autosaveState.conflict.updatedAt) : ""}.`}
           action={
             <Space wrap>
               <Button
@@ -1487,7 +1488,7 @@ const CertificateDesignerEditor: React.FC = () => {
               icon={<AppstoreOutlined />}
               onClick={() => setActiveDrawer("layers")}
             >
-              Layers
+              Lapisan
             </Button>
             <Button
               icon={<ControlOutlined />}
@@ -1502,7 +1503,7 @@ const CertificateDesignerEditor: React.FC = () => {
       <Drawer
         title={
           activeDrawer === "layers"
-            ? "Layers"
+            ? "Lapisan"
             : activeDrawer === "add"
               ? "Tambah elemen"
               : activeDrawer === "settings"
@@ -1580,7 +1581,7 @@ const CertificateDesignerEditor: React.FC = () => {
             }}
           />
         ) : activeDrawer === "settings" ? (
-          <Space direction="vertical" style={{ padding: 16, width: "100%" }}>
+          <Space orientation="vertical" style={{ padding: 16, width: "100%" }}>
             <label htmlFor="mobile-template-name">Nama template</label>
             <Input
               id="mobile-template-name"

@@ -7,7 +7,7 @@ export const TABLE_SCHEMA = (
   openModal: (id: number, name: string) => void,
 ): TableProps<Province>["columns"] => [
   {
-    title: "No",
+    title: "No.",
     dataIndex: "id",
     key: "id",
     width: 80,
@@ -18,7 +18,7 @@ export const TABLE_SCHEMA = (
     key: "name",
   },
   {
-    title: "Action",
+    title: "Aksi",
     key: "action",
     render: (_, record) => (
       <Space size="middle">
@@ -27,7 +27,7 @@ export const TABLE_SCHEMA = (
           icon={<EditOutlined />}
           onClick={() => openModal(record.id, record.name)}
         >
-          Edit
+          Ubah
         </Button>
       </Space>
     ),

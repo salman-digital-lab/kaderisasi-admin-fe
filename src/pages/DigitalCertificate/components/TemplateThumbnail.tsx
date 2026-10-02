@@ -45,7 +45,7 @@ export const TemplateThumbnail = memo(function TemplateThumbnail({
         width,
         height,
         overflow: "hidden",
-        border: "1px solid #f0f0f0",
+        border: "1px solid var(--app-color-border-secondary)",
         background: "#fff",
       }}
     >

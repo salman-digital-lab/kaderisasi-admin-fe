@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useRequest } from "ahooks";
-import { Alert, Button, Typography } from "antd";
+import { Alert, Button } from "antd";
 
 import AdminUserTable from "./components/AdminUserTable";
 import { getAdminUsers } from "../../../api/services/adminuser";
 import AdminUserFilter from "./components/AdminUserFilter";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 export default function AdminUserList() {
   const [adminUserParam, setAdminUserParam] = useState({
@@ -30,13 +32,11 @@ export default function AdminUserList() {
   );
 
   return (
-    <div style={{ padding: 12 }}>
-      <Typography.Title level={4}>Akun Admin</Typography.Title>
-      <Typography.Paragraph type="secondary">
-        Satu akun dapat memiliki beberapa peran dengan hak akses gabungan.
-        Filter peran menampilkan akun yang memiliki peran tersebut, termasuk
-        bersama peran lain.
-      </Typography.Paragraph>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.adminUsers}
+        description="Satu akun dapat memiliki beberapa peran dengan hak akses gabungan. Filter peran menampilkan akun yang memiliki peran tersebut, termasuk bersama peran lain."
+      />
       <AdminUserFilter
         setParameter={setAdminUserParam}
         refresh={refresh}

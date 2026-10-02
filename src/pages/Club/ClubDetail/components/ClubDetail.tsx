@@ -65,7 +65,7 @@ const ClubDetail = ({ club, onUpdated }: ClubDetailProps) => {
 
   return (
     <section aria-labelledby="club-basic-information-title">
-      <Space direction="vertical" size={2} style={{ marginBottom: 16 }}>
+      <Space orientation="vertical" size={2} style={{ marginBottom: 16 }}>
         <Title
           id="club-basic-information-title"
           level={4}
@@ -208,7 +208,7 @@ const ClubDetail = ({ club, onUpdated }: ClubDetailProps) => {
           loading={updateLoading}
           disabled={!isChanged}
         >
-          Simpan Profil
+          Simpan profil
         </Button>
       </Form>
     </section>

@@ -1,16 +1,6 @@
 import { useState, type ReactElement } from "react";
 import { useRequest } from "ahooks";
-import {
-  Alert,
-  Button,
-  Empty,
-  Input,
-  Modal,
-  Select,
-  Space,
-  Tag,
-  Typography,
-} from "antd";
+import { Alert, Button, Empty, Input, Modal, Select, Space, Tag } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { ResponsiveTable } from "../../components/common/Responsive/ResponsiveTable";
 import { usePermissions } from "../../stores/authStore";
@@ -21,6 +11,9 @@ import {
   type Course,
 } from "../../types/model/course";
 import CourseForm from "./components/CourseForm";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
+import { DIALOG_WIDTH } from "../../theme/tokens";
 
 export default function CourseList(): ReactElement {
   const [params, setParams] = useState({
@@ -37,13 +30,11 @@ export default function CourseList(): ReactElement {
     { refreshDeps: [params] },
   );
   return (
-    <main style={{ padding: 12, minWidth: 0 }}>
-      <Typography.Title level={2} style={{ marginBottom: 4 }}>
-        Kelas
-      </Typography.Title>
-      <Typography.Paragraph type="secondary">
-        Kelola materi pembelajaran sesuai jenjang dan pantau progres peserta.
-      </Typography.Paragraph>
+    <main className="page-container">
+      <PageHeader
+        title={NAV_LABELS.courses}
+        description="Kelola materi pembelajaran sesuai jenjang dan pantau progres peserta."
+      />
       <Space wrap style={{ marginBottom: 16 }}>
         <Input.Search
           aria-label="Cari kelas"
@@ -136,7 +127,7 @@ export default function CourseList(): ReactElement {
         onCancel={() => setCreating(false)}
         footer={null}
         destroyOnHidden
-        width={760}
+        width={DIALOG_WIDTH.medium}
       >
         <CourseForm
           onSave={async (input) => {

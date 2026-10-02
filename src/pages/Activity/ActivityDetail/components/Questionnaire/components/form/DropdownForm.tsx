@@ -41,7 +41,7 @@ const DropdownForm = ({ question, handleChangeCard }: DropdownFormProps) => {
   };
 
   return (
-    <Space direction="vertical" style={{ display: "flex" }}>
+    <Space orientation="vertical" style={{ display: "flex" }}>
       <TextArea
         placeholder="Pertanyaan"
         value={question.label}
@@ -80,6 +80,7 @@ const DropdownForm = ({ question, handleChangeCard }: DropdownFormProps) => {
               }}
             />
             <Button
+              aria-label="Hapus opsi"
               icon={<CloseOutlined />}
               onClick={() => handleDelete(input.id)}
               type="primary"
@@ -89,7 +90,7 @@ const DropdownForm = ({ question, handleChangeCard }: DropdownFormProps) => {
         ))}
       <Space>
         <Button type="primary" onClick={handleAdd} icon={<PlusOutlined />}>
-          Tambahkan Opsi
+          Tambahkan opsi
         </Button>
       </Space>
     </Space>

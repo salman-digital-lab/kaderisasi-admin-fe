@@ -1,4 +1,4 @@
-import { notification } from "antd";
+import { message } from "antd";
 import {
   getProvincesReq,
   getProvincesResp,
@@ -31,10 +31,7 @@ export const getDataProvinceId = async (id: string) => {
 export const addProvince = async (props: { name: string }) => {
   try {
     const res = await axios.post<postProvinceResp>("/provinces", props);
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -44,10 +41,7 @@ export const addProvince = async (props: { name: string }) => {
 export const updateProvince = async (id: number, props: { name: string }) => {
   try {
     const res = await axios.put<putProvinceResp>("/provinces/" + id, props);
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);

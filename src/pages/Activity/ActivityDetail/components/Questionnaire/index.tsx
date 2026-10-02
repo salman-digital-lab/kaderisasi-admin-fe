@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Col, Empty, notification, Row, Space } from "antd";
+import { Button, Col, Empty, Row, Space, message } from "antd";
 import { PlusOutlined, SaveFilled } from "@ant-design/icons";
 
 import QuestionField from "./components/QuestionField";
@@ -59,15 +59,12 @@ const QuestionnaireForm = () => {
         additional_questionnaire: cards,
       },
     });
-    notification.success({
-      message: "Berhasil",
-      description: "Data berhasil diubah",
-    });
+    message.success("Data berhasil diubah");
   };
 
   return (
     <div>
-      <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+      <Space orientation="vertical" size="middle" style={{ display: "flex" }}>
         <Row justify="end">
           <Space>
             <Button
@@ -76,21 +73,21 @@ const QuestionnaireForm = () => {
               icon={<SaveFilled />}
               loading={editLoading}
             >
-              Simpan Pertanyaan
+              Simpan pertanyaan
             </Button>
             <Button
               type="primary"
               onClick={handleAddCard}
               icon={<PlusOutlined />}
             >
-              Tambah Pertanyaan
+              Tambah pertanyaan
             </Button>
           </Space>
         </Row>
         <Row gutter={24}>
           <Col span={24}>
             <Space
-              direction="vertical"
+              orientation="vertical"
               size="middle"
               style={{ display: "flex" }}
             >

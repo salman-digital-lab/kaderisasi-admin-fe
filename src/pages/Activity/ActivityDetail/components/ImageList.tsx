@@ -36,6 +36,7 @@ import {
   Button,
   Skeleton,
   Popconfirm,
+  message,
 } from "antd";
 import { useParams } from "react-router-dom";
 import {
@@ -107,11 +108,12 @@ const SortableImageItem = ({
         style={{
           width: 128,
           height: 128,
-          borderRadius: 8,
           overflow: "hidden",
           position: "relative",
-          border: isDragging ? "2px dashed #1677ff" : "1px solid #e8e8e8",
-          background: "#fafafa",
+          border: isDragging
+            ? "2px dashed var(--app-color-primary)"
+            : "1px solid var(--app-color-border-secondary)",
+          background: "var(--app-color-fill-header)",
           cursor: isDragging ? "grabbing" : "default",
         }}
       >
@@ -146,7 +148,6 @@ const SortableImageItem = ({
                 left: 6,
                 width: 20,
                 height: 20,
-                borderRadius: 4,
                 background: "rgba(0,0,0,0.5)",
                 color: "#fff",
                 fontSize: 11,
@@ -172,7 +173,6 @@ const SortableImageItem = ({
                 right: 6,
                 width: 24,
                 height: 24,
-                borderRadius: 4,
                 background: "rgba(0,0,0,0.5)",
                 cursor: "grab",
                 display: "flex",
@@ -211,7 +211,7 @@ const SortableImageItem = ({
               <Tooltip title="Hapus">
                 <Popconfirm
                   title="Hapus gambar?"
-                  description="Gambar akan dihapus permanen dari aktivitas."
+                  description="Gambar akan dihapus permanen dari kegiatan."
                   okText="Hapus"
                   cancelText="Batal"
                   okButtonProps={{ danger: true }}
@@ -222,7 +222,10 @@ const SortableImageItem = ({
                     size="small"
                     icon={
                       <DeleteOutlined
-                        style={{ color: "#ff4d4f", fontSize: 14 }}
+                        style={{
+                          color: "var(--app-color-error)",
+                          fontSize: 14,
+                        }}
                       />
                     }
                     aria-label={`Hapus gambar ${index + 1}`}
@@ -315,13 +318,10 @@ const ImageList = ({
       setFileList((currentFiles) =>
         currentFiles.filter((currentItem) => currentItem.uid !== item.uid),
       );
-      notification.success({
-        message: "Berhasil",
-        description: "Gambar berhasil dihapus",
-      });
+      message.success("Gambar berhasil dihapus");
     } catch (error) {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description: actionError(error, "Gagal menghapus gambar. Coba lagi."),
       });
     } finally {
@@ -347,15 +347,12 @@ const ImageList = ({
           await putReorderActivityImages(Number(id) || 0, {
             images: newFileList.map((item) => item.name),
           });
-          notification.success({
-            message: "Berhasil",
-            description: "Urutan gambar berhasil diubah",
-          });
+          message.success("Urutan gambar berhasil diubah");
         } catch {
           // Revert on error
           setFileList(fileList);
           notification.error({
-            message: "Gagal",
+            title: "Gagal",
             description: "Gagal mengubah urutan gambar",
           });
         } finally {
@@ -379,7 +376,7 @@ const ImageList = ({
     const error = getImageUploadError(file, IMAGE_UPLOAD_POLICIES.activity);
     if (error) {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description: error,
       });
       return Upload.LIST_IGNORE;
@@ -397,13 +394,10 @@ const ImageList = ({
           url: `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${imageKey}`,
         },
       ]);
-      notification.success({
-        message: "Berhasil",
-        description: "Gambar berhasil diunggah",
-      });
+      message.success("Gambar berhasil diunggah");
     } catch {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description: "Gagal mengupload gambar",
       });
     } finally {
@@ -414,11 +408,7 @@ const ImageList = ({
 
   return (
     <Skeleton loading={loading}>
-      <div
-        style={{
-          borderRadius: 8,
-        }}
-      >
+      <div style={{}}>
         <div style={{ marginBottom: 16 }}>
           <Title level={4} style={{ margin: 0, marginBottom: 4 }}>
             Galeri Gambar
@@ -444,8 +434,7 @@ const ImageList = ({
                 flexWrap: "wrap",
                 gap: 16,
                 padding: 16,
-                background: "#f5f5f5",
-                borderRadius: 8,
+                background: "var(--app-color-fill-header)",
                 minHeight: 160,
               }}
             >
@@ -476,13 +465,12 @@ const ImageList = ({
                 >
                   <button
                     type="button"
-                    aria-label="Tambah gambar aktivitas"
+                    aria-label="Tambah gambar kegiatan"
                     disabled={busy}
                     style={{
                       width: 128,
                       height: 128,
-                      borderRadius: 8,
-                      border: "2px dashed #d9d9d9",
+                      border: "2px dashed var(--app-color-border)",
                       background: "#fff",
                       display: "flex",
                       flexDirection: "column",
@@ -494,12 +482,15 @@ const ImageList = ({
                     }}
                     onMouseEnter={(e) => {
                       if (!uploading) {
-                        e.currentTarget.style.borderColor = "#1677ff";
-                        e.currentTarget.style.background = "#f0f5ff";
+                        e.currentTarget.style.borderColor =
+                          "var(--app-color-primary)";
+                        e.currentTarget.style.background =
+                          "var(--app-color-primary-bg)";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#d9d9d9";
+                      e.currentTarget.style.borderColor =
+                        "var(--app-color-border)";
                       e.currentTarget.style.background = "#fff";
                     }}
                   >
@@ -508,7 +499,10 @@ const ImageList = ({
                     ) : (
                       <>
                         <PlusOutlined
-                          style={{ fontSize: 24, color: "#8c8c8c" }}
+                          style={{
+                            fontSize: 24,
+                            color: "var(--app-color-text-secondary)",
+                          }}
                         />
                         <Text
                           type="secondary"
@@ -531,7 +525,7 @@ const ImageList = ({
             style={{
               textAlign: "center",
               padding: "24px 0",
-              color: "#8c8c8c",
+              color: "var(--app-color-text-secondary)",
             }}
           >
             <Text type="secondary">

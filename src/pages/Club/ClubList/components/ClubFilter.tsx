@@ -9,7 +9,6 @@ import { ResponsiveFilters } from "../../../../components/common/Responsive/Resp
 import { useAdminViewport } from "../../../../hooks/useAdminViewport";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -162,9 +161,9 @@ const ClubFilter = ({
             icon={<PlusOutlined />}
             onClick={onCreate}
           >
-            Buat Klub
+            Buat klub
           </Button>
-          <Tooltip placement="left" title="Refresh Data">
+          <Tooltip placement="left" title="Muat ulang data">
             <Button
               icon={<ReloadOutlined />}
               onClick={refresh}

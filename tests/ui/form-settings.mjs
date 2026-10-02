@@ -79,7 +79,7 @@ try {
     await page.goto("http://localhost:3005/custom-form/9999/edit?tab=basic");
     const settings = page.locator(".builder-basic-settings");
     await expect(
-      settings.getByLabel("Nama Form", { exact: true }),
+      settings.getByLabel("Nama Formulir", { exact: true }),
     ).toBeVisible();
     const openName =
       featureType === "independent_form"
@@ -129,7 +129,7 @@ try {
       );
     await settings.getByRole("button", { name: "Pengaturan Tambahan" }).focus();
     await page.keyboard.press("Enter");
-    await expect(settings.getByLabel("Tipe Form")).toBeVisible();
+    await expect(settings.getByLabel("Tipe Formulir")).toBeVisible();
     await page.keyboard.press("Enter");
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({

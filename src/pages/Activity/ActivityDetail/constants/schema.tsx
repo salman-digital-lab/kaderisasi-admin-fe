@@ -6,6 +6,7 @@ import { memo } from "react";
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
 import { Registrant } from "../../../../types/model/activity";
+import { RegistrationStatusTag } from "../../../../components/common/StatusTags";
 // Memoized components for better performance
 const NameLink = memo(
   ({ text, recordId }: { text: string; recordId: number }) => (
@@ -27,46 +28,7 @@ const NameLink = memo(
   ),
 );
 
-const StatusBadge = memo(({ status }: { status: string }) => {
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "diterima":
-        return "#52c41a";
-      case "ditolak":
-        return "#ff4d4f";
-      case "menunggu":
-        return "#faad14";
-      case "lulus kegiatan":
-        return "#722ed1";
-      default:
-        return "#1890ff";
-    }
-  };
-
-  return (
-    <span
-      style={{
-        padding: "2px 8px",
-        borderRadius: "4px",
-        backgroundColor: getStatusColor(status),
-        color: "white",
-        fontSize: "12px",
-        fontWeight: 500,
-        display: "inline-block",
-        maxWidth: "100px",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      }}
-      title={status}
-    >
-      {status}
-    </span>
-  );
-});
-
 NameLink.displayName = "NameLink";
-StatusBadge.displayName = "StatusBadge";
 
 export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
   {
@@ -106,7 +68,7 @@ export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
   {
     title: "Status Pendaftaran",
     dataIndex: "status",
-    render: (status) => <StatusBadge status={status} />,
+    render: (status) => <RegistrationStatusTag status={status} />,
     width: 150,
     fixed: "left",
   },
@@ -288,7 +250,7 @@ export const MANDATORY_DATA_TABLE_COLUMNS: (
     dataIndex: "label",
   },
   {
-    title: "Tampil Pada Form",
+    title: "Tampil Pada Formulir",
     dataIndex: "is_shown",
     render: (val: boolean, rec: { key: number }) => (
       <Switch

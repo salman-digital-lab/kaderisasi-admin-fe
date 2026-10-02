@@ -9,6 +9,8 @@ import RoleTags from "../../../components/common/RoleTags";
 import { actionError } from "../../../utils/action-error";
 import TicketDetails from "../components/TicketDetails";
 import "../../../styles/guided-workflows.css";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
 
 const destinations: Record<string, [string, string, string]> = {
   activity_manager: ["activities.read", "/activity", "Buka kegiatan"],
@@ -49,7 +51,23 @@ export default function RequestDetailPage(): ReactElement {
   const destination = data ? destinations[data.requested_role_code] : undefined;
   return (
     <main className="guided-page">
-      <Link to="/my-requests">← Akses Saya</Link>
+      <PageHeader
+        back={{
+          to: "/my-requests",
+          label: `Kembali ke ${NAV_LABELS.myRequests}`,
+        }}
+        title={
+          !data
+            ? "Detail Permintaan"
+            : data.status === "open"
+              ? "Pengajuan terkirim, menunggu tinjauan"
+              : data.resolution === "approved"
+                ? "Pengajuan disetujui"
+                : data.resolution === "rejected"
+                  ? "Pengajuan belum disetujui"
+                  : "Pengajuan dibatalkan"
+        }
+      />
       {error && (
         <Alert
           type="error"
@@ -68,28 +86,17 @@ export default function RequestDetailPage(): ReactElement {
       <Skeleton loading={loading && !data}>
         {data && (
           <>
-            <div className="guided-intro">
-              <Typography.Title level={2}>
-                {data.status === "open"
-                  ? "Pengajuan terkirim, menunggu tinjauan"
-                  : data.resolution === "approved"
-                    ? "Pengajuan disetujui"
-                    : data.resolution === "rejected"
-                      ? "Pengajuan belum disetujui"
-                      : "Pengajuan dibatalkan"}
-              </Typography.Title>
-              <p>
-                {data.status === "open"
-                  ? "Super Admin akan meninjau kebutuhan akses Anda. Status di halaman ini diperbarui secara berkala."
-                  : data.resolution === "approved"
-                    ? alreadyAssigned
-                      ? `Peran ${data.role_name} sudah tersedia. Hak aksesnya digabungkan dengan peran lain yang Anda miliki.`
-                      : "Pengajuan ini pernah disetujui, tetapi perannya tidak ada pada akses Anda saat ini. Hubungi Super Admin jika masih membutuhkannya."
-                    : data.resolution === "rejected"
-                      ? "Baca alasan penolakan di bawah. Anda dapat memperbaiki alasan dan mengajukan kembali."
-                      : "Pengajuan ini tidak akan ditinjau. Anda dapat membuat pengajuan baru jika masih membutuhkan akses."}
-              </p>
-            </div>
+            <Typography.Paragraph className="guided-intro">
+              {data.status === "open"
+                ? "Super Admin akan meninjau kebutuhan akses Anda. Status di halaman ini diperbarui secara berkala."
+                : data.resolution === "approved"
+                  ? alreadyAssigned
+                    ? `Peran ${data.role_name} sudah tersedia. Hak aksesnya digabungkan dengan peran lain yang Anda miliki.`
+                    : "Pengajuan ini pernah disetujui, tetapi perannya tidak ada pada akses Anda saat ini. Hubungi Super Admin jika masih membutuhkannya."
+                  : data.resolution === "rejected"
+                    ? "Baca alasan penolakan di bawah. Anda dapat memperbaiki alasan dan mengajukan kembali."
+                    : "Pengajuan ini tidak akan ditinjau. Anda dapat membuat pengajuan baru jika masih membutuhkan akses."}
+            </Typography.Paragraph>
             <section className="guided-section">
               <Typography.Title level={3}>Peran Anda saat ini</Typography.Title>
               <RoleTags roles={roles} />
@@ -137,6 +144,7 @@ export default function RequestDetailPage(): ReactElement {
                 description="Anda dapat mengajukan kembali nanti."
                 okText="Batalkan pengajuan"
                 cancelText="Tetap menunggu"
+                okButtonProps={{ danger: true }}
                 onConfirm={async () => {
                   setBusy(true);
                   setFailure("");

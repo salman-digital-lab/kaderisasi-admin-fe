@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Card,
-  ConfigProvider,
   Result,
   Skeleton,
   Space,
@@ -23,8 +22,6 @@ import {
   certificatePdfErrorMessage,
   saveCertificatePdf,
 } from "../DigitalCertificate/utils/certificatePdf";
-import { CERTIFICATE_APPROVAL_THEME } from "../DigitalCertificate/constants/approval-theme";
-import "../DigitalCertificate/components/certificate-approval.css";
 
 const { Text, Title } = Typography;
 
@@ -159,7 +156,7 @@ const CertificatePreview: React.FC = () => {
     return (
       <Result
         status="error"
-        title="Preview sertifikat tidak tersedia"
+        title="Pratinjau sertifikat tidak tersedia"
         subTitle={error || "Snapshot template sertifikat tidak ditemukan."}
         extra={[
           <Button
@@ -190,7 +187,7 @@ const CertificatePreview: React.FC = () => {
   const participantName = data.participant.guest_name || data.participant.name;
 
   return (
-    <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
+    <>
       <main
         className="certificate-workflow"
         style={{
@@ -210,7 +207,7 @@ const CertificatePreview: React.FC = () => {
             Kembali ke sertifikat kegiatan
           </Button>
           <Card style={{ marginBottom: 16 }}>
-            <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={12} style={{ width: "100%" }}>
               <div
                 style={{
                   display: "flex",
@@ -221,7 +218,7 @@ const CertificatePreview: React.FC = () => {
                 }}
               >
                 <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
-                  <Title level={1} style={{ margin: 0, fontSize: 28 }}>
+                  <Title level={1} style={{ margin: 0 }}>
                     {participantName}
                   </Title>
                   <Text type="secondary">
@@ -266,7 +263,7 @@ const CertificatePreview: React.FC = () => {
                   title="Unduhan belum berhasil"
                   role="alert"
                   description={
-                    <Space direction="vertical">
+                    <Space orientation="vertical">
                       <Text>{downloadError}</Text>
                       <Button
                         onClick={handleDownload}
@@ -325,7 +322,7 @@ const CertificatePreview: React.FC = () => {
           />
         </div>
       </main>
-    </ConfigProvider>
+    </>
   );
 };
 

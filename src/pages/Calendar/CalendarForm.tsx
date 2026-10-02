@@ -15,6 +15,7 @@ import { saveCalendarEvent } from "../../api/services/calendar";
 import { handleError } from "../../api/errorHandling";
 import type { CalendarEvent } from "../../types/model/calendar";
 import { addDays, midnight, wibDate } from "../../utils/calendar";
+import { DATE_FORMAT } from "../../utils/date-format";
 
 interface Values {
   title: string;
@@ -166,7 +167,7 @@ export default function CalendarForm({
           rules={[{ required: true, message: "Isi tanggal mulai" }]}
         >
           <DatePicker
-            format="DD MMMM YYYY"
+            format={DATE_FORMAT}
             placeholder="Pilih tanggal"
             style={{ width: "100%" }}
           />
@@ -189,7 +190,7 @@ export default function CalendarForm({
           ]}
         >
           <DatePicker
-            format="DD MMMM YYYY"
+            format={DATE_FORMAT}
             placeholder="Pilih tanggal"
             style={{ width: "100%" }}
           />

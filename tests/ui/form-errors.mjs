@@ -125,7 +125,7 @@ try {
       .press("Tab");
     await expect(panel.locator(".builder-issue-group")).toHaveCount(1);
     await page
-      .getByRole("button", { name: "Simpan Perubahan", exact: true })
+      .getByRole("button", { name: "Simpan perubahan", exact: true })
       .click();
     await expect(
       page.getByText(

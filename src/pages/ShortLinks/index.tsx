@@ -3,7 +3,6 @@ import { useRequest } from "ahooks";
 import {
   Alert,
   Button,
-  ConfigProvider,
   Empty,
   Input,
   Modal,
@@ -19,21 +18,15 @@ import { deleteShortLink, getShortLinks } from "../../api/services/short-link";
 import type { ShortLink } from "../../types/model/short-link";
 import ShortLinkForm from "./ShortLinkForm";
 import ShortLinkQRCode from "./ShortLinkQRCode";
-import styles from "./ShortLinks.module.css";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
+import { DATE_TIME_FORMAT } from "../../utils/date-format";
 
 export default function ShortLinks(): ReactElement {
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#087aa6",
-          colorTextSecondary: "#595959",
-          colorError: "#c83238",
-        },
-      }}
-    >
+    <>
       <ShortLinksContent />
-    </ConfigProvider>
+    </>
   );
 }
 
@@ -61,7 +54,6 @@ function ShortLinksContent(): ReactElement {
   };
   const remove = (link: ShortLink): void => {
     modal.confirm({
-      rootClassName: styles.dialog,
       title: "Hapus tautan pendek?",
       content: (
         <Typography.Paragraph style={{ overflowWrap: "anywhere" }}>
@@ -88,15 +80,13 @@ function ShortLinksContent(): ReactElement {
     });
   };
   return (
-    <main className={styles.page} style={{ padding: 12, minWidth: 0 }}>
+    <main className="page-container">
       {messageContext}
       {modalContext}
-      <Typography.Title level={2} style={{ marginBottom: 4 }}>
-        Tautan Pendek
-      </Typography.Title>
-      <Typography.Paragraph type="secondary">
-        Buat dan kelola tautan yang dibagikan oleh tim Salman.
-      </Typography.Paragraph>
+      <PageHeader
+        title={NAV_LABELS.shortLinks}
+        description="Buat dan kelola tautan yang dibagikan oleh tim Salman."
+      />
       <Space wrap style={{ marginBottom: 16, maxWidth: "100%" }}>
         <Input.Search
           aria-label="Cari tautan"
@@ -225,8 +215,7 @@ function ShortLinksContent(): ReactElement {
               title: "Dibuat",
               dataIndex: "created_at",
               width: 150,
-              render: (value: string) =>
-                dayjs(value).format("DD MMM YYYY HH:mm"),
+              render: (value: string) => dayjs(value).format(DATE_TIME_FORMAT),
             },
             {
               title: "Aksi",
@@ -255,7 +244,6 @@ function ShortLinksContent(): ReactElement {
         bot.
       </Typography.Paragraph>
       <Modal
-        rootClassName={styles.dialog}
         open={editor !== null}
         title={editor === "new" ? "Buat tautan pendek" : "Ubah alamat tujuan"}
         footer={null}

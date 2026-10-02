@@ -1,9 +1,9 @@
 .activity-duplicate-dialog a {
-  color: #096c92;
+  color: var(--app-color-primary-strong);
 }
 
 .activity-duplicate-dialog :focus-visible {
-  outline: 2px solid #075d80;
+  outline: 2px solid var(--app-color-primary-strong);
   outline-offset: 3px;
 }
 
@@ -20,7 +20,7 @@
   flex-wrap: wrap;
   gap: 8px 16px;
   padding-block: 12px;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid var(--app-color-border);
 }
 
 .activity-draft-list li > span {
@@ -41,12 +41,10 @@
 }
 
 .activity-setup-option-description {
-  color: #595959;
+  color: var(--app-color-text-secondary);
   font-size: 12px;
 }
-.activity-setup-form .ant-form-item-extra {
-  color: #595959;
-}
+
 .activity-setup-page .ant-alert {
   border-radius: 0;
 }
@@ -77,7 +75,7 @@
 }
 
 .activity-registration-section + .activity-registration-section {
-  border-top: 1px solid #dedede;
+  border-top: 1px solid var(--app-color-border);
 }
 
 .activity-registration-section > h4.ant-typography {
@@ -90,38 +88,4 @@
 .activity-setup-page.guided-page {
   max-width: none;
   margin: 0;
-}
-
-.activity-setup-header {
-  padding: 8px 12px 16px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #dedede;
-}
-
-.activity-setup-header .activity-setup-title {
-  margin: 0;
-  font-size: 24px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.activity-setup-header p {
-  margin: 8px 0 0;
-  color: #595959;
-}
-
-.activity-setup-header > div {
-  margin-top: 12px;
-}
-
-.activity-setup-page .activity-setup-back.ant-btn {
-  padding-inline: 4px;
-  margin-bottom: 4px;
-}
-
-@media (min-width: 768px) {
-  .activity-setup-page .activity-setup-back.ant-btn {
-    min-height: 32px;
-    height: 32px;
-  }
 }

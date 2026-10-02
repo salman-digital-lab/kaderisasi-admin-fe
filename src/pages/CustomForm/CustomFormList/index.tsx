@@ -7,6 +7,9 @@ import { getCustomForms } from "../../../api/services/customForm";
 import CustomFormTable from "./components/CustomFormTable";
 import CustomFormFilter from "./components/CustomFormFilter";
 import { FilterType } from "./constants/type";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import LoadErrorAlert from "../../../components/common/LoadErrorAlert";
 
 const CustomFormList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,7 +32,7 @@ const CustomFormList = () => {
     }
   }, [shouldAutoOpenModal, setSearchParams]);
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getCustomForms({
         per_page: String(parameters.per_page),
@@ -57,7 +60,17 @@ const CustomFormList = () => {
     : undefined;
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.customForms}
+        description="Buat dan kelola formulir untuk pendaftaran kegiatan, klub, atau kebutuhan lain."
+      />
+      {(error || (!loading && !data)) && (
+        <LoadErrorAlert
+          title="Daftar formulir gagal dimuat"
+          onRetry={refresh}
+        />
+      )}
       <CustomFormFilter
         setParameter={setParameters}
         autoOpenModal={shouldAutoOpenModal}

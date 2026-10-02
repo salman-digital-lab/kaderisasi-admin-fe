@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Checkbox,
-  ConfigProvider,
   Input,
   Select,
   Space,
@@ -35,8 +34,7 @@ import {
   resolveCertificateText,
 } from "../utils/certificate-content";
 import { formatRegistrationTime } from "../../../utils/registration-time";
-import { CERTIFICATE_APPROVAL_THEME } from "../constants/approval-theme";
-import "./certificate-approval.css";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 const LABELS: Record<ApprovalStatus, string> = {
   pending: "Menunggu persetujuan",
@@ -234,7 +232,7 @@ export function CertificateApprovals({
     ) &&
     canRequest;
   return (
-    <ConfigProvider theme={CERTIFICATE_APPROVAL_THEME}>
+    <>
       <Card
         className="certificate-approval"
         title="Persetujuan sertifikat"
@@ -319,7 +317,7 @@ export function CertificateApprovals({
                 render: (value: ApprovalStatus) => <Tag>{LABELS[value]}</Tag>,
               },
               {
-                title: "Tindakan",
+                title: "Aksi",
                 render: (_, item) => (
                   <Space wrap>
                     <Button onClick={() => void openReview([item.id])}>
@@ -340,7 +338,7 @@ export function CertificateApprovals({
           className="certificate-approval"
           open={open}
           title="Tinjau persetujuan sertifikat"
-          width={920}
+          width={DIALOG_WIDTH.large}
           onCancel={closeReview}
           closable={!busy}
           maskClosable={!busy}
@@ -539,6 +537,6 @@ export function CertificateApprovals({
           </Space>
         </ResponsiveDialog>
       </Card>
-    </ConfigProvider>
+    </>
   );
 }

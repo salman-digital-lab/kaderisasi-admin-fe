@@ -312,7 +312,7 @@ export default function ActivityScoring({
                       render: (_, entry) => entry.result?.grade ?? "Tidak ada",
                     },
                     {
-                      title: "Tindakan",
+                      title: "Aksi",
                       render: (_, entry) => (
                         <Space wrap>
                           <Button onClick={() => setEditor(entry)}>

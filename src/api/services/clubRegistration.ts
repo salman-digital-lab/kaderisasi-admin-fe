@@ -1,4 +1,4 @@
-import { notification } from "antd";
+import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
   getClubRegistrationsReq,
@@ -62,10 +62,7 @@ export const createClubRegistration = async (
       `/clubs/${clubId}/registrations`,
       bodyData,
     );
-    notification.success({
-      title: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -95,10 +92,7 @@ export const updateClubRegistration = async (
       `/club-registrations/${registrationId}`,
       bodyData,
     );
-    notification.success({
-      title: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -115,10 +109,7 @@ export const bulkUpdateClubRegistrations = async (
       `/club-registrations/bulk-update`,
       bodyData,
     );
-    notification.success({
-      title: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -131,10 +122,7 @@ export const deleteClubRegistration = async (registrationId: number) => {
     const res = await axios.delete<deleteClubRegistrationResp>(
       `/club-registrations/${registrationId}`,
     );
-    notification.success({
-      title: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data;
   } catch (error) {
     handleError(error);
@@ -164,10 +152,7 @@ export const updateClubRegistrationInfo = async (
       `/clubs/${clubId}/registration-info`,
       bodyData,
     );
-    notification.success({
-      title: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);

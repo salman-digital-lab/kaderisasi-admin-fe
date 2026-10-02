@@ -15,7 +15,7 @@
   flex: none;
 }
 .dialog :global(.ant-modal-footer) {
-  border-top: 1px solid #dedede;
+  border-top: 1px solid var(--app-color-border);
   padding-top: 16px;
   margin-top: 20px;
 }
@@ -28,7 +28,7 @@
   margin-bottom: 24px;
 }
 .dialog :global(:focus-visible) {
-  outline: 2px solid #075d80;
+  outline: 2px solid var(--app-color-primary-strong);
   outline-offset: 3px;
 }
 .progress {
@@ -36,7 +36,7 @@
 }
 .audienceGroup {
   padding: 16px 0;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid var(--app-color-border);
 }
 .audienceGroup:first-of-type {
   padding-top: 0;
@@ -65,7 +65,7 @@
   overflow-wrap: anywhere;
 }
 .reviewCount {
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid var(--app-color-border);
   padding-bottom: 16px;
   margin-bottom: 20px;
 }

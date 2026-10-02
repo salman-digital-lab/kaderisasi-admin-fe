@@ -17,6 +17,7 @@ import {
   formatWorkHistory,
 } from "../../../../utils/education";
 import { formatApplicationAnswer } from "./application-answers";
+import { DATE_FORMAT } from "../../../../utils/date-format";
 
 const DEFAULT_FIELDS: FormField[] = [
   { key: "name", label: "Nama", type: "text", required: true },
@@ -49,7 +50,7 @@ function profileValue(
     return <UniversityRender universityId={Number(value)} />;
   if (field.key === "birth_date")
     return dayjs(String(value)).isValid()
-      ? dayjs(String(value)).format("DD MMM YYYY")
+      ? dayjs(String(value)).format(DATE_FORMAT)
       : formatApplicationAnswer(value);
   if (field.key === "level") return renderUserLevel(Number(value));
   if (field.key === "gender")

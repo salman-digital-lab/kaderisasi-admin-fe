@@ -163,7 +163,7 @@ export default function LessonDocuments({
               file.size > MAX_COURSE_PDF_BYTES
             ) {
               setFailure(
-                "Pilih file PDF yang tidak kosong, maksimal 20 MB per file.",
+                "Pilih berkas PDF yang tidak kosong, maksimal 20 MB per file.",
               );
               return Upload.LIST_IGNORE;
             }

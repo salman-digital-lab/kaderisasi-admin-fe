@@ -4,6 +4,7 @@ import { Button, Col, Form, Input, Row, Select } from "antd";
 import { addUniversity, putUniversity } from "../../../api/services/university";
 import { getProvinces } from "../../../api/services/province";
 import { useRequest } from "ahooks";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 interface UniversityFormProps {
   open: boolean;
@@ -71,7 +72,7 @@ const UniversityForm = ({
         title={
           initialValues?.id !== 0 ? "Edit Universitas" : "Tambah Univeristas"
         }
-        width={720}
+        width={DIALOG_WIDTH.medium}
         open={open}
         onCancel={onClose}
         footer={[
@@ -116,19 +117,12 @@ const UniversityForm = ({
                 <Select
                   placeholder="Pilih Provinsi"
                   showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    (option?.children as unknown as string)
-                      ?.toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                >
-                  {provinces?.data?.map((province) => (
-                    <Select.Option key={province.id} value={province.id}>
-                      {province.name}
-                    </Select.Option>
-                  ))}
-                </Select>
+                  optionFilterProp="label"
+                  options={provinces?.data?.map((province) => ({
+                    value: province.id,
+                    label: province.name,
+                  }))}
+                />
               </Form.Item>
             </Col>
           </Row>

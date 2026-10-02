@@ -12,7 +12,10 @@ import {
   InputNumber,
   Form,
   Input,
+  Flex,
+  Typography,
 } from "antd";
+import PageHeader from "../../../components/common/PageHeader";
 import { useParams } from "react-router-dom";
 import { DownloadOutlined, DownOutlined } from "@ant-design/icons";
 import { useRequest } from "ahooks";
@@ -32,6 +35,7 @@ import {
 } from "../../../constants/render";
 import { ACHIEVEMENT_STATUS_ENUM } from "../../../types/constants/achievement";
 import { handleError } from "../../../api/errorHandling";
+import { DATE_FORMAT } from "../../../utils/date-format";
 const UPDATE_STATUS_MENU = [
   {
     key: ACHIEVEMENT_STATUS_ENUM.APPROVED,
@@ -97,7 +101,7 @@ const AchievementDetail = () => {
     {
       key: "3",
       label: "Tanggal Prestasi",
-      children: dayjs(data?.achievement_date).format("DD MMMM YYYY"),
+      children: dayjs(data?.achievement_date).format(DATE_FORMAT),
     },
     {
       key: "4",
@@ -140,7 +144,7 @@ const AchievementDetail = () => {
       key: "4",
       label: "Tanggal Persetujuan",
       children: data?.approved_at
-        ? dayjs(data?.approved_at).format("DD MMMM YYYY")
+        ? dayjs(data?.approved_at).format(DATE_FORMAT)
         : "-",
     },
   ];
@@ -177,51 +181,62 @@ const AchievementDetail = () => {
   };
 
   return (
-    <>
-      <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-        {data?.status === ACHIEVEMENT_STATUS_ENUM.PENDING && (
-          <Dropdown
-            menu={{
-              items: UPDATE_STATUS_MENU?.map((item) => ({
-                ...item,
-                onClick: () => handleStatusUpdate(Number(item?.key || "0")),
-              })) as MenuProps["items"],
-            }}
-          >
-            <Button loading={approveLoading}>
-              <Space>
-                Ubah Status
-                <DownOutlined />
-              </Space>
-            </Button>
-          </Dropdown>
-        )}
-
-        <Card title="Informasi Dasar" loading={loading}>
-          <Descriptions column={2} items={basicInfo} bordered />
-        </Card>
-        <Card title="Detail Prestasi" loading={loading}>
-          <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-            <Descriptions column={2} items={achievementInfo} bordered />
+    <div className="page-container">
+      <PageHeader
+        back={{ to: "/achievement", label: "Kembali ke daftar prestasi" }}
+        title={data?.name || "Detail Prestasi"}
+        extra={
+          <>
             <Button
-              type="primary"
               icon={<DownloadOutlined />}
+              disabled={!data?.proof}
               onClick={() => {
                 window.open(
                   `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${data?.proof}`,
                   "_blank",
+                  "noopener,noreferrer",
                 );
               }}
             >
-              Download Bukti
+              Unduh bukti
             </Button>
-          </Space>
+            {data?.status === ACHIEVEMENT_STATUS_ENUM.PENDING && (
+              <Dropdown
+                trigger={["click"]}
+                menu={{
+                  items: UPDATE_STATUS_MENU?.map((item) => ({
+                    ...item,
+                    onClick: () => handleStatusUpdate(Number(item?.key || "0")),
+                  })) as MenuProps["items"],
+                }}
+              >
+                <Button type="primary" loading={approveLoading}>
+                  <Space>
+                    Ubah status
+                    <DownOutlined />
+                  </Space>
+                </Button>
+              </Dropdown>
+            )}
+          </>
+        }
+      />
+      <Flex vertical gap={12}>
+        <Card title="Informasi Dasar" loading={loading}>
+          <Descriptions column={2} bordered size="small" items={basicInfo} />
         </Card>
-
+        <Card title="Detail Prestasi" loading={loading}>
+          <Descriptions
+            column={2}
+            bordered
+            size="small"
+            items={achievementInfo}
+          />
+        </Card>
         <Card title="Informasi Persetujuan" loading={loading}>
-          <Descriptions column={2} items={approvalInfo} bordered />
+          <Descriptions column={2} bordered size="small" items={approvalInfo} />
         </Card>
-      </Space>
+      </Flex>
 
       <Modal
         title="Masukkan Skor Prestasi"
@@ -236,15 +251,13 @@ const AchievementDetail = () => {
               title: "Konfirmasi Persetujuan",
               content: (
                 <>
-                  <span
-                    style={{ color: "red" }}
-                  >{`Aksi anda tidak dapat diubah setelah disetujui`}</span>
-                  <br />
-                  <br />
-                  <span>
-                    {`Apakah anda yakin ingin menyetujui prestasi ini dengan skor `}
+                  <Typography.Paragraph type="danger">
+                    Keputusan tidak dapat diubah setelah disetujui.
+                  </Typography.Paragraph>
+                  <Typography.Paragraph style={{ marginBottom: 0 }}>
+                    Setujui prestasi ini dengan skor{" "}
                     <strong>{values.score}</strong>?
-                  </span>
+                  </Typography.Paragraph>
                 </>
               ),
               onOk: () => {
@@ -322,7 +335,7 @@ const AchievementDetail = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 

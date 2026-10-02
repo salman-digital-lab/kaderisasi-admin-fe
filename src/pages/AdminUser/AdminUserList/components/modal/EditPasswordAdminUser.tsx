@@ -26,7 +26,7 @@ export default function EditPasswordAdminUser({
 
   return (
     <Modal
-      title="Ubah Password Akun Admin"
+      title="Ubah kata sandi akun admin"
       open={!!data}
       confirmLoading={loading}
       onOk={() => {
@@ -42,7 +42,7 @@ export default function EditPasswordAdminUser({
       }}
     >
       <Input.Password
-        placeholder="Password"
+        placeholder="Kata sandi"
         onChange={(e) => handleChange(e.target.value)}
       />
     </Modal>

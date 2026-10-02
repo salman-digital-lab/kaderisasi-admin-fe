@@ -24,6 +24,7 @@ import {
 import { getClub } from "../../../../api/services/club";
 import type { CustomForm } from "../../../../types/model/customForm";
 import type { Club } from "../../../../types/model/club";
+import { DATE_TIME_FORMAT } from "../../../../utils/date-format";
 
 const { Text, Title } = Typography;
 
@@ -94,7 +95,7 @@ const CustomFormAttachment = ({
     try {
       const newForm = await createCustomForm({
         formName: club.name,
-        formDescription: `Form pendaftaran untuk ${club.name}`,
+        formDescription: `Formulir pendaftaran untuk ${club.name}`,
         featureType: "club_registration",
         featureId: clubId,
         isActive: true,
@@ -102,11 +103,11 @@ const CustomFormAttachment = ({
       });
 
       if (!newForm?.id) {
-        message.error("Form berhasil diproses tetapi tidak dapat dibuka");
+        message.error("Formulir berhasil diproses tetapi tidak dapat dibuka");
         return;
       }
 
-      message.success("Form berhasil dibuat dan dilampirkan ke klub");
+      message.success("Formulir berhasil dibuat dan dilampirkan ke klub");
       navigate(`/club/${clubId}/form/${newForm.id}/edit`);
     } catch {
       // The API service displays the server error and the empty state stays intact.
@@ -121,7 +122,7 @@ const CustomFormAttachment = ({
     setAttaching(true);
     try {
       await attachFormToClub(selectedFormId, clubId);
-      message.success("Form berhasil dilampirkan ke klub");
+      message.success("Formulir berhasil dilampirkan ke klub");
       setExistingFormModalOpen(false);
       setSelectedFormId(undefined);
       await fetchClub();
@@ -135,26 +136,25 @@ const CustomFormAttachment = ({
   const attachedForm = club?.attachedCustomForm;
 
   return (
-    <Card title="2. Form Pendaftaran" styles={{ body: { padding: 24 } }}>
+    <Card title="2. Formulir Pendaftaran" styles={{ body: { padding: 24 } }}>
       {!attachedForm ? (
         <div
           style={{
             padding: "32px 16px",
             textAlign: "center",
-            background: "#fafafa",
-            border: "1px dashed #d9d9d9",
-            borderRadius: 8,
+            background: "var(--app-color-fill-header)",
+            border: "1px dashed var(--app-color-border)",
           }}
         >
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
-              <Space direction="vertical" size={4}>
-                <Text strong>Belum ada form pendaftaran</Text>
+              <Space orientation="vertical" size={4}>
+                <Text strong>Belum ada formulir pendaftaran</Text>
                 <Text type="secondary">
                   {club.is_registration_open
-                    ? "Form aktif diperlukan selama pendaftaran klub dibuka."
-                    : "Form ini opsional selama pendaftaran klub ditutup."}
+                    ? "Formulir aktif diperlukan selama pendaftaran klub dibuka."
+                    : "Formulir ini opsional selama pendaftaran klub ditutup."}
                 </Text>
               </Space>
             }
@@ -167,7 +167,7 @@ const CustomFormAttachment = ({
                 loading={creating}
                 onClick={() => void handleCreateForm()}
               >
-                Buat Form Pendaftaran
+                Buat formulir pendaftaran
               </Button>
               <Button
                 size="large"
@@ -175,13 +175,13 @@ const CustomFormAttachment = ({
                 disabled={creating}
                 onClick={openExistingFormModal}
               >
-                Pilih Form yang Sudah Ada
+                Pilih formulir yang sudah ada
               </Button>
             </Space>
           </Empty>
         </div>
       ) : (
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Space orientation="vertical" size="large" style={{ width: "100%" }}>
           <div
             style={{
               display: "flex",
@@ -191,7 +191,7 @@ const CustomFormAttachment = ({
               flexWrap: "wrap",
             }}
           >
-            <Space direction="vertical" size={4}>
+            <Space orientation="vertical" size={4}>
               <Space wrap>
                 <Title level={5} style={{ margin: 0 }}>
                   {attachedForm.form_name}
@@ -215,14 +215,14 @@ const CustomFormAttachment = ({
                 navigate(`/club/${clubId}/form/${attachedForm.id}/edit`)
               }
             >
-              Edit Form
+              Ubah formulir
             </Button>
           </div>
 
           {!attachedForm.is_active && (
             <Alert
-              title="Form belum aktif"
-              description="Aktifkan form ini sebelum membuka pendaftaran klub."
+              title="Formulir belum aktif"
+              description="Aktifkan formulir ini sebelum membuka pendaftaran klub."
               type="warning"
               showIcon
             />
@@ -231,7 +231,7 @@ const CustomFormAttachment = ({
           {club?.is_registration_open && (
             <Alert
               title="Pendaftaran sedang dibuka"
-              description="Beberapa pengaturan form tidak dapat diubah selama pendaftaran klub dibuka."
+              description="Beberapa pengaturan formulir tidak dapat diubah selama pendaftaran klub dibuka."
               type="info"
               showIcon
             />
@@ -250,7 +250,7 @@ const CustomFormAttachment = ({
               <div>
                 <Text strong>
                   {attachedForm.updated_at
-                    ? dayjs(attachedForm.updated_at).format("DD MMM YYYY HH:mm")
+                    ? dayjs(attachedForm.updated_at).format(DATE_TIME_FORMAT)
                     : "-"}
                 </Text>
               </div>
@@ -260,26 +260,26 @@ const CustomFormAttachment = ({
       )}
 
       <Modal
-        title="Pilih Form yang Sudah Ada"
+        title="Pilih Formulir yang Sudah Ada"
         open={existingFormModalOpen}
         onCancel={closeExistingFormModal}
-        okText="Lampirkan Form"
+        okText="Lampirkan formulir"
         cancelText="Batal"
         confirmLoading={attaching}
         okButtonProps={{ disabled: !selectedFormId }}
         onOk={() => void handleAttachForm()}
         destroyOnHidden
       >
-        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+        <Space orientation="vertical" size="middle" style={{ width: "100%" }}>
           <Text type="secondary">
-            Hanya form yang belum digunakan oleh kegiatan atau klub lain yang
-            ditampilkan.
+            Hanya formulir yang belum digunakan oleh kegiatan atau klub lain
+            yang ditampilkan.
           </Text>
           <Select
             showSearch
             allowClear
             style={{ width: "100%" }}
-            placeholder="Cari nama form"
+            placeholder="Cari nama formulir"
             value={selectedFormId}
             loading={existingFormsLoading}
             onChange={setSelectedFormId}
@@ -296,7 +296,7 @@ const CustomFormAttachment = ({
               existingFormsLoading ? null : (
                 <Empty
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description="Tidak ada form yang tersedia"
+                  description="Tidak ada formulir yang tersedia"
                 />
               )
             }

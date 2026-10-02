@@ -1,7 +1,6 @@
 import { useRef, useState, type ReactElement } from "react";
 import { Alert, Button, Modal, QRCode, Typography } from "antd";
 import type { ShortLink } from "../../types/model/short-link";
-import styles from "./ShortLinks.module.css";
 
 interface Props {
   link: ShortLink;
@@ -44,7 +43,6 @@ export default function ShortLinkQRCode({
     <Modal
       open
       title="Kode QR tautan"
-      rootClassName={styles.dialog}
       onCancel={onClose}
       footer={[
         <Button key="close" autoFocus onClick={onClose}>

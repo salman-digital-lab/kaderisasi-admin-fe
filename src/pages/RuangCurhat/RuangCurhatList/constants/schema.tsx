@@ -8,6 +8,7 @@ import {
   renderProblemStatus,
   renderProblemStatusColor,
 } from "../../../../constants/render";
+import { DATE_FORMAT } from "../../../../utils/date-format";
 
 export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
   {
@@ -28,11 +29,11 @@ export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
           <Link to={`/ruang-curhat/${record.id}`}>
             <Button
               size="small"
+              aria-label="Lihat detail"
               icon={<EyeOutlined />}
               style={{
                 display: "flex",
                 alignItems: "center",
-                borderRadius: "4px",
               }}
             />
           </Link>
@@ -69,6 +70,6 @@ export const TABLE_SCHEMA: TableProps<RuangCurhatData>["columns"] = [
   {
     title: "Tanggal Dibuat",
     dataIndex: "created_at",
-    render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
+    render: (value) => dayjs(value).format(DATE_FORMAT),
   },
 ];

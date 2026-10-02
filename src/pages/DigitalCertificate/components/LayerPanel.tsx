@@ -256,7 +256,7 @@ export const LayerPanel: React.FC<LayerPanelProps> = React.memo((props) => {
     <section className={styles.panel} aria-labelledby="layers-title">
       <header className={styles.panelHeader}>
         <Text strong id="layers-title">
-          Layers
+          Lapisan
         </Text>
         <Text type="secondary">{elements.length}</Text>
       </header>

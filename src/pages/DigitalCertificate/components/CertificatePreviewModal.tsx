@@ -9,6 +9,7 @@ import {
   resolveCertificateText,
 } from "../utils/certificate-content";
 import { CertificateArtwork } from "./CertificateArtwork";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 export default function CertificatePreviewModal({
   template,
@@ -84,7 +85,7 @@ export default function CertificatePreviewModal({
   return (
     <Modal
       open
-      width={1000}
+      width={DIALOG_WIDTH.large}
       title="Pratinjau desain"
       onCancel={onClose}
       footer={

@@ -3,6 +3,9 @@ import { useState } from "react";
 import { getLifetimeLeaderboard } from "../../../api/services/leaderboard";
 import LifetimeLeaderboardTable from "./components/LifetimeLeaderboardTable";
 import LifetimeLeaderboardFilter from "./components/LifetimeLeaderboardFilter";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import LoadErrorAlert from "../../../components/common/LoadErrorAlert";
 
 export default function LifetimeLeaderboard() {
   const [parameters, setParameters] = useState({
@@ -12,7 +15,7 @@ export default function LifetimeLeaderboard() {
     name: "",
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getLifetimeLeaderboard({
         page: String(parameters.page),
@@ -26,7 +29,14 @@ export default function LifetimeLeaderboard() {
   );
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.lifetimeLeaderboard}
+        description="Peringkat anggota berdasarkan total poin prestasi."
+      />
+      {(error || (!loading && !data)) && (
+        <LoadErrorAlert title="Peringkat gagal dimuat" onRetry={refresh} />
+      )}
       <LifetimeLeaderboardFilter
         setParameter={setParameters}
         refresh={refresh}

@@ -17,13 +17,13 @@ import {
   DatePicker,
   Divider,
   Form,
-  notification,
   Row,
   Skeleton,
   Space,
   Switch,
   Tag,
   Typography,
+  message,
 } from "antd";
 import dayjs from "dayjs";
 import { memo, ReactNode, useCallback, useState } from "react";
@@ -38,6 +38,7 @@ import { usePermissions } from "../../../../stores/authStore";
 import { canAccessCertificates } from "../../../../utils/certificate-permissions";
 
 import MembersListModal from "./Modal/MembersListModal";
+import { DATE_TIME_FORMAT } from "../../../../utils/date-format";
 
 // Status configuration for display
 const statusConfig: Record<
@@ -126,10 +127,7 @@ const RegistrantList = () => {
     {
       manual: true,
       onSuccess: () => {
-        notification.success({
-          message: "Berhasil",
-          description: "Pengaturan pengumuman status berhasil disimpan",
-        });
+        message.success("Pengaturan pengumuman status berhasil disimpan");
         setStatusSettingsChanged(false);
       },
     },
@@ -177,12 +175,17 @@ const RegistrantList = () => {
       >
         <Row justify="space-between" align="middle" gutter={[16, 16]}>
           <Col>
-            <Space direction="vertical" size={4}>
+            <Space orientation="vertical" size={4}>
               <Typography.Text type="secondary" style={{ fontSize: 13 }}>
                 Total Peserta Terdaftar
               </Typography.Text>
               <Space align="center" size="small">
-                <TeamOutlined style={{ fontSize: 24, color: "#8c8c8c" }} />
+                <TeamOutlined
+                  style={{
+                    fontSize: 24,
+                    color: "var(--app-color-text-secondary)",
+                  }}
+                />
                 <Typography.Title
                   level={3}
                   style={{ margin: 0, fontWeight: 600 }}
@@ -198,7 +201,7 @@ const RegistrantList = () => {
               icon={<ArrowRightOutlined />}
               onClick={handleManageParticipants}
             >
-              Kelola & Lihat Detail Peserta
+              Kelola & lihat detail peserta
             </Button>
           </Col>
         </Row>
@@ -257,7 +260,7 @@ const RegistrantList = () => {
                 >
                   <DatePicker
                     showTime
-                    format="YYYY-MM-DD HH:mm"
+                    format={DATE_TIME_FORMAT}
                     placeholder="Pilih waktu pengumuman"
                     style={{ width: "100%" }}
                   />
@@ -270,7 +273,7 @@ const RegistrantList = () => {
               message="Status saat ini disembunyikan dari peserta"
               description={
                 statusVisibleAt
-                  ? `Status akan ditampilkan pada ${statusVisibleAt.format("DD MMMM YYYY, HH:mm")}`
+                  ? `Status akan ditampilkan pada ${statusVisibleAt.format(DATE_TIME_FORMAT)}`
                   : "Silakan tentukan waktu pengumuman"
               }
               type="info"
@@ -313,7 +316,6 @@ const RegistrantList = () => {
                   variant="outlined"
                   style={{
                     height: "100%",
-                    borderRadius: 0,
                   }}
                   styles={{ body: { padding: "16px" } }}
                 >
@@ -350,11 +352,11 @@ const RegistrantList = () => {
                       style={{
                         color:
                           config.color === "blue"
-                            ? "#1890ff"
+                            ? "var(--app-color-primary)"
                             : config.color === "green"
-                              ? "#52c41a"
+                              ? "var(--app-color-success)"
                               : config.color === "red"
-                                ? "#ff4d4f"
+                                ? "var(--app-color-error)"
                                 : "#722ed1",
                         fontSize: 20,
                       }}
@@ -377,7 +379,6 @@ const RegistrantList = () => {
                   variant="outlined"
                   style={{
                     height: "100%",
-                    borderRadius: 0,
                   }}
                   styles={{ body: { padding: "16px" } }}
                 >

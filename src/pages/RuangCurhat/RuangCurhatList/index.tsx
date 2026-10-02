@@ -5,6 +5,9 @@ import RuangCurhatTable from "./components/RuangCurhatTable";
 import RuangCurhatFilter from "./components/RuangCurhatFilter";
 import { PROBLEM_STATUS_ENUM } from "../../../types/constants/ruangcurhat";
 import { GENDER } from "../../../types/constants/profile";
+import PageHeader from "../../../components/common/PageHeader";
+import { NAV_LABELS } from "../../../constants/navigation";
+import LoadErrorAlert from "../../../components/common/LoadErrorAlert";
 
 export default function RuangCurhatList() {
   const [parameters, setParameters] = useState<{
@@ -23,7 +26,7 @@ export default function RuangCurhatList() {
     admin_display_name: undefined,
   });
 
-  const { data, loading, refresh } = useRequest(
+  const { data, loading, error, refresh } = useRequest(
     () =>
       getRuangCurhats({
         per_page: String(parameters.per_page),
@@ -39,7 +42,14 @@ export default function RuangCurhatList() {
   );
 
   return (
-    <div style={{ padding: 12 }}>
+    <div className="page-container">
+      <PageHeader
+        title={NAV_LABELS.counseling}
+        description="Kelola permintaan curhat dari anggota dan tetapkan konselor."
+      />
+      {(error || (!loading && !data)) && (
+        <LoadErrorAlert title="Daftar curhat gagal dimuat" onRetry={refresh} />
+      )}
       <RuangCurhatFilter
         setParameter={setParameters}
         refresh={refresh}
@@ -48,7 +58,6 @@ export default function RuangCurhatList() {
       <div
         style={{
           marginTop: 12,
-          borderRadius: 0,
           boxShadow: "none",
         }}
       >

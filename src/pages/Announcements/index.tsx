@@ -2,7 +2,6 @@ import { useEffect, useState, type ReactElement } from "react";
 import {
   Alert,
   Button,
-  ConfigProvider,
   Empty,
   Flex,
   Modal,
@@ -12,12 +11,14 @@ import {
   Typography,
 } from "antd";
 import axios from "../../api/axios";
-import { notificationTheme } from "../../features/notifications/theme";
 import AnnouncementComposer from "./AnnouncementComposer";
 import AnnouncementMessage from "./AnnouncementMessage";
 import type { Announcement } from "./types";
 import styles from "./Composer.module.css";
 import "../../styles/guided-workflows.css";
+import PageHeader from "../../components/common/PageHeader";
+import { NAV_LABELS } from "../../constants/navigation";
+import { DIALOG_WIDTH } from "../../theme/tokens";
 
 const stateLabels = {
   draft: "Draf",
@@ -26,9 +27,9 @@ const stateLabels = {
 };
 export default function AnnouncementsPage(): ReactElement {
   return (
-    <ConfigProvider theme={notificationTheme}>
+    <>
       <AnnouncementsContent />
-    </ConfigProvider>
+    </>
   );
 }
 function AnnouncementsContent(): ReactElement {
@@ -100,15 +101,15 @@ function AnnouncementsContent(): ReactElement {
   ) : null;
   return (
     <div className="guided-page">
-      <Flex justify="space-between" align="center" wrap gap={12}>
-        <Typography.Title level={2}>Pengumuman</Typography.Title>
-        <Button type="primary" onClick={() => setEditing("new")}>
-          Buat pengumuman
-        </Button>
-      </Flex>
-      <Typography.Paragraph>
-        Kirim pesan kepada anggota dan admin yang Anda pilih.
-      </Typography.Paragraph>
+      <PageHeader
+        title={NAV_LABELS.announcements}
+        description="Kirim pesan kepada anggota dan admin yang Anda pilih."
+        extra={
+          <Button type="primary" onClick={() => setEditing("new")}>
+            Buat pengumuman
+          </Button>
+        }
+      />
       {errorAlert}
       {listError ? (
         <Alert
@@ -188,7 +189,7 @@ function AnnouncementsContent(): ReactElement {
         <Modal
           open
           centered
-          width={680}
+          width={DIALOG_WIDTH.medium}
           rootClassName={styles.dialog}
           title="Pengumuman"
           onCancel={() => setEditing(null)}

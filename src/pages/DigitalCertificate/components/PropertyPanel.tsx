@@ -279,7 +279,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           <Typography.Title level={5} style={{ marginTop: 0 }}>
             Kanvas
           </Typography.Title>
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space orientation="vertical" style={{ width: "100%" }}>
             <PropertySection label="Deskripsi template">
               <Input.TextArea
                 value={templateDescription}
@@ -296,7 +296,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               </Button>
             </PropertySection>
             <PropertySection label="Bantuan tata letak">
-              <Space direction="vertical">
+              <Space orientation="vertical">
                 <Switch
                   checked={showGrid}
                   onChange={onShowGridChange}
@@ -349,7 +349,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                     width: "100%",
                     maxHeight: 140,
                     objectFit: "cover",
-                    borderRadius: 6,
                   }}
                 />
                 <Button
@@ -387,7 +386,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
         style={{
           width: "100%",
           height: "100%",
-          borderRadius: 0,
           display: "flex",
           flexDirection: "column",
         }}
@@ -399,7 +397,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           <Alert
             type="warning"
             showIcon
-            title="Layer terkunci. Buka kunci dari panel Layers untuk mengubah properti."
+            title="Lapisan terkunci. Buka kuncinya dari panel Lapisan untuk mengubah properti."
             style={{ marginBottom: 8 }}
           />
         ) : null}
@@ -444,7 +442,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
           disabled={element.locked}
           style={{ minWidth: 0, margin: 0, padding: 0, border: 0 }}
         >
-          <Space direction="vertical" style={{ width: "100%" }} size="small">
+          <Space orientation="vertical" style={{ width: "100%" }} size="small">
             <details
               open={geometryOpen}
               onToggle={(event) => {
@@ -815,7 +813,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                   />
                 </PropertySection>
 
-                <PropertySection label="Upload Gambar">
+                <PropertySection label="Unggah gambar">
                   <div style={{ marginTop: 4 }}>
                     <Upload
                       accept={IMAGE_UPLOAD_ACCEPT}
@@ -829,7 +827,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                         icon={<UploadOutlined />}
                         loading={assetUploading}
                       >
-                        Pilih Gambar
+                        Pilih gambar
                       </Button>
                     </Upload>
                   </div>
@@ -846,7 +844,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                           maxHeight: 100,
                           objectFit: "contain",
                           border: "1px solid #d9d9d9",
-                          borderRadius: 4,
                         }}
                       />
                     </div>

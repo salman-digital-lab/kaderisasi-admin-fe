@@ -1,13 +1,4 @@
-import {
-  Alert,
-  Button,
-  Tabs,
-  Dropdown,
-  Skeleton,
-  Space,
-  Tag,
-  Typography,
-} from "antd";
+import { Alert, Button, Tabs, Dropdown, Skeleton } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useRequest } from "ahooks";
@@ -25,6 +16,11 @@ import CustomFormSelection from "./components/CustomFormSelection";
 import ActivityScoring from "../ActivityScoring";
 import ActivityCoursesTab from "./components/ActivityCoursesTab";
 import { usePermissions } from "../../../stores/authStore";
+import PageHeader from "../../../components/common/PageHeader";
+import {
+  PublicationTag,
+  RegistrationTag,
+} from "../../../components/common/StatusTags";
 
 const MainActivityDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +40,7 @@ const MainActivityDetail = () => {
       <Alert
         type="error"
         title="Detail kegiatan gagal dimuat"
-        action={<Button onClick={refresh}>Coba Lagi</Button>}
+        action={<Button onClick={refresh}>Coba lagi</Button>}
       />
     );
   if (!activity) return <Skeleton active />;
@@ -74,7 +70,7 @@ const MainActivityDetail = () => {
     },
     {
       key: "7",
-      label: "Form Pendaftaran",
+      label: "Formulir Pendaftaran",
       children: <CustomFormSelection />,
     },
     {
@@ -105,12 +101,12 @@ const MainActivityDetail = () => {
     const legacyTabs = [
       {
         key: "4",
-        label: "Form Data Diri (Tidak Digunakan Lagi)",
+        label: "Formulir data diri (tidak digunakan lagi)",
         children: (
           <>
             <Alert
-              message="Form Pendaftaran Lama - Tidak Digunakan Lagi"
-              description="Form ini sudah tidak digunakan lagi. Gunakan 'Form Pendaftaran' (tab sebelumnya) untuk membuat form yang baru."
+              message="Formulir Pendaftaran Lama - Tidak Digunakan Lagi"
+              description="Formulir ini sudah tidak digunakan lagi. Gunakan 'Formulir Pendaftaran' (tab sebelumnya) untuk membuat formulir yang baru."
               type="warning"
               showIcon
               style={{ marginBottom: 16 }}
@@ -121,12 +117,12 @@ const MainActivityDetail = () => {
       },
       {
         key: "6",
-        label: "Form Kuesioner Tambahan (Tidak Digunakan Lagi)",
+        label: "Formulir kuesioner tambahan (tidak digunakan lagi)",
         children: (
           <>
             <Alert
-              message="Form Pendaftaran Lama - Tidak Digunakan Lagi"
-              description="Form ini sudah tidak digunakan lagi. Gunakan 'Form Pendaftaran' (tab sebelumnya) untuk membuat form yang baru."
+              message="Formulir Pendaftaran Lama - Tidak Digunakan Lagi"
+              description="Formulir ini sudah tidak digunakan lagi. Gunakan 'Formulir Pendaftaran' (tab sebelumnya) untuk membuat formulir yang baru."
               type="warning"
               showIcon
               style={{ marginBottom: 16 }}
@@ -143,54 +139,33 @@ const MainActivityDetail = () => {
   const moreMenuItems: MenuProps["items"] = [
     {
       type: "group",
-      label: "Form Pendaftaran Lama (Tidak Digunakan Lagi)",
+      label: "Formulir pendaftaran lama (tidak digunakan lagi)",
     },
     {
       key: "4",
-      label: "Form Data Diri (Tidak Digunakan Lagi)",
+      label: "Formulir Data Diri (Tidak Digunakan Lagi)",
       onClick: () => setSearchParams({ tab: "4" }),
     },
     {
       key: "6",
-      label: "Form Kuesioner Tambahan (Tidak Digunakan Lagi)",
+      label: "Formulir Kuesioner Tambahan (Tidak Digunakan Lagi)",
       onClick: () => setSearchParams({ tab: "6" }),
     },
   ];
 
   return (
-    <main style={{ minWidth: 0, width: "100%", padding: 12 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: 16,
-          marginBottom: 8,
-        }}
-      >
-        <div>
-          <Space size="small" wrap>
-            <Typography.Title level={2} style={{ margin: 0 }}>
-              {activity.name}
-            </Typography.Title>
-            <Tag color={activity.is_published ? "success" : "default"}>
-              {activity.is_published ? "Tayang" : "Draf"}
-            </Tag>
-            <Tag
-              color={activity.is_registration_open ? "processing" : "default"}
-            >
-              {activity.is_registration_open
-                ? "Pendaftaran Dibuka"
-                : "Pendaftaran Ditutup"}
-            </Tag>
-          </Space>
-          <Typography.Paragraph type="secondary" style={{ margin: "4px 0 0" }}>
-            Kelola informasi kegiatan, poster, pendaftaran, dan peserta dari
-            satu tempat.
-          </Typography.Paragraph>
-        </div>
-      </header>
+    <main className="page-container">
+      <PageHeader
+        back={{ to: "/activity", label: "Kembali ke daftar kegiatan" }}
+        title={activity.name}
+        tags={
+          <>
+            <PublicationTag published={activity.is_published} />
+            <RegistrationTag open={activity.is_registration_open} />
+          </>
+        }
+        description="Kelola informasi kegiatan, poster, pendaftaran, dan peserta dari satu tempat."
+      />
       <Tabs
         activeKey={activeTab}
         onTabClick={(key) => setSearchParams({ tab: key })}
@@ -206,7 +181,8 @@ const MainActivityDetail = () => {
             <Button
               type="text"
               icon={<MoreOutlined />}
-              title="Akses form legacy"
+              aria-label="Formulir lama"
+              title="Formulir lama"
             />
           </Dropdown>
         }

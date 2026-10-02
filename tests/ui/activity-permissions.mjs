@@ -79,10 +79,10 @@ try {
       });
       await page.goto("/activity");
       await expect(
-        page.getByRole("button", { name: "Buat Kegiatan" }),
+        page.getByRole("button", { name: "Buat kegiatan" }),
       ).toBeVisible();
       await expect(
-        page.getByText("Belum ada data aktivitas yang tersedia"),
+        page.getByText("Belum ada data kegiatan yang tersedia"),
       ).toBeVisible();
       if (width === 390)
         await page.getByRole("button", { name: /Filter/ }).click();

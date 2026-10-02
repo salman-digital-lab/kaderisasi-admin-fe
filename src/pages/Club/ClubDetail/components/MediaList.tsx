@@ -210,7 +210,7 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
           <VideoCameraOutlined
             role="img"
             aria-label="Video YouTube"
-            style={{ fontSize: 40, color: "#ff4d4f" }}
+            style={{ fontSize: 40, color: "var(--app-color-error)" }}
           />
         );
       },
@@ -276,7 +276,7 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
   return (
     <>
       {messageContextHolder}
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Space orientation="vertical" size="large" style={{ width: "100%" }}>
         <section>
           <Title level={4} style={{ marginTop: 0 }}>
             Tambah Media Baru
@@ -330,7 +330,7 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
                         icon={<UploadOutlined />}
                         disabled={uploadLoading || mediaLimitReached}
                       >
-                        Pilih Gambar
+                        Pilih gambar
                       </Button>
                     </Upload>
                   </div>
@@ -373,7 +373,7 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
                     loading={uploadLoading}
                     disabled={mediaLimitReached}
                   >
-                    Upload Gambar
+                    Unggah gambar
                   </Button>
                 ) : (
                   <Button
@@ -382,7 +382,7 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
                     loading={youtubeLoading}
                     disabled={mediaLimitReached}
                   >
-                    Tambah Video YouTube
+                    Tambah video YouTube
                   </Button>
                 )}
                 <Button

@@ -75,12 +75,12 @@ const Checklist = ({ items, onNavigate }: ChecklistProps) => (
           avatar={
             item.complete ? (
               <CheckCircleFilled
-                style={{ color: "#52c41a" }}
+                style={{ color: "var(--app-color-success)" }}
                 aria-label="Selesai"
               />
             ) : (
               <ClockCircleOutlined
-                style={{ color: "#8c8c8c" }}
+                style={{ color: "var(--app-color-text-secondary)" }}
                 aria-label="Belum selesai"
               />
             )
@@ -132,7 +132,7 @@ const ClubOverview = ({
     modal.confirm({
       title: "Publikasikan profil yang belum lengkap?",
       content: (
-        <Space direction="vertical" size="small">
+        <Space orientation="vertical" size="small">
           <Text>
             Klub tetap dapat ditayangkan. Beberapa informasi yang disarankan
             belum tersedia:
@@ -144,8 +144,8 @@ const ClubOverview = ({
           </ul>
         </Space>
       ),
-      okText: "Tetap Publikasikan",
-      cancelText: "Lengkapi Profil",
+      okText: "Tetap publikasikan",
+      cancelText: "Lengkapi profil",
       onCancel: () => onNavigate("profile"),
       onOk: () => updateVisibility(true),
     });
@@ -156,7 +156,7 @@ const ClubOverview = ({
       title: "Sembunyikan klub dari halaman publik?",
       content:
         "Data klub tetap tersimpan dan dapat diedit, tetapi profilnya tidak terlihat oleh pengguna.",
-      okText: "Sembunyikan Klub",
+      okText: "Sembunyikan klub",
       cancelText: "Batal",
       okButtonProps: { danger: true },
       onOk: () => updateVisibility(false),
@@ -164,7 +164,7 @@ const ClubOverview = ({
   };
 
   return (
-    <Space direction="vertical" size="large" style={{ display: "flex" }}>
+    <Space orientation="vertical" size="large" style={{ display: "flex" }}>
       {modalContextHolder}
       {isNewDraft ? (
         <Alert
@@ -213,7 +213,7 @@ const ClubOverview = ({
                   loading={updatingVisibility}
                   onClick={unpublishClub}
                 >
-                  Sembunyikan Klub
+                  Sembunyikan klub
                 </Button>
               ) : (
                 <Button
@@ -222,14 +222,14 @@ const ClubOverview = ({
                   loading={updatingVisibility}
                   onClick={publishClub}
                 >
-                  Publikasikan Klub
+                  Publikasikan klub
                 </Button>
               )}
               <Button
                 icon={<ArrowRightOutlined />}
                 onClick={() => onNavigate("profile")}
               >
-                Edit Profil
+                Ubah profil
               </Button>
             </Space>
           </Card>
@@ -246,8 +246,8 @@ const ClubOverview = ({
             style={{ height: "100%" }}
           >
             <Paragraph>
-              Pilih jalur ini jika calon anggota perlu mengisi form dan ditinjau
-              oleh admin.
+              Pilih jalur ini jika calon anggota perlu mengisi formulir dan
+              ditinjau oleh admin.
             </Paragraph>
             <Checklist
               items={readiness.registrationItems}
@@ -261,8 +261,8 @@ const ClubOverview = ({
               onClick={() => onNavigate("registration")}
             >
               {readiness.registrationState === "open"
-                ? "Kelola Pendaftaran"
-                : "Siapkan Pendaftaran"}
+                ? "Kelola pendaftaran"
+                : "Siapkan pendaftaran"}
             </Button>
           </Card>
         </Col>

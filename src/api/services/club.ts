@@ -1,4 +1,4 @@
-import { notification } from "antd";
+import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
   getClubsReq,
@@ -43,10 +43,7 @@ export const getClub = async (id: number) => {
 export const postClub = async (data: postClubReq) => {
   try {
     const res = await axios.post<postClubResp>("/clubs", data);
-    notification.success({
-      title: "Berhasil",
-      description: "Klub berhasil ditambahkan",
-    });
+    message.success("Klub berhasil ditambahkan");
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -57,10 +54,7 @@ export const postClub = async (data: postClubReq) => {
 export const putClub = async (id: number, data: putClubReq) => {
   try {
     const res = await axios.put<putClubResp>("/clubs/" + id, data);
-    notification.success({
-      title: "Berhasil",
-      description: "Klub berhasil diubah",
-    });
+    message.success("Klub berhasil diubah");
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -77,10 +71,7 @@ export const uploadClubLogo = async (id: number, file: File) => {
       "/clubs/" + id + "/logo",
       formData,
     );
-    notification.success({
-      title: "Berhasil",
-      description: "Logo berhasil diunggah",
-    });
+    message.success("Logo berhasil diunggah");
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -98,10 +89,7 @@ export const uploadClubImageMedia = async (id: number, file: File) => {
       "/clubs/" + id + "/media/image",
       formData,
     );
-    notification.success({
-      title: "Berhasil",
-      description: "Gambar berhasil diunggah",
-    });
+    message.success("Gambar berhasil diunggah");
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -118,10 +106,7 @@ export const addClubYoutubeMedia = async (
       "/clubs/" + id + "/media/youtube",
       data,
     );
-    notification.success({
-      title: "Berhasil",
-      description: "Video YouTube berhasil ditambahkan",
-    });
+    message.success("Video YouTube berhasil ditambahkan");
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -135,10 +120,7 @@ export const deleteClubMedia = async (id: number, data: deleteMediaReq) => {
       "/clubs/" + id + "/delete-media",
       data,
     );
-    notification.success({
-      title: "Berhasil",
-      description: "Media berhasil dihapus",
-    });
+    message.success("Media berhasil dihapus");
     return res.data.data;
   } catch (error) {
     handleError(error);

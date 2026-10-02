@@ -170,7 +170,7 @@ try {
       path: new URL(`table-${width}.png`, output).pathname,
       fullPage: true,
     });
-    await page.getByRole("button", { name: "Atur Kolom" }).click();
+    await page.getByRole("button", { name: "Atur kolom" }).click();
     const manager = page.getByRole("dialog", { name: "Pengaturan Kolom" });
     await manager
       .getByRole("checkbox", { name: "Motivasi bergabung" })
@@ -179,8 +179,8 @@ try {
     await expect(list.getByText("Belajar bersama anggota klub.")).toHaveCount(
       0,
     );
-    await page.getByRole("button", { name: "Atur Kolom" }).click();
-    await manager.getByRole("button", { name: "Reset Default" }).click();
+    await page.getByRole("button", { name: "Atur kolom" }).click();
+    await manager.getByRole("button", { name: "Kembalikan bawaan" }).click();
     await manager.getByRole("button", { name: "Simpan" }).click();
     await page.reload();
     if (width === 390)

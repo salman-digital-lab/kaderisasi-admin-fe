@@ -60,7 +60,7 @@ const ClubTable = ({
             description="Belum ada klub yang sesuai dengan filter"
           >
             <Button type="link" icon={<PlusOutlined />} onClick={onCreate}>
-              Buat Klub Pertama
+              Buat klub pertama
             </Button>
           </Empty>
         ),

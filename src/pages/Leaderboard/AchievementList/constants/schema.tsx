@@ -13,6 +13,7 @@ import type {
   AchievementSortBy,
   SortOrder,
 } from "../../../../types/services/achievement";
+import { DATE_FORMAT } from "../../../../utils/date-format";
 
 const getSortOrder = (
   columnKey: AchievementSortBy,
@@ -56,7 +57,7 @@ export const TABLE_SCHEMA = (
     sorter: true,
     sortDirections: ["ascend", "descend"],
     sortOrder: getSortOrder("created_at", sortBy, sortOrder),
-    render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
+    render: (value) => dayjs(value).format(DATE_FORMAT),
   },
   {
     title: "Tanggal Prestasi",
@@ -65,7 +66,7 @@ export const TABLE_SCHEMA = (
     sorter: true,
     sortDirections: ["ascend", "descend"],
     sortOrder: getSortOrder("achievement_date", sortBy, sortOrder),
-    render: (value) => dayjs(value).locale("id").format("DD MMMM YYYY"),
+    render: (value) => dayjs(value).format(DATE_FORMAT),
   },
   {
     title: "Status",

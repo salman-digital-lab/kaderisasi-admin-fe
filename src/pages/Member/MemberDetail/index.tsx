@@ -2,6 +2,7 @@ import { usePermissions } from "../../../stores/authStore";
 import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
 import {
+  Typography,
   Form,
   Input,
   Col,
@@ -28,6 +29,9 @@ import { Link, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useRequest, useToggle } from "ahooks";
 import { useState, useEffect } from "react";
+import PageHeader from "../../../components/common/PageHeader";
+import { EMPTY_VALUE } from "../../../theme/tokens";
+import { DATE_FORMAT } from "../../../utils/date-format";
 
 import {
   getActivityByUserId,
@@ -208,15 +212,54 @@ const MemberDetailPage = () => {
 
   if (loading) {
     return (
-      <Card style={{ borderRadius: 0, boxShadow: "none" }}>
-        <Skeleton />
-      </Card>
+      <div className="page-container">
+        <Skeleton active />
+      </div>
     );
   }
 
+  const editActions = canManage ? (
+    isEdit ? (
+      <>
+        <Button
+          htmlType="button"
+          onClick={() => {
+            resetFormToProfile(data?.profile[0]);
+            exitEdit();
+          }}
+        >
+          Batal
+        </Button>
+        <Button
+          form="profile"
+          htmlType="submit"
+          loading={editLoading}
+          icon={<SaveOutlined />}
+          type="primary"
+        >
+          Simpan
+        </Button>
+      </>
+    ) : (
+      <Button
+        type="primary"
+        icon={<EditOutlined />}
+        htmlType="button"
+        onClick={() => enterEdit()}
+      >
+        Ubah profil
+      </Button>
+    )
+  ) : undefined;
+
   return (
-    <div style={{ padding: 12 }}>
-      <Card style={{ borderRadius: 0, boxShadow: "none" }}>
+    <div className="page-container">
+      <PageHeader
+        back={{ to: "/member", label: "Kembali ke daftar anggota" }}
+        title={profile?.name || "Detail Anggota"}
+        extra={editActions}
+      />
+      <Card>
         {/* Account info + picture */}
         <Flex
           className="member-identity"
@@ -228,8 +271,9 @@ const MemberDetailPage = () => {
             width={160}
             height={160}
             src={`${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${profile?.picture}`}
-            fallback="https://placehold.co/160x160?text=No+Photo"
-            style={{ objectFit: "cover", borderRadius: 8 }}
+            alt={profile?.name ? `Foto ${profile.name}` : "Foto anggota"}
+            fallback="/placeholder-image.svg"
+            style={{ objectFit: "cover" }}
           />
           <Flex vertical gap={12} style={{ flex: 1 }}>
             <Descriptions
@@ -239,9 +283,9 @@ const MemberDetailPage = () => {
                   key: "member_id",
                   label: "ID Anggota",
                   children: (
-                    <span style={{ fontFamily: "monospace" }}>
-                      {publicUser?.member_id ?? "-"}
-                    </span>
+                    <Typography.Text code copyable={!!publicUser?.member_id}>
+                      {publicUser?.member_id ?? EMPTY_VALUE}
+                    </Typography.Text>
                   ),
                 },
                 {
@@ -255,7 +299,9 @@ const MemberDetailPage = () => {
                   key: "email",
                   label: "Email",
                   children: publicUser?.email ?? (
-                    <em style={{ color: "#999" }}>Tidak ada</em>
+                    <Typography.Text type="secondary">
+                      {EMPTY_VALUE}
+                    </Typography.Text>
                   ),
                 },
               ]}
@@ -267,11 +313,11 @@ const MemberDetailPage = () => {
                     type="primary"
                     onClick={() => setIsGenerateAccountOpen(true)}
                   >
-                    Buat Akun
+                    Buat akun
                   </Button>
                 ) : (
                   <Button onClick={() => setIsEditAuthOpen(true)}>
-                    Ubah Email dan Password
+                    Ubah email dan kata sandi
                   </Button>
                 )}
               </Space>
@@ -279,44 +325,9 @@ const MemberDetailPage = () => {
           </Flex>
         </Flex>
 
-        {/* Edit toggle */}
-        {canManage && (
-          <Flex justify="flex-end" gap={8} style={{ marginTop: 24 }}>
-            {isEdit ? (
-              <>
-                <Button
-                  htmlType="button"
-                  onClick={() => {
-                    resetFormToProfile(data?.profile[0]);
-                    exitEdit();
-                  }}
-                >
-                  Batal
-                </Button>
-                <Button
-                  form="profile"
-                  htmlType="submit"
-                  loading={editLoading}
-                  icon={<SaveOutlined />}
-                  type="primary"
-                >
-                  Simpan
-                </Button>
-              </>
-            ) : (
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                htmlType="button"
-                onClick={() => enterEdit()}
-              >
-                Ubah
-              </Button>
-            )}
-          </Flex>
-        )}
-
         <Form
+          className={isEdit ? undefined : "readonly-form"}
+          style={{ marginTop: 24 }}
           scrollToFirstError={{ focus: true }}
           id="profile"
           layout="vertical"
@@ -366,9 +377,9 @@ const MemberDetailPage = () => {
             exitEdit();
           }}
         >
-          <Divider>Informasi Akun</Divider>
+          <Divider titlePlacement="start">Informasi Akun</Divider>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="badges" label="Lencana">
                 <Select
                   mode="tags"
@@ -380,7 +391,7 @@ const MemberDetailPage = () => {
                 />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="level" label="Jenjang">
                 <Select
                   style={{ width: "100%" }}
@@ -390,9 +401,9 @@ const MemberDetailPage = () => {
             </Col>
           </Row>
 
-          <Divider>Informasi Pribadi</Divider>
+          <Divider titlePlacement="start">Informasi Pribadi</Divider>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="name" label="Nama Lengkap">
                 <Input />
               </Form.Item>
@@ -400,19 +411,19 @@ const MemberDetailPage = () => {
                 <Select style={{ width: "100%" }} options={GENDER_OPTION} />
               </Form.Item>
               <Form.Item name="birth_date" label="Tanggal Lahir">
-                <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+                <DatePicker style={{ width: "100%" }} format={DATE_FORMAT} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="personal_id" label="Nomor Identitas">
                 <Input />
               </Form.Item>
             </Col>
           </Row>
 
-          <Divider>Domisili Saat Ini</Divider>
+          <Divider titlePlacement="start">Domisili Saat Ini</Divider>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="province_id" label="Provinsi">
                 <Select
                   showSearch
@@ -434,7 +445,7 @@ const MemberDetailPage = () => {
                 />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="city_id" label="Kota / Kabupaten">
                 <Select
                   showSearch
@@ -454,7 +465,7 @@ const MemberDetailPage = () => {
             </Col>
           </Row>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="country" label="Negara">
                 <Select
                   showSearch
@@ -473,9 +484,9 @@ const MemberDetailPage = () => {
             </Col>
           </Row>
 
-          <Divider>Asal Daerah</Divider>
+          <Divider titlePlacement="start">Asal Daerah</Divider>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="origin_province_id" label="Provinsi Asal">
                 <Select
                   showSearch
@@ -497,7 +508,7 @@ const MemberDetailPage = () => {
                 />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} md={12}>
               <Form.Item name="origin_city_id" label="Kota / Kabupaten Asal">
                 <Select
                   showSearch
@@ -517,13 +528,13 @@ const MemberDetailPage = () => {
             </Col>
           </Row>
 
-          <Divider>Riwayat Pendidikan</Divider>
+          <Divider titlePlacement="start">Riwayat Pendidikan</Divider>
           <Form.List name="education_history">
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name }) => (
                   <Row key={key} gutter={16} align="top">
-                    <Col span={5}>
+                    <Col xs={24} md={12} lg={5}>
                       <Form.Item name={[name, "degree"]} label="Jenjang">
                         <Select
                           options={DEGREE_OPTIONS}
@@ -539,7 +550,7 @@ const MemberDetailPage = () => {
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={7}>
+                    <Col xs={24} md={12} lg={7}>
                       <Form.Item
                         name={[name, "institution"]}
                         label={
@@ -556,18 +567,18 @@ const MemberDetailPage = () => {
                       </Form.Item>
                     </Col>
                     {educationHistory?.[name]?.degree !== "high_school" && (
-                      <Col span={6}>
+                      <Col xs={24} md={12} lg={4}>
                         <Form.Item name={[name, "faculty"]} label="Fakultas">
                           <Input placeholder="Fakultas" />
                         </Form.Item>
                       </Col>
                     )}
-                    <Col span={6}>
+                    <Col xs={24} md={12} lg={4}>
                       <Form.Item name={[name, "major"]} label="Jurusan">
                         <Input placeholder="Jurusan" />
                       </Form.Item>
                     </Col>
-                    <Col span={2}>
+                    <Col xs={20} md={10} lg={3}>
                       <Form.Item
                         name={[name, "intake_year"]}
                         label="Tahun Masuk"
@@ -576,11 +587,12 @@ const MemberDetailPage = () => {
                         <InputNumber style={{ width: "100%" }} />
                       </Form.Item>
                     </Col>
-                    <Col span={2}>
+                    <Col xs={4} md={2} lg={1}>
                       <Form.Item label=" ">
                         <Button
                           danger
                           type="text"
+                          aria-label="Hapus riwayat pendidikan"
                           icon={<MinusCircleOutlined />}
                           onClick={() => remove(name)}
                           disabled={!isEdit}
@@ -604,20 +616,20 @@ const MemberDetailPage = () => {
                     icon={<PlusOutlined />}
                     disabled={!isEdit}
                   >
-                    Tambah Pendidikan
+                    Tambah pendidikan
                   </Button>
                 </Form.Item>
               </>
             )}
           </Form.List>
 
-          <Divider>Riwayat Pekerjaan</Divider>
+          <Divider titlePlacement="start">Riwayat Pekerjaan</Divider>
           <Form.List name="work_history">
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name }) => (
                   <Row key={key} gutter={16} align="top">
-                    <Col span={6}>
+                    <Col xs={24} md={12} lg={6}>
                       <Form.Item
                         name={[name, "job_title"]}
                         label="Posisi / Jabatan"
@@ -632,7 +644,7 @@ const MemberDetailPage = () => {
                         <Input placeholder="Contoh: Software Engineer" />
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col xs={24} md={12} lg={6}>
                       <Form.Item
                         name={[name, "company"]}
                         label="Perusahaan / Organisasi"
@@ -647,7 +659,7 @@ const MemberDetailPage = () => {
                         <Input placeholder="Nama perusahaan atau organisasi" />
                       </Form.Item>
                     </Col>
-                    <Col span={5}>
+                    <Col xs={24} md={11} lg={5}>
                       <Form.Item
                         name={[name, "start_year"]}
                         label="Tahun Mulai"
@@ -661,7 +673,7 @@ const MemberDetailPage = () => {
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={5}>
+                    <Col xs={24} md={11} lg={5}>
                       <Form.Item
                         name={[name, "end_year"]}
                         label="Tahun Selesai"
@@ -699,11 +711,12 @@ const MemberDetailPage = () => {
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={2}>
+                    <Col xs={24} md={2}>
                       <Form.Item label=" ">
                         <Button
                           danger
                           type="text"
+                          aria-label="Hapus riwayat pekerjaan"
                           icon={<MinusCircleOutlined />}
                           onClick={() => remove(name)}
                           disabled={!isEdit}
@@ -726,17 +739,17 @@ const MemberDetailPage = () => {
                     icon={<PlusOutlined />}
                     disabled={!isEdit}
                   >
-                    Tambah Pekerjaan
+                    Tambah pekerjaan
                   </Button>
                 </Form.Item>
               </>
             )}
           </Form.List>
 
-          <Divider>Informasi Kontak dan Sosial Media</Divider>
+          <Divider titlePlacement="start">Kontak dan Media Sosial</Divider>
           <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="whatsapp" label="Whatsapp">
+            <Col xs={24} md={12}>
+              <Form.Item name="whatsapp" label="WhatsApp">
                 <Input />
               </Form.Item>
               <Form.Item name="instagram" label="Instagram">
@@ -746,8 +759,8 @@ const MemberDetailPage = () => {
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item name="tiktok" label="Tiktok">
+            <Col xs={24} md={12}>
+              <Form.Item name="tiktok" label="TikTok">
                 <Input />
               </Form.Item>
               <Form.Item name="linkedin" label="LinkedIn">
@@ -757,7 +770,7 @@ const MemberDetailPage = () => {
           </Row>
         </Form>
 
-        <Divider>Riwayat Aktivitas di Salman</Divider>
+        <Divider titlePlacement="start">Riwayat Aktivitas di Salman</Divider>
         {isEdit ? (
           <Select
             mode="tags"
@@ -770,7 +783,9 @@ const MemberDetailPage = () => {
           <Space size={4} wrap>
             {(profile?.extra_data?.salman_activity_history ?? []).length ===
             0 ? (
-              <span style={{ color: "#999" }}>Belum ada riwayat aktivitas</span>
+              <Typography.Text type="secondary">
+                Belum ada riwayat kegiatan
+              </Typography.Text>
             ) : (
               profile?.extra_data?.salman_activity_history?.map((item, i) => (
                 <Tag key={i}>{item}</Tag>
@@ -780,7 +795,7 @@ const MemberDetailPage = () => {
         )}
 
         {/* Regional assignment */}
-        <Divider>Penugasan Regional Alumni</Divider>
+        <Divider titlePlacement="start">Penugasan Regional Alumni</Divider>
         {isEdit ? (
           <Select
             mode="tags"
@@ -793,7 +808,9 @@ const MemberDetailPage = () => {
           <Space size={4} wrap>
             {(profile?.extra_data?.alumni_regional_assignment ?? []).length ===
             0 ? (
-              <span style={{ color: "#999" }}>Belum ada penugasan</span>
+              <Typography.Text type="secondary">
+                Belum ada penugasan
+              </Typography.Text>
             ) : (
               profile?.extra_data?.alumni_regional_assignment?.map((r, i) => (
                 <Tag key={i}>{r}</Tag>
@@ -805,13 +822,13 @@ const MemberDetailPage = () => {
         {/* Activity history */}
         {canReadHistory && (
           <>
-            <Divider>Kegiatan yang Diikuti</Divider>
+            <Divider titlePlacement="start">Kegiatan yang Diikuti</Divider>
             <Table
               listId="pages/Member/MemberDetail/index:1"
               dataSource={myActivities}
               columns={[
                 {
-                  title: "Nama Aktivitas",
+                  title: "Nama Kegiatan",
                   dataIndex: "activity",
                   render: (activity) =>
                     permissions.includes("activities.read") ? (

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { notification } from "antd";
+import { notification, message } from "antd";
 
 interface BulkActionsConfig {
   onStatusChange?: (ids: React.Key[], status: string) => Promise<void>;
@@ -29,7 +29,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
     async (status: string) => {
       if (selectedRowKeys.length === 0) {
         notification.warning({
-          message: "Peringatan",
+          title: "Peringatan",
           description: "Pilih data terlebih dahulu",
         });
         return;
@@ -38,14 +38,13 @@ export const useBulkActions = (config: BulkActionsConfig) => {
       setIsProcessing(true);
       try {
         await config.onStatusChange?.(selectedRowKeys, status);
-        notification.success({
-          message: "Berhasil",
-          description: `${selectedRowKeys.length} data berhasil diubah statusnya`,
-        });
+        message.success(
+          `${selectedRowKeys.length} data berhasil diubah statusnya`,
+        );
         clearSelection();
       } catch {
         notification.error({
-          message: "Gagal",
+          title: "Gagal",
           description: "Terjadi kesalahan saat mengubah status",
         });
       } finally {
@@ -58,7 +57,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
   const bulkDelete = useCallback(async () => {
     if (selectedRowKeys.length === 0) {
       notification.warning({
-        message: "Peringatan",
+        title: "Peringatan",
         description: "Pilih data terlebih dahulu",
       });
       return;
@@ -67,14 +66,11 @@ export const useBulkActions = (config: BulkActionsConfig) => {
     setIsProcessing(true);
     try {
       await config.onDelete?.(selectedRowKeys);
-      notification.success({
-        message: "Berhasil",
-        description: `${selectedRowKeys.length} data berhasil dihapus`,
-      });
+      message.success(`${selectedRowKeys.length} data berhasil dihapus`);
       clearSelection();
     } catch {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description: "Terjadi kesalahan saat menghapus data",
       });
     } finally {
@@ -85,7 +81,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
   const bulkExport = useCallback(async () => {
     if (selectedRowKeys.length === 0) {
       notification.warning({
-        message: "Peringatan",
+        title: "Peringatan",
         description: "Pilih data terlebih dahulu",
       });
       return;
@@ -94,13 +90,10 @@ export const useBulkActions = (config: BulkActionsConfig) => {
     setIsProcessing(true);
     try {
       await config.onExport?.(selectedRowKeys);
-      notification.success({
-        message: "Berhasil",
-        description: `${selectedRowKeys.length} data berhasil diekspor`,
-      });
+      message.success(`${selectedRowKeys.length} data berhasil diekspor`);
     } catch {
       notification.error({
-        message: "Gagal",
+        title: "Gagal",
         description: "Terjadi kesalahan saat mengekspor data",
       });
     } finally {

@@ -21,7 +21,8 @@
   align-items: center;
   gap: 12px;
   padding-block: 16px;
-  border-block: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-block: 1px solid
+    var(--ant-color-border-secondary, var(--app-color-border-secondary));
 }
 .criteria {
   margin: 0;
@@ -34,7 +35,8 @@
   justify-content: space-between;
   gap: 16px;
   padding-block: 16px;
-  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  border-bottom: 1px solid
+    var(--ant-color-border-secondary, var(--app-color-border-secondary));
 }
 .metrics {
   display: grid;

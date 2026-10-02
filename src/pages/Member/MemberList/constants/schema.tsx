@@ -54,11 +54,11 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
           <Link to={`/member/${record.id}`}>
             <Button
               size="small"
+              aria-label="Lihat detail anggota"
               icon={<EyeOutlined />}
               style={{
                 display: "flex",
                 alignItems: "center",
-                borderRadius: "4px",
               }}
             />
           </Link>
@@ -77,7 +77,6 @@ export const TABLE_SCHEMA: TableProps<Member>["columns"] = [
           <Tag
             key={index}
             style={{
-              borderRadius: "6px",
               fontWeight: 500,
               border: "none",
             }}

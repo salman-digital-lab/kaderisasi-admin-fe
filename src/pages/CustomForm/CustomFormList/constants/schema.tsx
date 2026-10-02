@@ -6,7 +6,7 @@ import { CustomForm } from "../../../../types/model/customForm";
 
 export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
   {
-    title: "Nama Form",
+    title: "Nama Formulir",
     dataIndex: "form_name",
     key: "form_name",
     render: (formName, record) => (
@@ -28,8 +28,8 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
     width: 180,
     render: (featureType) => {
       const typeMap: Record<string, string> = {
-        activity_registration: "Pendaftaran Aktivitas",
-        independent_form: "Form mandiri",
+        activity_registration: "Pendaftaran Kegiatan",
+        independent_form: "Formulir mandiri",
         club_registration: "-",
       };
       return typeMap[featureType] || featureType;
@@ -75,7 +75,7 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
         </Link>
         <Link to={`/custom-form/${record.id}/edit`}>
           <Button icon={<EditOutlined />} size="small">
-            Edit
+            Ubah
           </Button>
         </Link>
       </Space>

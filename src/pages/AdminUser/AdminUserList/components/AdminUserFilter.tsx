@@ -11,7 +11,6 @@ import {
 import AddAdminUser from "./modal/AddAdminUser";
 
 const cardStyle = {
-  borderRadius: 0,
   boxShadow: "none",
 };
 
@@ -87,7 +86,11 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
                 onChange={(e) => setSearchInput(e.target.value)}
                 onSearch={apply}
                 onPressEnter={apply}
-                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                prefix={
+                  <SearchOutlined
+                    style={{ color: "var(--app-color-text-secondary)" }}
+                  />
+                }
               />
               <Select
                 aria-label="Filter peran"
@@ -117,7 +120,7 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
                 ]}
               />
               <Button onClick={apply}>Terapkan</Button>
-              <Button onClick={reset}>Reset</Button>
+              <Button onClick={reset}>Atur ulang</Button>
             </Space>
           )}
         </ResponsiveFilters>
@@ -132,8 +135,9 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
             Tambah
           </Button>
           {refresh && (
-            <Tooltip placement="left" title="Refresh Data">
+            <Tooltip placement="left" title="Muat ulang data">
               <Button
+                aria-label="Muat ulang data"
                 icon={<ReloadOutlined />}
                 onClick={refresh}
                 loading={loading}

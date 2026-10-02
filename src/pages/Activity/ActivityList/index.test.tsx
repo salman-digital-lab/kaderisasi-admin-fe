@@ -45,7 +45,7 @@ describe("Activity list optional club access", () => {
     expect(requests.activities).toHaveBeenCalledOnce();
     expect(requests.clubs).not.toHaveBeenCalled();
     expect(html).toContain("Kegiatan tersedia");
-    expect(html).toContain("Buat Kegiatan");
+    expect(html).toContain("Buat kegiatan");
     expect(html).not.toContain("Semua Klub");
   });
   it("offers the club filter when combined permissions include clubs.read", () => {

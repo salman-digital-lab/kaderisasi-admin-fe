@@ -34,7 +34,7 @@ const ProvinceTable = ({
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description={
-        <span style={{ color: "#999" }}>
+        <span style={{ color: "var(--app-color-text-secondary)" }}>
           Belum ada data provinsi yang tersedia
         </span>
       }
@@ -56,7 +56,7 @@ const ProvinceTable = ({
         action={
           onRetry && (
             <Button size="small" onClick={onRetry} icon={<ReloadOutlined />}>
-              Coba Lagi
+              Coba lagi
             </Button>
           )
         }

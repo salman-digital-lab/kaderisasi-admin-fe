@@ -181,7 +181,7 @@ export const useFieldManagement = (
     );
     if (!section) {
       notification.error({
-        message: "Bagian tidak ditemukan",
+        title: "Bagian tidak ditemukan",
         description:
           "Pilih kembali bagian dari daftar Isi formulir sebelum menghapus pertanyaan.",
       });
@@ -193,7 +193,7 @@ export const useFieldManagement = (
     );
     if (!fieldToDelete) {
       notification.error({
-        message: "Pertanyaan tidak ditemukan",
+        title: "Pertanyaan tidak ditemukan",
         description: "Pilih kembali pertanyaan pada bagian yang sedang dibuka.",
       });
       return;
@@ -254,7 +254,7 @@ export const useFieldManagement = (
   const handleAddProfileDataFromTemplate = (template: any) => {
     if (selectedBasicFields.includes(template.field.key)) {
       notification.info({
-        message: "Isian sudah tersedia",
+        title: "Isian sudah tersedia",
         description:
           "Buka Data diri untuk mengatur isian yang sudah ditambahkan.",
       });
@@ -268,7 +268,7 @@ export const useFieldManagement = (
           ? "Provinsi Domisili"
           : "Provinsi Asal";
       notification.warning({
-        message: `Tambahkan "${provinceLabel}" terlebih dahulu agar pilihan kota dapat dimuat.`,
+        title: `Tambahkan "${provinceLabel}" terlebih dahulu agar pilihan kota dapat dimuat.`,
       });
       return;
     }
@@ -279,7 +279,7 @@ export const useFieldManagement = (
   const handleRemoveProfileField = (fieldKey: string) => {
     if (immutable(fieldKey)) {
       notification.warning({
-        message: "Isian identitas harus tetap tersedia",
+        title: "Isian identitas harus tetap tersedia",
         description:
           "Nama dan jenis kelamin diperlukan untuk pendaftaran kegiatan atau klub dan tidak dapat dihapus.",
       });
@@ -297,7 +297,7 @@ export const useFieldManagement = (
 
     if (dependentCity && selectedBasicFields.includes(dependentCity)) {
       notification.info({
-        message: `Field kota terkait juga dihapus secara otomatis.`,
+        title: `Field kota terkait juga dihapus secara otomatis.`,
       });
     }
   };
@@ -325,7 +325,7 @@ export const useFieldManagement = (
   const handleToggleRequiredField = (fieldKey: string, required: boolean) => {
     if (immutable(fieldKey)) {
       notification.warning({
-        message: "Isian identitas harus tetap wajib",
+        title: "Isian identitas harus tetap wajib",
         description:
           "Nama dan jenis kelamin diperlukan untuk pendaftaran kegiatan atau klub.",
       });

@@ -16,6 +16,7 @@ import type {
 } from "../../../types/services/scoring";
 import { saveScoringDraft } from "../../../api/services/scoring";
 import { actionError } from "../../../utils/action-error";
+import { DIALOG_WIDTH } from "../../../theme/tokens";
 
 export default function ScoreEditor({
   activityId,
@@ -65,7 +66,7 @@ export default function ScoreEditor({
       <Modal
         open
         title={`Penilaian: ${entry.name}`}
-        width={720}
+        width={DIALOG_WIDTH.medium}
         onCancel={() => (dirty ? setDiscard(true) : close())}
         maskClosable={false}
         footer={

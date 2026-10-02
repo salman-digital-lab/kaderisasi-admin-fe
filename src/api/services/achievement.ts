@@ -1,4 +1,4 @@
-import { notification } from "antd";
+import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
   GetAchievementReq,
@@ -56,10 +56,7 @@ export const putAchievement = async (props: PutAchievementReq) => {
       "/achievements/" + props.id,
       bodyData,
     );
-    notification.success({
-      message: "Berhasil",
-      description: renderNotification(res.data.message),
-    });
+    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);
@@ -75,9 +72,6 @@ export const approveAchievement = async (props: ApproveAchievementReq) => {
       remark: props.remark,
     },
   );
-  notification.success({
-    message: "Berhasil",
-    description: renderNotification(res.data.message),
-  });
+  message.success(renderNotification(res.data.message));
   return res.data.data;
 };

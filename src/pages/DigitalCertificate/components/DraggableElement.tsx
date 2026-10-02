@@ -79,11 +79,10 @@ const placeholderStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  backgroundColor: "#f5f5f5",
-  border: "1px dashed #d9d9d9",
-  borderRadius: 4,
+  backgroundColor: "var(--app-color-fill-header)",
+  border: "1px dashed var(--app-color-border)",
   fontSize: 12,
-  color: "#999",
+  color: "var(--app-color-text-secondary)",
 };
 
 // ─── Helper: placeholder labels ─────────────────────────────────────────────
@@ -394,7 +393,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           cursor: element.locked ? "default" : isEditing ? "text" : "move",
           border: "1px solid transparent",
           boxShadow: isSelected
-            ? `0 0 0 ${Math.max(1, 2 / zoom)}px #1677ff`
+            ? `0 0 0 ${Math.max(1, 2 / zoom)}px var(--app-color-primary)`
             : undefined,
           borderRadius: element.borderRadius || 4,
           padding: 4,
@@ -427,7 +426,7 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
                   : { right: -hitSize / (2 * zoom) }),
                 width: hitSize / zoom,
                 height: hitSize / zoom,
-                background: `radial-gradient(circle, #1890ff ${HANDLE_SIZE / (2 * zoom)}px, transparent ${HANDLE_SIZE / (2 * zoom)}px)`,
+                background: `radial-gradient(circle, var(--app-color-primary) ${HANDLE_SIZE / (2 * zoom)}px, transparent ${HANDLE_SIZE / (2 * zoom)}px)`,
                 borderRadius: "50%",
                 cursor,
                 zIndex: 10,

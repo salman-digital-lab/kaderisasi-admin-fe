@@ -25,6 +25,7 @@ import {
 import { ACTIVITY_REGISTRANT_STATUS_OPTIONS } from "../../../../constants/options";
 
 import { statusUpdateError } from "../status-update-error";
+import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -158,7 +159,7 @@ const StatusBulkActions = ({
           type={selectedRowKeys.length > 0 ? "primary" : "default"}
           size={size}
         >
-          Ubah Status <DownOutlined />
+          Ubah status <DownOutlined />
         </Button>
       </Dropdown>
 
@@ -167,7 +168,7 @@ const StatusBulkActions = ({
         title={
           <>
             <ExclamationCircleOutlined
-              style={{ color: "#faad14", marginRight: 8 }}
+              style={{ color: "var(--app-color-warning)", marginRight: 8 }}
             />
             Ubah Status Peserta
           </>
@@ -175,7 +176,7 @@ const StatusBulkActions = ({
         open={bulkStatusModalOpen}
         onCancel={() => setBulkStatusModalOpen(false)}
         onOk={runBulkUpdate}
-        okText="Ubah Status"
+        okText="Ubah status"
         cancelText="Batal"
         confirmLoading={bulkLoading}
         okButtonProps={{ disabled: !selectedStatus }}
@@ -203,20 +204,22 @@ const StatusBulkActions = ({
       <Modal
         title={
           <>
-            <MailOutlined style={{ color: "#1890ff", marginRight: 8 }} />
+            <MailOutlined
+              style={{ color: "var(--app-color-primary)", marginRight: 8 }}
+            />
             Ubah Status Berdasarkan Email
           </>
         }
         open={emailStatusModalOpen}
         onCancel={() => setEmailStatusModalOpen(false)}
         onOk={runEmailUpdate}
-        okText="Ubah Status"
+        okText="Ubah status"
         cancelText="Batal"
         confirmLoading={emailLoading}
         okButtonProps={{
           disabled: !selectedStatus || parsedEmails.length === 0,
         }}
-        width={600}
+        width={DIALOG_WIDTH.small}
       >
         <Alert
           message="Masukkan daftar email peserta yang ingin diubah statusnya"

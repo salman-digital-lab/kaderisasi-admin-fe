@@ -7,6 +7,40 @@ import { usePermissions } from "../../../stores/authStore";
 import { getReviewTickets } from "../../../api/services/access";
 
 const { Sider } = Layout;
+
+const SELECTABLE_KEYS = [
+  "/announcements",
+  "/calendar",
+  "/dashboard",
+  "/my-requests",
+  "/ticket-review",
+  "/activity",
+  "/member",
+  "/ruang-curhat",
+  "/achievement",
+  "/monthly-leaderboard",
+  "/lifetime-leaderboard",
+  "/club",
+  "/courses",
+  "/short-links",
+  "/province",
+  "/universities",
+  "/custom-form",
+  "/admin-users",
+  "/digital-certificate",
+];
+
+const PARENT_KEYS: Record<string, string> = {
+  "/my-requests": "/access-tickets",
+  "/ticket-review": "/access-tickets",
+  "/province": "/data-center",
+  "/universities": "/data-center",
+  "/admin-users": "setting",
+  "/rbac/roles": "setting",
+  "/achievement": "/leaderboard",
+  "/monthly-leaderboard": "/leaderboard",
+  "/lifetime-leaderboard": "/leaderboard",
+};
 const { Text } = Typography;
 
 interface SideMenuProps extends SidebarProps {
@@ -50,63 +84,31 @@ const SideMenu = ({
     [permissions, reviewCount],
   );
 
-  // Determine selected keys based on current path
-  const getSelectedKeys = () => {
-    if (currentPath === "/announcements") return ["/announcements"];
-    if (currentPath === "/notifications") return [];
-    if (currentPath.startsWith("/calendar")) return ["/calendar"];
-    if (currentPath.startsWith("/dashboard")) return ["/dashboard"];
-    if (currentPath.startsWith("/my-requests")) return ["/my-requests"];
-    if (currentPath.startsWith("/ticket-review")) return ["/ticket-review"];
-    if (currentPath.startsWith("/rbac")) return ["/rbac/roles"];
-    if (currentPath.startsWith("/activity")) return ["/activity"];
-    if (currentPath.startsWith("/member")) return ["/member"];
-    if (currentPath.startsWith("/ruang-curhat")) return ["/ruang-curhat"];
-    if (currentPath.startsWith("/achievement")) return ["/achievement"];
-    if (currentPath.startsWith("/monthly-leaderboard"))
-      return ["/monthly-leaderboard"];
-    if (currentPath.startsWith("/lifetime-leaderboard"))
-      return ["/lifetime-leaderboard"];
-    if (currentPath.startsWith("/club")) return ["/club"];
-    if (currentPath.startsWith("/courses")) return ["/courses"];
-    if (currentPath.startsWith("/short-links")) return ["/short-links"];
-    if (currentPath.startsWith("/province")) return ["/province"];
-    if (currentPath.startsWith("/universities")) return ["/universities"];
-    if (currentPath.startsWith("/custom-form")) return ["/custom-form"];
-    if (currentPath.startsWith("/admin-users")) return ["/admin-users"];
-    if (currentPath.startsWith("/digital-certificate")) {
-      return ["/digital-certificate"];
-    }
-    return ["/dashboard"];
-  };
+  // Top-level route prefixes that map to a menu key.
+  const selectedKey = SELECTABLE_KEYS.find(
+    (key) => currentPath === key || currentPath.startsWith(`${key}/`),
+  );
+  const selectedKeys = currentPath.startsWith("/rbac")
+    ? ["/rbac/roles"]
+    : currentPath.startsWith("/registrant/")
+      ? ["/activity"]
+      : selectedKey
+        ? [selectedKey]
+        : [];
+  const parentKey = selectedKeys[0] ? PARENT_KEYS[selectedKeys[0]] : undefined;
 
-  const getOpenKeys = () => {
-    if (
-      currentPath.startsWith("/my-requests") ||
-      currentPath.startsWith("/ticket-review")
-    )
-      return ["/access-tickets"];
-    if (
-      currentPath.startsWith("/province") ||
-      currentPath.startsWith("/universities")
-    ) {
-      return ["/data-center"];
+  // Keep the active section expanded when navigating, without collapsing
+  // sections the user opened manually.
+  const [openKeys, setOpenKeys] = useState<string[]>(
+    parentKey ? [parentKey] : [],
+  );
+  useEffect(() => {
+    if (parentKey) {
+      setOpenKeys((keys) =>
+        keys.includes(parentKey) ? keys : [...keys, parentKey],
+      );
     }
-    if (
-      currentPath.startsWith("/admin-users") ||
-      currentPath.startsWith("/rbac")
-    ) {
-      return ["setting"];
-    }
-    if (
-      currentPath.startsWith("/achievement") ||
-      currentPath.startsWith("/monthly-leaderboard") ||
-      currentPath.startsWith("/lifetime-leaderboard")
-    ) {
-      return ["/leaderboard"];
-    }
-    return [];
-  };
+  }, [parentKey]);
 
   const content = (
     <>
@@ -118,7 +120,7 @@ const SideMenu = ({
           alignItems: "center",
           justifyContent: collapsed ? "center" : "flex-start",
           padding: collapsed ? "0 12px" : "0 16px",
-          borderBottom: "1px solid #f0f0f0",
+          borderBottom: "1px solid var(--app-color-border-secondary)",
         }}
       >
         <div
@@ -136,15 +138,14 @@ const SideMenu = ({
               height: collapsed ? 24 : 32,
               background: "#ffffff",
               padding: "4px",
-              borderRadius: "6px",
-              border: "1px solid #f0f0f0",
+              border: "1px solid var(--app-color-border-secondary)",
             }}
           />
           {!collapsed && (
             <div>
               <Text
                 style={{
-                  color: "#262626",
+                  color: "var(--app-color-text)",
                   fontSize: "14px",
                   fontWeight: 600,
                   lineHeight: 1.2,
@@ -155,7 +156,7 @@ const SideMenu = ({
               </Text>
               <Text
                 style={{
-                  color: "#8c8c8c",
+                  color: "var(--app-color-text-secondary)",
                   fontSize: "11px",
                   lineHeight: 1.2,
                   display: "block",
@@ -172,8 +173,9 @@ const SideMenu = ({
       <Menu
         theme="light"
         mode="inline"
-        selectedKeys={getSelectedKeys()}
-        defaultOpenKeys={getOpenKeys()}
+        selectedKeys={selectedKeys}
+        openKeys={collapsed ? undefined : openKeys}
+        onOpenChange={setOpenKeys}
         items={memoizedMenuItems}
         onClick={onNavigate}
         style={{
@@ -201,7 +203,7 @@ const SideMenu = ({
         left: 0,
         top: 0,
         bottom: 0,
-        borderRight: "1px solid #f0f0f0",
+        borderRight: "1px solid var(--app-color-border-secondary)",
       }}
     >
       {content}

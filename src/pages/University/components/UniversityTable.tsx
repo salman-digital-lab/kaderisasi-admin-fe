@@ -38,7 +38,7 @@ const UniversitiesTable = ({
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description={
-        <span style={{ color: "#999" }}>
+        <span style={{ color: "var(--app-color-text-secondary)" }}>
           Belum ada data universitas yang tersedia
         </span>
       }
@@ -60,7 +60,7 @@ const UniversitiesTable = ({
         action={
           onRetry && (
             <Button size="small" onClick={onRetry} icon={<ReloadOutlined />}>
-              Coba Lagi
+              Coba lagi
             </Button>
           )
         }

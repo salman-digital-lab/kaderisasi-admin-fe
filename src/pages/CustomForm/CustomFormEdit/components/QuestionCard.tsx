@@ -95,7 +95,7 @@ export function QuestionCard({
                 )}
               </span>
               <span className="builder-question-edit">
-                {selected ? "Tutup" : "Edit"}
+                {selected ? "Tutup" : "Ubah"}
               </span>
             </Button>
             <Dropdown
