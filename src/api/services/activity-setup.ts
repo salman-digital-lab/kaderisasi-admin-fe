@@ -1,5 +1,8 @@
 import axios from "../axios";
-import type { Activity } from "../../types/model/activity";
+import type {
+  Activity,
+  ActivityOptionalFeatures,
+} from "../../types/model/activity";
 import type {
   getActivitiesReq,
   getActivitiesResp,
@@ -40,6 +43,25 @@ export function setupActivityConfig(
     additional_questionnaire: current?.additional_questionnaire ?? [],
     allow_guest_registration: allowGuestRegistration,
   };
+}
+/** Saves optional feature flags without touching other activity settings. */
+export async function saveActivityOptionalFeatures(
+  activity: Activity,
+  features: ActivityOptionalFeatures,
+): Promise<Activity> {
+  // Images and the certificate template are managed by their own endpoints.
+  const config = { ...activity.additional_config };
+  delete config.images;
+  delete config.certificate_template_id;
+  return saveSetupActivity(activity.id, {
+    additional_config: {
+      ...config,
+      custom_selection_status: config.custom_selection_status ?? [],
+      mandatory_profile_data: config.mandatory_profile_data ?? [],
+      additional_questionnaire: config.additional_questionnaire ?? [],
+      optional_features: { ...config.optional_features, ...features },
+    },
+  });
 }
 export async function getSetupActivity(id: number): Promise<Activity> {
   return (await axios.get<{ data: Activity }>(`/activities/${id}`)).data.data;

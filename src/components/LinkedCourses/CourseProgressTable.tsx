@@ -1,6 +1,15 @@
 import { useState, type ReactElement } from "react";
 import { useRequest } from "ahooks";
-import { Alert, Button, Input, Select, Space, Typography, message } from "antd";
+import {
+  Alert,
+  Button,
+  Card,
+  Input,
+  Select,
+  Space,
+  Typography,
+  message,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DownloadOutlined, ReloadOutlined } from "@ant-design/icons";
 import { ResponsiveTable } from "../common/Responsive/ResponsiveTable";
@@ -28,7 +37,7 @@ export default function CourseProgressTable({
   ownerId: number;
   revision: number;
   canExport: boolean;
-}): ReactElement {
+}): ReactElement | null {
   const [filters, setFilters] = useState<ProgressFilters>({
     page: 1,
     per_page: 20,
@@ -110,42 +119,40 @@ export default function CourseProgressTable({
         },
       })),
   ];
+  if (data && data.courses.length === 0) return null;
   return (
-    <section
-      aria-labelledby="course-progress-title"
-      style={{ marginBlock: 24 }}
+    <Card
+      title="Progres belajar peserta"
+      extra={
+        <Space wrap>
+          <Button
+            icon={<ReloadOutlined />}
+            aria-label="Muat ulang progres"
+            loading={loading}
+            onClick={refresh}
+          >
+            Muat ulang
+          </Button>
+          {canExport && Boolean(data?.courses.length) && (
+            <Button
+              aria-label="Ekspor semua peserta"
+              icon={<DownloadOutlined />}
+              loading={exporting}
+              onClick={() => void download()}
+            >
+              Ekspor semua peserta
+            </Button>
+          )}
+        </Space>
+      }
     >
-      <Typography.Title level={4} id="course-progress-title">
-        Progres kelas pendaftar
-      </Typography.Title>
       <Typography.Paragraph type="secondary">
         {kind === "club"
           ? "Mencakup seluruh pendaftar, termasuk anggota yang disetujui. "
           : ""}
-        Progres mengikuti materi yang masih tersedia. Penambahan atau
-        penghapusan materi dan perubahan tanda selesai dapat mengubah status.
-        Filter semua kelas memeriksa penyelesaian seluruh kelas terkait.
+        Progres dihitung dari materi yang masih tersedia, sehingga dapat berubah
+        saat materi diperbarui. Ekspor selalu mencakup semua peserta.
       </Typography.Paragraph>
-      <Space wrap style={{ marginBottom: 16, width: "100%" }}>
-        <Button
-          icon={<ReloadOutlined />}
-          aria-label="Muat ulang progres"
-          loading={loading}
-          onClick={refresh}
-        >
-          Muat ulang
-        </Button>
-        {canExport && Boolean(data?.courses.length) && (
-          <Button
-            aria-label="Ekspor semua peserta"
-            icon={<DownloadOutlined />}
-            loading={exporting}
-            onClick={() => void download()}
-          >
-            Ekspor semua peserta
-          </Button>
-        )}
-      </Space>
       {error ? (
         <Alert
           type="error"
@@ -160,124 +167,108 @@ export default function CourseProgressTable({
                   setFilters({ page: 1, per_page: 20 });
                 }}
               >
-                Reset filter
+                Atur ulang filter
               </Button>
             </Space>
           }
         />
       ) : (
         <>
-          {data?.courses.length === 0 ? (
-            <Alert
-              type="info"
-              title="Belum ada kelas terkait"
-              description="Pilih kelas di atas untuk melihat progres pendaftar."
+          <Space wrap style={{ marginBottom: 16, width: "100%" }}>
+            <Input.Search
+              aria-label="Cari pendaftar kelas"
+              placeholder="Cari nama atau email"
+              value={search}
+              allowClear
+              onChange={(event) => setSearch(event.target.value)}
+              onSearch={(value) => filter({ search: value })}
+              style={{ width: 240, maxWidth: "100%" }}
             />
-          ) : (
-            <>
-              <Space wrap style={{ marginBottom: 16, width: "100%" }}>
-                <Input.Search
-                  aria-label="Cari pendaftar kelas"
-                  placeholder="Cari nama atau email"
-                  value={search}
-                  allowClear
-                  onChange={(event) => setSearch(event.target.value)}
-                  onSearch={(value) => filter({ search: value })}
-                  style={{ width: 240, maxWidth: "100%" }}
-                />
-                <Select
-                  aria-label="Status pendaftaran untuk progres"
-                  placeholder="Semua status pendaftaran"
-                  allowClear
-                  value={filters.status}
-                  onChange={(value) => filter({ status: value })}
-                  options={
-                    kind === "activity"
-                      ? ACTIVITY_REGISTRANT_STATUS_OPTIONS
-                      : CLUB_REGISTRATION_STATUS_OPTIONS
-                  }
-                  style={{ width: 220, maxWidth: "100%" }}
-                />
-                <Select
-                  aria-label="Kelas untuk filter progres"
-                  placeholder="Semua kelas terkait"
-                  allowClear
-                  value={filters.course_id}
-                  onChange={(value) => filter({ course_id: value })}
-                  options={data?.courses.map((course) => ({
-                    value: course.id,
-                    label: `${course.title} (#${course.id})`,
-                  }))}
-                  style={{ width: 260, maxWidth: "100%" }}
-                />
-                <Select
-                  aria-label="Penyelesaian kelas"
-                  placeholder="Semua progres"
-                  allowClear
-                  value={filters.course_completion}
-                  onChange={(value) => filter({ course_completion: value })}
-                  options={[
-                    { value: "completed", label: "Selesai" },
-                    { value: "incomplete", label: "Belum selesai" },
-                    {
-                      value: "unverifiable",
-                      label: "Tidak dapat diverifikasi",
-                    },
-                  ]}
-                  style={{ width: 240, maxWidth: "100%" }}
-                />
-              </Space>
-              <Typography.Paragraph style={{ marginBottom: 4 }}>
-                Kolom kelas yang ditampilkan
-              </Typography.Paragraph>
-              <Select
-                mode="multiple"
-                aria-label="Kolom kelas yang ditampilkan"
-                placeholder="Pilih kolom kelas"
-                maxTagCount="responsive"
-                style={{ width: "100%", maxWidth: 520, marginBottom: 16 }}
-                value={(data?.courses ?? [])
-                  .filter((course) => !hiddenColumns.includes(course.id))
-                  .map((course) => course.id)}
-                options={data?.courses.map((course) => ({
-                  value: course.id,
-                  label: `${course.title} (#${course.id})`,
-                }))}
-                onChange={(ids: number[]) => {
-                  const hidden = (data?.courses ?? [])
-                    .filter((course) => !ids.includes(course.id))
-                    .map((course) => course.id);
-                  setHiddenColumns(hidden);
-                  try {
-                    localStorage.setItem(preferenceKey, JSON.stringify(hidden));
-                  } catch {
-                    /* Optional column preference. */
-                  }
-                }}
-              />
-              <Typography.Paragraph type="secondary">
-                Ekspor mencakup semua peserta, terlepas dari filter di layar.
-              </Typography.Paragraph>
-              <ResponsiveTable<CoursePerson>
-                listId={`course-progress-${kind}-${ownerId}`}
-                rowKey="id"
-                columns={columns}
-                dataSource={data?.data ?? []}
-                loading={loading}
-                scroll={{ x: "max-content" }}
-                pagination={{
-                  current: filters.page,
-                  pageSize: filters.per_page,
-                  total: data?.meta.total ?? 0,
-                  showSizeChanger: true,
-                  onChange: (page, per_page) =>
-                    setFilters((old) => ({ ...old, page, per_page })),
-                }}
-              />
-            </>
-          )}
+            <Select
+              aria-label="Status pendaftaran untuk progres"
+              placeholder="Semua status pendaftaran"
+              allowClear
+              value={filters.status}
+              onChange={(value) => filter({ status: value })}
+              options={
+                kind === "activity"
+                  ? ACTIVITY_REGISTRANT_STATUS_OPTIONS
+                  : CLUB_REGISTRATION_STATUS_OPTIONS
+              }
+              style={{ width: 220, maxWidth: "100%" }}
+            />
+            <Select
+              aria-label="Kelas untuk filter progres"
+              placeholder="Semua kelas terkait"
+              allowClear
+              value={filters.course_id}
+              onChange={(value) => filter({ course_id: value })}
+              options={data?.courses.map((course) => ({
+                value: course.id,
+                label: `${course.title} (#${course.id})`,
+              }))}
+              style={{ width: 260, maxWidth: "100%" }}
+            />
+            <Select
+              aria-label="Penyelesaian kelas"
+              placeholder="Semua progres"
+              allowClear
+              value={filters.course_completion}
+              onChange={(value) => filter({ course_completion: value })}
+              options={[
+                { value: "completed", label: "Selesai" },
+                { value: "incomplete", label: "Belum selesai" },
+                {
+                  value: "unverifiable",
+                  label: "Tidak dapat diverifikasi",
+                },
+              ]}
+              style={{ width: 240, maxWidth: "100%" }}
+            />
+          </Space>
+          <Select
+            mode="multiple"
+            aria-label="Kolom kelas yang ditampilkan"
+            placeholder="Pilih kolom kelas"
+            maxTagCount="responsive"
+            style={{ width: "100%", maxWidth: 520, marginBottom: 16 }}
+            value={(data?.courses ?? [])
+              .filter((course) => !hiddenColumns.includes(course.id))
+              .map((course) => course.id)}
+            options={data?.courses.map((course) => ({
+              value: course.id,
+              label: `${course.title} (#${course.id})`,
+            }))}
+            onChange={(ids: number[]) => {
+              const hidden = (data?.courses ?? [])
+                .filter((course) => !ids.includes(course.id))
+                .map((course) => course.id);
+              setHiddenColumns(hidden);
+              try {
+                localStorage.setItem(preferenceKey, JSON.stringify(hidden));
+              } catch {
+                /* Optional column preference. */
+              }
+            }}
+          />
+          <ResponsiveTable<CoursePerson>
+            listId={`course-progress-${kind}-${ownerId}`}
+            rowKey="id"
+            columns={columns}
+            dataSource={data?.data ?? []}
+            loading={loading}
+            scroll={{ x: "max-content" }}
+            pagination={{
+              current: filters.page,
+              pageSize: filters.per_page,
+              total: data?.meta.total ?? 0,
+              showSizeChanger: true,
+              onChange: (page, per_page) =>
+                setFilters((old) => ({ ...old, page, per_page })),
+            }}
+          />
         </>
       )}
-    </section>
+    </Card>
   );
 }

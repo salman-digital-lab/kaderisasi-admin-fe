@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from "react";
-import { Divider } from "antd";
+import { Flex } from "antd";
 import UnsavedChangesGuard from "../common/UnsavedChangesGuard";
 import CourseConfiguration from "./CourseConfiguration";
 import CourseProgressTable from "./CourseProgressTable";
@@ -19,7 +19,7 @@ export default function LinkedCoursesTab({
   const permission =
     kind === "activity" ? "activity_registrations" : "club_registrations";
   return (
-    <>
+    <Flex vertical gap={16}>
       <UnsavedChangesGuard dirty={dirty || busy} includeSearchChanges />
       <CourseConfiguration
         kind={kind}
@@ -29,17 +29,14 @@ export default function LinkedCoursesTab({
         onSaved={() => setRevision((value) => value + 1)}
       />
       {permissions.includes(permission + ".read") && (
-        <>
-          <Divider />
-          <CourseProgressTable
-            key={revision}
-            kind={kind}
-            ownerId={ownerId}
-            revision={revision}
-            canExport={permissions.includes(permission + ".export")}
-          />
-        </>
+        <CourseProgressTable
+          key={revision}
+          kind={kind}
+          ownerId={ownerId}
+          revision={revision}
+          canExport={permissions.includes(permission + ".export")}
+        />
       )}
-    </>
+    </Flex>
   );
 }

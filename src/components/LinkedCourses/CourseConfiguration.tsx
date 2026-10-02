@@ -1,6 +1,7 @@
 import { useState, type ReactElement } from "react";
 import { useRequest } from "ahooks";
-import { Alert, Button, List, Skeleton, Typography } from "antd";
+import { Alert, App, Button, Card, List, Skeleton, Typography } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
 import {
   getLinkedCourses,
   type CourseOwner,
@@ -21,8 +22,8 @@ export default function CourseConfiguration({
   onBusyChange: (value: boolean) => void;
   onSaved?: () => void;
 }): ReactElement {
+  const { message } = App.useApp();
   const [open, setOpen] = useState(false);
-  const [saved, setSaved] = useState(false);
   const permissions = usePermissions();
   const canManage = permissions.includes(
     kind === "activity" ? "activities.manage" : "clubs.manage",
@@ -32,17 +33,20 @@ export default function CourseConfiguration({
     { refreshDeps: [kind, ownerId] },
   );
   return (
-    <section
-      aria-labelledby="activity-courses-title"
-      style={{ marginBlock: 24 }}
+    <Card
+      title="Kelas terkait"
+      extra={
+        canManage &&
+        data && (
+          <Button icon={<SettingOutlined />} onClick={() => setOpen(true)}>
+            Pilih kelas online
+          </Button>
+        )
+      }
     >
-      <Typography.Title id="activity-courses-title" level={4}>
-        Kelas online terkait
-      </Typography.Title>
       <Typography.Paragraph type="secondary">
-        Pilih kelas untuk memantau progres pendaftar. Pilihan ini tidak
-        membatasi pendaftaran. Progres mengikuti materi yang masih tersedia dan
-        dapat berubah ketika materi diperbarui.
+        Kelas dipakai untuk memantau progres belajar peserta dan tidak membatasi
+        pendaftaran.
       </Typography.Paragraph>
       {error ? (
         <Alert
@@ -53,29 +57,19 @@ export default function CourseConfiguration({
       ) : loading ? (
         <Skeleton active />
       ) : (
-        <>
-          {saved && <Alert type="success" title="Kelas terkait tersimpan" />}
-          <List
-            dataSource={data ?? []}
-            locale={{ emptyText: "Belum ada kelas terkait." }}
-            renderItem={(course) => (
-              <List.Item key={course.id}>
-                <CourseDetails course={course} />
-              </List.Item>
-            )}
-          />
-          {canManage && (
-            <Button
-              type="primary"
-              onClick={() => {
-                setSaved(false);
-                setOpen(true);
-              }}
-            >
-              Pilih kelas online
-            </Button>
+        <List
+          dataSource={data ?? []}
+          locale={{
+            emptyText: canManage
+              ? "Belum ada kelas terkait. Pilih kelas online untuk mulai memantau progres."
+              : "Belum ada kelas terkait.",
+          }}
+          renderItem={(course) => (
+            <List.Item key={course.id}>
+              <CourseDetails course={course} />
+            </List.Item>
           )}
-        </>
+        />
       )}
       {open && data && (
         <CourseChooser
@@ -88,11 +82,11 @@ export default function CourseConfiguration({
           onSaved={(rows) => {
             mutate(rows);
             setOpen(false);
-            setSaved(true);
+            message.success("Kelas terkait tersimpan");
             onSaved?.();
           }}
         />
       )}
-    </section>
+    </Card>
   );
 }

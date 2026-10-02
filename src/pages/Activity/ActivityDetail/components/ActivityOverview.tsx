@@ -29,18 +29,23 @@ import type { Activity } from "../../../../types/model/activity";
 import { actionError } from "../../../../utils/action-error";
 import PublicationHelp from "../../ActivitySetup/PublicationHelp";
 import { activityChecklist } from "./activity-checklist";
+import OptionalFeaturesCard from "./OptionalFeaturesCard";
+import type { OptionalFeatures } from "../hooks/useOptionalFeatures";
 import DeleteFeatureButton from "../../../../components/common/DeleteFeatureButton";
 import { useRoles } from "../../../../stores/authStore";
 import { canDeleteFeatures } from "../../../../utils/admin-roles";
 
 type Props = {
   activity: Activity;
+  /** Omitted in contexts that do not manage optional workspaces. */
+  features?: OptionalFeatures;
   onUpdated: () => void;
   onNavigate: (tab: string) => void;
 };
 
 export default function ActivityOverview({
   activity,
+  features,
   onUpdated,
   onNavigate,
 }: Props): ReactElement {
@@ -259,6 +264,9 @@ export default function ActivityOverview({
           );
         })}
       </Row>
+      {features && (
+        <OptionalFeaturesCard features={features} onOpen={onNavigate} />
+      )}
       <DetailShortLink
         path={
           activity.slug

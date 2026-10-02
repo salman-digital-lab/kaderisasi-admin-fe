@@ -6,6 +6,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Popconfirm,
   Space,
   Typography,
 } from "antd";
@@ -77,7 +78,15 @@ export default function RubricEditor({
       name={`scoring-rubric-${activityId}`}
       form={form}
       layout="vertical"
-      initialValues={rubric ?? { groups: [], grades: [], note: "" }}
+      initialValues={
+        rubric ?? {
+          groups: [
+            { id: crypto.randomUUID(), name: "", criteria: [newCriterion()] },
+          ],
+          grades: [],
+          note: "",
+        }
+      }
       onValuesChange={() => onDirty(true)}
       onFinish={save}
       disabled={locked || busy}
@@ -134,14 +143,28 @@ export default function RubricEditor({
                         Naik
                       </Button>
                       <Button
-                        danger
+                        aria-label={`Turunkan kelompok ${groupIndex + 1}`}
+                        disabled={groupIndex === groups.length - 1}
                         onClick={() => {
+                          move(name, name + 1);
+                          onDirty(true);
+                        }}
+                      >
+                        Turun
+                      </Button>
+                      <Popconfirm
+                        title="Hapus kelompok ini?"
+                        description="Semua aspek di dalam kelompok ikut terhapus."
+                        okText="Hapus"
+                        cancelText="Batal"
+                        okButtonProps={{ danger: true }}
+                        onConfirm={() => {
                           remove(name);
                           onDirty(true);
                         }}
                       >
-                        Hapus kelompok
-                      </Button>
+                        <Button danger>Hapus kelompok</Button>
+                      </Popconfirm>
                     </Space>
                   )
                 }
@@ -219,6 +242,19 @@ export default function RubricEditor({
                                 Naik
                               </Button>
                               <Button
+                                aria-label={`Turunkan aspek ${index + 1}`}
+                                disabled={index === criteria.length - 1}
+                                onClick={() => {
+                                  operations.move(
+                                    criterion.name,
+                                    criterion.name + 1,
+                                  );
+                                  onDirty(true);
+                                }}
+                              >
+                                Turun
+                              </Button>
+                              <Button
                                 danger
                                 aria-label={`Hapus aspek ${index + 1}`}
                                 onClick={() => {
@@ -268,7 +304,9 @@ export default function RubricEditor({
           </div>
         )}
       </Form.List>
-      <Typography.Title level={5}>Indeks nilai (opsional)</Typography.Title>
+      <Typography.Title level={5} style={{ marginTop: 24 }}>
+        Indeks nilai (opsional)
+      </Typography.Title>
       <Typography.Paragraph type="secondary">
         Setiap indeks berlaku mulai batas minimumnya sampai batas indeks
         berikutnya. Sertakan batas 0 agar semua nilai memiliki indeks.

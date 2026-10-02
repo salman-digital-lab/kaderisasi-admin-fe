@@ -26,6 +26,11 @@ export type MandatoryProfileData = {
   required: boolean;
 };
 
+export type ActivityOptionalFeature = "scoring" | "courses";
+export type ActivityOptionalFeatures = Partial<
+  Record<ActivityOptionalFeature, boolean>
+>;
+
 export type Activity = {
   id: number;
   name: string;
@@ -55,6 +60,8 @@ export type Activity = {
     };
     certificate_template_id?: number;
     allow_guest_registration?: boolean;
+    /** Optional admin workspaces. Missing flags are derived from existing data. */
+    optional_features?: ActivityOptionalFeatures;
   };
   is_published: number;
   is_registration_open: boolean;

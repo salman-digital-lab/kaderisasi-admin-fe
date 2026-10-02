@@ -5,9 +5,6 @@
   gap: 16px;
   min-width: 0;
 }
-.page {
-  padding: 12px;
-}
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -33,7 +30,8 @@
   max-width: 100%;
   overflow-x: auto;
 }
-.page :global(.ant-input-number) {
+.page :global(.ant-input-number),
+.rubric :global(.ant-input-number) {
   width: 100%;
 }
 .page :global(.ant-card-head-wrapper) {
@@ -44,9 +42,6 @@
   white-space: normal;
 }
 @media (width < 768px) {
-  .page {
-    padding: 8px;
-  }
   .criterion,
   .grade {
     grid-template-columns: minmax(0, 1fr);
