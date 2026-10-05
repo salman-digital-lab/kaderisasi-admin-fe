@@ -10,6 +10,7 @@ import {
   Pagination,
   Progress,
   Radio,
+  Select,
   Steps,
   Tag,
   Typography,
@@ -37,6 +38,7 @@ import type {
   IssuancePlan,
   IssuanceResult,
   RecipientPage,
+  RecipientState,
   TemplateSummary,
 } from "../../../types/services/certificateWorkflow";
 import {
@@ -65,6 +67,10 @@ const LABELS = {
   issued_active: "Sudah terbit",
   issued_revoked: "Dicabut",
 };
+const DEFAULT_WITHDRAW_REASON =
+  "Dibatalkan penerbitannya untuk koreksi oleh admin";
+const isIssuable = (state: RecipientState): boolean =>
+  state === "eligible_not_issued" || state === "issued_revoked";
 const RESULT_LABELS = {
   created: "Diterbitkan",
   already_issued: "Sudah terbit",
@@ -89,6 +95,9 @@ export default function ActivityCertificates(): React.ReactElement {
   const canIssue = canIssueCertificates(permissions);
   const [confirmPublish, setConfirmPublish] = useState(false);
   const [withdrawTarget, setWithdrawTarget] = useState<CertificateRecipient>();
+  const [withdrawReason, setWithdrawReason] = useState(DEFAULT_WITHDRAW_REASON);
+  const [stateFilter, setStateFilter] = useState<RecipientState>();
+  const [settingsSaved, setSettingsSaved] = useState<boolean>();
   const canWithdraw = permissions.includes("certificate.revoke");
   const [step, setStep] = useState(0);
   const [recipients, setRecipients] = useState<RecipientPage>();
@@ -202,6 +211,7 @@ export default function ActivityCertificates(): React.ReactElement {
         per_page: 50,
         search: search || undefined,
         sort_order: sortOrder,
+        state: stateFilter,
       },
       controller.signal,
     )
@@ -221,7 +231,7 @@ export default function ActivityCertificates(): React.ReactElement {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [activityId, page, search, refresh, sortOrder]);
+  }, [activityId, page, search, refresh, sortOrder, stateFilter]);
   useEffect(() => {
     if (step !== 0) return;
     const controller = new AbortController();
@@ -248,7 +258,11 @@ export default function ActivityCertificates(): React.ReactElement {
   }, [step, templatePage, templateSearch, refresh]);
   useEffect(() => {
     const controller = new AbortController();
-    setTemplate(undefined);
+    // Keep the current template while refreshing it. Clearing it unmounts the
+    // Salman settings form and the group column, discarding unsaved input.
+    setTemplate((current) =>
+      current?.id === selectedTemplateId ? current : undefined,
+    );
     setTemplateLoading(false);
     if (!selectedTemplateId) return;
     setTemplateLoading(true);
@@ -416,7 +430,7 @@ export default function ActivityCertificates(): React.ReactElement {
                 key={`${row.registration_id}-${row.certificate_group ?? ""}`}
                 aria-label={`Kelompok ${row.name}`}
                 defaultValue={row.certificate_group ?? ""}
-                disabled={!canIssue || row.state !== "eligible_not_issued"}
+                disabled={!canIssue || !isIssuable(row.state)}
                 maxLength={100}
                 onBlur={async (event: React.FocusEvent<HTMLInputElement>) => {
                   const next = event.target.value.trim();
@@ -427,7 +441,18 @@ export default function ActivityCertificates(): React.ReactElement {
                       row.registration_id,
                       next || null,
                     );
-                    setRefresh((value) => value + 1);
+                    // Update in place so keyboard entry can continue to the next row.
+                    setRecipients(
+                      (current) =>
+                        current && {
+                          ...current,
+                          data: current.data.map((item) =>
+                            item.registration_id === row.registration_id
+                              ? { ...item, certificate_group: next || null }
+                              : item,
+                          ),
+                        },
+                    );
                   } catch {
                     message.error(`Kelompok ${row.name} gagal disimpan.`);
                   }
@@ -479,7 +504,10 @@ export default function ActivityCertificates(): React.ReactElement {
                 type="link"
                 danger
                 disabled={running || busy}
-                onClick={() => setWithdrawTarget(row)}
+                onClick={() => {
+                  setWithdrawReason(DEFAULT_WITHDRAW_REASON);
+                  setWithdrawTarget(row);
+                }}
               >
                 Batalkan penerbitan
               </Button>
@@ -665,6 +693,7 @@ export default function ActivityCertificates(): React.ReactElement {
                 <CertificateSettingsForm
                   activityId={activityId}
                   disabled={!canManage}
+                  onStatusChange={setSettingsSaved}
                   onSaved={() => {
                     message.success("Pengaturan sertifikat disimpan.");
                     setRefresh((value) => value + 1);
@@ -707,18 +736,46 @@ export default function ActivityCertificates(): React.ReactElement {
                 ]}
               />
               <Typography.Text type="secondary">
-                Hanya peserta LULUS KEGIATAN yang belum pernah mendapat
-                sertifikat. Pilihan semua peserta mencakup seluruh kegiatan,
-                termasuk halaman lain.
+                Hanya peserta LULUS KEGIATAN tanpa sertifikat aktif. Pilihan
+                semua peserta mencakup seluruh kegiatan, termasuk halaman lain.
+                {recipients?.counts.issued_revoked
+                  ? ` ${recipients.counts.issued_revoked} peserta dengan sertifikat dicabut tidak ikut; pilih peserta tertentu untuk menerbitkan ulang.`
+                  : ""}
               </Typography.Text>
-              <Input.Search
-                allowClear
-                aria-label="Cari peserta sertifikat"
-                placeholder="Cari nama peserta"
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-              />
+              <div className={styles.actions}>
+                <Input.Search
+                  allowClear
+                  aria-label="Cari peserta sertifikat"
+                  placeholder="Cari nama peserta"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  style={{ flex: "1 1 240px" }}
+                />
+                <Select
+                  allowClear
+                  placeholder="Semua status"
+                  aria-label="Filter berdasarkan status sertifikat"
+                  style={{ flex: "0 1 260px", minWidth: 200 }}
+                  value={stateFilter}
+                  onChange={(value?: RecipientState) => {
+                    setStateFilter(value);
+                    setPage(1);
+                  }}
+                  options={(Object.keys(LABELS) as RecipientState[]).map(
+                    (value) => ({
+                      value,
+                      label: `${LABELS[value]} (${recipients?.counts[value] ?? 0})`,
+                    }),
+                  )}
+                />
+              </div>
               <Typography.Text>{count} peserta dipilih</Typography.Text>
+              {template?.template_data.scoreSheetLayout === "salman-v1" &&
+                settingsSaved === false && (
+                  <Typography.Text type="warning">
+                    Simpan pengaturan isi sertifikat sebelum meninjau.
+                  </Typography.Text>
+                )}
               <Table
                 listId="pages/Activity/ActivityCertificates/index:1"
                 rowKey="registration_id"
@@ -733,7 +790,7 @@ export default function ActivityCertificates(): React.ReactElement {
                         preserveSelectedRowKeys: true,
                         onChange: (keys) => setSelectedIds(keys.map(Number)),
                         getCheckboxProps: (row) => ({
-                          disabled: row.state !== "eligible_not_issued",
+                          disabled: !isIssuable(row.state),
                           "aria-label": `Pilih ${row.name}`,
                         }),
                       }
@@ -765,7 +822,7 @@ export default function ActivityCertificates(): React.ReactElement {
               </Typography.Title>
               <Typography.Text type="secondary">
                 {plan.excluded.already_issued} sudah terbit ·{" "}
-                {plan.excluded.revoked} dicabut ·{" "}
+                {plan.excluded.revoked} dicabut (tidak dipilih) ·{" "}
                 {plan.excluded.not_eligible + plan.excluded.missing} tidak
                 memenuhi syarat. Data dan desain akan disimpan sebagai
                 sertifikat resmi.
@@ -943,7 +1000,12 @@ export default function ActivityCertificates(): React.ReactElement {
             {step === 1 && (
               <Button
                 type="primary"
-                disabled={!canIssue || !count}
+                disabled={
+                  !canIssue ||
+                  !count ||
+                  (template?.template_data.scoreSheetLayout === "salman-v1" &&
+                    settingsSaved !== true)
+                }
                 loading={busy}
                 onClick={() => review()}
               >
@@ -1031,7 +1093,10 @@ export default function ActivityCertificates(): React.ReactElement {
           open={Boolean(withdrawTarget)}
           okText="Batalkan penerbitan"
           cancelText="Kembali"
-          okButtonProps={{ danger: true, disabled: !canWithdraw }}
+          okButtonProps={{
+            danger: true,
+            disabled: !canWithdraw || withdrawReason.trim().length < 3,
+          }}
           confirmLoading={busy}
           onCancel={() => {
             if (!busy) setWithdrawTarget(undefined);
@@ -1041,16 +1106,18 @@ export default function ActivityCertificates(): React.ReactElement {
             setBusy(true);
             try {
               await revokeCertificate(withdrawTarget.certificate_id, {
-                reason: "Dibatalkan penerbitannya untuk koreksi oleh admin",
+                reason: withdrawReason.trim(),
               });
               setWithdrawTarget(undefined);
               setPlan(undefined);
               setHasRun(false);
-              setSelectedIds([]);
+              // Preselect the participant so the corrected certificate can be republished.
+              setSelection("selected");
+              setSelectedIds([withdrawTarget.registration_id]);
               setStep(1);
               setRefresh((value) => value + 1);
               message.success(
-                "Penerbitan dibatalkan. Perbaiki data, lalu terbitkan kembali.",
+                `Penerbitan dibatalkan. ${withdrawTarget.name} sudah dipilih untuk diterbitkan ulang setelah data diperbaiki.`,
               );
             } catch {
               message.error("Penerbitan belum berhasil dibatalkan. Coba lagi.");
@@ -1059,9 +1126,27 @@ export default function ActivityCertificates(): React.ReactElement {
             }
           }}
         >
-          Sertifikat {withdrawTarget?.name} tidak lagi valid atau dapat diunduh
-          peserta. Setelah diperbaiki, penerbitan ulang membuat kode baru. Versi
-          lama tetap tersimpan dalam riwayat.
+          <Typography.Paragraph>
+            Sertifikat {withdrawTarget?.name} tidak lagi valid atau dapat
+            diunduh peserta. Setelah diperbaiki, penerbitan ulang membuat kode
+            baru. Versi lama tetap tersimpan dalam riwayat.
+          </Typography.Paragraph>
+          <label htmlFor="withdraw-reason">
+            <Typography.Text strong>Alasan pembatalan</Typography.Text>
+          </label>
+          <Input.TextArea
+            id="withdraw-reason"
+            rows={3}
+            maxLength={1000}
+            showCount
+            value={withdrawReason}
+            disabled={busy}
+            onChange={(event) => setWithdrawReason(event.target.value)}
+            status={withdrawReason.trim().length < 3 ? "error" : undefined}
+          />
+          <Typography.Text type="secondary">
+            Alasan ini tampil di halaman verifikasi publik sertifikat.
+          </Typography.Text>
         </ResponsiveDialog>
       </main>
     </>

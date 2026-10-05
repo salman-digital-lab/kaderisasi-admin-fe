@@ -15,6 +15,8 @@ import {
 import { salmanCertificateOverflow } from "../../DigitalCertificate/utils/certificatePdf";
 
 const PREFLIGHT_CODE = "CERT-2026-2147483647-0123456789ABCDEF0123456789ABCDEF";
+// Payloads are fetched ahead of rendering; layout checks still run one at a time.
+const PREFETCH_WINDOW = 4;
 
 async function preview(registrationId: number): Promise<CertificatePayload> {
   const response = await axios.post<{ data: CertificatePayload }>(
@@ -48,12 +50,29 @@ export async function preflightSalmanRecipients(
     signer_title: signerTitle,
     approved_at: "2026-12-31T12:00:00+07:00",
   };
+  const pending = new Map<number, Promise<CertificatePayload>>();
+  const fetchAhead = (from: number): void => {
+    for (
+      let next = from;
+      next < Math.min(from + PREFETCH_WINDOW, registrationIds.length);
+      next += 1
+    ) {
+      if (!pending.has(next)) {
+        const request = preview(registrationIds[next]);
+        // Rejections are observed when the item is awaited.
+        request.catch(() => undefined);
+        pending.set(next, request);
+      }
+    }
+  };
   try {
-    for (const [index, registrationId] of registrationIds.entries()) {
+    for (const index of registrationIds.keys()) {
       onProgress(
         `Memeriksa tata letak ${index + 1} dari ${registrationIds.length}…`,
       );
-      const data = await preview(registrationId);
+      fetchAhead(index);
+      const data = await pending.get(index)!;
+      pending.delete(index);
       const artwork = createRef<HTMLDivElement>();
       const score = createRef<HTMLDivElement>();
       flushSync(() =>

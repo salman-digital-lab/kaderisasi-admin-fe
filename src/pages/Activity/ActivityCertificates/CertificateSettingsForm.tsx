@@ -30,21 +30,28 @@ export function CertificateSettingsForm({
   activityId,
   disabled,
   onSaved,
+  onStatusChange,
 }: {
   activityId: number;
   disabled: boolean;
   onSaved: () => void;
+  onStatusChange?: (saved: boolean) => void;
 }): React.ReactElement {
   const [form] = Form.useForm<CertificateSettings>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState<boolean>();
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     getCertificateSettings(activityId, controller.signal)
       .then((data) => {
-        if (!controller.signal.aborted) form.setFieldsValue(data);
+        if (!controller.signal.aborted) {
+          form.setFieldsValue(data);
+          setSaved(data.saved);
+          onStatusChange?.(data.saved);
+        }
       })
       .catch(() => {
         if (!controller.signal.aborted)
@@ -60,6 +67,8 @@ export function CertificateSettingsForm({
     setError("");
     try {
       await saveCertificateSettings(activityId, { ...values, version: 1 });
+      setSaved(true);
+      onStatusChange?.(true);
       onSaved();
     } catch {
       setError("Pengaturan sertifikat gagal disimpan. Coba lagi.");
@@ -69,6 +78,15 @@ export function CertificateSettingsForm({
   }
   return (
     <Card title="Isi sertifikat Salman" loading={loading}>
+      {saved === false && (
+        <Alert
+          type="warning"
+          showIcon
+          title="Pengaturan belum disimpan"
+          description="Isian di bawah masih usulan bawaan. Periksa lalu simpan sebelum meninjau sertifikat."
+          style={{ marginBottom: 16 }}
+        />
+      )}
       {error && (
         <Alert
           type="error"

@@ -7,12 +7,15 @@ import type {
 export async function getCertificateSettings(
   activityId: number,
   signal?: AbortSignal,
-): Promise<CertificateSettings> {
-  const response = await axios.get<{ data: CertificateSettings }>(
-    `/certificates/activities/${activityId}/settings`,
-    { signal },
-  );
-  return response.data.data;
+): Promise<CertificateSettings & { saved: boolean }> {
+  const response = await axios.get<{
+    data: CertificateSettings & { saved?: boolean };
+  }>(`/certificates/activities/${activityId}/settings`, { signal });
+  return {
+    ...response.data.data,
+    // Older API versions omit the flag; do not block review on them.
+    saved: response.data.data.saved !== false,
+  };
 }
 
 export async function saveCertificateSettings(
