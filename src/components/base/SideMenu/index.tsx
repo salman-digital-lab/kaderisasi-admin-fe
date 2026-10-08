@@ -19,7 +19,6 @@ const SELECTABLE_KEYS = [
   "/ruang-curhat",
   "/achievement",
   "/monthly-leaderboard",
-  "/lifetime-leaderboard",
   "/club",
   "/courses",
   "/short-links",
@@ -39,7 +38,6 @@ const PARENT_KEYS: Record<string, string> = {
   "/rbac/roles": "setting",
   "/achievement": "/leaderboard",
   "/monthly-leaderboard": "/leaderboard",
-  "/lifetime-leaderboard": "/leaderboard",
 };
 const { Text } = Typography;
 

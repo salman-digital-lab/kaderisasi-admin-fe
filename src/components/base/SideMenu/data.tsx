@@ -122,14 +122,6 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
                   <Link to="/monthly-leaderboard">{L.monthlyLeaderboard}</Link>
                 ),
               },
-              {
-                key: "/lifetime-leaderboard",
-                label: (
-                  <Link to="/lifetime-leaderboard">
-                    {L.lifetimeLeaderboard}
-                  </Link>
-                ),
-              },
             ]
           : []),
       ],

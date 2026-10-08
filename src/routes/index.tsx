@@ -62,9 +62,6 @@ const AchievementDetail = lazy(
 const MonthlyLeaderboard = lazy(
   () => import("../pages/Leaderboard/MonthlyLeaderboard"),
 );
-const LifetimeLeaderboard = lazy(
-  () => import("../pages/Leaderboard/LifetimeLeaderboard"),
-);
 const CustomFormList = lazy(() => import("../pages/CustomForm/CustomFormList"));
 const CustomFormEdit = lazy(() => import("../pages/CustomForm/CustomFormEdit"));
 const FormAttachment = lazy(() => import("../pages/CustomForm/FormAttachment"));
@@ -332,10 +329,6 @@ const routes = createBrowserRouter([
       {
         path: "monthly-leaderboard",
         element: guarded(<MonthlyLeaderboard />, "leaderboards.read"),
-      },
-      {
-        path: "lifetime-leaderboard",
-        element: guarded(<LifetimeLeaderboard />, "leaderboards.read"),
       },
       { path: "club", element: guarded(<ClubList />, "clubs.read") },
       { path: "courses", element: guarded(<CourseList />, "courses.read") },

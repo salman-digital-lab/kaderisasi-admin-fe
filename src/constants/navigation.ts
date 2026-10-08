@@ -17,7 +17,6 @@ export const NAV_LABELS = {
   leaderboardGroup: "Prestasi & Peringkat",
   achievements: "Prestasi",
   monthlyLeaderboard: "Peringkat Bulanan",
-  lifetimeLeaderboard: "Peringkat Sepanjang Waktu",
   customForms: "Formulir Digital",
   shortLinks: "Tautan Pendek",
   clubs: "Klub",

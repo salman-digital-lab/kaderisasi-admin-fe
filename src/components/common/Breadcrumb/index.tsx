@@ -55,7 +55,6 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   "/rbac/roles": [SETTINGS, current(L.roles)],
   "/achievement": [LEADERBOARD, current(L.achievements)],
   "/monthly-leaderboard": [LEADERBOARD, current(L.monthlyLeaderboard)],
-  "/lifetime-leaderboard": [LEADERBOARD, current(L.lifetimeLeaderboard)],
   "/club": [current(L.clubs)],
   "/courses": [current(L.courses)],
   "/short-links": [current(L.shortLinks)],
