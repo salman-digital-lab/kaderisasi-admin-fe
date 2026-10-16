@@ -42,6 +42,23 @@ describe("participant answer columns", () => {
     expect(formatAnswer("  ")).toBe(EMPTY_ANSWER);
   });
 
+  it("maps generated and label-like option values back to their labels", () => {
+    const options = [
+      { label: "Medik", value: "4f0c7a52-9b1e-4d3a-8f6e-2a1b3c4d5e6f" },
+      {
+        label: "Konsumsi, Operasional, dan Logistik (KOL)",
+        value: "Konsumsi,",
+      },
+    ];
+    expect(formatAnswer("4f0c7a52-9b1e-4d3a-8f6e-2a1b3c4d5e6f", options)).toBe(
+      "Medik",
+    );
+    expect(formatAnswer(["Konsumsi,"], options)).toBe(
+      "Konsumsi, Operasional, dan Logistik (KOL)",
+    );
+    expect(formatAnswer("Lainnya", options)).toBe("Lainnya");
+  });
+
   it("renders long answers and authenticated attachment controls", () => {
     const columns = answerColumns(
       12,

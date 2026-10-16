@@ -12,6 +12,7 @@ import {
 import { actionError } from "../../../../utils/action-error";
 import { formatDateTime } from "../../../../utils/date-format";
 import { DIALOG_WIDTH } from "../../../../theme/tokens";
+import { formatAnswer } from "../../../Activity/ActivityParticipants/constants/answer-columns";
 
 export function ResponsesTab({ formId }: { formId: number }): ReactElement {
   const [page, setPage] = useState(1);
@@ -181,12 +182,10 @@ export function ResponsesTab({ formId }: { formId: number }): ReactElement {
                                       {file.name}
                                     </Button>
                                   ))
-                              : typeof detail.data!.answers[field.key] ===
-                                  "string"
-                                ? String(detail.data!.answers[field.key])
-                                : JSON.stringify(
-                                    detail.data!.answers[field.key],
-                                  )}
+                              : formatAnswer(
+                                  detail.data!.answers[field.key],
+                                  field.options,
+                                )}
                           </dd>
                         </div>
                       ))}
