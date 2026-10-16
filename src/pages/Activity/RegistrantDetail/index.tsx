@@ -19,6 +19,7 @@ import {
   formatProfileValue,
 } from "../../../utils/education";
 import PageHeader from "../../../components/common/PageHeader";
+import { formatAnswer } from "../ActivityParticipants/constants/answer-columns";
 
 const GENDER_MAP: Record<string, string> = {
   M: "Laki-Laki",
@@ -220,7 +221,10 @@ const RegistrantDetail = () => {
                   value={registrantData?.questionnaire_answer[field.key]}
                 />
               ) : (
-                formatValue(registrantData?.questionnaire_answer[field.key])
+                formatAnswer(
+                  registrantData?.questionnaire_answer[field.key],
+                  field.options,
+                )
               ),
           }))
         : undefined;
