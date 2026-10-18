@@ -20,7 +20,7 @@ export interface GenerateCertificatePdfOptions {
 }
 
 export function getRasterScale(width: number, height: number): number {
-  return Math.min(2, Math.sqrt(8_000_000 / (width * height)));
+  return Math.min(3, Math.sqrt(12_000_000 / (width * height)));
 }
 
 export function salmanCertificateOverflow(source: HTMLElement): string[] {
@@ -87,14 +87,55 @@ async function waitForImage(image: HTMLImageElement): Promise<void> {
   }
 }
 
+// Canvas resampling in html2canvas is low quality, so large artwork turns jagged when
+// shrunk in one step. Halve it with high-quality smoothing down to the export size.
+async function downsampleImage(
+  image: HTMLImageElement,
+  width: number,
+  height: number,
+): Promise<void> {
+  const targetWidth = Math.ceil(width);
+  const targetHeight = Math.ceil(height);
+  if (image.naturalWidth <= targetWidth || image.naturalHeight <= targetHeight)
+    return;
+  let current: HTMLImageElement | HTMLCanvasElement = image;
+  let stepWidth = image.naturalWidth;
+  let stepHeight = image.naturalHeight;
+  while (stepWidth > targetWidth || stepHeight > targetHeight) {
+    stepWidth = Math.max(targetWidth, Math.ceil(stepWidth / 2));
+    stepHeight = Math.max(targetHeight, Math.ceil(stepHeight / 2));
+    const step = document.createElement("canvas");
+    step.width = stepWidth;
+    step.height = stepHeight;
+    const context = step.getContext("2d");
+    if (!context) return;
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(current, 0, 0, stepWidth, stepHeight);
+    current = step;
+  }
+  try {
+    image.src = (current as HTMLCanvasElement).toDataURL("image/png");
+    await image.decode();
+  } catch {
+    // Keep the original artwork if the browser refuses to export it.
+  }
+}
+
 // html2canvas does not implement object-fit. Preserve the rendered crop with explicit geometry.
-function prepareFittedImages(source: HTMLElement): void {
+async function prepareFittedImages(
+  source: HTMLElement,
+  scale: number,
+): Promise<void> {
   for (const image of source.querySelectorAll("img")) {
     const style = getComputedStyle(image);
-    if (style.objectFit !== "cover" && style.objectFit !== "contain") continue;
     const width = image.clientWidth;
     const height = image.clientHeight;
     if (!width || !height) continue;
+    if (style.objectFit !== "cover" && style.objectFit !== "contain") {
+      await downsampleImage(image, width * scale, height * scale);
+      continue;
+    }
     const factor =
       style.objectFit === "cover"
         ? Math.max(width / image.naturalWidth, height / image.naturalHeight)
@@ -113,6 +154,7 @@ function prepareFittedImages(source: HTMLElement): void {
     image.replaceWith(frame);
     frame.appendChild(image);
     image.style.cssText = `position:absolute;max-width:none;max-height:none;left:${(width - fittedWidth) / 2}px;top:${(height - fittedHeight) / 2}px;width:${fittedWidth}px;height:${fittedHeight}px;`;
+    await downsampleImage(image, fittedWidth * scale, fittedHeight * scale);
   }
 }
 
@@ -170,7 +212,8 @@ async function renderCertificatePage(
       if (clipped.length)
         throw new Error(`CERTIFICATE_TEXT_OVERFLOW:${clipped.join(",")}`);
     }
-    prepareFittedImages(source);
+    const scale = getRasterScale(template.canvasWidth, template.canvasHeight);
+    await prepareFittedImages(source, scale);
     fitScoreSheet(source);
     const [{ default: html2canvas }, { default: JsPDF }] = await imports;
     onProgress?.("Merender sertifikat…");
@@ -178,7 +221,7 @@ async function renderCertificatePage(
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
     raster = await html2canvas(source, {
-      scale: getRasterScale(template.canvasWidth, template.canvasHeight),
+      scale,
       useCORS: true,
       allowTaint: false,
       backgroundColor: "#ffffff",
