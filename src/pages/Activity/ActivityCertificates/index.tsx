@@ -1,13 +1,11 @@
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import { ReloadOutlined } from "@ant-design/icons";
 import type { TableColumnsType } from "antd";
 import {
   Alert,
   Button,
   Card,
   Input,
-  List,
-  Pagination,
   Progress,
   Radio,
   Select,
@@ -24,9 +22,8 @@ import {
   revokeCertificate,
 } from "../../../api/services/certificateTemplate";
 import {
-  assignCertificateTemplate,
   getCertificateRecipients,
-  getTemplateSummaries,
+  getTemplateLock,
   issueCertificateBatch,
   prepareIssuance,
   saveCertificateGroup,
@@ -39,7 +36,7 @@ import type {
   IssuanceResult,
   RecipientPage,
   RecipientState,
-  TemplateSummary,
+  TemplateLockState,
 } from "../../../types/services/certificateWorkflow";
 import {
   canIssueCertificates,
@@ -80,6 +77,8 @@ const RESULT_LABELS = {
 const REASONS: Record<string, string> = {
   CERTIFICATE_SETTINGS_REQUIRED:
     "Simpan pengaturan isi sertifikat sebelum meninjau peserta.",
+  CERTIFICATE_TEMPLATE_NOT_LOCKED:
+    "Kunci template di halaman kegiatan sebelum menerbitkan sertifikat.",
   CERTIFICATE_SCORE_NOT_PUBLISHED:
     "Daftar nilai aktif, tetapi nilai peserta belum diterbitkan.",
   REGISTRATION_NOT_ELIGIBLE: "Status peserta belum lulus.",
@@ -108,14 +107,9 @@ export default function ActivityCertificates(): React.ReactElement {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [refresh, setRefresh] = useState(0);
-  const [templates, setTemplates] = useState<TemplateSummary[]>([]);
-  const [templatePage, setTemplatePage] = useState(1);
-  const [templateTotal, setTemplateTotal] = useState(0);
-  const [templateSearch, setTemplateSearch] = useState("");
-  const [templateSearchInput, setTemplateSearchInput] = useState("");
-  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templateLock, setTemplateLockState] = useState<TemplateLockState>();
   const [templateError, setTemplateError] = useState("");
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>();
+  const selectedTemplateId = templateLock?.template?.id;
   const [template, setTemplate] = useState<CertificateTemplate>();
   const [templateLoading, setTemplateLoading] = useState(false);
   const [selection, setSelection] = useState<"all" | "selected">("all");
@@ -194,13 +188,6 @@ export default function ActivityCertificates(): React.ReactElement {
     return () => clearTimeout(timer);
   }, [searchInput]);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setTemplateSearch(templateSearchInput.trim());
-      setTemplatePage(1);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [templateSearchInput]);
-  useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError("");
@@ -218,9 +205,6 @@ export default function ActivityCertificates(): React.ReactElement {
       .then((data) => {
         if (!controller.signal.aborted) {
           setRecipients(data);
-          setSelectedTemplateId((current) =>
-            current === undefined ? (data.template?.id ?? null) : current,
-          );
         }
       })
       .catch(() => {
@@ -233,29 +217,18 @@ export default function ActivityCertificates(): React.ReactElement {
     return () => controller.abort();
   }, [activityId, page, search, refresh, sortOrder, stateFilter]);
   useEffect(() => {
-    if (step !== 0) return;
     const controller = new AbortController();
-    setTemplatesLoading(true);
     setTemplateError("");
-    getTemplateSummaries(
-      { page: templatePage, search: templateSearch || undefined },
-      controller.signal,
-    )
+    getTemplateLock(activityId, controller.signal)
       .then((data) => {
-        if (!controller.signal.aborted) {
-          setTemplates(data.data);
-          setTemplateTotal(data.meta.total);
-        }
+        if (!controller.signal.aborted) setTemplateLockState(data);
       })
       .catch(() => {
         if (!controller.signal.aborted)
-          setTemplateError("Daftar template tidak dapat dimuat.");
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setTemplatesLoading(false);
+          setTemplateError("Template kegiatan tidak dapat dimuat.");
       });
     return () => controller.abort();
-  }, [step, templatePage, templateSearch, refresh]);
+  }, [activityId, refresh]);
   useEffect(() => {
     const controller = new AbortController();
     // Keep the current template while refreshing it. Clearing it unmounts the
@@ -284,22 +257,7 @@ export default function ActivityCertificates(): React.ReactElement {
 
   const ready =
     template?.status === "published" && template.readiness?.ready === true;
-  async function saveTemplate(): Promise<void> {
-    if (!ready || !selectedTemplateId) return;
-    setBusy(true);
-    try {
-      if (selectedTemplateId !== recipients?.template?.id)
-        await assignCertificateTemplate(activityId, selectedTemplateId);
-      setRefresh((value) => value + 1);
-      setStep(1);
-    } catch {
-      setError(
-        "Template belum berhasil disimpan. Periksa akses dan coba lagi.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
+  const locked = templateLock?.locked === true;
   async function review(ids?: number[], retry = false): Promise<void> {
     const versionAtReview = interruptionVersion.current;
     setBusy(true);
@@ -526,7 +484,6 @@ export default function ActivityCertificates(): React.ReactElement {
   const completed = results.filter((item) =>
     plannedIds.has(item.registration_id),
   ).length;
-  const returnPath = `/activity/${activityId}/certificates`;
   return (
     <>
       <main className={`page-container ${styles.page}`}>
@@ -565,27 +522,9 @@ export default function ActivityCertificates(): React.ReactElement {
           {step === 0 && (
             <div className={`${styles.templateGrid} ${styles.body}`}>
               <div className={styles.stack}>
-                <div className={styles.actions}>
-                  <Typography.Title level={2} style={{ margin: 0 }}>
-                    Pilih desain
-                  </Typography.Title>
-                  {canManage && (
-                    <Link
-                      to={`/digital-certificate?create=1&returnTo=${encodeURIComponent(returnPath)}`}
-                    >
-                      <Button icon={<PlusOutlined />}>Buat desain</Button>
-                    </Link>
-                  )}
-                </div>
-                <Input.Search
-                  allowClear
-                  aria-label="Cari template"
-                  placeholder="Cari template yang dipublikasikan"
-                  value={templateSearchInput}
-                  onChange={(event) =>
-                    setTemplateSearchInput(event.target.value)
-                  }
-                />
+                <Typography.Title level={2} style={{ margin: 0 }}>
+                  Template kegiatan
+                </Typography.Title>
                 {templateError && (
                   <Alert
                     type="error"
@@ -597,65 +536,26 @@ export default function ActivityCertificates(): React.ReactElement {
                     }
                   />
                 )}
-                <Radio.Group
-                  aria-label="Template sertifikat"
-                  value={selectedTemplateId}
-                  onChange={(event) =>
-                    setSelectedTemplateId(event.target.value)
-                  }
-                >
-                  <List
-                    loading={templatesLoading}
-                    dataSource={templates}
-                    locale={{
-                      emptyText:
-                        "Belum ada desain yang dipublikasikan. Buat desain untuk memulai.",
-                    }}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <Radio
-                          value={item.id}
-                          disabled={!canManage || !item.readiness?.ready}
-                        >
-                          {item.name}
-                        </Radio>
-                      </List.Item>
-                    )}
+                {templateLock && !locked && (
+                  <Alert
+                    type="warning"
+                    showIcon
+                    title="Template belum dikunci"
+                    description="Pilih dan kunci template sertifikat di halaman kegiatan sebelum menerbitkan sertifikat."
+                    action={
+                      <Link to={`/activity/${activityId}`}>
+                        <Button size="small">Buka kegiatan</Button>
+                      </Link>
+                    }
                   />
-                </Radio.Group>
-                <Pagination
-                  size="small"
-                  current={templatePage}
-                  total={templateTotal}
-                  pageSize={12}
-                  showSizeChanger={false}
-                  onChange={setTemplatePage}
-                />
-                {!canManage && (
-                  <Typography.Text type="secondary">
-                    Anda dapat memakai desain yang dipilih admin. Perubahan
-                    desain memerlukan akses pengelolaan template.
-                  </Typography.Text>
                 )}
-                {canManage && recipients?.template && (
-                  <Button
-                    type="link"
-                    disabled={busy}
-                    onClick={async () => {
-                      setBusy(true);
-                      try {
-                        await assignCertificateTemplate(activityId, null);
-                        setSelectedTemplateId(null);
-                        setRefresh((value) => value + 1);
-                      } catch {
-                        setError("Template tidak dapat dilepas.");
-                      } finally {
-                        setBusy(false);
-                      }
-                    }}
-                  >
-                    Lepaskan template kegiatan
-                  </Button>
+                {locked && (
+                  <Typography.Text type="secondary">
+                    Template ini dikunci untuk kegiatan.{" "}
+                    {templateLock.published_count > 0
+                      ? "Sertifikat sudah terbit sehingga template tidak dapat diganti."
+                      : "Buka kunci di halaman kegiatan untuk menggantinya."}
+                  </Typography.Text>
                 )}
               </div>
               <Card
@@ -681,7 +581,7 @@ export default function ActivityCertificates(): React.ReactElement {
                   </>
                 ) : (
                   <Typography.Text type="secondary">
-                    Pilih desain untuk melihat contoh sertifikat.
+                    Belum ada template untuk kegiatan ini.
                   </Typography.Text>
                 )}
               </Card>
@@ -985,14 +885,8 @@ export default function ActivityCertificates(): React.ReactElement {
             {step === 0 && (
               <Button
                 type="primary"
-                disabled={
-                  !ready ||
-                  templateLoading ||
-                  (selectedTemplateId !== recipients?.template?.id &&
-                    !canManage)
-                }
-                loading={busy}
-                onClick={saveTemplate}
+                disabled={!ready || !locked || templateLoading}
+                onClick={() => setStep(1)}
               >
                 Lanjut ke penerima
               </Button>

@@ -30,6 +30,12 @@ export interface RecipientPage {
   meta: Pagination;
   data: CertificateRecipient[];
 }
+export interface TemplateLockState {
+  template: TemplateSummary | null;
+  locked: boolean;
+  locked_at: string | null;
+  published_count: number;
+}
 export interface IssuancePlan {
   activity_id: number;
   template_id: number;

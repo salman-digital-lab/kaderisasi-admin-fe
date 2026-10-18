@@ -44,6 +44,7 @@ import type {
   IssuancePlan,
   RecipientPage,
   RecipientState,
+  TemplateLockState,
   TemplateSummary,
 } from "../../types/services/certificateWorkflow";
 import axios from "../axios";
@@ -122,4 +123,24 @@ export async function assignCertificateTemplate(
   await axios.put(`/activities/${activityId}`, {
     certificate_template_id: templateId,
   });
+}
+export async function getTemplateLock(
+  activityId: number,
+  signal?: AbortSignal,
+): Promise<TemplateLockState> {
+  const response = await axios.get<{ data: TemplateLockState }>(
+    `/certificates/activities/${activityId}/template-lock`,
+    { signal },
+  );
+  return response.data.data;
+}
+export async function setTemplateLock(
+  activityId: number,
+  locked: boolean,
+): Promise<TemplateLockState> {
+  const response = await axios.request<{ data: TemplateLockState }>({
+    method: locked ? "PUT" : "DELETE",
+    url: `/certificates/activities/${activityId}/template-lock`,
+  });
+  return response.data.data;
 }

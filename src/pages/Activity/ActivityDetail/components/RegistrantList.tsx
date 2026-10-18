@@ -3,7 +3,6 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
-  SafetyCertificateOutlined,
   SaveOutlined,
   TeamOutlined,
   TrophyOutlined,
@@ -35,8 +34,12 @@ import {
   putActivity,
 } from "../../../../api/services/activity";
 import { usePermissions } from "../../../../stores/authStore";
-import { canAccessCertificates } from "../../../../utils/certificate-permissions";
+import {
+  canAccessCertificates,
+  canManageCertificateTemplates,
+} from "../../../../utils/certificate-permissions";
 
+import CertificateTemplateCard from "./CertificateTemplateCard";
 import MembersListModal from "./Modal/MembersListModal";
 import { DATE_TIME_FORMAT } from "../../../../utils/date-format";
 
@@ -285,18 +288,10 @@ const RegistrantList = () => {
       </Form>
 
       {canAccessCertificateFeature && (
-        <Card style={{ marginBottom: 24 }} title="Sertifikat kegiatan">
-          <Typography.Paragraph>
-            Pilih desain, tinjau peserta yang lulus, dan terbitkan sertifikat
-            dari satu halaman.
-          </Typography.Paragraph>
-          <Button
-            icon={<SafetyCertificateOutlined />}
-            onClick={() => navigate(`/activity/${id}/certificates`)}
-          >
-            Kelola sertifikat
-          </Button>
-        </Card>
+        <CertificateTemplateCard
+          activityId={Number(id)}
+          canManage={canManageCertificateTemplates(permissions)}
+        />
       )}
 
       {/* Statistics by Status */}

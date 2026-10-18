@@ -149,7 +149,14 @@ axios.defaults.adapter = async (config) => {
   const body =
     typeof config.data === "string" ? JSON.parse(config.data) : config.data;
   let data: unknown;
-  if (url.includes("/recipients")) {
+  if (url.endsWith("/template-lock")) {
+    data = {
+      template,
+      locked: true,
+      locked_at: "2026-10-18T08:00:00.000+07:00",
+      published_count: issued.size,
+    };
+  } else if (url.includes("/recipients")) {
     const matches = registrations.filter((row) =>
       row.name
         .toLowerCase()
