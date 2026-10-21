@@ -5,17 +5,19 @@ import {
   Empty,
   Flex,
   Input,
-  List,
   Skeleton,
+  Spin,
   Tag,
   Typography,
 } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { getCertificateTemplate } from "../../../../api/services/certificateTemplate";
 import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
-import { DIALOG_WIDTH } from "../../../../theme/tokens";
-import type { CertificateTemplate } from "../../../../types/services/certificateTemplate";
+import type {
+  CertificateTemplate,
+  CertificateTemplateData,
+} from "../../../../types/services/certificateTemplate";
 import type { TemplateSummary } from "../../../../types/services/certificateWorkflow";
 import { CertificateArtwork } from "../../../DigitalCertificate/components/CertificateArtwork";
 import { VARIABLE_OPTIONS } from "../../../DigitalCertificate/constants";
@@ -24,7 +26,9 @@ import {
   getCertificateVerificationUrl,
   listTemplateVariables,
   resolveCertificateSampleText,
+  type TemplateVariableUse,
 } from "../../../DigitalCertificate/utils/certificate-content";
+import styles from "./CertificateTemplateModal.module.css";
 
 const VARIABLE_LABELS: Record<string, string> = Object.fromEntries(
   VARIABLE_OPTIONS.map((option) => [option.value, option.label]),
@@ -38,6 +42,97 @@ export function templateBlockers(item: TemplateSummary): string[] {
   return item.status === "published" && item.readiness?.ready === true
     ? []
     : ["Desain belum dipublikasikan atau belum lengkap."];
+}
+
+/** Scales the certificate to fit its pane by both width and height. */
+function FittedPreview({
+  template,
+  backgroundImage,
+}: {
+  template: CertificateTemplateData;
+  backgroundImage: string | null;
+}) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number>();
+
+  useEffect(() => {
+    const node = stageRef.current;
+    if (!node) return;
+    const update = (): void => {
+      const style = getComputedStyle(node);
+      const innerWidth =
+        node.clientWidth -
+        parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight);
+      const innerHeight =
+        node.clientHeight -
+        parseFloat(style.paddingTop) -
+        parseFloat(style.paddingBottom);
+      const byHeight =
+        (innerHeight * template.canvasWidth) / template.canvasHeight;
+      setWidth(Math.max(120, Math.min(innerWidth, byHeight)));
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [template.canvasWidth, template.canvasHeight]);
+
+  return (
+    <div
+      ref={stageRef}
+      className={styles.stage}
+      style={
+        {
+          "--certificate-ratio": `${template.canvasWidth} / ${template.canvasHeight}`,
+        } as React.CSSProperties
+      }
+    >
+      {width !== undefined && (
+        <div className={styles.paper} style={{ width }}>
+          <CertificateArtwork
+            template={template}
+            backgroundImage={backgroundImage}
+            resolveText={resolveCertificateSampleText}
+            verificationUrl={getCertificateVerificationUrl(
+              CERTIFICATE_SAMPLE_CODE,
+            )}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VariableGroup({
+  title,
+  items,
+}: {
+  title: string;
+  items: TemplateVariableUse[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <>
+      <Typography.Text type="secondary" className={styles.groupTitle}>
+        {title}
+      </Typography.Text>
+      <ul className={styles.variables}>
+        {items.map((use) => (
+          <li key={use.variable}>
+            <Flex vertical gap={2}>
+              <Typography.Text>
+                {VARIABLE_LABELS[use.variable] ?? use.variable}
+              </Typography.Text>
+              <Typography.Text code style={{ width: "fit-content" }}>
+                {use.variable}
+              </Typography.Text>
+            </Flex>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 }
 
 type Props = {
@@ -92,197 +187,181 @@ const CertificateTemplateModal = ({
     [detail],
   );
 
+  let preview: React.ReactNode;
+  if (!active) {
+    preview = (
+      <Flex flex={1} align="center" justify="center">
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="Pilih template untuk melihat pratinjau."
+        />
+      </Flex>
+    );
+  } else if (detailError) {
+    preview = (
+      <div style={{ padding: 16 }}>
+        <Alert type="error" showIcon title="Pratinjau tidak dapat dimuat." />
+      </div>
+    );
+  } else if (!detail) {
+    preview = (
+      <Flex flex={1} align="center" justify="center" style={{ padding: 16 }}>
+        <Skeleton.Node active style={{ width: 280, height: 360 }} />
+      </Flex>
+    );
+  } else {
+    preview = (
+      <FittedPreview
+        template={detail.template_data}
+        backgroundImage={detail.background_image}
+      />
+    );
+  }
+
   return (
     <Modal
       open={open}
-      width={DIALOG_WIDTH.large * 1.2}
+      centered
+      width="min(1120px, calc(100vw - 48px))"
       title="Pilih template sertifikat"
       onCancel={onCancel}
       destroyOnHidden
       footer={
-        <Flex justify="end" gap="small">
-          <Button onClick={onCancel}>Batal</Button>
-          <Button
-            type="primary"
-            disabled={!active || activeBlockers.length > 0}
-            onClick={() => active && onConfirm(active.id)}
-          >
-            Gunakan template ini
-          </Button>
+        <Flex justify="space-between" align="center" gap="small" wrap>
+          <Typography.Text type="secondary">
+            {active ? `Dipilih: ${active.name}` : "Belum ada template dipilih"}
+          </Typography.Text>
+          <Flex gap="small">
+            <Button onClick={onCancel}>Batal</Button>
+            <Button
+              type="primary"
+              disabled={!active || activeBlockers.length > 0}
+              onClick={() => active && onConfirm(active.id)}
+            >
+              Gunakan template ini
+            </Button>
+          </Flex>
         </Flex>
       }
     >
-      <Flex gap="large" wrap style={{ alignItems: "flex-start" }}>
-        <div style={{ flex: "1 1 240px", minWidth: 0, maxWidth: 320 }}>
-          <Input.Search
-            allowClear
-            placeholder="Cari template"
-            aria-label="Cari template sertifikat"
-            onChange={(event) => onSearch(event.target.value)}
-            style={{ marginBottom: 12 }}
-          />
-          <List
-            loading={loading}
-            dataSource={choices}
-            locale={{
-              emptyText: (
+      <div className={styles.layout}>
+        <section className={styles.column} aria-label="Daftar template">
+          <div className={styles.columnHeader}>
+            <Input.Search
+              allowClear
+              placeholder="Cari template"
+              aria-label="Cari template sertifikat"
+              onChange={(event) => onSearch(event.target.value)}
+            />
+          </div>
+          <div className={styles.scroll}>
+            <Spin spinning={loading}>
+              {choices.length === 0 && !loading ? (
                 <Empty
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                   description="Belum ada desain yang dipublikasikan."
                 />
-              ),
-            }}
-            style={{ maxHeight: 460, overflowY: "auto" }}
-            renderItem={(item) => {
-              const blockers = templateBlockers(item);
-              const isActive = item.id === activeId;
-              return (
-                <List.Item
-                  key={item.id}
-                  role="option"
-                  aria-selected={isActive}
-                  tabIndex={0}
-                  onClick={() => setActiveId(item.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setActiveId(item.id);
-                    }
-                  }}
-                  style={{
-                    cursor: "pointer",
-                    padding: 12,
-                    border: `1px solid ${
-                      isActive
-                        ? "var(--ant-color-primary)"
-                        : "var(--app-color-border-secondary)"
-                    }`,
-                    marginBottom: 8,
-                  }}
-                >
-                  <Flex vertical gap={4} style={{ width: "100%" }}>
-                    <Flex justify="space-between" gap="small">
-                      <Typography.Text strong>{item.name}</Typography.Text>
-                      {isActive && (
-                        <CheckCircleFilled
-                          style={{ color: "var(--ant-color-primary)" }}
-                        />
-                      )}
-                    </Flex>
-                    {blockers.length > 0 ? (
-                      <Tag color="warning" style={{ width: "fit-content" }}>
-                        Belum siap
-                      </Tag>
-                    ) : (
-                      item.description && (
-                        <Typography.Text type="secondary" ellipsis>
-                          {item.description}
-                        </Typography.Text>
-                      )
-                    )}
-                  </Flex>
-                </List.Item>
-              );
-            }}
-          />
-        </div>
-        <div style={{ flex: "2 1 360px", minWidth: 0 }}>
-          {!active ? (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="Pilih template untuk melihat pratinjau dan variabelnya."
-            />
-          ) : (
-            <Flex vertical gap="middle">
-              {activeBlockers.length > 0 && (
-                <Alert
-                  type="warning"
-                  showIcon
-                  title="Template ini belum dapat dipakai"
-                  description={activeBlockers.join(" ")}
-                />
-              )}
-              {detailError ? (
-                <Alert
-                  type="error"
-                  showIcon
-                  title="Pratinjau tidak dapat dimuat."
-                />
-              ) : !detail ? (
-                <Skeleton.Image active style={{ width: "100%", height: 260 }} />
               ) : (
-                <>
-                  <div>
-                    <Typography.Text strong>Pratinjau</Typography.Text>
-                    <div
-                      style={{
-                        marginTop: 8,
-                        border: "1px solid var(--app-color-border-secondary)",
-                      }}
-                    >
-                      <CertificateArtwork
-                        template={detail.template_data}
-                        backgroundImage={detail.background_image}
-                        resolveText={resolveCertificateSampleText}
-                        verificationUrl={getCertificateVerificationUrl(
-                          CERTIFICATE_SAMPLE_CODE,
-                        )}
-                      />
-                    </div>
-                    <Typography.Text type="secondary">
-                      Menggunakan data contoh. Nilai asli dipakai saat
-                      penerbitan.
-                    </Typography.Text>
-                  </div>
-                  <div>
-                    <Typography.Text strong>
-                      Variabel pada template ({variables.length})
-                    </Typography.Text>
-                    {variables.length === 0 ? (
-                      <Typography.Paragraph
-                        type="secondary"
-                        style={{ margin: "8px 0 0" }}
-                      >
-                        Template ini tidak memakai variabel.
-                      </Typography.Paragraph>
-                    ) : (
-                      <List
-                        size="small"
-                        style={{
-                          marginTop: 8,
-                          maxHeight: 220,
-                          overflowY: "auto",
-                        }}
-                        dataSource={variables}
-                        renderItem={(use) => (
-                          <List.Item key={use.variable}>
-                            <Flex vertical gap={2} style={{ minWidth: 0 }}>
-                              <Flex gap="small" wrap align="center">
-                                <Typography.Text>
-                                  {VARIABLE_LABELS[use.variable] ??
-                                    use.variable}
-                                </Typography.Text>
-                                <Typography.Text code>
-                                  {use.variable}
-                                </Typography.Text>
-                              </Flex>
-                              <Typography.Text type="secondary">
-                                {use.fromActivitySettings
-                                  ? "Diisi pada “Atur isi sertifikat”"
-                                  : "Terisi otomatis dari data peserta dan kegiatan"}
-                              </Typography.Text>
-                            </Flex>
-                          </List.Item>
-                        )}
-                      />
-                    )}
-                  </div>
-                </>
+                <ul className={styles.templates} role="listbox">
+                  {choices.map((item) => {
+                    const isActive = item.id === activeId;
+                    const ready = templateBlockers(item).length === 0;
+                    return (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={isActive}
+                          className={`${styles.template} ${isActive ? styles.templateActive : ""}`}
+                          onClick={() => setActiveId(item.id)}
+                        >
+                          <Flex justify="space-between" gap="small">
+                            <Typography.Text strong>
+                              {item.name}
+                            </Typography.Text>
+                            {isActive && (
+                              <CheckCircleFilled
+                                style={{ color: "var(--app-color-primary)" }}
+                              />
+                            )}
+                          </Flex>
+                          {item.description && (
+                            <Typography.Text
+                              type="secondary"
+                              ellipsis={{ tooltip: item.description }}
+                            >
+                              {item.description}
+                            </Typography.Text>
+                          )}
+                          {!ready && (
+                            <Tag color="gold" style={{ width: "fit-content" }}>
+                              Belum siap
+                            </Tag>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
+            </Spin>
+          </div>
+        </section>
+
+        <section className={styles.column} aria-label="Pratinjau">
+          <div className={styles.columnHeader}>
+            <Flex justify="space-between" align="baseline" gap="small" wrap>
+              <Typography.Text strong>Pratinjau</Typography.Text>
+              <Typography.Text type="secondary">Data contoh</Typography.Text>
             </Flex>
+          </div>
+          {activeBlockers.length > 0 && (
+            <Alert
+              type="warning"
+              banner
+              title="Template ini belum dapat dipakai"
+              description={activeBlockers.join(" ")}
+            />
           )}
-        </div>
-      </Flex>
+          {preview}
+        </section>
+
+        <section className={styles.column} aria-label="Variabel">
+          <div className={styles.columnHeader}>
+            <Typography.Text strong>
+              Variabel{detail ? ` (${variables.length})` : ""}
+            </Typography.Text>
+          </div>
+          <div className={styles.scroll}>
+            {!detail ? (
+              <Typography.Paragraph
+                type="secondary"
+                style={{ margin: 0, padding: 16 }}
+              >
+                {active ? "Memuat variabel…" : "Belum ada template dipilih."}
+              </Typography.Paragraph>
+            ) : variables.length === 0 ? (
+              <Typography.Paragraph
+                type="secondary"
+                style={{ margin: 0, padding: 16 }}
+              >
+                Template ini tidak memakai variabel.
+              </Typography.Paragraph>
+            ) : (
+              <>
+                <VariableGroup
+                  title="Diisi di “Atur isi sertifikat”"
+                  items={variables.filter((use) => use.fromActivitySettings)}
+                />
+                <VariableGroup
+                  title="Terisi otomatis"
+                  items={variables.filter((use) => !use.fromActivitySettings)}
+                />
+              </>
+            )}
+          </div>
+        </section>
+      </div>
     </Modal>
   );
 };

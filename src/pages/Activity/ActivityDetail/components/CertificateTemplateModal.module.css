@@ -1,0 +1,105 @@
+.layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 280px;
+  height: min(620px, calc(100dvh - 200px));
+  min-height: 360px;
+  border: 1px solid var(--app-color-border-secondary);
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.column + .column {
+  border-left: 1px solid var(--app-color-border-secondary);
+}
+.columnHeader {
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--app-color-border-secondary);
+}
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.templates {
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+}
+.template {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  background: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.template:hover {
+  background: var(--app-color-fill-header);
+}
+.template:focus-visible {
+  outline: 2px solid var(--app-color-primary);
+  outline-offset: -2px;
+}
+.templateActive,
+.templateActive:hover {
+  border-color: var(--app-color-primary);
+  background: var(--app-color-primary-bg);
+}
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--app-color-fill-header);
+}
+.paper {
+  box-shadow: 0 0 0 1px var(--app-color-border-secondary);
+}
+.variables {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.variables li {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--app-color-border-secondary);
+}
+.groupTitle {
+  display: block;
+  padding: 12px 16px 4px;
+}
+
+@media (width < 768px), (pointer: coarse) and (height <= 500px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+  }
+  .column + .column {
+    border-left: 0;
+    border-top: 1px solid var(--app-color-border-secondary);
+  }
+  .scroll {
+    overflow: visible;
+  }
+  .templates {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .stage {
+    flex: 0 0 auto;
+    aspect-ratio: var(--certificate-ratio);
+    max-height: 70dvh;
+  }
+}
