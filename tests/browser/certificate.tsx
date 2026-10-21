@@ -9,6 +9,7 @@ import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import axios from "../../src/api/axios";
 import { useAuthStore } from "../../src/stores/authStore";
 import { CertificatePublishDrawer } from "../../src/pages/Activity/ActivityCertificates/CertificatePublishDrawer";
+import CertificateTemplateCard from "../../src/pages/Activity/ActivityDetail/components/CertificateTemplateCard";
 import CertificateDesigner from "../../src/pages/DigitalCertificate/CertificateDesigner";
 import CertificateList from "../../src/pages/DigitalCertificate/CertificateList";
 import { buildStarterTemplate } from "../../src/pages/DigitalCertificate/utils/starter-templates";
@@ -294,6 +295,10 @@ const router = createMemoryRouter(
         <CertificatePublishDrawer activityId={900001} open onClose={() => {}} />
       ),
     },
+    {
+      path: "/activity/:id",
+      element: <CertificateTemplateCard activityId={900001} canManage />,
+    },
     { path: "/digital-certificate/:id", element: <CertificateDesigner /> },
     { path: "/digital-certificate/:id/edit", element: <CertificateDesigner /> },
     { path: "/digital-certificate", element: <CertificateList /> },
@@ -304,7 +309,9 @@ const router = createMemoryRouter(
         ? "/digital-certificate/900001"
         : query.get("mode") === "library"
           ? "/digital-certificate"
-          : "/activity/900001/certificates",
+          : query.get("mode") === "activity"
+            ? "/activity/900001"
+            : "/activity/900001/certificates",
     ],
   },
 );

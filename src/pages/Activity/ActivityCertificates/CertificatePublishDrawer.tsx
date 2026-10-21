@@ -46,7 +46,7 @@ import {
   resolveCertificateText,
 } from "../../DigitalCertificate/utils/certificate-content";
 import { runCertificateBatches } from "./batch-runner";
-import { CertificateSettingsForm } from "./CertificateSettingsForm";
+import { CertificateSettingsSummary } from "./CertificateSettingsSummary";
 import { preflightSalmanRecipients } from "./preflightSalman";
 
 export const RECIPIENT_LABELS: Record<RecipientState, string> = {
@@ -443,17 +443,11 @@ function PublishFlow({
         )}
       </section>
 
-      {isSalman && (
-        <CertificateSettingsForm
-          activityId={activityId}
-          disabled={!canManage}
-          onStatusChange={setSettingsSaved}
-          onSaved={() => {
-            message.success("Pengaturan sertifikat disimpan.");
-            setRefresh((value) => value + 1);
-          }}
-        />
-      )}
+      <CertificateSettingsSummary
+        activityId={activityId}
+        canManage={canManage}
+        onStatusChange={setSettingsSaved}
+      />
 
       <section aria-labelledby="certificate-recipients-heading">
         <Typography.Title level={5} id="certificate-recipients-heading">

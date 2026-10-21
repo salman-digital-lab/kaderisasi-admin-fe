@@ -7,6 +7,7 @@ import {
   Alert,
   Button,
   Card,
+  Divider,
   Popconfirm,
   Select,
   Skeleton,
@@ -30,6 +31,7 @@ import type {
   TemplateSummary,
 } from "../../../../types/services/certificateWorkflow";
 import { formatDateTime } from "../../../../utils/date-format";
+import { CertificateSettingsSummary } from "../../ActivityCertificates/CertificateSettingsSummary";
 
 const ERRORS: Record<string, string> = {
   CERTIFICATE_TEMPLATE_LOCK_IN_USE:
@@ -269,6 +271,15 @@ const CertificateTemplateCard = ({ activityId, canManage }: Props) => {
   return (
     <Card style={{ marginBottom: 24 }} title="Sertifikat kegiatan">
       {body}
+      {state && !loadError && (
+        <>
+          <Divider />
+          <CertificateSettingsSummary
+            activityId={activityId}
+            canManage={canManage}
+          />
+        </>
+      )}
     </Card>
   );
 };
