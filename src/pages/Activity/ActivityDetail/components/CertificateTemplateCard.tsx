@@ -276,6 +276,7 @@ const CertificateTemplateCard = ({ activityId, canManage }: Props) => {
           <Divider />
           <CertificateSettingsSummary
             activityId={activityId}
+            templateId={state.template?.id}
             canManage={canManage}
           />
         </>

@@ -8,6 +8,7 @@ import {
   formatCertificateActivityNumber,
   getCertificateVerificationUrl,
   getHijriMonthYear,
+  getTemplateVariables,
   parseCertificateActivityNumber,
   resolveCertificateText,
 } from "./certificate-content";
@@ -175,5 +176,39 @@ describe("certificate content resolver", () => {
       hijriMonth: 1,
       hijriYear: 1448,
     });
+  });
+
+  it("lists only the activity settings a template prints", () => {
+    const element = (
+      id: string,
+      variable: string,
+      visible = true,
+    ): CertificateElement => ({
+      ...variableElement(variable),
+      id,
+      visible,
+    });
+    const { fields, automatic } = getTemplateVariables({
+      backgroundUrl: null,
+      canvasWidth: 800,
+      canvasHeight: 600,
+      elements: [
+        element("a", "{{name}}"),
+        element("b", "{{organizer}}"),
+        element("c", "{{ document_place_date }}"),
+        element("d", "{{institution}}", false),
+        element("salman-code", "{{certificate_code}}"),
+      ],
+    });
+    expect([...fields].sort()).toEqual([
+      "certificate_activity_number",
+      "document_date",
+      "document_place",
+      "organizer",
+    ]);
+    expect(automatic).toEqual([
+      "Nama peserta",
+      "Kode unik sertifikat (di bawah QR)",
+    ]);
   });
 });

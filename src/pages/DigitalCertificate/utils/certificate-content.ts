@@ -3,7 +3,7 @@ import type {
   CertificateParticipant,
   CertificateSettings,
 } from "../../../types/services/certificateTemplate";
-import type { CertificateElement } from "../types";
+import type { CertificateElement, CertificateTemplate } from "../types";
 
 export const CERTIFICATE_SAMPLE_PARTICIPANT: CertificateParticipant = {
   registration_id: 1,
@@ -213,5 +213,76 @@ export function resolveCertificateSampleText(
     {
       certificate_activity_number: CERTIFICATE_SAMPLE_ACTIVITY_NUMBER,
     } as CertificateSettings,
+  );
+}
+
+/** Activity-wide settings an admin fills in once for every certificate of an activity. */
+export type ActivitySettingField = Exclude<
+  keyof CertificateSettings,
+  "version" | "include_scores"
+>;
+
+const ACTIVITY_SETTING_FIELDS: Record<string, ActivitySettingField[]> = {
+  "{{institution}}": ["institution"],
+  "{{role}}": ["role"],
+  "{{event_details}}": ["delivery_mode", "event_date", "hijri_date", "venue"],
+  "{{organizer}}": ["organizer"],
+  "{{document_place_date}}": ["document_place", "document_date"],
+  "{{certificate_activity_number}}": ["certificate_activity_number"],
+};
+
+/** Values filled automatically from each participant and the activity. */
+const AUTOMATIC_VARIABLES: Record<string, string> = {
+  "{{name}}": "Nama peserta",
+  "{{university}}": "Universitas",
+  "{{gender}}": "Jenis kelamin",
+  "{{activity_name}}": "Nama kegiatan",
+  "{{activity_date}}": "Tanggal kegiatan",
+  "{{date}}": "Tanggal kegiatan",
+  "{{certificate_code}}": "Kode unik sertifikat",
+  "{{certificate_id}}": "Kode unik sertifikat",
+  "{{approval}}": "Persetujuan elektronik",
+};
+
+const normalizeVariable = (variable?: string): string =>
+  `{{${(variable ?? "").replace(/\{\{|\}\}/g, "").trim()}}}`;
+
+/**
+ * Which activity settings and automatic values a template prints. Mirrors the
+ * API's UsesActivitySettings: hidden elements are ignored, and the Salman number
+ * line under the title prints the activity number.
+ */
+export function getTemplateVariables(template: CertificateTemplate): {
+  fields: Set<ActivitySettingField>;
+  automatic: string[];
+} {
+  const fields = new Set<ActivitySettingField>();
+  const automatic = new Set<string>();
+  for (const element of template.elements) {
+    if (element.type === "qr-code" && element.visible !== false)
+      automatic.add("QR verifikasi");
+    if (element.type !== "variable-text" || element.visible === false) continue;
+    const variable = normalizeVariable(element.variable);
+    ACTIVITY_SETTING_FIELDS[variable]?.forEach((field) => fields.add(field));
+    if (
+      element.id === "salman-code" &&
+      (variable === "{{certificate_code}}" || variable === "{{certificate_id}}")
+    ) {
+      fields.add("certificate_activity_number");
+      automatic.add("Kode unik sertifikat (di bawah QR)");
+    } else if (AUTOMATIC_VARIABLES[variable]) {
+      automatic.add(AUTOMATIC_VARIABLES[variable]);
+    }
+  }
+  return { fields, automatic: [...automatic] };
+}
+
+/** Whether the activity's settings must be saved before publishing with this template. */
+export function templateNeedsActivitySettings(
+  template: CertificateTemplate,
+): boolean {
+  return (
+    template.scoreSheetLayout === "salman-v1" ||
+    getTemplateVariables(template).fields.size > 0
   );
 }

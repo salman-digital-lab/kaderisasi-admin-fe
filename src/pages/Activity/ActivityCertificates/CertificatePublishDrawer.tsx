@@ -124,7 +124,7 @@ function PublishFlow({
   const [templateLock, setTemplateLock] = useState<TemplateLockState>();
   const [template, setTemplate] = useState<CertificateTemplate>();
   const [templateLoading, setTemplateLoading] = useState(true);
-  const [settingsSaved, setSettingsSaved] = useState<boolean>();
+  const [settingsReady, setSettingsReady] = useState<boolean>();
   const [recipients, setRecipients] = useState<RecipientPage>();
   const [recipientsLoading, setRecipientsLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -246,11 +246,7 @@ function PublishFlow({
   const ready =
     template?.status === "published" && template.readiness?.ready === true;
   const canReview =
-    canIssue &&
-    locked &&
-    ready &&
-    !templateLoading &&
-    (!isSalman || settingsSaved === true);
+    canIssue && locked && ready && !templateLoading && settingsReady === true;
 
   async function review(ids?: number[], retry = false): Promise<void> {
     const versionAtReview = interruptionVersion.current;
@@ -446,7 +442,8 @@ function PublishFlow({
       <CertificateSettingsSummary
         activityId={activityId}
         canManage={canManage}
-        onStatusChange={setSettingsSaved}
+        templateId={templateLock?.template?.id}
+        onReadyChange={setSettingsReady}
       />
 
       <section aria-labelledby="certificate-recipients-heading">
@@ -516,7 +513,7 @@ function PublishFlow({
           <Alert
             type="info"
             showIcon
-            title={`Contoh: ${plan.preview.participant.name} · ${(plan.preview.activity.certificate_settings?.include_scores ?? Boolean(plan.preview.participant.scoring_result)) ? "2 halaman" : "1 halaman"}`}
+            title={`Contoh: ${plan.preview.participant.name} · ${(plan.preview.template.template_data.scoreSheetLayout === "salman-v1" ? plan.preview.activity.certificate_settings?.include_scores : plan.preview.participant.scoring_result) ? "2 halaman" : "1 halaman"}`}
             description="Data dan desain ini akan disimpan sebagai sertifikat resmi. Nomor unik dibuat saat diterbitkan."
           />
           <CertificatePreviewPages
