@@ -277,6 +277,31 @@ export function getTemplateVariables(template: CertificateTemplate): {
   return { fields, automatic: [...automatic] };
 }
 
+export interface TemplateVariableUse {
+  variable: string;
+  /** True when an admin fills the value in "Isi sertifikat"; false when it is automatic. */
+  fromActivitySettings: boolean;
+}
+
+/** Variables a template prints, in canvas order, without duplicates or hidden elements. */
+export function listTemplateVariables(
+  template: CertificateTemplate,
+): TemplateVariableUse[] {
+  const seen = new Set<string>();
+  const uses: TemplateVariableUse[] = [];
+  for (const element of template.elements) {
+    if (element.type !== "variable-text" || element.visible === false) continue;
+    const variable = normalizeVariable(element.variable);
+    if (seen.has(variable)) continue;
+    seen.add(variable);
+    uses.push({
+      variable,
+      fromActivitySettings: variable in ACTIVITY_SETTING_FIELDS,
+    });
+  }
+  return uses;
+}
+
 /** Whether the activity's settings must be saved before publishing with this template. */
 export function templateNeedsActivitySettings(
   template: CertificateTemplate,

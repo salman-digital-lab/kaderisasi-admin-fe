@@ -1,4 +1,5 @@
 import {
+  EditOutlined,
   LockOutlined,
   SafetyCertificateOutlined,
   UnlockOutlined,
@@ -9,7 +10,6 @@ import {
   Card,
   Divider,
   Popconfirm,
-  Select,
   Skeleton,
   Space,
   Tag,
@@ -32,6 +32,7 @@ import type {
 } from "../../../../types/services/certificateWorkflow";
 import { formatDateTime } from "../../../../utils/date-format";
 import { CertificateSettingsSummary } from "../../ActivityCertificates/CertificateSettingsSummary";
+import CertificateTemplateModal from "./CertificateTemplateModal";
 
 const ERRORS: Record<string, string> = {
   CERTIFICATE_TEMPLATE_LOCK_IN_USE:
@@ -65,6 +66,7 @@ const CertificateTemplateCard = ({ activityId, canManage }: Props) => {
   const [options, setOptions] = useState<TemplateSummary[]>([]);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [chooserOpen, setChooserOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -219,26 +221,21 @@ const CertificateTemplateCard = ({ activityId, canManage }: Props) => {
           sertifikat terbit, template tidak dapat diganti.
         </Typography.Text>
         <Space wrap style={{ width: "100%" }}>
-          <Select
-            aria-label="Template sertifikat"
-            placeholder="Pilih template sertifikat"
-            style={{ width: 360, maxWidth: "100%" }}
-            showSearch={{ filterOption: false, onSearch: setSearch }}
-            allowClear
-            disabled={!canManage || busy}
-            loading={optionsLoading}
-            value={selectedId ?? undefined}
-            onChange={(value?: number) => setSelectedId(value ?? null)}
-            notFoundContent={
-              optionsLoading ? null : "Belum ada desain yang dipublikasikan."
-            }
-            options={choices.map((item) => ({
-              value: item.id,
-              label: item.name,
-              disabled:
-                item.status !== "published" || item.readiness?.ready !== true,
-            }))}
-          />
+          <Typography.Text
+            strong={Boolean(selected)}
+            type={selected ? undefined : "secondary"}
+          >
+            {selected?.name ?? "Belum ada template dipilih"}
+          </Typography.Text>
+          {canManage && (
+            <Button
+              icon={<EditOutlined />}
+              disabled={busy}
+              onClick={() => setChooserOpen(true)}
+            >
+              {selected ? "Ganti template" : "Pilih template"}
+            </Button>
+          )}
           {canManage && (
             <Popconfirm
               title="Kunci template ini?"
@@ -264,6 +261,18 @@ const CertificateTemplateCard = ({ activityId, canManage }: Props) => {
             Pemilihan template memerlukan akses pengelolaan template.
           </Typography.Text>
         )}
+        <CertificateTemplateModal
+          open={chooserOpen}
+          choices={choices}
+          loading={optionsLoading}
+          initialId={selectedId}
+          onSearch={setSearch}
+          onCancel={() => setChooserOpen(false)}
+          onConfirm={(id) => {
+            setSelectedId(id);
+            setChooserOpen(false);
+          }}
+        />
       </Space>
     );
   }
