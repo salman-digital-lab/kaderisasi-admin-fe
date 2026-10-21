@@ -18,6 +18,70 @@ export const CERTIFICATE_SAMPLE_PARTICIPANT: CertificateParticipant = {
 
 export const CERTIFICATE_SAMPLE_CODE = "CERT-2026-001";
 
+export const ACTIVITY_NUMBER_INFIX = "S.4/YPM-5000";
+export const HIJRI_MONTH_NUMERALS = [
+  "I",
+  "II",
+  "III",
+  "IV",
+  "V",
+  "VI",
+  "VII",
+  "VIII",
+  "IX",
+  "X",
+  "XI",
+  "XII",
+] as const;
+
+const ACTIVITY_NUMBER_PATTERN =
+  /^(\d{1,10})\/S\.4\/YPM-5000\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)-(\d{4})$/;
+
+export interface CertificateActivityNumberParts {
+  sequence: string;
+  hijriMonth: number;
+  hijriYear: number;
+}
+
+/** Builds 1719/S.4/YPM-5000/IV-1448 from its editable parts. */
+export function formatCertificateActivityNumber({
+  sequence,
+  hijriMonth,
+  hijriYear,
+}: CertificateActivityNumberParts): string {
+  return `${sequence}/${ACTIVITY_NUMBER_INFIX}/${HIJRI_MONTH_NUMERALS[hijriMonth - 1]}-${hijriYear}`;
+}
+
+export function parseCertificateActivityNumber(
+  value?: string | null,
+): CertificateActivityNumberParts | null {
+  const match = value?.match(ACTIVITY_NUMBER_PATTERN);
+  if (!match) return null;
+  return {
+    sequence: match[1],
+    hijriMonth:
+      HIJRI_MONTH_NUMERALS.indexOf(
+        match[2] as (typeof HIJRI_MONTH_NUMERALS)[number],
+      ) + 1,
+    hijriYear: Number(match[3]),
+  };
+}
+
+/** Hijri (Umm al-Qura) month and year of a date in Jakarta time. */
+export function getHijriMonthYear(date: Date): {
+  hijriMonth: number;
+  hijriYear: number;
+} {
+  const parts = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
+    timeZone: "Asia/Jakarta",
+    month: "numeric",
+    year: "numeric",
+  }).formatToParts(date);
+  const read = (type: "month" | "year"): number =>
+    Number.parseInt(parts.find((part) => part.type === type)?.value ?? "", 10);
+  return { hijriMonth: read("month"), hijriYear: read("year") };
+}
+
 export function getCertificateAssetUrl(path?: string | null): string | null {
   if (!path) return null;
   if (
@@ -72,6 +136,10 @@ export function resolveCertificateText(
   settings?: CertificateSettings,
 ): string {
   if (element.type === "static-text") return element.content || "";
+  // A QR code's text is the caption printed under it: the unique code moves
+  // there once the activity number takes its place at the top.
+  if (element.type === "qr-code")
+    return settings?.certificate_activity_number ? certificateCode || "" : "";
 
   switch (element.variable) {
     case "{{institution}}":
@@ -117,11 +185,12 @@ export function resolveCertificateText(
     case "{{activity_date}}":
     case "{{date}}":
       return participant.activity_date;
+    case "{{certificate_activity_number}}":
+      return settings?.certificate_activity_number || "";
     case "{{certificate_id}}":
     case "{{certificate_code}}":
-      return element.id === "salman-code"
-        ? `Nomor: ${certificateCode || "[Kode sertifikat]"}`
-        : certificateCode || "";
+      if (element.id !== "salman-code") return certificateCode || "";
+      return `Nomor: ${settings?.certificate_activity_number || certificateCode || "[Kode sertifikat]"}`;
     case "{{university}}":
       return participant.university || "-";
     case "{{gender}}":

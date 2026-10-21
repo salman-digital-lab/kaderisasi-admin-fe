@@ -212,6 +212,8 @@ export interface CertificateSettings {
   organizer: string;
   document_place: string;
   document_date: string;
+  /** e.g. 1719/S.4/YPM-5000/IV-1448; absent on settings saved before it existed. */
+  certificate_activity_number?: string;
   include_scores: boolean;
 }
 

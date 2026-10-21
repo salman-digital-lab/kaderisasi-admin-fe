@@ -1,5 +1,5 @@
 import { QRCode } from "antd";
-import { forwardRef, memo, useEffect, useRef, useState } from "react";
+import { forwardRef, Fragment, memo, useEffect, useRef, useState } from "react";
 import type { CertificateElement, CertificateTemplate } from "../types";
 import { getCertificateAssetUrl } from "../utils/certificate-content";
 import { FittedCertificateName } from "./FittedCertificateName";
@@ -88,98 +88,119 @@ export const CertificateArtwork = memo(
                   const isText =
                     element.type === "static-text" ||
                     element.type === "variable-text";
+                  const qrCaption =
+                    element.type === "qr-code" ? resolveText(element) : "";
                   return (
-                    <div
-                      key={element.id}
-                      data-certificate-element-id={element.id}
-                      data-certificate-text-element={
-                        isText ? "true" : undefined
-                      }
-                      style={{
-                        position: "absolute",
-                        left: element.x,
-                        top: element.y,
-                        width: element.width,
-                        height: element.height,
-                        padding: 4,
-                        boxSizing: "border-box",
-                        opacity: (element.opacity ?? 100) / 100,
-                        transform: `rotate(${element.rotation ?? 0}deg)`,
-                        transformOrigin: "center center",
-                        overflow: "hidden",
-                        borderRadius: element.borderRadius ?? 0,
-                      }}
-                    >
-                      {isText ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            width: "100%",
-                            height: "100%",
-                            alignItems:
-                              element.verticalAlign === "top"
-                                ? "flex-start"
-                                : element.verticalAlign === "bottom"
-                                  ? "flex-end"
-                                  : "center",
-                            justifyContent:
-                              element.textAlign === "left"
-                                ? "flex-start"
-                                : element.textAlign === "right"
-                                  ? "flex-end"
-                                  : "center",
-                            fontFamily: element.fontFamily || "sans-serif",
-                            fontSize: element.fontSize || 16,
-                            fontWeight: element.fontWeight || "normal",
-                            fontStyle: element.fontStyle || "normal",
-                            textDecoration: element.textDecoration || "none",
-                            textAlign: element.textAlign || "center",
-                            color: element.color || "#000",
-                            lineHeight: element.lineHeight || 1.2,
-                            letterSpacing: element.letterSpacing || 0,
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {element.variable === "{{name}}" ? (
-                            <FittedCertificateName
-                              text={resolveText(element)}
-                              fontSize={element.fontSize || 16}
+                    <Fragment key={element.id}>
+                      <div
+                        data-certificate-element-id={element.id}
+                        data-certificate-text-element={
+                          isText ? "true" : undefined
+                        }
+                        style={{
+                          position: "absolute",
+                          left: element.x,
+                          top: element.y,
+                          width: element.width,
+                          height: element.height,
+                          padding: 4,
+                          boxSizing: "border-box",
+                          opacity: (element.opacity ?? 100) / 100,
+                          transform: `rotate(${element.rotation ?? 0}deg)`,
+                          transformOrigin: "center center",
+                          overflow: "hidden",
+                          borderRadius: element.borderRadius ?? 0,
+                        }}
+                      >
+                        {isText ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              width: "100%",
+                              height: "100%",
+                              alignItems:
+                                element.verticalAlign === "top"
+                                  ? "flex-start"
+                                  : element.verticalAlign === "bottom"
+                                    ? "flex-end"
+                                    : "center",
+                              justifyContent:
+                                element.textAlign === "left"
+                                  ? "flex-start"
+                                  : element.textAlign === "right"
+                                    ? "flex-end"
+                                    : "center",
+                              fontFamily: element.fontFamily || "sans-serif",
+                              fontSize: element.fontSize || 16,
+                              fontWeight: element.fontWeight || "normal",
+                              fontStyle: element.fontStyle || "normal",
+                              textDecoration: element.textDecoration || "none",
+                              textAlign: element.textAlign || "center",
+                              color: element.color || "#000",
+                              lineHeight: element.lineHeight || 1.2,
+                              letterSpacing: element.letterSpacing || 0,
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {element.variable === "{{name}}" ? (
+                              <FittedCertificateName
+                                text={resolveText(element)}
+                                fontSize={element.fontSize || 16}
+                              />
+                            ) : (
+                              resolveText(element)
+                            )}
+                          </div>
+                        ) : element.type === "qr-code" ? (
+                          verificationUrl ? (
+                            <QRCode
+                              type="svg"
+                              bordered={false}
+                              value={verificationUrl}
+                              size={Math.max(
+                                24,
+                                Math.min(element.width, element.height) - 8,
+                              )}
                             />
                           ) : (
-                            resolveText(element)
-                          )}
-                        </div>
-                      ) : element.type === "qr-code" ? (
-                        verificationUrl ? (
-                          <QRCode
-                            type="svg"
-                            bordered={false}
-                            value={verificationUrl}
-                            size={Math.max(
-                              24,
-                              Math.min(element.width, element.height) - 8,
-                            )}
+                            <span>URL verifikasi belum tersedia</span>
+                          )
+                        ) : element.imageUrl ? (
+                          <img
+                            src={getCertificateAssetUrl(element.imageUrl) || ""}
+                            crossOrigin="anonymous"
+                            alt=""
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: element.objectFit || "contain",
+                              borderRadius: element.borderRadius || 0,
+                            }}
                           />
                         ) : (
-                          <span>URL verifikasi belum tersedia</span>
-                        )
-                      ) : element.imageUrl ? (
-                        <img
-                          src={getCertificateAssetUrl(element.imageUrl) || ""}
-                          crossOrigin="anonymous"
-                          alt=""
+                          <span>Aset belum dipilih</span>
+                        )}
+                      </div>
+                      {qrCaption && (
+                        <div
+                          data-certificate-qr-caption
                           style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: element.objectFit || "contain",
-                            borderRadius: element.borderRadius || 0,
+                            position: "absolute",
+                            left: element.x + 4,
+                            top: element.y + element.height,
+                            fontFamily: "Arial",
+                            fontSize: 9,
+                            lineHeight: 1.2,
+                            color: "#1f2937",
+                            whiteSpace: "nowrap",
+                            opacity: (element.opacity ?? 100) / 100,
                           }}
-                        />
-                      ) : (
-                        <span>Aset belum dipilih</span>
+                        >
+                          {qrCaption}
+                        </div>
                       )}
-                    </div>
+                    </Fragment>
                   );
                 })}
               {revoked && (

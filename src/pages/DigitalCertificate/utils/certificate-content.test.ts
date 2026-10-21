@@ -1,8 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { CertificateParticipant } from "../../../types/services/certificateTemplate";
+import type {
+  CertificateParticipant,
+  CertificateSettings,
+} from "../../../types/services/certificateTemplate";
 import type { CertificateElement } from "../types";
 import {
+  formatCertificateActivityNumber,
   getCertificateVerificationUrl,
+  getHijriMonthYear,
+  parseCertificateActivityNumber,
   resolveCertificateText,
 } from "./certificate-content";
 
@@ -110,5 +116,64 @@ describe("certificate content resolver", () => {
     expect(getCertificateVerificationUrl("CERT-001")).toBe(
       "http://127.0.0.1:3000/certificate/verify/CERT-001",
     );
+  });
+
+  it("shows the activity number under the logo and the unique code under the QR", () => {
+    const code = "CERT-2026-34-1F2599AF80B0954C0442515A09F92324";
+    const top = {
+      ...variableElement("{{certificate_code}}"),
+      id: "salman-code",
+    };
+    const qr: CertificateElement = {
+      id: "salman-verification",
+      type: "qr-code",
+      x: 0,
+      y: 0,
+      width: 90,
+      height: 90,
+    };
+    const settings = {
+      certificate_activity_number: "1719/S.4/YPM-5000/IV-1448",
+    } as CertificateSettings;
+
+    expect(
+      resolveCertificateText(top, participant, code, undefined, settings),
+    ).toBe("Nomor: 1719/S.4/YPM-5000/IV-1448");
+    expect(
+      resolveCertificateText(qr, participant, code, undefined, settings),
+    ).toBe(code);
+    expect(
+      resolveCertificateText(
+        variableElement("{{certificate_activity_number}}"),
+        participant,
+        code,
+        undefined,
+        settings,
+      ),
+    ).toBe("1719/S.4/YPM-5000/IV-1448");
+
+    // Certificates issued before the activity number existed keep their layout.
+    expect(resolveCertificateText(top, participant, code)).toBe(
+      `Nomor: ${code}`,
+    );
+    expect(resolveCertificateText(qr, participant, code)).toBe("");
+  });
+
+  it("formats and parses the activity number with Hijri month numerals", () => {
+    const parts = { sequence: "1719", hijriMonth: 4, hijriYear: 1448 };
+    expect(formatCertificateActivityNumber(parts)).toBe(
+      "1719/S.4/YPM-5000/IV-1448",
+    );
+    expect(parseCertificateActivityNumber("1719/S.4/YPM-5000/IV-1448")).toEqual(
+      parts,
+    );
+    expect(
+      parseCertificateActivityNumber("1719/S.4/YP-5000/IV-1448"),
+    ).toBeNull();
+    // 1 Muharram 1448 AH (Umm al-Qura) is 16 June 2026.
+    expect(getHijriMonthYear(new Date("2026-06-16T12:00:00+07:00"))).toEqual({
+      hijriMonth: 1,
+      hijriYear: 1448,
+    });
   });
 });
