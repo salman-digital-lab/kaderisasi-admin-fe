@@ -17,6 +17,7 @@ export const CERTIFICATE_SAMPLE_PARTICIPANT: CertificateParticipant = {
 };
 
 export const CERTIFICATE_SAMPLE_CODE = "CERT-2026-001";
+export const CERTIFICATE_SAMPLE_ACTIVITY_NUMBER = "1719/S.4/YPM-5000/IV-1448";
 
 export const ACTIVITY_NUMBER_INFIX = "S.4/YPM-5000";
 export const HIJRI_MONTH_NUMERALS = [
@@ -203,9 +204,14 @@ export function resolveCertificateText(
 export function resolveCertificateSampleText(
   element: CertificateElement,
 ): string {
+  // Only the activity number is sampled; other settings fall back to their defaults.
   return resolveCertificateText(
     element,
     CERTIFICATE_SAMPLE_PARTICIPANT,
     CERTIFICATE_SAMPLE_CODE,
+    undefined,
+    {
+      certificate_activity_number: CERTIFICATE_SAMPLE_ACTIVITY_NUMBER,
+    } as CertificateSettings,
   );
 }

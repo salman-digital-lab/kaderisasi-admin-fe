@@ -411,6 +411,24 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
       >
         {renderContent()}
 
+        {element.type === "qr-code" && (
+          <div
+            style={{
+              position: "absolute",
+              left: 4,
+              top: "100%",
+              fontFamily: "Arial",
+              fontSize: 9,
+              lineHeight: 1.2,
+              color: "#1f2937",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+            }}
+          >
+            {resolveCertificateSampleText(element)}
+          </div>
+        )}
+
         {isSelected &&
           !element.locked &&
           RESIZE_HANDLES.map(({ key, cursor }) => (
