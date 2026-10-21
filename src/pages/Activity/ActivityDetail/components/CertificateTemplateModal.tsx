@@ -17,6 +17,7 @@ import { ResponsiveDialog as Modal } from "../../../../components/common/Respons
 import type {
   CertificateTemplate,
   CertificateTemplateData,
+  CertificateTemplateElement,
 } from "../../../../types/services/certificateTemplate";
 import type { TemplateSummary } from "../../../../types/services/certificateWorkflow";
 import { CertificateArtwork } from "../../../DigitalCertificate/components/CertificateArtwork";
@@ -25,7 +26,6 @@ import {
   CERTIFICATE_SAMPLE_CODE,
   getCertificateVerificationUrl,
   listTemplateVariables,
-  resolveCertificateSampleText,
   type TemplateVariableUse,
 } from "../../../DigitalCertificate/utils/certificate-content";
 import styles from "./CertificateTemplateModal.module.css";
@@ -42,6 +42,13 @@ export function templateBlockers(item: TemplateSummary): string[] {
   return item.status === "published" && item.readiness?.ready === true
     ? []
     : ["Desain belum dipublikasikan atau belum lengkap."];
+}
+
+/** Prints each variable as its {{token}} so the preview shows the template, not sample data. */
+function resolveVariableToken(element: CertificateTemplateElement): string {
+  if (element.type === "static-text") return element.content || "";
+  if (element.type === "qr-code") return "{{certificate_code}}";
+  return element.variable || element.content || "";
 }
 
 /** Scales the certificate to fit its pane by both width and height. */
@@ -93,7 +100,7 @@ function FittedPreview({
           <CertificateArtwork
             template={template}
             backgroundImage={backgroundImage}
-            resolveText={resolveCertificateSampleText}
+            resolveText={resolveVariableToken}
             verificationUrl={getCertificateVerificationUrl(
               CERTIFICATE_SAMPLE_CODE,
             )}
@@ -114,9 +121,10 @@ function VariableGroup({
   if (items.length === 0) return null;
   return (
     <>
-      <Typography.Text type="secondary" className={styles.groupTitle}>
-        {title}
-      </Typography.Text>
+      <div className={styles.groupTitle}>
+        <Typography.Text type="secondary">{title}</Typography.Text>
+        <Typography.Text type="secondary">{items.length}</Typography.Text>
+      </div>
       <ul className={styles.variables}>
         {items.map((use) => (
           <li key={use.variable}>
@@ -310,10 +318,7 @@ const CertificateTemplateModal = ({
 
         <section className={styles.column} aria-label="Pratinjau">
           <div className={styles.columnHeader}>
-            <Flex justify="space-between" align="baseline" gap="small" wrap>
-              <Typography.Text strong>Pratinjau</Typography.Text>
-              <Typography.Text type="secondary">Data contoh</Typography.Text>
-            </Flex>
+            <Typography.Text strong>Pratinjau</Typography.Text>
           </div>
           {activeBlockers.length > 0 && (
             <Alert
