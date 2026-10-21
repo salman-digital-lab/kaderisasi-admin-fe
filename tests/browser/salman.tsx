@@ -42,7 +42,6 @@ const participant: CertificateParticipant = {
   name: "Abdurrahman Attijari",
   email: "",
   university: "Universitas Sultan Ageng Tirtayasa",
-  certificate_group: "3",
   activity_name: "Latihan Mujahid Dakwah (LMD) 240",
   activity_date: "24 Juli 2026",
   scoring_result: {

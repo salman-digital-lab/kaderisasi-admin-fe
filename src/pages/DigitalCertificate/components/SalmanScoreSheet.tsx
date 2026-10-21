@@ -11,7 +11,6 @@ import type { CertificateApproval } from "../../../types/services/certificateTem
 type Participant = {
   name: string;
   university?: string | null;
-  certificate_group?: string | null;
   activity_name: string;
   scoring_result?: PublishedScoringResult;
 };
@@ -158,12 +157,6 @@ export const SalmanScoreSheet = forwardRef<
                 <>
                   <span>Universitas</span>
                   <span>: {participant.university}</span>
-                </>
-              )}
-              {participant.certificate_group && (
-                <>
-                  <span>Kelompok</span>
-                  <span>: {participant.certificate_group}</span>
                 </>
               )}
             </div>

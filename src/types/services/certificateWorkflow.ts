@@ -13,7 +13,6 @@ export interface CertificateRecipient {
   registration_id: number;
   created_at: string | null;
   name: string;
-  certificate_group: string | null;
   status: string;
   state: RecipientState;
   certificate_id: number | null;

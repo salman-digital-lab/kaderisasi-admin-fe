@@ -29,16 +29,6 @@ export async function saveCertificateSettings(
   return response.data.data;
 }
 
-export async function saveCertificateGroup(
-  activityId: number,
-  registrationId: number,
-  certificateGroup: string | null,
-): Promise<void> {
-  await axios.put(
-    `/certificates/activities/${activityId}/recipients/${registrationId}/group`,
-    { certificate_group: certificateGroup },
-  );
-}
 import type {
   BatchResult,
   IssuancePlan,

@@ -146,7 +146,6 @@ export interface GenerateCertificatesReq {
 
 export interface CertificateParticipant {
   scoring_result?: PublishedScoringResult;
-  certificate_group?: string | null;
   registration_id: number;
   user_id: number | null;
   name: string;

@@ -170,8 +170,6 @@ axios.defaults.adapter = async (config) => {
   if (url.endsWith("/settings")) {
     if (config.method === "put") settings = { ...settings, ...body };
     data = { ...settings, saved: true };
-  } else if (url.includes("/group")) {
-    data = {};
   } else if (url.endsWith("/template-lock")) {
     data = {
       template,
