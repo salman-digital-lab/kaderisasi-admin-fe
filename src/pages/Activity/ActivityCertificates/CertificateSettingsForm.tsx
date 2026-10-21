@@ -6,7 +6,6 @@ import {
   Input,
   InputNumber,
   Select,
-  Space,
   Switch,
   Typography,
 } from "antd";
@@ -171,28 +170,23 @@ export function CertificateSettingsForm({
         <Form.Item name="version" hidden>
           <Input />
         </Form.Item>
-        <Form.Item
-          label="Nomor sertifikat kegiatan"
-          required
-          extra={
-            <Typography.Text type="secondary">
-              Tampil di bawah logo:{" "}
-              <Typography.Text code>
-                {activityNumber ?? `…/${ACTIVITY_NUMBER_INFIX}/…`}
-              </Typography.Text>
-              . Kode unik sertifikat tetap tercetak di bawah QR.
-            </Typography.Text>
-          }
-        >
-          <Space.Compact block>
+        <fieldset style={{ border: 0, margin: 0, padding: 0, minWidth: 0 }}>
+          <legend style={{ fontSize: "inherit", marginBottom: 8 }}>
+            <Typography.Text strong>Nomor sertifikat kegiatan</Typography.Text>
+          </legend>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
+              gap: "0 16px",
+            }}
+          >
             <Form.Item
               name="activity_number_sequence"
-              noStyle
+              label="Nomor urut"
               rules={[
-                {
-                  required: true,
-                  message: "Nomor urut wajib diisi.",
-                },
+                { required: true, message: "Nomor urut wajib diisi." },
                 {
                   pattern: /^\d{1,10}$/,
                   message: "Nomor urut hanya berisi angka.",
@@ -200,45 +194,39 @@ export function CertificateSettingsForm({
               ]}
             >
               <Input
-                aria-label="Nomor urut"
-                placeholder="Nomor urut, mis. 1719"
+                placeholder="mis. 1719"
                 inputMode="numeric"
                 maxLength={10}
-                style={{ width: "40%" }}
               />
             </Form.Item>
-            <Input
-              aria-label="Kode tetap"
-              value={ACTIVITY_NUMBER_INFIX}
-              disabled
-              style={{ width: "25%" }}
-            />
             <Form.Item
               name="activity_number_month"
-              noStyle
-              rules={[{ required: true }]}
+              label="Bulan Hijriah"
+              rules={[{ required: true, message: "Pilih bulan Hijriah." }]}
             >
-              <Select
-                aria-label="Bulan Hijriah"
-                options={hijriMonthOptions}
-                style={{ width: "15%" }}
-              />
+              <Select options={hijriMonthOptions} />
             </Form.Item>
             <Form.Item
               name="activity_number_year"
-              noStyle
-              rules={[{ required: true }]}
+              label="Tahun Hijriah"
+              rules={[{ required: true, message: "Isi tahun Hijriah." }]}
             >
               <InputNumber
-                aria-label="Tahun Hijriah"
                 min={1000}
                 max={9999}
                 precision={0}
-                style={{ width: "20%" }}
+                style={{ width: "100%" }}
               />
             </Form.Item>
-          </Space.Compact>
-        </Form.Item>
+          </div>
+          <Typography.Paragraph type="secondary">
+            Tampil di bawah judul sebagai{" "}
+            <Typography.Text code>
+              {activityNumber ?? `…/${ACTIVITY_NUMBER_INFIX}/…`}
+            </Typography.Text>
+            . Kode unik sertifikat tetap tercetak di bawah QR.
+          </Typography.Paragraph>
+        </fieldset>
         <div
           style={{
             display: "grid",

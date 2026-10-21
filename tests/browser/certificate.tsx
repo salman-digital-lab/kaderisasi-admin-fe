@@ -8,7 +8,7 @@ import { createRoot } from "react-dom/client";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import axios from "../../src/api/axios";
 import { useAuthStore } from "../../src/stores/authStore";
-import ActivityCertificates from "../../src/pages/Activity/ActivityCertificates";
+import { CertificatePublishDrawer } from "../../src/pages/Activity/ActivityCertificates/CertificatePublishDrawer";
 import CertificateDesigner from "../../src/pages/DigitalCertificate/CertificateDesigner";
 import CertificateList from "../../src/pages/DigitalCertificate/CertificateList";
 import { buildStarterTemplate } from "../../src/pages/DigitalCertificate/utils/starter-templates";
@@ -16,7 +16,10 @@ import type { CertificateElement } from "../../src/pages/DigitalCertificate/type
 
 const query = new URLSearchParams(location.search);
 const isEditor = query.get("mode") === "editor";
-const design = buildStarterTemplate("a4-landscape", "basic");
+const isSalman = query.get("layout") === "salman";
+const design = isSalman
+  ? buildStarterTemplate("a4-portrait-salman", "salman")
+  : buildStarterTemplate("a4-landscape", "basic");
 if (isEditor)
   design.elements = [
     ...design.elements,
@@ -49,10 +52,25 @@ const template = {
   template_data: design,
   readiness: { ready: true, errors: [] },
 };
+let settings = {
+  version: 1,
+  institution: "YAYASAN PEMBINA MASJID (YPM) SALMAN ITB",
+  role: "PESERTA",
+  event_date: "9 September 2026",
+  hijri_date: "",
+  delivery_mode: "",
+  venue: "Masjid Salman ITB",
+  organizer: "Bidang Mahasiswa, Kaderisasi, dan Alumni Salman ITB",
+  document_place: "Bandung",
+  document_date: "21 Oktober 2026",
+  certificate_activity_number: "1719/S.4/YPM-5000/IV-1448",
+  include_scores: false,
+};
 const activity = {
   id: 900001,
   name: "Pelatihan Kepemimpinan Salman 2026",
   activity_start: "2026-09-09",
+  ...(isSalman ? { certificate_settings: settings } : {}),
 };
 const issued = new Set<number>();
 // Deterministic page-lifecycle simulation for this isolated fixture only.
@@ -149,7 +167,12 @@ axios.defaults.adapter = async (config) => {
   const body =
     typeof config.data === "string" ? JSON.parse(config.data) : config.data;
   let data: unknown;
-  if (url.endsWith("/template-lock")) {
+  if (url.endsWith("/settings")) {
+    if (config.method === "put") settings = { ...settings, ...body };
+    data = { ...settings, saved: true };
+  } else if (url.includes("/group")) {
+    data = {};
+  } else if (url.endsWith("/template-lock")) {
     data = {
       template,
       locked: true,
@@ -267,7 +290,12 @@ axios.defaults.adapter = async (config) => {
 };
 const router = createMemoryRouter(
   [
-    { path: "/activity/:id/certificates", element: <ActivityCertificates /> },
+    {
+      path: "/activity/:id/certificates",
+      element: (
+        <CertificatePublishDrawer activityId={900001} open onClose={() => {}} />
+      ),
+    },
     { path: "/digital-certificate/:id", element: <CertificateDesigner /> },
     { path: "/digital-certificate/:id/edit", element: <CertificateDesigner /> },
     { path: "/digital-certificate", element: <CertificateList /> },

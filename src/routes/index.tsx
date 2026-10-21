@@ -1,6 +1,6 @@
 import { Skeleton } from "antd";
 import { lazy, Suspense, type ReactNode } from "react";
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, useParams } from "react-router-dom";
 import AppLayout from "../components/base";
 import {
   useIsAuthenticated,
@@ -71,9 +71,6 @@ const CourseList = lazy(() => import("../pages/Course/CourseList"));
 const CalendarPage = lazy(() => import("../pages/Calendar"));
 const ShortLinks = lazy(() => import("../pages/ShortLinks"));
 const CourseDetail = lazy(() => import("../pages/Course/CourseDetail"));
-const ActivityCertificates = lazy(
-  () => import("../pages/Activity/ActivityCertificates"),
-);
 const DigitalCertificate = lazy(() => import("../pages/DigitalCertificate"));
 const CertificateDesigner = lazy(
   () => import("../pages/DigitalCertificate/CertificateDesigner"),
@@ -139,6 +136,16 @@ const DefaultLanding = () => {
         permissions.includes("dashboard.read") ? "/dashboard" : "/my-requests"
       }
       replace
+    />
+  );
+};
+
+const LegacyCertificatesRedirect = (): ReactNode => {
+  const { id } = useParams();
+  return (
+    <Navigate
+      replace
+      to={`/activity/${id}/participants?publish=certificates`}
     />
   );
 };
@@ -362,8 +369,9 @@ const routes = createBrowserRouter([
         element: guarded(<FormAttachment />, "custom_forms.read"),
       },
       {
+        // Publishing moved into the participant page; keep old links working.
         path: "activity/:id/certificates",
-        element: guarded(<ActivityCertificates />, "certificate.read"),
+        element: <LegacyCertificatesRedirect />,
       },
       {
         path: "digital-certificate",

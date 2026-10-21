@@ -30,7 +30,7 @@ import {
 import type { TableProps } from "antd";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 import {
   getActivity,
@@ -63,6 +63,7 @@ import {
   canIssueCertificates,
 } from "../../../utils/certificate-permissions";
 import { getCertificateVerificationUrl } from "../../DigitalCertificate/utils/certificate-content";
+import { CertificatePublishDrawer } from "../ActivityCertificates/CertificatePublishDrawer";
 import MembersListModal from "../ActivityDetail/components/Modal/MembersListModal";
 import ColumnManager from "./components/ColumnManager";
 import StatusBulkActions from "./components/StatusBulkActions";
@@ -89,8 +90,8 @@ const TOUCH_ACTION_STYLE: React.CSSProperties = {
 const ActivityParticipants = () => {
   const { compact } = useAdminViewport();
   const screens = Grid.useBreakpoint();
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const permissions = usePermissions();
   const canAccessCertificateFeature = canAccessCertificates(permissions);
   const canIssue = canIssueCertificates(permissions);
@@ -110,6 +111,10 @@ const ActivityParticipants = () => {
     null,
   );
   const [revokeReason, setRevokeReason] = useState("");
+  // Participants to publish for; "all" means every eligible participant.
+  const [publishTarget, setPublishTarget] = useState<number[] | "all" | null>(
+    () => (searchParams.get("publish") === "certificates" ? "all" : null),
+  );
 
   // Pagination & sorting state
   const [pagination, setPagination] = useState({
@@ -389,9 +394,9 @@ const ActivityParticipants = () => {
                   {canIssue && (
                     <Button
                       type="link"
-                      onClick={() => navigate(`/activity/${id}/certificates`)}
+                      onClick={() => setPublishTarget([record.id])}
                     >
-                      Perbaiki dan terbitkan ulang
+                      Terbitkan ulang
                     </Button>
                   )}
                   <Tooltip title="Lihat sertifikat yang dicabut">
@@ -469,13 +474,16 @@ const ActivityParticipants = () => {
             return <Tag color="gold">Belum memenuhi syarat</Tag>;
           }
 
-          return (
+          return canIssue ? (
             <Button
               type="link"
-              onClick={() => navigate(`/activity/${id}/certificates`)}
+              icon={<SafetyCertificateOutlined />}
+              onClick={() => setPublishTarget([record.id])}
             >
-              Kelola sertifikat
+              Terbitkan
             </Button>
+          ) : (
+            <Tag color="blue">Siap diterbitkan</Tag>
           );
         },
       });
@@ -490,7 +498,6 @@ const ActivityParticipants = () => {
     sortOrder,
     screens.md,
     activity,
-    id,
     canAccessCertificateFeature,
     canIssue,
     canRevoke,
@@ -581,6 +588,27 @@ const ActivityParticipants = () => {
         />
       </Modal>
 
+      {canIssue && (
+        <CertificatePublishDrawer
+          activityId={Number(id)}
+          open={publishTarget !== null}
+          registrationIds={
+            Array.isArray(publishTarget) ? publishTarget : undefined
+          }
+          onClose={(published) => {
+            setPublishTarget(null);
+            if (searchParams.has("publish")) {
+              searchParams.delete("publish");
+              setSearchParams(searchParams, { replace: true });
+            }
+            if (published) {
+              setSelectedRowKeys([]);
+              fetchIssuedCertificates();
+            }
+          }}
+        />
+      )}
+
       {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
@@ -656,13 +684,29 @@ const ActivityParticipants = () => {
               />
             }
 
-            {canAccessCertificateFeature && (
-              <Button
-                icon={<SafetyCertificateOutlined />}
-                onClick={() => navigate(`/activity/${id}/certificates`)}
+            {canIssue && (
+              <Tooltip
+                title={
+                  selectedRowKeys.length
+                    ? undefined
+                    : "Tanpa pilihan, semua peserta yang siap akan diterbitkan"
+                }
               >
-                Kelola sertifikat
-              </Button>
+                <Button
+                  icon={<SafetyCertificateOutlined />}
+                  onClick={() =>
+                    setPublishTarget(
+                      selectedRowKeys.length
+                        ? selectedRowKeys.map(Number)
+                        : "all",
+                    )
+                  }
+                >
+                  {selectedRowKeys.length
+                    ? `Terbitkan sertifikat (${selectedRowKeys.length})`
+                    : "Terbitkan sertifikat"}
+                </Button>
+              </Tooltip>
             )}
 
             <Tooltip title="Ekspor semua peserta">

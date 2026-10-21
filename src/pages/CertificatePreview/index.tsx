@@ -172,7 +172,7 @@ const CertificatePreview: React.FC = () => {
             onClick={() =>
               navigate(
                 data?.activity.id
-                  ? `/activity/${data.activity.id}/certificates`
+                  ? `/activity/${data.activity.id}/participants`
                   : "/activity",
               )
             }
@@ -200,11 +200,11 @@ const CertificatePreview: React.FC = () => {
           <Button
             icon={<LeftOutlined />}
             onClick={() =>
-              navigate(`/activity/${data.activity.id}/certificates`)
+              navigate(`/activity/${data.activity.id}/participants`)
             }
             style={{ minHeight: 44, marginBottom: 16 }}
           >
-            Kembali ke sertifikat kegiatan
+            Kembali ke peserta
           </Button>
           <Card style={{ marginBottom: 16 }}>
             <Space orientation="vertical" size={12} style={{ width: "100%" }}>

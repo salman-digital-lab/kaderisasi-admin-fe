@@ -180,7 +180,11 @@ const CertificateTemplateCard = ({ activityId, canManage }: Props) => {
           <Button
             type="primary"
             icon={<SafetyCertificateOutlined />}
-            onClick={() => navigate(`/activity/${activityId}/certificates`)}
+            onClick={() =>
+              navigate(
+                `/activity/${activityId}/participants?publish=certificates`,
+              )
+            }
           >
             Terbitkan sertifikat
           </Button>
