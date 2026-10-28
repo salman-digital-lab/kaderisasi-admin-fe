@@ -14,6 +14,7 @@ import {
   TrophyOutlined,
   UserOutlined,
   WechatOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import { Badge } from "antd";
 import type { MenuProps } from "antd";
@@ -96,6 +97,12 @@ export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
       key: "/ruang-curhat",
       icon: <WechatOutlined />,
       label: <Link to="/ruang-curhat">{L.counseling}</Link>,
+    });
+  if (permissions.includes("p3ri.registrations.read"))
+    items.push({
+      key: "/p3ri",
+      icon: <SolutionOutlined />,
+      label: <Link to="/p3ri">{L.p3ri}</Link>,
     });
   if (
     permissions.includes("achievements.read") ||

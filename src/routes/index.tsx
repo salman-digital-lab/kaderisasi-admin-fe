@@ -8,6 +8,7 @@ import {
   usePermissions,
   useUser,
 } from "../stores/authStore";
+import { landingPath } from "../utils/landing";
 
 const LoginPage = lazy(() => import("../pages/LoginPage"));
 const NotificationInbox = lazy(() => import("../features/notifications/Inbox"));
@@ -44,6 +45,14 @@ const RegistrantDetail = lazy(
 );
 const MainUniversity = lazy(() => import("../pages/University"));
 const MainProvince = lazy(() => import("../pages/Province"));
+const P3riRegistrationList = lazy(
+  () => import("../pages/P3ri/P3riRegistrationList"),
+);
+const P3riRegistrationDetail = lazy(() =>
+  import("../pages/P3ri/P3riRegistrationDetail").then((module) => ({
+    default: module.P3riRegistrationDetail,
+  })),
+);
 const RuangCurhatList = lazy(
   () => import("../pages/RuangCurhat/RuangCurhatList"),
 );
@@ -130,14 +139,7 @@ const Authorized = ({
 
 const DefaultLanding = () => {
   const permissions = usePermissions();
-  return (
-    <Navigate
-      to={
-        permissions.includes("dashboard.read") ? "/dashboard" : "/my-requests"
-      }
-      replace
-    />
-  );
+  return <Navigate to={landingPath(permissions)} replace />;
 };
 
 const LegacyCertificatesRedirect = (): ReactNode => {
@@ -316,6 +318,14 @@ const routes = createBrowserRouter([
       {
         path: "province",
         element: guarded(<MainProvince />, "reference_data.manage"),
+      },
+      {
+        path: "p3ri",
+        element: guarded(<P3riRegistrationList />, "p3ri.registrations.read"),
+      },
+      {
+        path: "p3ri/:id",
+        element: guarded(<P3riRegistrationDetail />, "p3ri.registrations.read"),
       },
       {
         path: "ruang-curhat",

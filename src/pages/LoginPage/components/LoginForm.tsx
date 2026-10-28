@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser, loginWithGoogle } from "../../../api/auth";
 import { renderNotification } from "../../../constants/render";
 import { useSetSession } from "../../../stores/authStore";
+import { landingPath } from "../../../utils/landing";
 
 const { Title, Text } = Typography;
 
@@ -39,14 +40,9 @@ const LoginForm = () => {
     session: Awaited<ReturnType<typeof loginUser>>["data"],
   ) => {
     setSession(session);
-    navigate(
-      session.permissions.includes("dashboard.read")
-        ? "/dashboard"
-        : "/my-requests",
-      {
-        replace: true,
-      },
-    );
+    navigate(landingPath(session.permissions), {
+      replace: true,
+    });
   };
 
   // Set focus to email field on component mount
