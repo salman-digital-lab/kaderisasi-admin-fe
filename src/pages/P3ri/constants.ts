@@ -1,27 +1,15 @@
 import { P3riForm, P3riStatus } from "../../types/model/p3ri";
 
-export const P3RI_STATUSES: P3riStatus[] = [
-  "terdaftar",
-  "seleksi_berkas",
-  "wawancara",
-  "diterima",
-  "tidak_diterima",
-];
+export const P3RI_STATUSES: P3riStatus[] = ["terdaftar", "diterima"];
 
 export const P3RI_STATUS_LABELS: Record<P3riStatus, string> = {
   terdaftar: "Terdaftar",
-  seleksi_berkas: "Seleksi Berkas",
-  wawancara: "Wawancara",
   diterima: "Diterima",
-  tidak_diterima: "Tidak Diterima",
 };
 
 export const P3RI_STATUS_COLORS: Record<P3riStatus, string> = {
   terdaftar: "default",
-  seleksi_berkas: "processing",
-  wawancara: "warning",
   diterima: "success",
-  tidak_diterima: "error",
 };
 
 export const P3RI_STATUS_OPTIONS = P3RI_STATUSES.map((value) => ({

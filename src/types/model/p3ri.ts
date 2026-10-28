@@ -1,11 +1,6 @@
 import { Pagination } from "../services/base";
 
-export type P3riStatus =
-  | "terdaftar"
-  | "seleksi_berkas"
-  | "wawancara"
-  | "diterima"
-  | "tidak_diterima";
+export type P3riStatus = "terdaftar" | "diterima";
 
 export type P3riQuestion = {
   id: string;
