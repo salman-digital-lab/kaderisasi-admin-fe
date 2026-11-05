@@ -73,6 +73,7 @@ export type Registrant = {
   course_progress?: ActivityCourseProgress[];
   id: number;
   user_id: number | null;
+  member_id?: string | null;
   activity_id: number;
   status: string;
   questionnaire_answer: Record<string, unknown>;
@@ -82,6 +83,7 @@ export type Registrant = {
   name: string;
   email: string;
   level: number;
+  badges?: string[] | null;
   personal_id?: string;
   gender?: string;
   whatsapp?: string;

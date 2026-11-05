@@ -155,7 +155,14 @@ const ActivityParticipants = () => {
   });
 
   const formAllowedColumns = useMemo((): ColumnConfig[] => {
-    const ALWAYS_VISIBLE = new Set(["name", "created_at", "status"]);
+    const ALWAYS_VISIBLE = new Set([
+      "name",
+      "member_id",
+      "level",
+      "badges",
+      "created_at",
+      "status",
+    ]);
 
     if (customForm) {
       const profileSection = customForm.form_schema.fields[0];

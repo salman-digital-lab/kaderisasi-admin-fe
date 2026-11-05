@@ -36,6 +36,11 @@ import type { ClubMemberRole } from "../../../types/model/clubMemberRole";
 import type { ClubRegistration } from "../../../types/model/clubRegistration";
 import { formatRegistrationTime } from "../../../utils/registration-time";
 import { DATE_FORMAT } from "../../../utils/date-format";
+import { renderUserLevel } from "../../../constants/render";
+import {
+  BadgeTags,
+  MemberIdText,
+} from "../../../components/render/MemberIdentity";
 
 type RoleFormType = {
   role_name: string;
@@ -177,6 +182,13 @@ const ClubMembersPage = () => {
 
   const columns: ColumnsType<ClubRegistration> = [
     {
+      title: "ID Anggota",
+      dataIndex: ["member", "member_id"],
+      key: "member_id",
+      width: 130,
+      render: (value?: string | null) => <MemberIdText value={value} />,
+    },
+    {
       title: "Nama Anggota",
       key: "member",
       render: (_, record) => getMemberName(record),
@@ -191,6 +203,20 @@ const ClubMembersPage = () => {
       dataIndex: ["member", "profile", "whatsapp"],
       key: "whatsapp",
       render: (value?: string) => value || "-",
+    },
+    {
+      title: "Jenjang",
+      dataIndex: ["member", "profile", "level"],
+      key: "level",
+      width: 120,
+      render: (level?: number) => renderUserLevel(level),
+    },
+    {
+      title: "Lencana",
+      dataIndex: ["member", "profile", "badges"],
+      key: "badges",
+      width: 160,
+      render: (badges?: string[]) => <BadgeTags badges={badges} />,
     },
     {
       title: "Peran",

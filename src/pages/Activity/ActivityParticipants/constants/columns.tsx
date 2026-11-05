@@ -12,6 +12,10 @@ import {
 } from "../../../../utils/education";
 import { formatRegistrationTime } from "../../../../utils/registration-time";
 import { RegistrationStatusTag } from "../../../../components/common/StatusTags";
+import {
+  BadgeTags,
+  MemberIdText,
+} from "../../../../components/render/MemberIdentity";
 
 // Memoized text cell component
 const TextCell = memo(
@@ -138,6 +142,41 @@ export const ALL_COLUMNS: ColumnConfig[] = [
         activityId={record.activity_id}
       />
     ),
+  },
+  {
+    key: "member_id",
+    title: "ID Anggota",
+    dataIndex: "member_id",
+    visible: true,
+    width: 130,
+    sortable: false,
+    filterable: false,
+    render: (value) => <MemberIdText value={value as string | null} />,
+  },
+  {
+    key: "level",
+    title: "Jenjang",
+    dataIndex: "level",
+    visible: true,
+    width: 120,
+    sortable: true,
+    filterable: false,
+    render: (level, record) => {
+      if (record.user_id === null) return "-";
+      const option = USER_LEVEL_OPTIONS.find((opt) => opt.value === level);
+      return option?.label || "-";
+    },
+  },
+  {
+    key: "badges",
+    title: "Lencana",
+    dataIndex: "badges",
+    visible: true,
+    width: 160,
+    wrap: true,
+    sortable: false,
+    filterable: false,
+    render: (badges) => <BadgeTags badges={badges} />,
   },
   {
     key: "created_at",
@@ -287,19 +326,6 @@ export const ALL_COLUMNS: ColumnConfig[] = [
     sortable: false,
     filterable: false,
     render: (text) => <TextCell text={text as string} maxWidth={100} />,
-  },
-  {
-    key: "level",
-    title: "Jenjang",
-    dataIndex: "level",
-    visible: false,
-    width: 120,
-    sortable: true,
-    filterable: false,
-    render: (level) => {
-      const option = USER_LEVEL_OPTIONS.find((opt) => opt.value === level);
-      return option?.label || String(level);
-    },
   },
 ];
 

@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 import { CityRender } from "../../../../components/render/CityRender";
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
+import {
+  BadgeTags,
+  MemberIdText,
+} from "../../../../components/render/MemberIdentity";
 import { renderUserLevel } from "../../../../constants/render";
 import type {
   ClubRegistration,
@@ -25,6 +29,11 @@ const DEFAULT_FIELDS: FormField[] = [
   { key: "whatsapp", label: "WhatsApp", type: "text", required: false },
 ];
 
+const ALWAYS_SHOWN_FIELDS: FormField[] = [
+  { key: "level", label: "Jenjang", type: "text", required: false },
+  { key: "badges", label: "Lencana", type: "text", required: false },
+];
+
 function profileValue(
   registration: ClubRegistration,
   field: FormField,
@@ -39,6 +48,7 @@ function profileValue(
     return formatEducationHistory(profile?.education_history);
   if (field.key === "work_history")
     return formatWorkHistory(profile?.work_history);
+  if (field.key === "badges") return <BadgeTags badges={profile?.badges} />;
 
   const value = profile?.[field.key as keyof Profile];
   if (value === null || value === undefined || value === "") return "-";
@@ -77,7 +87,15 @@ export function buildApplicationProfileItems(
     ? sections.flatMap((section) => section.fields)
     : DEFAULT_FIELDS;
   const seen = new Set<string>();
-  const items: NonNullable<DescriptionsProps["items"]> = [];
+  // Member ID, level and badges are always shown, even when the form does
+  // not ask for them.
+  const items: NonNullable<DescriptionsProps["items"]> = [
+    {
+      key: "member_id",
+      label: "ID Anggota",
+      children: <MemberIdText value={registration.member?.member_id} />,
+    },
+  ];
   for (const field of fields) {
     if (seen.has(field.key)) continue;
     seen.add(field.key);
@@ -93,5 +111,13 @@ export function buildApplicationProfileItems(
       label: "Email",
       children: registration.member?.email || "-",
     });
+  for (const field of ALWAYS_SHOWN_FIELDS) {
+    if (!seen.has(field.key))
+      items.push({
+        key: field.key,
+        label: field.label,
+        children: profileValue(registration, field),
+      });
+  }
   return items;
 }

@@ -58,6 +58,11 @@ import {
   loadColumnPreferences,
 } from "../../Activity/ActivityParticipants/constants/columns";
 import { DIALOG_WIDTH } from "../../../theme/tokens";
+import { renderUserLevel } from "../../../constants/render";
+import {
+  BadgeTags,
+  MemberIdText,
+} from "../../../components/render/MemberIdentity";
 
 const { Text, Title } = Typography;
 
@@ -404,6 +409,13 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
 
   const baseColumns: ColumnsType<ClubRegistration> = [
     {
+      title: "ID Anggota",
+      dataIndex: ["member", "member_id"],
+      key: "member_id",
+      width: 130,
+      render: (value?: string | null) => <MemberIdText value={value} />,
+    },
+    {
       title: "Nama Anggota",
       dataIndex: ["member", "profile", "name"],
       key: "memberName",
@@ -420,6 +432,20 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
       dataIndex: ["member", "profile", "whatsapp"],
       key: "whatsapp",
       render: (value?: string) => value || "-",
+    },
+    {
+      title: "Jenjang",
+      dataIndex: ["member", "profile", "level"],
+      key: "level",
+      width: 120,
+      render: (level?: number) => renderUserLevel(level),
+    },
+    {
+      title: "Lencana",
+      dataIndex: ["member", "profile", "badges"],
+      key: "badges",
+      width: 160,
+      render: (badges?: string[]) => <BadgeTags badges={badges} />,
     },
     {
       title: "Status",
@@ -545,9 +571,9 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
         column.render?.(undefined, record),
     }));
   const columns: ColumnsType<ClubRegistration> = [
-    ...baseColumns.slice(0, 3),
+    ...baseColumns.slice(0, 6),
     ...visibleAnswers,
-    ...baseColumns.slice(3),
+    ...baseColumns.slice(6),
   ];
 
   const rowSelection = {

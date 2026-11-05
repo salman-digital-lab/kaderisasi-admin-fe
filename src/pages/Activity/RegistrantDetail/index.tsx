@@ -12,6 +12,10 @@ import { getCustomFormByFeature } from "../../../api/services/customForm";
 import { ProvinceRender } from "../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../components/render/UniversityRender";
 import {
+  BadgeTags,
+  MemberIdText,
+} from "../../../components/render/MemberIdentity";
+import {
   currentEducation,
   formatCurrentEducation,
   formatEducationHistory,
@@ -47,6 +51,9 @@ function renderProfileField(
   }
   if (fieldKey === "level" && !isGuest) {
     return renderUserLevel(rawValue as number);
+  }
+  if (fieldKey === "badges" && !isGuest) {
+    return <BadgeTags badges={rawValue} />;
   }
   if (fieldKey === "current_education") {
     return formatCurrentEducation(rawValue);
@@ -123,6 +130,7 @@ const RegistrantDetail = () => {
       major: profile?.major,
       intake_year: profile?.intake_year,
       level: profile?.level,
+      badges: profile?.badges,
       birth_date: profile?.birth_date,
       email: profile?.publicUser?.email,
       education_history: profile?.education_history,
@@ -195,11 +203,40 @@ const RegistrantDetail = () => {
         label: "Riwayat Pekerjaan",
         children: formatWorkHistory(profile?.work_history),
       },
+    ];
+  }
+
+  // Member ID, level and badges are always shown for members, even when the
+  // custom form does not ask for them.
+  if (isGuest === false && userInfoDescription) {
+    const shownKeys = new Set(
+      profileSection?.fields.map((field) => field.key) ?? [],
+    );
+    userInfoDescription = [
       {
-        key: "13",
-        label: "Jenjang",
-        children: renderUserLevel(profile?.level),
+        key: "member_id",
+        label: "ID Anggota",
+        children: <MemberIdText value={profile?.publicUser?.member_id} />,
       },
+      ...userInfoDescription,
+      ...(shownKeys.has("level")
+        ? []
+        : [
+            {
+              key: "level",
+              label: "Jenjang",
+              children: renderUserLevel(profile?.level),
+            },
+          ]),
+      ...(shownKeys.has("badges")
+        ? []
+        : [
+            {
+              key: "badges",
+              label: "Lencana",
+              children: <BadgeTags badges={profile?.badges} />,
+            },
+          ]),
     ];
   }
 

@@ -34,6 +34,7 @@ export interface Profile {
 export interface PublicUserWithProfile {
   id: number;
   email: string;
+  member_id?: string | null;
   created_at: string;
   updated_at: string;
   profile?: Profile;

@@ -1,3 +1,4 @@
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { ClubRegistration } from "../../../../types/model/clubRegistration";
 import type { FormSchema } from "../../../../types/model/customForm";
@@ -14,6 +15,7 @@ const registration: ClubRegistration = {
   member: {
     id: 1,
     email: "pendaftar@example.test",
+    member_id: "00012",
     created_at: "",
     updated_at: "",
     profile: {
@@ -21,6 +23,8 @@ const registration: ClubRegistration = {
       name: "Pendaftar Uji",
       gender: "F",
       whatsapp: "081234567890",
+      level: 3,
+      badges: ["LMD", "SSC"],
       created_at: "",
       updated_at: "",
       major: "Jurusan lama",
@@ -77,19 +81,55 @@ describe("club application profile", () => {
   it("shows configured profile fields in form order with all current education details", () => {
     const items = buildApplicationProfileItems(registration, schema);
     expect(items.map((item) => item.label)).toEqual([
+      "ID Anggota",
       "Nama Lengkap",
       "Jenis Kelamin",
       "Tanggal Lahir",
       "Pendidikan Sekarang",
       "Email",
+      "Jenjang",
+      "Lencana",
     ]);
-    expect(items.map((item) => item.children)).toEqual([
+    expect(items.slice(1, 6).map((item) => item.children)).toEqual([
       "Pendaftar Uji",
       "Perempuan",
       "-",
       "S1 - Kampus Uji, Teknik, Informatika (2024)",
       "pendaftar@example.test",
     ]);
+    expect(items[6].children).toBe("Aktivis");
+  });
+
+  it("always shows member ID, level and badges", () => {
+    const items = buildApplicationProfileItems(registration, schema);
+    const html = renderToStaticMarkup(
+      <>
+        {items[0].children}
+        {items[7].children}
+      </>,
+    );
+    expect(html).toContain("00012");
+    expect(html).toContain("LMD");
+    expect(html).toContain("SSC");
+  });
+
+  it("does not repeat level or badges the form already asks for", () => {
+    const withLevel: FormSchema = {
+      fields: [
+        {
+          section_name: "profile_data",
+          fields: [
+            { key: "level", label: "Level", type: "text", required: false },
+            { key: "badges", label: "Badge", type: "text", required: false },
+          ],
+        },
+      ],
+    };
+    expect(
+      buildApplicationProfileItems(registration, withLevel).map(
+        (item) => item.label,
+      ),
+    ).toEqual(["ID Anggota", "Level", "Badge", "Email"]);
   });
 
   it("keeps missing profile fields visible and retains basic info without a form", () => {
@@ -100,7 +140,9 @@ describe("club application profile", () => {
       )?.children,
     ).toBe("-");
     expect(
-      buildApplicationProfileItems(registration).map((item) => item.children),
+      buildApplicationProfileItems(registration)
+        .slice(1, 4)
+        .map((item) => item.children),
     ).toEqual(["Pendaftar Uji", "pendaftar@example.test", "081234567890"]);
   });
 
@@ -128,11 +170,14 @@ describe("club application profile", () => {
         (item) => item.label,
       ),
     ).toEqual([
+      "ID Anggota",
       "Nama Lengkap",
       "Jenis Kelamin",
       "Tanggal Lahir",
       "Pendidikan Sekarang",
       "Email akun",
+      "Jenjang",
+      "Lencana",
     ]);
   });
 });
