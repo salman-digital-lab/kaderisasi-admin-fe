@@ -44,7 +44,9 @@ import {
   getDataProvinceId,
 } from "../../../api/services/province";
 import { getCountries } from "../../../api/services/country";
-import EditAuthDataModal from "./components/EditAuthDataModal";
+import EditAuthDataModal, {
+  type EditAuthMode,
+} from "./components/EditAuthDataModal";
 import GenerateAccountModal from "./components/GenerateAccountModal";
 import {
   EducationEntry,
@@ -121,7 +123,7 @@ const MemberDetailPage = () => {
   const [editRequested, { setLeft: exitEdit, setRight: enterEdit }] =
     useToggle(false);
   const isEdit = editRequested && canManage;
-  const [isEditAuthOpen, setIsEditAuthOpen] = useState(false);
+  const [editAuthMode, setEditAuthMode] = useState<EditAuthMode | null>(null);
   const [isGenerateAccountOpen, setIsGenerateAccountOpen] = useState(false);
   const [regionalInput, setRegionalInput] = useState<string[]>([]);
   const [salmanActivityHistoryInput, setSalmanActivityHistoryInput] = useState<
@@ -316,9 +318,14 @@ const MemberDetailPage = () => {
                     Buat akun
                   </Button>
                 ) : (
-                  <Button onClick={() => setIsEditAuthOpen(true)}>
-                    Ubah email dan kata sandi
-                  </Button>
+                  <>
+                    <Button onClick={() => setEditAuthMode("email")}>
+                      Ubah email
+                    </Button>
+                    <Button onClick={() => setEditAuthMode("password")}>
+                      Ubah kata sandi
+                    </Button>
+                  </>
                 )}
               </Space>
             )}
@@ -851,9 +858,10 @@ const MemberDetailPage = () => {
       {canManageCredentials && (
         <>
           <EditAuthDataModal
-            isOpen={isEditAuthOpen}
-            setIsOpen={setIsEditAuthOpen}
+            mode={editAuthMode}
+            close={() => setEditAuthMode(null)}
             id={publicUser?.id.toString() || ""}
+            currentEmail={publicUser?.email ?? undefined}
             refresh={refresh}
           />
           <GenerateAccountModal
