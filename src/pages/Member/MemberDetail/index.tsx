@@ -546,6 +546,18 @@ const MemberDetailPage = () => {
                         <Select
                           options={DEGREE_OPTIONS}
                           onChange={(degree: string): void => {
+                            // Schools are free text and campuses come from the
+                            // list, so the name must not carry across.
+                            const previous = educationHistory?.[name]?.degree;
+                            if (
+                              (previous === "high_school") !==
+                              (degree === "high_school")
+                            ) {
+                              form.setFieldValue(
+                                ["education_history", name, "institution"],
+                                "",
+                              );
+                            }
                             if (degree === "high_school") {
                               form.setFieldValue(
                                 ["education_history", name, "faculty"],
@@ -576,7 +588,7 @@ const MemberDetailPage = () => {
                         {educationHistory?.[name]?.degree === "high_school" ? (
                           <Input placeholder="Nama sekolah" />
                         ) : (
-                          <UniversityNameSelect placeholder="Cari atau ketik nama institusi" />
+                          <UniversityNameSelect placeholder="Cari dan pilih institusi" />
                         )}
                       </Form.Item>
                     </Col>

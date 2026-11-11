@@ -13,7 +13,9 @@ type UniversityNameSelectProps = Omit<
 
 /**
  * Ant Design searchable Select that stores the university NAME as its value.
- * Integrates with Ant Design Form via value/onChange props.
+ * Integrates with Ant Design Form via value/onChange props. Only names from
+ * the universities list can be picked; a name the profile already holds stays
+ * selectable so older entries still display.
  */
 export default function UniversityNameSelect({
   value,
@@ -23,7 +25,6 @@ export default function UniversityNameSelect({
   const [options, setOptions] = useState<{ label: string; value: string }[]>(
     value ? [{ label: value, value }] : [],
   );
-  const [searchValue, setSearchValue] = useState("");
   const [searchTimeout, setSearchTimeout] = useState<ReturnType<
     typeof setTimeout
   > | null>(null);
@@ -45,17 +46,9 @@ export default function UniversityNameSelect({
   }, []);
 
   const handleSearch = (search: string) => {
-    setSearchValue(search);
     if (searchTimeout) clearTimeout(searchTimeout);
     setSearchTimeout(setTimeout(() => fetchUniversities(search), 300));
   };
-
-  const institutionName = searchValue.trim();
-  const institutionOptions =
-    institutionName &&
-    !options.some((option) => option.value === institutionName)
-      ? [{ label: institutionName, value: institutionName }, ...options]
-      : options;
 
   return (
     <Select
@@ -63,10 +56,10 @@ export default function UniversityNameSelect({
       showSearch
       value={value}
       onChange={onChange}
-      options={institutionOptions}
+      options={options}
       filterOption={false}
       onSearch={handleSearch}
-      notFoundContent="Ketik nama sekolah atau perguruan tinggi"
+      notFoundContent="Institusi tidak ditemukan. Pilih dari daftar yang tersedia."
       style={{ width: "100%", ...props.style }}
     />
   );
