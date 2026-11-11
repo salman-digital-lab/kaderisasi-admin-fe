@@ -7,6 +7,7 @@ export type { EducationEntry, WorkEntry } from "../../utils/profile-history";
 
 export type ExtraData = {
   preferred_name?: string;
+  address_detail?: string | null;
   salman_activity_history?: string[];
   current_activity_focus?: string[];
   alumni_regional_assignment?: string[];

@@ -76,6 +76,7 @@ type FormType = {
   origin_province_id?: number;
   origin_city_id?: number;
   country?: string;
+  address_detail?: string;
   education_history?: EducationEntry[];
   work_history?: WorkEntry[];
 };
@@ -148,6 +149,7 @@ const MemberDetailPage = () => {
       origin_province_id: profile?.origin_province_id,
       origin_city_id: profile?.origin_city_id,
       country: profile?.country,
+      address_detail: profile?.extra_data?.address_detail ?? "",
       education_history: normalizeEducationHistory(profile?.education_history),
       work_history: normalizeWorkHistory(profile?.work_history),
     });
@@ -375,6 +377,7 @@ const MemberDetailPage = () => {
               ),
               work_history: normalizedWorkHistoryEntries,
               extra_data: {
+                address_detail: value.address_detail?.trim() ?? "",
                 alumni_regional_assignment: regionalInput,
                 salman_activity_history: salmanActivityHistoryInput,
               },
@@ -487,6 +490,11 @@ const MemberDetailPage = () => {
                     value: c.name,
                   }))}
                 />
+              </Form.Item>
+            </Col>
+            <Col xs={24}>
+              <Form.Item name="address_detail" label="Alamat Detail">
+                <Input.TextArea rows={3} maxLength={1024} showCount />
               </Form.Item>
             </Col>
           </Row>
