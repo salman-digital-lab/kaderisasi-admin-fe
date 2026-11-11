@@ -11,6 +11,7 @@ export const permissionLabels: Record<string, string> = {
   "rbac.read": "Melihat daftar peran dan hak akses",
   "tickets.review": "Meninjau permintaan akses",
   "members.read": "Melihat data anggota",
+  "members.audit.read": "Melihat riwayat perubahan data anggota",
   "members.manage": "Mengelola data anggota",
   "members.credentials.manage": "Mengubah email dan kata sandi anggota",
   "activities.read": "Melihat kegiatan",

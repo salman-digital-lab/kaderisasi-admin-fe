@@ -48,6 +48,7 @@ import EditAuthDataModal, {
   type EditAuthMode,
 } from "./components/EditAuthDataModal";
 import GenerateAccountModal from "./components/GenerateAccountModal";
+import MemberAuditLog from "./components/MemberAuditLog";
 import {
   EducationEntry,
   WorkEntry,
@@ -114,6 +115,9 @@ const MemberDetailPage = () => {
     "members.credentials.manage",
   );
   const canReadHistory = permissions.includes("activity_registrations.read");
+  const canReadAudit = permissions.includes("members.audit.read");
+  // Bumped on every profile load, so the trail reloads after a save.
+  const [auditVersion, setAuditVersion] = useState(0);
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm<FormType>();
   const educationHistory: EducationEntry[] | undefined = Form.useWatch(
@@ -162,6 +166,7 @@ const MemberDetailPage = () => {
   const { data, loading, refresh } = useRequest(() => getProfile(id || ""), {
     onSuccess: (data) => {
       resetFormToProfile(data?.profile[0]);
+      setAuditVersion((version) => version + 1);
     },
   });
 
@@ -879,6 +884,16 @@ const MemberDetailPage = () => {
               size="small"
             />
           </>
+        )}
+
+        {canReadAudit && id && (
+          <MemberAuditLog
+            profileId={id}
+            version={auditVersion}
+            provinces={Object.fromEntries(
+              (provinces?.data ?? []).map((p) => [p.id, p.name]),
+            )}
+          />
         )}
       </Card>
 
