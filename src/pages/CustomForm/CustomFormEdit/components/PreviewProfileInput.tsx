@@ -124,7 +124,7 @@ export function PreviewEducation({
               value={entry.degree}
               onChange={(degree) => update(index, { degree })}
               options={[
-                { value: "high_school", label: "SMA/SMK" },
+                { value: "high_school", label: "SMP/SMA/SMK" },
                 { value: "diploma", label: "D3" },
                 { value: "bachelor", label: "S1" },
                 { value: "master", label: "S2" },

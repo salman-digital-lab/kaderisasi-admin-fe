@@ -4,7 +4,7 @@ import {
 } from "./profile-history";
 
 const DEGREE_LABEL: Record<string, string> = {
-  high_school: "SMA/SMK",
+  high_school: "SMP/SMA/SMK",
   diploma: "D3",
   bachelor: "S1",
   master: "S2",

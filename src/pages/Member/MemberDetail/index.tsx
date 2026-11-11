@@ -86,7 +86,7 @@ const ACCOUNT_STATUS_LABEL: Record<string, { label: string; color: string }> = {
 };
 
 const DEGREE_OPTIONS = [
-  { label: "SMA/SMK", value: "high_school" },
+  { label: "SMP/SMA/SMK", value: "high_school" },
   { label: "D3 (Diploma)", value: "diploma" },
   { label: "S1 (Sarjana)", value: "bachelor" },
   { label: "S2 (Magister)", value: "master" },
