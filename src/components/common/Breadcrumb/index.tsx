@@ -51,7 +51,6 @@ const breadcrumbMap: Record<string, BreadcrumbItem[]> = {
   "/universities": [DATA_CENTER, current(L.universities)],
   "/province": [DATA_CENTER, current(L.provinces)],
   "/ruang-curhat": [current(L.counseling)],
-  "/p3ri": [current(L.p3ri)],
   "/admin-users": [SETTINGS, current(L.adminUsers)],
   "/rbac/roles": [SETTINGS, current(L.roles)],
   "/achievement": [LEADERBOARD, current(L.achievements)],
@@ -131,8 +130,6 @@ const getDynamicBreadcrumbs = (
       current("Detail Peserta"),
     ];
 
-  if (/^\/p3ri\/\d+$/.test(pathname))
-    return [crumb("/p3ri", L.p3ri), current("Detail Pendaftar")];
   if (/^\/ruang-curhat\/\d+$/.test(pathname))
     return [crumb("/ruang-curhat", L.counseling), current("Detail Curhat")];
 

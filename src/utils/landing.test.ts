@@ -2,11 +2,8 @@ import { describe, expect, it } from "vitest";
 import { landingPath } from "./landing";
 
 describe("landingPath", () => {
-  it("prefers the dashboard, then P3RI, then members, then access requests", () => {
-    expect(landingPath(["dashboard.read", "p3ri.registrations.read"])).toBe(
-      "/dashboard",
-    );
-    expect(landingPath(["p3ri.registrations.read"])).toBe("/p3ri");
+  it("prefers the dashboard, then members, then access requests", () => {
+    expect(landingPath(["dashboard.read", "members.read"])).toBe("/dashboard");
     expect(landingPath(["members.read", "members.manage"])).toBe("/member");
     expect(landingPath([])).toBe("/my-requests");
   });

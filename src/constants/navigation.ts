@@ -14,7 +14,6 @@ export const NAV_LABELS = {
   activities: "Kegiatan",
   members: "Anggota",
   counseling: "Ruang Curhat",
-  p3ri: "Pendaftar P3RI",
   leaderboardGroup: "Prestasi & Peringkat",
   achievements: "Prestasi",
   monthlyLeaderboard: "Peringkat Bulanan",
