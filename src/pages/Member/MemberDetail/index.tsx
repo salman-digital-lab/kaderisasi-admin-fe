@@ -565,6 +565,13 @@ const MemberDetailPage = () => {
                             ? "Nama Sekolah"
                             : "Institusi"
                         }
+                        rules={[
+                          {
+                            required: true,
+                            whitespace: true,
+                            message: "Institusi wajib diisi",
+                          },
+                        ]}
                       >
                         {educationHistory?.[name]?.degree === "high_school" ? (
                           <Input placeholder="Nama sekolah" />
