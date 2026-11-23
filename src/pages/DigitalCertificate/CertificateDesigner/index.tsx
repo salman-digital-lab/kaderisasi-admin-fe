@@ -29,7 +29,8 @@ import {
   Typography,
 } from "antd";
 import { isAxiosError } from "axios";
-import React, {
+import type React from "react";
+import {
   lazy,
   Suspense,
   useCallback,
@@ -379,7 +380,7 @@ const CertificateDesignerEditor: React.FC = () => {
       return;
     }
 
-    loadTemplate();
+    void loadTemplate();
   }, [templateId, navigate, setTemplate]);
 
   const handleSave = useCallback(async (): Promise<boolean> => {
@@ -519,6 +520,8 @@ const CertificateDesignerEditor: React.FC = () => {
     uploadingBackground,
     serverVersion,
     saveSnapshot,
+    navigate,
+    safeReturnTo,
   ]);
 
   const handleBack = useCallback(() => {
@@ -590,7 +593,7 @@ const CertificateDesignerEditor: React.FC = () => {
 
       if (modifierKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        handleSave();
+        void handleSave();
         return;
       }
 

@@ -31,7 +31,7 @@ const UniversityForm = ({
       name: initialValues.name,
       provinceId: initialValues.province_id,
     });
-  }, [initialValues]);
+  }, [initialValues, form]);
 
   const { loading: addLoading, runAsync: runAddUniversity } = useRequest(
     addUniversity,

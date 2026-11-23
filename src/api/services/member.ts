@@ -1,19 +1,19 @@
 import { message } from "antd";
 
 import {
-  createMemberReq,
-  createMemberResp,
-  generateAccountReq,
-  generateAccountResp,
-  getActivityByUserIdResp,
-  getProfileResp,
-  getProfilesReq,
-  getProfilesResp,
-  putProfileAuthReq,
-  putProfileAuthResp,
-  putProfileReq,
-  putProfileResp,
-  putRegionalAssignmentResp,
+  type createMemberReq,
+  type createMemberResp,
+  type generateAccountReq,
+  type generateAccountResp,
+  type getActivityByUserIdResp,
+  type getProfileResp,
+  type getProfilesReq,
+  type getProfilesResp,
+  type putProfileAuthReq,
+  type putProfileAuthResp,
+  type putProfileReq,
+  type putProfileResp,
+  type putRegionalAssignmentResp,
 } from "../../types/services/member";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -37,6 +37,7 @@ export const getProfile = async (id: string) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -46,6 +47,7 @@ export const getProfileByUserId = async (userId: string) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -57,6 +59,7 @@ export const getActivityByUserId = async (userId: string) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -68,6 +71,7 @@ export const putProfile = async (id: string, props: putProfileReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -82,6 +86,7 @@ export const putProfileAuth = async (id: string, props: putProfileAuthReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -92,6 +97,7 @@ export const createMember = async (props: createMemberReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -108,6 +114,7 @@ export const generateAccount = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -124,5 +131,6 @@ export const putRegionalAssignment = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

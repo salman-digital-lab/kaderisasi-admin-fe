@@ -2,7 +2,7 @@ import { Layout, Menu, Typography } from "antd";
 import { useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { menuItems } from "./data";
-import { SidebarProps } from "../../../types";
+import { type SidebarProps } from "../../../types";
 import { usePermissions } from "../../../stores/authStore";
 import { getReviewTickets } from "../../../api/services/access";
 

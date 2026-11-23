@@ -10,6 +10,7 @@ import {
 } from "vitest";
 import { useAuthStore } from "../stores/authStore";
 import type { AuthSession } from "../types/services/auth";
+import type AxiosClient from "./axios";
 
 const session: AuthSession = {
   access_token: "initial-token",
@@ -27,7 +28,7 @@ const session: AuthSession = {
 };
 const adapter = vi.fn<AxiosAdapter>();
 const originalAdapter = axios.defaults.adapter;
-let client: typeof import("./axios").default;
+let client: typeof AxiosClient;
 const redirect = vi.fn();
 beforeAll(async () => {
   axios.defaults.adapter = adapter;

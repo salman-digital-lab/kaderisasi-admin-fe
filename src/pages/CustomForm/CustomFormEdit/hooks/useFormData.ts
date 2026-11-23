@@ -223,7 +223,7 @@ export const useFormData = () => {
     if (formId) {
       fetchCustomForm();
     }
-  }, [formId]);
+  }, [formId, fetchCustomForm]);
 
   return {
     accessMode,

@@ -1,4 +1,4 @@
-import { Pagination } from "./base";
+import { type Pagination } from "./base";
 import type { PublishedScoringResult } from "./scoring";
 
 export type CertificateTemplateStatus = "draft" | "published" | "archived";

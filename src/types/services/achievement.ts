@@ -1,9 +1,9 @@
 import {
-  ACHIEVEMENT_STATUS_ENUM,
-  ACHIEVEMENT_TYPE_ENUM,
+  type ACHIEVEMENT_STATUS_ENUM,
+  type ACHIEVEMENT_TYPE_ENUM,
 } from "../constants/achievement";
-import { Achievement } from "../model/achievements";
-import { Pagination } from "./base";
+import { type Achievement } from "../model/achievements";
+import { type Pagination } from "./base";
 
 export type AchievementSortBy = "achievement_date" | "created_at";
 export type SortOrder = "asc" | "desc";

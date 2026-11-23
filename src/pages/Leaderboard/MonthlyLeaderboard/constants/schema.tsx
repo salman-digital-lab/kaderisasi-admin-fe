@@ -1,6 +1,6 @@
-import { TableProps, Tag, Typography } from "antd";
+import { type TableProps, Tag, Typography } from "antd";
 import dayjs from "dayjs";
-import { MonthlyLeaderboardType } from "../../../../types/services/leaderboard";
+import { type MonthlyLeaderboardType } from "../../../../types/services/leaderboard";
 import { MONTH_FORMAT } from "../../../../utils/date-format";
 
 export const TABLE_SCHEMA: TableProps<

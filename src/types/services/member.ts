@@ -1,6 +1,6 @@
-import { Activity, Registrant } from "../model/activity";
-import { Member, PublicUser } from "../model/members";
-import { Pagination } from "./base";
+import { type Activity, type Registrant } from "../model/activity";
+import { type Member, type PublicUser } from "../model/members";
+import { type Pagination } from "./base";
 
 export type getProfilesResp = {
   message: string;

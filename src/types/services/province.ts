@@ -1,4 +1,4 @@
-import { Province } from "../model/province";
+import { type Province } from "../model/province";
 export type getProvincesReq = {
   search?: string;
 };

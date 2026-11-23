@@ -1,4 +1,4 @@
-import { Questionnaire } from "../../../../types/model/activity";
+import { type Questionnaire } from "../../../../types/model/activity";
 export const QUESTION_DEFAULT = {
   text: {
     name: `question${Math.floor(Math.random() * 10000)}`,

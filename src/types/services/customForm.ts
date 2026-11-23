@@ -1,5 +1,5 @@
-import { Pagination } from "./base";
-import { CustomForm, FormSchema } from "../model/customForm";
+import { type Pagination } from "./base";
+import { type CustomForm, type FormSchema } from "../model/customForm";
 
 export interface GetCustomFormsReq {
   page?: string;

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import type React from "react";
+import { useMemo, useState } from "react";
 import { Button, Input, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { VARIABLE_OPTIONS } from "../constants";

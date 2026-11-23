@@ -1,7 +1,7 @@
 import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
 import { Input, Card, Button, DatePicker, Space, Tooltip } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
+import type dayjs from "dayjs";
 import { useState } from "react";
 import { MONTH_FORMAT } from "../../../../utils/date-format";
 

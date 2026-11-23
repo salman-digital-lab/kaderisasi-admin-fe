@@ -1,7 +1,7 @@
 import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
 import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Button,
@@ -72,7 +72,7 @@ const ClubMembersPage = () => {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [savingRole, setSavingRole] = useState(false);
 
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     if (!clubId) return;
 
     setLoading(true);
@@ -94,11 +94,11 @@ const ClubMembersPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [clubId, currentPage, search, sortOrder]);
 
   useEffect(() => {
-    fetchMembers();
-  }, [clubId, currentPage, search, sortOrder]);
+    void fetchMembers();
+  }, [fetchMembers]);
 
   const openCreateRole = (member: ClubRegistration) => {
     setSelectedMember(member);
@@ -159,7 +159,7 @@ const ClubMembersPage = () => {
       }
 
       closeRoleModal();
-      fetchMembers();
+      void fetchMembers();
     } catch {
       // The API service displays the error and keeps the modal open for retry.
     } finally {
@@ -175,7 +175,7 @@ const ClubMembersPage = () => {
       okButtonProps: { danger: true },
       onOk: async () => {
         await deleteClubMemberRole(role.id);
-        fetchMembers();
+        void fetchMembers();
       },
     });
   };

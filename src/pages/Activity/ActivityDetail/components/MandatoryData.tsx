@@ -6,7 +6,7 @@ import { useRequest } from "ahooks";
 import { SaveOutlined } from "@ant-design/icons";
 
 import { getActivity, putActivity } from "../../../../api/services/activity";
-import { MandatoryProfileData } from "../../../../types/model/activity";
+import { type MandatoryProfileData } from "../../../../types/model/activity";
 import { PROFILE_DATA } from "../constants/default";
 import { MANDATORY_DATA_TABLE_COLUMNS } from "../constants/schema";
 

@@ -2,7 +2,7 @@ import { Button, Input, Space } from "antd";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 import { generateDefaultQuestion } from "../../../../constants/default";
-import { Questionnaire } from "../../../../../../../types/model/activity";
+import { type Questionnaire } from "../../../../../../../types/model/activity";
 
 const { TextArea } = Input;
 

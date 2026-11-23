@@ -1,9 +1,9 @@
 import {
-  PROBLEM_OWNER_ENUM,
-  PROBLEM_STATUS_ENUM,
+  type PROBLEM_OWNER_ENUM,
+  type PROBLEM_STATUS_ENUM,
 } from "../constants/ruangcurhat";
-import { AdminUser } from "./adminuser";
-import { PublicUser } from "./members";
+import { type AdminUser } from "./adminuser";
+import { type PublicUser } from "./members";
 import type { University } from "./university";
 
 export type RuangCurhatData = {

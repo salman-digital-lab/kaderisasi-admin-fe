@@ -1,14 +1,14 @@
 import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
-import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
+import { whenValid } from "../../../components/common/Responsive/validate-fields";
 import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import {
   Button,
   Card,
-  DescriptionsProps,
+  type DescriptionsProps,
   Space,
   Tag,
   Dropdown,
-  MenuProps,
+  type MenuProps,
   InputNumber,
   Form,
   Input,
@@ -246,7 +246,7 @@ const AchievementDetail = () => {
           form.resetFields();
         }}
         onOk={() => {
-          validateFieldsAndFocus(form).then((values) => {
+          whenValid(form, (values) => {
             Modal.confirm({
               title: "Konfirmasi Persetujuan",
               content: (
@@ -300,7 +300,7 @@ const AchievementDetail = () => {
           rejectForm.resetFields();
         }}
         onOk={() => {
-          validateFieldsAndFocus(rejectForm).then((values) => {
+          whenValid(rejectForm, (values) => {
             Modal.confirm({
               title: "Konfirmasi Penolakan",
               content: "Apakah Anda yakin ingin menolak prestasi ini?",

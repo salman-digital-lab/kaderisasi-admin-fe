@@ -1,5 +1,13 @@
 import React from "react";
-import { Button, Upload, Space, Tooltip, Divider, message } from "antd";
+import {
+  Button,
+  Upload,
+  Space,
+  Tooltip,
+  Divider,
+  message,
+  type UploadFile,
+} from "antd";
 import {
   FontSizeOutlined,
   FieldStringOutlined,
@@ -24,7 +32,7 @@ import {
   OrderedListOutlined,
   ControlOutlined,
 } from "@ant-design/icons";
-import { ElementType } from "../types";
+import { type ElementType } from "../types";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
 import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 
@@ -94,7 +102,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
     onOpenProperties,
   }) => {
     const handleBackgroundChange = React.useCallback(
-      (info: { file: import("antd").UploadFile }) => {
+      (info: { file: UploadFile }) => {
         const file = getValidatedUploadFile(info, message.error);
         if (file) onBackgroundUpload(file);
       },
@@ -102,7 +110,7 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
     );
 
     const handleImageChange = React.useCallback(
-      (info: { file: import("antd").UploadFile }) => {
+      (info: { file: UploadFile }) => {
         const file = getValidatedUploadFile(info, message.error);
         if (file) onImageUpload(file);
       },

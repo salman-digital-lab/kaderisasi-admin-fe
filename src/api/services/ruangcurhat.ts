@@ -1,13 +1,13 @@
 import axios from "../axios";
 import { handleError } from "../errorHandling";
 import {
-  GetRuangCurhatReq,
-  GetRuangCurhatResp,
-  GetCounselorOptionsResp,
-  GetRuangCurhatsReq,
-  GetRuangCurhatsResp,
-  PutRuangCurhatReq,
-  PutRuangCurhatResp,
+  type GetRuangCurhatReq,
+  type GetRuangCurhatResp,
+  type GetCounselorOptionsResp,
+  type GetRuangCurhatsReq,
+  type GetRuangCurhatsResp,
+  type PutRuangCurhatReq,
+  type PutRuangCurhatResp,
 } from "../../types/services/ruangcurhat";
 import { removeEmptyValueFromObj } from "../../functions";
 import { message } from "antd";
@@ -23,6 +23,7 @@ export const getRuangCurhats = async (props: GetRuangCurhatsReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -34,6 +35,7 @@ export const getRuangCurhat = async (props: GetRuangCurhatReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -45,6 +47,7 @@ export const getCounselorOptions = async () => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -61,5 +64,6 @@ export const putRuangCurhat = async (props: PutRuangCurhatReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

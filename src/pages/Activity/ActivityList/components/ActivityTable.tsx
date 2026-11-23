@@ -1,10 +1,10 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
-import React from "react";
+import type React from "react";
 import { Empty, Alert, Button } from "antd";
 import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
-import { Pagination } from "../../../../types/services/base";
-import { Activity } from "../../../../types/model/activity";
+import { type Pagination } from "../../../../types/services/base";
+import { type Activity } from "../../../../types/model/activity";
 import { TABLE_SCHEMA } from "../constants/schema";
 import styles from "./ActivityTable.module.css";
 

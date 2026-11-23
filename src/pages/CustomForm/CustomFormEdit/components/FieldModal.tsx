@@ -1,5 +1,6 @@
 import { ResponsiveDialog as Modal } from "../../../../components/common/Responsive/ResponsiveDialog";
-import React, { useEffect, useRef } from "react";
+import type React from "react";
+import { useEffect, useRef } from "react";
 import {
   Form,
   Input,

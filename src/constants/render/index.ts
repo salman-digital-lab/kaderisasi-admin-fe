@@ -22,6 +22,7 @@ export function renderUserLevel(level: USER_LEVEL_ENUM | undefined) {
       return "Kader";
     case USER_LEVEL_ENUM.KADER_LANJUT:
       return "Kader Lanjut";
+    case undefined:
     default:
       return "-";
   }
@@ -41,6 +42,8 @@ export function renderActivityType(level: ACTIVITY_TYPE_ENUM) {
       return "Komunitas Profesi";
     case ACTIVITY_TYPE_ENUM.SPECTRA:
       return "SPECTRA";
+    case ACTIVITY_TYPE_ENUM.SUB_PROGRAM:
+      return "Sub Program";
     default:
       return "-";
   }
@@ -248,6 +251,7 @@ export function renderProblemOwner(code: PROBLEM_OWNER_ENUM | undefined) {
       return "Diri Sendiri";
     case PROBLEM_OWNER_ENUM.TEMAN:
       return "Teman";
+    case undefined:
     default:
       return "-";
   }
@@ -266,6 +270,7 @@ export function renderProblemStatus(code: PROBLEM_STATUS_ENUM | undefined) {
     case PROBLEM_STATUS_ENUM.BATAL:
       return "Batal";
 
+    case undefined:
     default:
       return "-";
   }
@@ -286,6 +291,7 @@ export function renderProblemStatusColor(
     case PROBLEM_STATUS_ENUM.BATAL:
       return "red";
 
+    case undefined:
     default:
       return "-";
   }
@@ -301,6 +307,7 @@ export function renderAchievementStatus(
       return "Diterima";
     case ACHIEVEMENT_STATUS_ENUM.REJECTED:
       return "Ditolak";
+    case undefined:
     default:
       return "-";
   }
@@ -316,6 +323,7 @@ export function renderAchievementStatusColor(
       return "green";
     case ACHIEVEMENT_STATUS_ENUM.REJECTED:
       return "red";
+    case undefined:
     default:
       return "-";
   }
@@ -329,6 +337,7 @@ export function renderAchievementType(code: ACHIEVEMENT_TYPE_ENUM | undefined) {
       return "Organisasi";
     case ACHIEVEMENT_TYPE_ENUM.AKADEMIK:
       return "Akademik";
+    case undefined:
     default:
       return "-";
   }

@@ -1,6 +1,6 @@
 import { ResponsiveDescriptions as Descriptions } from "../../../components/common/Responsive/ResponsiveDescriptions";
 import FormAnswerFiles from "../../../components/common/FormAnswerFiles";
-import { Card, DescriptionsProps, Image, Flex, Tag } from "antd";
+import { Card, type DescriptionsProps, Image, Flex, Tag } from "antd";
 import { useParams } from "react-router-dom";
 import { useRequest } from "ahooks";
 import type { ReactNode } from "react";

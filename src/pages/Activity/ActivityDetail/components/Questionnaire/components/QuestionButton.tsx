@@ -13,10 +13,6 @@ import { DeleteOutlined } from "@ant-design/icons";
 const { Text } = Typography;
 
 const QuestionButton = () => {
-  const onChange = (checked: boolean) => {
-    console.log(`switch to ${checked}`);
-  };
-
   const componentStyle = {
     card: {
       marginBottom: "2em",
@@ -39,7 +35,7 @@ const QuestionButton = () => {
               <DeleteOutlined />
             </Tooltip>
             <Text type="secondary">Required</Text>
-            <Switch defaultChecked onChange={onChange} />
+            <Switch defaultChecked />
           </Col>
         </Row>
       </Flex>

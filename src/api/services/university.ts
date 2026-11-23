@@ -1,10 +1,10 @@
 import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  getUniversitiesReq,
-  getUniversitiesResp,
-  universityReq,
-  universityResp,
+  type getUniversitiesReq,
+  type getUniversitiesResp,
+  type universityReq,
+  type universityResp,
 } from "../../types/services/university";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -18,6 +18,7 @@ export const getUniversities = async (props: getUniversitiesReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -29,6 +30,7 @@ export const addUniversity = async (props: universityReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -43,5 +45,6 @@ export const putUniversity = async (id: number, props: universityReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

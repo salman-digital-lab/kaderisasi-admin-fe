@@ -33,10 +33,10 @@ import { getActivity, putActivity } from "../../../../api/services/activity";
 import { getClubs } from "../../../../api/services/club";
 import { RichTextEditor } from "../../../../components/common/RichTextEditor";
 import {
-  ACTIVITY_CATEGORY_ENUM,
+  type ACTIVITY_CATEGORY_ENUM,
   ACTIVITY_TYPE_ENUM,
 } from "../../../../types/constants/activity";
-import { USER_LEVEL_ENUM } from "../../../../types/constants/profile";
+import { type USER_LEVEL_ENUM } from "../../../../types/constants/profile";
 import { usePermissions } from "../../../../stores/authStore";
 import { CLUB_TYPE_LABELS } from "../../../../types/model/club";
 import { Link } from "react-router-dom";

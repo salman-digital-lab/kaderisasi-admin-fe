@@ -1,5 +1,5 @@
-import { AdminUser } from "../model/adminuser";
-import { Pagination } from "./base";
+import { type AdminUser } from "../model/adminuser";
+import { type Pagination } from "./base";
 
 export type GetAdminUsersResp = {
   message: string;

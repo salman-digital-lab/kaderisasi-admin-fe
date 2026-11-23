@@ -337,6 +337,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = React.memo(
       isResizing,
       onSelectElement,
       onToolChange,
+      stopPan,
       tool,
     ]);
 

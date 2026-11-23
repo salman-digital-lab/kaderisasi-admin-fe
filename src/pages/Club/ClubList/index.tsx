@@ -7,7 +7,7 @@ import { getClubs } from "../../../api/services/club";
 import ClubTable from "./components/ClubTable";
 import ClubFilter from "./components/ClubFilter";
 import ClubForm from "./components/ClubForm";
-import { FilterType } from "./constants/type";
+import { type FilterType } from "./constants/type";
 import PageHeader from "../../../components/common/PageHeader";
 import { NAV_LABELS } from "../../../constants/navigation";
 

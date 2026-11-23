@@ -1,11 +1,11 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
-import React from "react";
+import type React from "react";
 import { Button, Popconfirm, message } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
-import { Pagination } from "../../../../types/services/base";
-import { CustomForm } from "../../../../types/model/customForm";
+import { type Pagination } from "../../../../types/services/base";
+import { type CustomForm } from "../../../../types/model/customForm";
 import { TABLE_SCHEMA } from "../constants/schema";
 import { deleteCustomForm } from "../../../../api/services/customForm";
 import { actionError } from "../../../../utils/action-error";

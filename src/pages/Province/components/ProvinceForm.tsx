@@ -21,7 +21,7 @@ const ProvinceForm = ({ open, onClose, initialValues }: ProvinceFormProps) => {
 
   useEffect(() => {
     if (initialValues) form.setFieldsValue(initialValues);
-  }, [initialValues]);
+  }, [initialValues, form]);
 
   const { loading: addLoading, runAsync: runAddProvince } = useRequest(
     addProvince,

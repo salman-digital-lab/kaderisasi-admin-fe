@@ -7,7 +7,7 @@ import {
   renderActivityCategory,
   renderActivityType,
 } from "../../../../constants/render";
-import { Activity } from "../../../../types/model/activity";
+import { type Activity } from "../../../../types/model/activity";
 import type { ReactElement } from "react";
 
 const { Text } = Typography;

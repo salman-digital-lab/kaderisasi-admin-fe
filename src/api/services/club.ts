@@ -1,19 +1,19 @@
 import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  getClubsReq,
-  getClubsResp,
-  getClubResp,
-  postClubReq,
-  postClubResp,
-  putClubReq,
-  putClubResp,
-  uploadLogoResp,
-  uploadImageMediaResp,
-  addYoutubeMediaResp,
-  deleteMediaReq,
-  deleteMediaResp,
-  addYoutubeMediaReq,
+  type getClubsReq,
+  type getClubsResp,
+  type getClubResp,
+  type postClubReq,
+  type postClubResp,
+  type putClubReq,
+  type putClubResp,
+  type uploadLogoResp,
+  type uploadImageMediaResp,
+  type addYoutubeMediaResp,
+  type deleteMediaReq,
+  type deleteMediaResp,
+  type addYoutubeMediaReq,
 } from "../../types/services/club";
 import axios from "../axios";
 import { handleError } from "../errorHandling";

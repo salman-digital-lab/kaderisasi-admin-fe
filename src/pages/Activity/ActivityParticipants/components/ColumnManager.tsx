@@ -15,7 +15,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -25,7 +25,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ColumnConfig, saveColumnPreferences } from "../constants/columns";
+import { type ColumnConfig, saveColumnPreferences } from "../constants/columns";
 import { DIALOG_WIDTH } from "../../../../theme/tokens";
 
 const { Text } = Typography;

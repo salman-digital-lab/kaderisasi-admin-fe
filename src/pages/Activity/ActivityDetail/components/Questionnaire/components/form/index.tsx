@@ -1,7 +1,7 @@
 import { Input } from "antd";
 
 import DropdownForm from "./DropdownForm";
-import { Questionnaire } from "../../../../../../../types/model/activity";
+import { type Questionnaire } from "../../../../../../../types/model/activity";
 
 const { TextArea } = Input;
 

@@ -1,9 +1,9 @@
 import { message } from "antd";
 import {
-  getProvincesReq,
-  getProvincesResp,
-  postProvinceResp,
-  putProvinceResp,
+  type getProvincesReq,
+  type getProvincesResp,
+  type postProvinceResp,
+  type putProvinceResp,
 } from "../../types/services/province";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -16,6 +16,7 @@ export const getProvinces = async (props: getProvincesReq) => {
     return res.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -25,6 +26,7 @@ export const getDataProvinceId = async (id: string) => {
     return res.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -35,6 +37,7 @@ export const addProvince = async (props: { name: string }) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -45,5 +48,6 @@ export const updateProvince = async (id: number, props: { name: string }) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

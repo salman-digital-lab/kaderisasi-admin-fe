@@ -1,11 +1,11 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
-import React from "react";
+import type React from "react";
 import { Empty, Alert, Button, Tag } from "antd";
 import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
-import { Pagination } from "../../../../types/services/base";
+import { type Pagination } from "../../../../types/services/base";
 import { TABLE_SCHEMA } from "../constants/schema";
-import { Member } from "../../../../types/model/members";
+import { type Member } from "../../../../types/model/members";
 import styles from "./MemberTable.module.css";
 
 interface DataTypeProps {

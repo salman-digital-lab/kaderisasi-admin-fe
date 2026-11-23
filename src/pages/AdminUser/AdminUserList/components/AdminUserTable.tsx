@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useIsSuperAdmin } from "../../../../stores/authStore";
 import { TABLE_SCHEMA } from "../constants/schema";
 import EditAdminUser from "./modal/EditAdminUser";
-import { AdminUser } from "../../../../types/model/adminuser";
-import { Pagination } from "../../../../types/services/base";
+import { type AdminUser } from "../../../../types/model/adminuser";
+import { type Pagination } from "../../../../types/services/base";
 import { useState } from "react";
 import EditPasswordAdminUser from "./modal/EditPasswordAdminUser";
 

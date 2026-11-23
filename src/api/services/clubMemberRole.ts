@@ -1,13 +1,13 @@
 import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  deleteClubMemberRoleResp,
-  getClubMemberRoleSuggestionsResp,
-  getClubMemberRolesResp,
-  postClubMemberRoleReq,
-  postClubMemberRoleResp,
-  putClubMemberRoleReq,
-  putClubMemberRoleResp,
+  type deleteClubMemberRoleResp,
+  type getClubMemberRoleSuggestionsResp,
+  type getClubMemberRolesResp,
+  type postClubMemberRoleReq,
+  type postClubMemberRoleResp,
+  type putClubMemberRoleReq,
+  type putClubMemberRoleResp,
 } from "../../types/services/clubMemberRole";
 import { renderNotification } from "../../constants/render";
 import axios from "../axios";

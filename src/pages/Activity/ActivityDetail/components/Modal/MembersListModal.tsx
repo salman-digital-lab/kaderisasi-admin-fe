@@ -3,7 +3,7 @@ import { ResponsiveTable as Table } from "../../../../../components/common/Respo
 import { useRequest } from "ahooks";
 import { Input, Space, message } from "antd";
 import { useState } from "react";
-import { Key } from "antd/es/table/interface";
+import { type Key } from "antd/es/table/interface";
 import { useParams } from "react-router-dom";
 
 import { getProfiles } from "../../../../../api/services/member";

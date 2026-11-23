@@ -1,5 +1,6 @@
 import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Input, Button, Card, Space, Tooltip, Select } from "antd";
 import { useRequest } from "ahooks";
 import { getRoles } from "../../../../api/services/access";

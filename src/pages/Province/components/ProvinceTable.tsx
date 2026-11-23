@@ -1,10 +1,10 @@
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import React from "react";
+import type React from "react";
 import { Empty, Alert, Button } from "antd";
 import { ReloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 import { TABLE_SCHEMA } from "../constants/schema";
-import { Province } from "../../../types/model/province";
+import { type Province } from "../../../types/model/province";
 
 interface DataTypeProps {
   data?: {

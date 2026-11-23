@@ -7,7 +7,7 @@ import { generateDefaultQuestion } from "../../constants/default";
 import { getActivity, putActivity } from "../../../../../api/services/activity";
 import { useRequest } from "ahooks";
 import { useParams } from "react-router-dom";
-import { Questionnaire } from "../../../../../types/model/activity";
+import { type Questionnaire } from "../../../../../types/model/activity";
 
 const QuestionnaireForm = () => {
   const { id } = useParams<{ id: string }>();

@@ -1,11 +1,11 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
-import React from "react";
+import type React from "react";
 
-import { Pagination } from "../../../../types/services/base";
-import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
+import { type Pagination } from "../../../../types/services/base";
+import { type RuangCurhatData } from "../../../../types/model/ruangcurhat";
 import { TABLE_SCHEMA } from "../constants/schema";
-import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
-import { GENDER } from "../../../../types/constants/profile";
+import { type PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
+import { type GENDER } from "../../../../types/constants/profile";
 
 interface DataTypeProps {
   data?: {

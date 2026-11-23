@@ -1,10 +1,10 @@
-import { TableProps, Tooltip, Button } from "antd";
+import { type TableProps, Tooltip, Button } from "antd";
 import { Link } from "react-router-dom";
 import { EyeOutlined } from "@ant-design/icons";
 import { memo } from "react";
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
-import { Registrant } from "../../../../types/model/activity";
+import { type Registrant } from "../../../../types/model/activity";
 import { USER_LEVEL_OPTIONS } from "../../../../constants/options";
 import {
   currentEducation,

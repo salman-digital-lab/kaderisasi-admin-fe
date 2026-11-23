@@ -19,7 +19,6 @@ export default [
       "tests/browser/dist/**",
       "tests/browser/vite.config.ts",
       "vite.config.ts",
-      ".eslintrc.cjs",
       "eslint.config.mjs",
     ],
   },
@@ -51,7 +50,31 @@ export default [
       "@typescript-eslint/no-empty-object-type": "off",
       "react/prop-types": "off",
       "react-refresh/only-export-components": "off",
-      "react-hooks/exhaustive-deps": "off",
+      eqeqeq: ["error", "always", { null: "ignore" }],
+      "no-console": ["error", { allow: ["warn", "error"] }],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { prefer: "type-imports", fixStyle: "inline-type-imports" },
+      ],
+      "@typescript-eslint/no-floating-promises": [
+        "error",
+        {
+          // React Router's navigate() only returns a promise in framework mode.
+          allowForKnownSafeCalls: [
+            {
+              from: "package",
+              name: "NavigateFunction",
+              package: "react-router",
+            },
+            {
+              from: "package",
+              name: "NavigateFunction",
+              package: "react-router-dom",
+            },
+          ],
+        },
+      ],
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
     },
     settings: {
       react: {

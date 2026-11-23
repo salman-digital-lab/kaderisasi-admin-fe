@@ -50,7 +50,7 @@ import type { IssuedCertificate } from "../../../types/services/certificateTempl
 import { getCustomFormByFeature } from "../../../api/services/customForm";
 import {
   ALL_COLUMNS,
-  ColumnConfig,
+  type ColumnConfig,
   generateTableColumns,
   loadColumnPreferences,
 } from "./constants/columns";

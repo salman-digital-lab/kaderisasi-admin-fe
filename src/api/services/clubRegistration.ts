@@ -1,18 +1,18 @@
 import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  getClubRegistrationsReq,
-  getClubRegistrationsResp,
-  getClubRegistrationResp,
-  postClubRegistrationReq,
-  postClubRegistrationResp,
-  putClubRegistrationReq,
-  putClubRegistrationResp,
-  putClubRegistrationsBulkReq,
-  putClubRegistrationsBulkResp,
-  deleteClubRegistrationResp,
-  putClubRegistrationInfoReq,
-  putClubRegistrationInfoResp,
+  type getClubRegistrationsReq,
+  type getClubRegistrationsResp,
+  type getClubRegistrationResp,
+  type postClubRegistrationReq,
+  type postClubRegistrationResp,
+  type putClubRegistrationReq,
+  type putClubRegistrationResp,
+  type putClubRegistrationsBulkReq,
+  type putClubRegistrationsBulkResp,
+  type deleteClubRegistrationResp,
+  type putClubRegistrationInfoReq,
+  type putClubRegistrationInfoResp,
 } from "../../types/services/clubRegistration";
 import axios from "../axios";
 import { handleError } from "../errorHandling";

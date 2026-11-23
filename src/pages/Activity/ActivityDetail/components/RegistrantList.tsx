@@ -25,7 +25,7 @@ import {
   message,
 } from "antd";
 import dayjs from "dayjs";
-import { memo, ReactNode, useCallback, useState } from "react";
+import { memo, type ReactNode, useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {

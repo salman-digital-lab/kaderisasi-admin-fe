@@ -1,4 +1,4 @@
-import { MenuProps } from "antd";
+import { type MenuProps } from "antd";
 import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
 export const UPDATE_STATUS_MENU: MenuProps["items"] = [
   {

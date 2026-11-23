@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { ELEMENT_MIN_HEIGHT, ELEMENT_MIN_WIDTH } from "../../constants";
-import { CertificateElement } from "../../types";
+import { type CertificateElement } from "../../types";
 import type { ResizeHandle } from "../DraggableElement";
 
 interface ResizeState {

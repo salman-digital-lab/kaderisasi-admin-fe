@@ -1,10 +1,10 @@
 import {
-  ACTIVITY_TYPE_ENUM,
-  ACTIVITY_CATEGORY_ENUM,
-  ACTIVITY_REGISTRANT_STATUS_ENUM,
+  type ACTIVITY_TYPE_ENUM,
+  type ACTIVITY_CATEGORY_ENUM,
+  type ACTIVITY_REGISTRANT_STATUS_ENUM,
 } from "../constants/activity";
-import { Activity, Registrant } from "../model/activity";
-import { Pagination } from "./base";
+import { type Activity, type Registrant } from "../model/activity";
+import { type Pagination } from "./base";
 
 export type getActivitiesReq = {
   per_page: string;

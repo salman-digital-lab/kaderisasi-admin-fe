@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { CertificateElement } from "../../types";
+import { type CertificateElement } from "../../types";
 
 interface DragState {
   elementId: string;

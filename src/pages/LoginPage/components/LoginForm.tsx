@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import {
   Button,
   Form,
@@ -36,14 +36,15 @@ const LoginForm = () => {
   const googleButton = useRef<HTMLDivElement>(null);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-  const finishLogin = (
-    session: Awaited<ReturnType<typeof loginUser>>["data"],
-  ) => {
-    setSession(session);
-    navigate(landingPath(session.permissions), {
-      replace: true,
-    });
-  };
+  const finishLogin = useCallback(
+    (session: Awaited<ReturnType<typeof loginUser>>["data"]) => {
+      setSession(session);
+      navigate(landingPath(session.permissions), {
+        replace: true,
+      });
+    },
+    [navigate, setSession],
+  );
 
   useEffect(() => {
     const emailInput = document.querySelector(
@@ -125,7 +126,7 @@ const LoginForm = () => {
     return () => {
       script.onload = null;
     };
-  }, [googleClientId]);
+  }, [googleClientId, finishLogin]);
 
   const containerStyle = {
     minHeight: "100vh",

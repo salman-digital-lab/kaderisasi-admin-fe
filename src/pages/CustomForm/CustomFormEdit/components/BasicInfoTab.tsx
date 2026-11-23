@@ -12,7 +12,7 @@ import {
 import type { CustomForm } from "../../../../types/model/customForm";
 import type { Activity } from "../../../../types/model/activity";
 import type { FormInstance } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getAvailableActivities } from "../../../../api/services/customForm";
 import { RichTextEditor } from "../../../../components";
 import { formatDateTime } from "../../../../utils/date-format";
@@ -52,13 +52,7 @@ export const BasicInfoTab = ({
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [activitiesFailed, setActivitiesFailed] = useState(false);
 
-  useEffect(() => {
-    if (featureType === "activity_registration") {
-      fetchAvailableActivities();
-    }
-  }, [featureType]);
-
-  const fetchAvailableActivities = async () => {
+  const fetchAvailableActivities = useCallback(async () => {
     setLoadingActivities(true);
     setActivitiesFailed(false);
     try {
@@ -69,7 +63,13 @@ export const BasicInfoTab = ({
     } finally {
       setLoadingActivities(false);
     }
-  };
+  }, [initialData.id]);
+
+  useEffect(() => {
+    if (featureType === "activity_registration") {
+      void fetchAvailableActivities();
+    }
+  }, [featureType, fetchAvailableActivities]);
 
   const handleFeatureTypeChange = (
     value: "activity_registration" | "club_registration" | "independent_form",

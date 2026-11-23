@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { TableProps, Tag, Tooltip, Typography, Button, Space } from "antd";
+import { type TableProps, Tag, Tooltip, Typography, Button, Space } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 
 import { renderUserLevel } from "../../../../constants/render";
-import { Member } from "../../../../types/model/members";
+import { type Member } from "../../../../types/model/members";
 import {
   currentEducation,
   formatCurrentEducation,

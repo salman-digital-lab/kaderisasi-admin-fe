@@ -1,4 +1,4 @@
-import { Pagination } from "./base";
+import { type Pagination } from "./base";
 
 export interface MonthlyLeaderboardType {
   id: number;

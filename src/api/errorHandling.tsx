@@ -1,5 +1,5 @@
 import { message, notification, Typography } from "antd";
-import { AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import { renderNotification } from "../constants/render";
 
 const { Paragraph, Text } = Typography;

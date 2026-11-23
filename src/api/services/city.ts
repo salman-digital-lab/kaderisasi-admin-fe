@@ -1,4 +1,4 @@
-import { getCitiesResp } from "../../types/services/city";
+import { type getCitiesResp } from "../../types/services/city";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
 
@@ -8,5 +8,6 @@ export const getCities = async () => {
     return res.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

@@ -1,7 +1,7 @@
-import { Pagination } from "./base";
-import { RuangCurhatData } from "../model/ruangcurhat";
-import { PROBLEM_STATUS_ENUM } from "../constants/ruangcurhat";
-import { GENDER } from "../constants/profile";
+import { type Pagination } from "./base";
+import { type RuangCurhatData } from "../model/ruangcurhat";
+import { type PROBLEM_STATUS_ENUM } from "../constants/ruangcurhat";
+import { type GENDER } from "../constants/profile";
 export type GetRuangCurhatsResp = {
   message: string;
   data: {

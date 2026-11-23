@@ -1,7 +1,7 @@
-import { Button, Space, TableProps } from "antd";
+import { Button, Space, type TableProps } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
-import { Province } from "../../../types/model/province";
+import { type Province } from "../../../types/model/province";
 
 export const TABLE_SCHEMA = (
   openModal: (id: number, name: string) => void,

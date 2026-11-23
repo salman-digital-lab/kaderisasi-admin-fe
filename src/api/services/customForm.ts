@@ -1,13 +1,13 @@
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  GetCustomFormsReq,
-  GetCustomFormsResp,
-  GetCustomFormResp,
-  CreateCustomFormReq,
-  CreateCustomFormResp,
-  UpdateCustomFormReq,
-  UpdateCustomFormResp,
-  DeleteCustomFormResp,
+  type GetCustomFormsReq,
+  type GetCustomFormsResp,
+  type GetCustomFormResp,
+  type CreateCustomFormReq,
+  type CreateCustomFormResp,
+  type UpdateCustomFormReq,
+  type UpdateCustomFormResp,
+  type DeleteCustomFormResp,
 } from "../../types/services/customForm";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -32,6 +32,7 @@ export const getCustomForm = async (id: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -94,6 +95,7 @@ export const getCustomFormByFeature = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -111,6 +113,7 @@ export const getUnattachedForms = async (props: {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -121,6 +124,7 @@ export const getAvailableActivities = async (currentFormId?: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -131,6 +135,7 @@ export const getAvailableClubs = async (currentFormId?: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 

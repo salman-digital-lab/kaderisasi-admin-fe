@@ -14,7 +14,7 @@ import {
   Button,
   Typography,
   Dropdown,
-  MenuProps,
+  type MenuProps,
   message,
   Flex,
   Avatar,

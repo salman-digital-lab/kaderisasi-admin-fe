@@ -1,5 +1,5 @@
 import { useCallback, useReducer } from "react";
-import { CertificateElement, CertificateTemplate } from "../types";
+import { type CertificateElement, type CertificateTemplate } from "../types";
 import {
   DEFAULT_CANVAS_WIDTH,
   DEFAULT_CANVAS_HEIGHT,

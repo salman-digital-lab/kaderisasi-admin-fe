@@ -1,15 +1,15 @@
 import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  GetAchievementReq,
-  GetAchievementResp,
-  GetAchievementsReq,
-  PutAchievementReq,
-  PutAchievementResp,
-  ApproveAchievementReq,
-  ApproveAchievementResp,
+  type GetAchievementReq,
+  type GetAchievementResp,
+  type GetAchievementsReq,
+  type PutAchievementReq,
+  type PutAchievementResp,
+  type ApproveAchievementReq,
+  type ApproveAchievementResp,
 } from "../../types/services/achievement";
-import { GetAchievementsResp } from "../../types/services/achievement";
+import { type GetAchievementsResp } from "../../types/services/achievement";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
 import { renderNotification } from "../../constants/render";
@@ -24,6 +24,7 @@ export const getAchievements = async (props: GetAchievementsReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -35,6 +36,7 @@ export const exportAchievements = async () => {
     return res.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -46,6 +48,7 @@ export const getAchievement = async (props: GetAchievementReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -60,6 +63,7 @@ export const putAchievement = async (props: PutAchievementReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 

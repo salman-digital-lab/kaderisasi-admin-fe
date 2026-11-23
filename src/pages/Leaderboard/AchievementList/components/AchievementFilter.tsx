@@ -1,5 +1,6 @@
 import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Button, Card, Space, Select, Input, Tooltip, message } from "antd";
 import {
   DownloadOutlined,
@@ -7,8 +8,8 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import {
-  ACHIEVEMENT_STATUS_ENUM,
-  ACHIEVEMENT_TYPE_ENUM,
+  type ACHIEVEMENT_STATUS_ENUM,
+  type ACHIEVEMENT_TYPE_ENUM,
 } from "../../../../types/constants/achievement";
 import {
   ACHIEVEMENT_STATUS_OPTIONS,

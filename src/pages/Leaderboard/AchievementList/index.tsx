@@ -7,8 +7,8 @@ import {
 import AchievementTable from "./components/AchievementTable";
 import AchievementFilter from "./components/AchievementFilter";
 import {
-  ACHIEVEMENT_STATUS_ENUM,
-  ACHIEVEMENT_TYPE_ENUM,
+  type ACHIEVEMENT_STATUS_ENUM,
+  type ACHIEVEMENT_TYPE_ENUM,
 } from "../../../types/constants/achievement";
 import type {
   AchievementSortBy,

@@ -2,10 +2,10 @@ import { ResponsiveDescriptions as Descriptions } from "../../../components/comm
 import { useRequest, useToggle } from "ahooks";
 import {
   Button,
-  DescriptionsProps,
+  type DescriptionsProps,
   Dropdown,
   Flex,
-  MenuProps,
+  type MenuProps,
   Space,
   Tag,
   Input,

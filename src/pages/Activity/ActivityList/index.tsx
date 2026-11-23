@@ -18,10 +18,10 @@ import {
 } from "../../../constants/options";
 
 import ActivityTable from "./components/ActivityTable";
-import { FilterType } from "./constants/type";
+import { type FilterType } from "./constants/type";
 import {
-  ACTIVITY_CATEGORY_ENUM,
-  ACTIVITY_TYPE_ENUM,
+  type ACTIVITY_CATEGORY_ENUM,
+  type ACTIVITY_TYPE_ENUM,
 } from "../../../types/constants/activity";
 import { CLUB_TYPE_LABELS } from "../../../types/model/club";
 import PageHeader from "../../../components/common/PageHeader";

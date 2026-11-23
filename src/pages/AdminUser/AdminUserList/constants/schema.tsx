@@ -1,5 +1,5 @@
-import { Button, Space, TableProps, Tag } from "antd";
-import { AdminUser } from "../../../../types/model/adminuser";
+import { Button, Space, type TableProps, Tag } from "antd";
+import { type AdminUser } from "../../../../types/model/adminuser";
 import RoleTags from "../../../../components/common/RoleTags";
 import { assignedRoles } from "../../../../utils/admin-roles";
 

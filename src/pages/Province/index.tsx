@@ -4,7 +4,7 @@ import { Button, Input, Tooltip, Card, Space } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 
 import { getProvinces } from "../../api/services/province";
-import { Province } from "../../types/model/province";
+import { type Province } from "../../types/model/province";
 import ProvinceTable from "./components/ProvinceTable";
 import ProvinceForm from "./components/ProvinceForm";
 import PageHeader from "../../components/common/PageHeader";

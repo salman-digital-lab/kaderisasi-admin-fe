@@ -1,5 +1,5 @@
-import { Pagination } from "./base";
-import { University } from "../model/university";
+import { type Pagination } from "./base";
+import { type University } from "../model/university";
 export type getUniversitiesResp = {
   message: string;
   data: {

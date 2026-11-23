@@ -28,7 +28,8 @@ import {
 } from "antd";
 import type { TableProps } from "antd/es/table/InternalTable";
 import dayjs from "dayjs";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   createCertificateTemplate,
@@ -149,7 +150,7 @@ const CertificateList: React.FC = () => {
   }, [appliedSearch, parameter.page, parameter.per_page, statusFilter]);
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
     return () => fetchController.current?.abort();
   }, [fetchData]);
 

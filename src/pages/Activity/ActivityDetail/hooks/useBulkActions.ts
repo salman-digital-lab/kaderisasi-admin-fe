@@ -7,7 +7,11 @@ interface BulkActionsConfig {
   onExport?: (ids: React.Key[]) => Promise<void>;
 }
 
-export const useBulkActions = (config: BulkActionsConfig) => {
+export const useBulkActions = ({
+  onStatusChange,
+  onDelete,
+  onExport,
+}: BulkActionsConfig) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -37,7 +41,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
 
       setIsProcessing(true);
       try {
-        await config.onStatusChange?.(selectedRowKeys, status);
+        await onStatusChange?.(selectedRowKeys, status);
         message.success(
           `${selectedRowKeys.length} data berhasil diubah statusnya`,
         );
@@ -51,7 +55,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
         setIsProcessing(false);
       }
     },
-    [selectedRowKeys, config.onStatusChange, clearSelection],
+    [selectedRowKeys, onStatusChange, clearSelection],
   );
 
   const bulkDelete = useCallback(async () => {
@@ -65,7 +69,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
 
     setIsProcessing(true);
     try {
-      await config.onDelete?.(selectedRowKeys);
+      await onDelete?.(selectedRowKeys);
       message.success(`${selectedRowKeys.length} data berhasil dihapus`);
       clearSelection();
     } catch {
@@ -76,7 +80,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedRowKeys, config.onDelete, clearSelection]);
+  }, [selectedRowKeys, onDelete, clearSelection]);
 
   const bulkExport = useCallback(async () => {
     if (selectedRowKeys.length === 0) {
@@ -89,7 +93,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
 
     setIsProcessing(true);
     try {
-      await config.onExport?.(selectedRowKeys);
+      await onExport?.(selectedRowKeys);
       message.success(`${selectedRowKeys.length} data berhasil diekspor`);
     } catch {
       notification.error({
@@ -99,7 +103,7 @@ export const useBulkActions = (config: BulkActionsConfig) => {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedRowKeys, config.onExport]);
+  }, [selectedRowKeys, onExport]);
 
   const selectionInfo = useMemo(
     () => ({

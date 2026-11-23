@@ -1,4 +1,4 @@
-import { City } from "../model/city";
+import { type City } from "../model/city";
 export type getCitiesReq = {
   per_page: string;
   page: string;

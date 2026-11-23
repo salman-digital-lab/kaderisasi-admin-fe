@@ -1,6 +1,6 @@
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { Button, Flex, Skeleton, Space, Tag, Typography, message } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCertificateTemplate } from "../../../api/services/certificateTemplate";
 import { getCertificateSettings } from "../../../api/services/certificateWorkflow";
 import type { CertificateTemplateData } from "../../../types/services/certificateTemplate";
@@ -31,6 +31,12 @@ export function CertificateSettingsSummary({
   const [state, setState] = useState<{ saved: boolean; number: string }>();
   const [error, setError] = useState(false);
 
+  // onReadyChange is a notification only; a new callback must not refetch.
+  const notifyReady = useRef(onReadyChange);
+  useEffect(() => {
+    notifyReady.current = onReadyChange;
+  });
+
   useEffect(() => {
     if (!templateId) return;
     const controller = new AbortController();
@@ -46,7 +52,7 @@ export function CertificateSettingsSummary({
           saved: settings.saved,
           number: settings.certificate_activity_number ?? "",
         });
-        onReadyChange?.(
+        notifyReady.current?.(
           settings.saved ||
             !templateNeedsActivitySettings(loadedTemplate.template_data),
         );
@@ -55,7 +61,6 @@ export function CertificateSettingsSummary({
         if (!controller.signal.aborted) setError(true);
       });
     return () => controller.abort();
-    // onReadyChange is a notification only; it is not a fetch dependency.
   }, [activityId, templateId, refresh]);
 
   const heading = <Typography.Text strong>Isi sertifikat</Typography.Text>;

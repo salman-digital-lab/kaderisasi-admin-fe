@@ -12,3 +12,11 @@ export async function validateFieldsAndFocus<T>(
     throw error;
   }
 }
+
+/** Runs `onValid` with the form values; an invalid form only gets its first error focused. */
+export function whenValid<T>(
+  form: FormInstance<T>,
+  onValid: (values: T) => void,
+): void {
+  validateFieldsAndFocus(form).then(onValid, () => undefined);
+}

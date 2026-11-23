@@ -1,4 +1,4 @@
-import { Country } from "../../types/model/country";
+import { type Country } from "../../types/model/country";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
 
@@ -13,5 +13,6 @@ export const getCountries = async () => {
     return res.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

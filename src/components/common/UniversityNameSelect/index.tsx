@@ -11,6 +11,21 @@ type UniversityNameSelectProps = Omit<
   onChange?: (value: string) => void;
 };
 
+type Option = { label: string; value: string };
+
+async function loadOptions(
+  search: string,
+  keep: string | undefined,
+): Promise<Option[] | undefined> {
+  const data = await getUniversities({ per_page: "20", page: "1", search });
+  if (!data) return undefined;
+  const fetched = data.data.map((u) => ({ label: u.name, value: u.name }));
+  // Keep current value in list even if not returned by search
+  return keep && !fetched.some((o) => o.value === keep)
+    ? [{ label: keep, value: keep }, ...fetched]
+    : fetched;
+}
+
 /**
  * Ant Design searchable Select that stores the university NAME as its value.
  * Integrates with Ant Design Form via value/onChange props. Only names from
@@ -22,32 +37,29 @@ export default function UniversityNameSelect({
   onChange,
   ...props
 }: UniversityNameSelectProps) {
-  const [options, setOptions] = useState<{ label: string; value: string }[]>(
+  const [options, setOptions] = useState<Option[]>(
     value ? [{ label: value, value }] : [],
   );
   const [searchTimeout, setSearchTimeout] = useState<ReturnType<
     typeof setTimeout
   > | null>(null);
 
-  const fetchUniversities = async (search?: string) => {
-    const data = await getUniversities({ per_page: "20", page: "1", search });
-    if (!data) return;
-    const fetched = data.data.map((u) => ({ label: u.name, value: u.name }));
-    // Keep current value in list even if not returned by search
-    if (value && !fetched.some((o) => o.value === value)) {
-      setOptions([{ label: value, value }, ...fetched]);
-    } else {
-      setOptions(fetched);
-    }
-  };
+  const [initialValue] = useState(value ?? "");
 
   useEffect(() => {
-    fetchUniversities(value || "");
-  }, []);
+    void loadOptions(initialValue, initialValue).then(
+      (loaded) => loaded && setOptions(loaded),
+    );
+  }, [initialValue]);
 
-  const handleSearch = (search: string) => {
+  const search = async (text: string) => {
+    const loaded = await loadOptions(text, value);
+    if (loaded) setOptions(loaded);
+  };
+
+  const handleSearch = (text: string) => {
     if (searchTimeout) clearTimeout(searchTimeout);
-    setSearchTimeout(setTimeout(() => fetchUniversities(search), 300));
+    setSearchTimeout(setTimeout(() => void search(text), 300));
   };
 
   return (

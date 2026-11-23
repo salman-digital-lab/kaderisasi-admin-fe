@@ -1,9 +1,9 @@
 import {
-  ACHIEVEMENT_STATUS_ENUM,
-  ACHIEVEMENT_TYPE_ENUM,
+  type ACHIEVEMENT_STATUS_ENUM,
+  type ACHIEVEMENT_TYPE_ENUM,
 } from "../constants/achievement";
-import { AdminUser } from "./adminuser";
-import { PublicUser } from "./members";
+import { type AdminUser } from "./adminuser";
+import { type PublicUser } from "./members";
 
 export type Achievement = {
   id: number;

@@ -1,5 +1,5 @@
-import { ACTIVITY_TYPE_ENUM } from "../../../../types/constants/activity";
-import { ACTIVITY_CATEGORY_ENUM } from "../../../../types/constants/activity";
+import { type ACTIVITY_TYPE_ENUM } from "../../../../types/constants/activity";
+import { type ACTIVITY_CATEGORY_ENUM } from "../../../../types/constants/activity";
 export type FilterType = {
   page: number;
   per_page: number;

@@ -1,7 +1,7 @@
 import {
-  ClubMemberRole,
-  ClubMemberRoleCreateRequest,
-  ClubMemberRoleUpdateRequest,
+  type ClubMemberRole,
+  type ClubMemberRoleCreateRequest,
+  type ClubMemberRoleUpdateRequest,
 } from "../model/clubMemberRole";
 
 export type getClubMemberRolesResp = {

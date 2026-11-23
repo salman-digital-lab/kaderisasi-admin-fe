@@ -1,10 +1,10 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
-import React from "react";
+import type React from "react";
 import { Button, Empty } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-import { Pagination } from "../../../../types/services/base";
-import { Club } from "../../../../types/model/club";
+import { type Pagination } from "../../../../types/services/base";
+import { type Club } from "../../../../types/model/club";
 import { createTableSchema } from "../constants/schema";
 import type { FilterType } from "../constants/type";
 

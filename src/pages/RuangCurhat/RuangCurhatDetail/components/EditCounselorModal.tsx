@@ -45,10 +45,12 @@ export default function EditCounselorModal({
       open={isOpen}
       onOk={() => {
         if (newData)
-          run({ id: id || "", data: { counselor_id: newData } }).then(() => {
-            dataRefresh();
-            toggle();
-          });
+          void run({ id: id || "", data: { counselor_id: newData } }).then(
+            () => {
+              dataRefresh();
+              toggle();
+            },
+          );
       }}
       onCancel={() => {
         toggle();

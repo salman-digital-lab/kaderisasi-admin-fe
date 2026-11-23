@@ -1,7 +1,8 @@
 import { validateFieldsAndFocus } from "../../../components/common/Responsive/validate-fields";
 import { ResponsiveDialog as Modal } from "../../../components/common/Responsive/ResponsiveDialog";
 import { ResponsiveTable as Table } from "../../../components/common/Responsive/ResponsiveTable";
-import React, { useState, useEffect, useMemo } from "react";
+import type React from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
   Button,
@@ -146,13 +147,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     );
   }, [columnStorageId, answerDefaults]);
 
-  useEffect(() => {
-    if (clubId) {
-      fetchRegistrations();
-    }
-  }, [clubId, currentPage, pageSize, statusFilter, sortOrder]);
-
-  const fetchRegistrations = async () => {
+  const fetchRegistrations = useCallback(async () => {
     if (!clubId) return;
 
     setLoading(true);
@@ -172,7 +167,11 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [clubId, currentPage, pageSize, statusFilter, sortOrder, messageApi]);
+
+  useEffect(() => {
+    void fetchRegistrations();
+  }, [fetchRegistrations]);
 
   const handleAddMember = () => {
     setIsMembersModalVisible(true);
@@ -597,7 +596,7 @@ const ClubRegistrationsPage: React.FC<ClubRegistrationsPageProps> = ({
           open={isMembersModalVisible}
           toggle={setIsMembersModalVisible}
           onSuccess={() => {
-            fetchRegistrations();
+            void fetchRegistrations();
           }}
         />
 

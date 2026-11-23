@@ -7,7 +7,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 
-import { University } from "../../types/model/university";
+import { type University } from "../../types/model/university";
 import { getUniversities } from "../../api/services/university";
 
 import UniversityForm from "./components/UniversityForm";

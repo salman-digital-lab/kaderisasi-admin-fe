@@ -196,6 +196,7 @@ export function resolveCertificateText(
       return participant.university || "-";
     case "{{gender}}":
       return participant.gender || "-";
+    case undefined:
     default:
       return element.content || "";
   }

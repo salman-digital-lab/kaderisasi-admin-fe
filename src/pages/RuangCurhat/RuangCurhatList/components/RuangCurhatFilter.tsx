@@ -1,13 +1,14 @@
 import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Button, Card, Space, Select, Input, Tooltip } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import { PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
+import { type PROBLEM_STATUS_ENUM } from "../../../../types/constants/ruangcurhat";
 import {
   PROBLEM_STATUS_OPTIONS,
   GENDER_OPTION,
 } from "../../../../constants/options";
-import { GENDER } from "../../../../types/constants/profile";
+import { type GENDER } from "../../../../types/constants/profile";
 
 const cardStyle = {
   boxShadow: "none",

@@ -1,7 +1,7 @@
 import { ResponsiveTable as Table } from "../../../../components/common/Responsive/ResponsiveTable";
 
-import { MonthlyLeaderboardType } from "../../../../types/services/leaderboard";
-import { Pagination } from "../../../../types/services/base";
+import { type MonthlyLeaderboardType } from "../../../../types/services/leaderboard";
+import { type Pagination } from "../../../../types/services/base";
 import { TABLE_SCHEMA } from "../constants/schema";
 
 interface MonthlyLeaderboardTableProps {

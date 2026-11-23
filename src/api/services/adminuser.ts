@@ -5,16 +5,16 @@ import { removeEmptyValueFromObj } from "../../functions";
 import { message } from "antd";
 import { renderNotification } from "../../constants/render";
 import {
-  GetAdminsUserReq,
-  GetAdminUserResp,
-  GetAdminUsersReq,
-  GetAdminUsersResp,
-  PostAdminUserReq,
-  PostAdminUserResp,
-  PutAdminUserPasswordReq,
-  PutAdminUserPasswordResp,
-  PutAdminUserReq,
-  PutAdminUserResp,
+  type GetAdminsUserReq,
+  type GetAdminUserResp,
+  type GetAdminUsersReq,
+  type GetAdminUsersResp,
+  type PostAdminUserReq,
+  type PostAdminUserResp,
+  type PutAdminUserPasswordReq,
+  type PutAdminUserPasswordResp,
+  type PutAdminUserReq,
+  type PutAdminUserResp,
 } from "../../types/services/adminuser";
 
 export const getAdminUsers = async (
@@ -72,5 +72,6 @@ export const putAdminUserPassword = async (props: PutAdminUserPasswordReq) => {
     return;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

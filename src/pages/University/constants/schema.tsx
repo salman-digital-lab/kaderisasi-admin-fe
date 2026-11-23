@@ -1,6 +1,6 @@
-import { Button, Space, TableProps } from "antd";
+import { Button, Space, type TableProps } from "antd";
 import { EditOutlined } from "@ant-design/icons";
-import { University } from "../../../types/model/university";
+import { type University } from "../../../types/model/university";
 export const TABLE_SCHEMA = (
   openModal: (id: number, name: string, province_id?: number) => void,
 ): TableProps<University>["columns"] => [

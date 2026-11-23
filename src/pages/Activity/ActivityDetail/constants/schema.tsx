@@ -1,11 +1,11 @@
-import { Switch, TableProps, Tooltip } from "antd";
+import { Switch, type TableProps, Tooltip } from "antd";
 import { Link } from "react-router-dom";
-import { ColumnType } from "antd/es/table";
+import { type ColumnType } from "antd/es/table";
 import { memo } from "react";
 
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
-import { Registrant } from "../../../../types/model/activity";
+import { type Registrant } from "../../../../types/model/activity";
 import { RegistrationStatusTag } from "../../../../components/common/StatusTags";
 const NameLink = memo(
   ({ text, recordId }: { text: string; recordId: number }) => (

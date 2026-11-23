@@ -1,9 +1,9 @@
-import { Button, TableProps, Tag, Tooltip } from "antd";
+import { Button, type TableProps, Tag, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 import { EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-import { RuangCurhatData } from "../../../../types/model/ruangcurhat";
+import { type RuangCurhatData } from "../../../../types/model/ruangcurhat";
 import {
   renderProblemStatus,
   renderProblemStatusColor,

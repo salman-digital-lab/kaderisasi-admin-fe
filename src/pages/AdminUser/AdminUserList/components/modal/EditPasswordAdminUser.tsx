@@ -3,7 +3,7 @@ import { Input } from "antd";
 import { putAdminUserPassword } from "../../../../../api/services/adminuser";
 import { useRequest } from "ahooks";
 import { useState } from "react";
-import { AdminUser } from "../../../../../types/model/adminuser";
+import { type AdminUser } from "../../../../../types/model/adminuser";
 
 type EditPasswordAdminUserProps = {
   data: AdminUser | undefined;
@@ -14,7 +14,7 @@ export default function EditPasswordAdminUser({
   data,
   setData,
 }: EditPasswordAdminUserProps) {
-  const { runAsync, loading } = useRequest(putAdminUserPassword, {
+  const { run, loading } = useRequest(putAdminUserPassword, {
     manual: true,
   });
 
@@ -31,7 +31,7 @@ export default function EditPasswordAdminUser({
       confirmLoading={loading}
       onOk={() => {
         if (newData !== undefined && data) {
-          runAsync({ id: String(data.id), data: { password: newData } });
+          run({ id: String(data.id), data: { password: newData } });
           setNewData("");
           setData(undefined);
         }

@@ -1,6 +1,6 @@
-import { GENDER, USER_LEVEL_ENUM } from "../constants/profile";
-import { Province } from "./province";
-import { University } from "./university";
+import { type GENDER, type USER_LEVEL_ENUM } from "../constants/profile";
+import { type Province } from "./province";
+import { type University } from "./university";
 
 import type { EducationEntry, WorkEntry } from "../../utils/profile-history";
 export type { EducationEntry, WorkEntry } from "../../utils/profile-history";

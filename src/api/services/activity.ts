@@ -1,22 +1,22 @@
 import { removeEmptyValueFromObj } from "../../functions";
 import {
-  getActivitiesResp,
-  getActivitiesReq,
-  getActivityResp,
-  getRegistrantsResp,
-  putActivityReq,
-  getRegistrantReq,
-  postActivityReq,
-  putActivityResp,
-  postActivityResp,
-  postRegistrantsReq,
-  getRegistrantResp,
-  putRegistrantReq,
-  putActivityImagesReq,
-  postActivityImageResp,
-  putRemoveActivityImageReq,
-  putReorderActivityImagesReq,
-  getRegistrantStatisticsResp,
+  type getActivitiesResp,
+  type getActivitiesReq,
+  type getActivityResp,
+  type getRegistrantsResp,
+  type putActivityReq,
+  type getRegistrantReq,
+  type postActivityReq,
+  type putActivityResp,
+  type postActivityResp,
+  type postRegistrantsReq,
+  type getRegistrantResp,
+  type putRegistrantReq,
+  type putActivityImagesReq,
+  type postActivityImageResp,
+  type putRemoveActivityImageReq,
+  type putReorderActivityImagesReq,
+  type getRegistrantStatisticsResp,
 } from "../../types/services/activity";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -29,6 +29,7 @@ export const getActivities = async (props: getActivitiesReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -38,6 +39,7 @@ export const getActivity = async (id: number) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -109,6 +111,7 @@ export const postActivity = async (data: postActivityReq) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -125,6 +128,7 @@ export const getRegistrants = async (
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -136,6 +140,7 @@ export const getRegistrant = async (id: string | undefined) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -147,6 +152,7 @@ export const getExportRegistrants = async (id: string | undefined) => {
     return res.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
 
@@ -185,5 +191,6 @@ export const getRegistrantStatistics = async (id: string | undefined) => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };

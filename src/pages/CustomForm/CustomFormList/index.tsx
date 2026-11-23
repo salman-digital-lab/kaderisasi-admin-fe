@@ -6,7 +6,7 @@ import { getCustomForms } from "../../../api/services/customForm";
 
 import CustomFormTable from "./components/CustomFormTable";
 import CustomFormFilter from "./components/CustomFormFilter";
-import { FilterType } from "./constants/type";
+import { type FilterType } from "./constants/type";
 import PageHeader from "../../../components/common/PageHeader";
 import { NAV_LABELS } from "../../../constants/navigation";
 import LoadErrorAlert from "../../../components/common/LoadErrorAlert";

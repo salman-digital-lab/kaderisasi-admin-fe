@@ -50,9 +50,9 @@ import EditAuthDataModal, {
 import GenerateAccountModal from "./components/GenerateAccountModal";
 import MemberAuditLog from "./components/MemberAuditLog";
 import {
-  EducationEntry,
-  WorkEntry,
-  Member,
+  type EducationEntry,
+  type WorkEntry,
+  type Member,
 } from "../../../types/model/members";
 import UniversityNameSelect from "../../../components/common/UniversityNameSelect";
 import {

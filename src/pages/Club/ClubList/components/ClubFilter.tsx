@@ -2,7 +2,7 @@ import { Input, Card, Button, Space, Tooltip, Select } from "antd";
 import { useState } from "react";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 
-import { FilterType } from "../constants/type";
+import { type FilterType } from "../constants/type";
 import { CLUB_TYPE_OPTIONS } from "../../../../constants/options";
 import type { ClubType } from "../../../../types/model/club";
 import { ResponsiveFilters } from "../../../../components/common/Responsive/ResponsiveFilters";

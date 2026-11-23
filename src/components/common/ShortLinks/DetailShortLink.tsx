@@ -69,6 +69,7 @@ function DetailShortLinkContent({
       const frame = requestAnimationFrame(() => linkInput.current?.focus());
       return () => cancelAnimationFrame(frame);
     }
+    return undefined;
   }, [qr]);
   const [saving, setSaving] = useState(false);
   const [failure, setFailure] = useState("");

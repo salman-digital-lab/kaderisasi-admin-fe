@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { TableProps, Button, Space } from "antd";
+import { type TableProps, Button, Space } from "antd";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 
-import { CustomForm } from "../../../../types/model/customForm";
+import { type CustomForm } from "../../../../types/model/customForm";
 
 export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
   {

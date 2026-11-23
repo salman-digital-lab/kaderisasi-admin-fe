@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "antd";
 
-import { FilterType } from "../constants/type";
+import { type FilterType } from "../constants/type";
 import { createCustomForm } from "../../../../api/services/customForm";
 
 const cardStyle = {

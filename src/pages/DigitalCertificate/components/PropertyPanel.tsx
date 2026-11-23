@@ -28,12 +28,13 @@ import {
   Typography,
   Upload,
   message,
+  type UploadFile,
 } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 import { getBoundedGeometryValue } from "../CertificateDesigner/geometry";
 import { DEFAULT_FONT_FAMILIES, VARIABLE_OPTIONS } from "../constants";
-import { CertificateElement } from "../types";
+import { type CertificateElement } from "../types";
 import { getCertificateAssetUrl } from "../utils/certificate-content";
 import { getValidatedUploadFile } from "../utils/readUploadFile";
 
@@ -98,8 +99,9 @@ const BoundedNumberInput: React.FC<{
     const [localValue, setLocalValue] = useState<number | null>(readValue);
 
     useEffect(() => {
-      setLocalValue(readValue());
-    }, [value, draftKey]);
+      const draft = inputState.current.numbers.get(draftKey);
+      setLocalValue(draft?.source === value ? draft.value : value);
+    }, [value, draftKey, inputState]);
 
     const handleBlur = useCallback(() => {
       inputState.current.numbers.delete(draftKey);
@@ -123,12 +125,9 @@ const BoundedNumberInput: React.FC<{
       inputState,
     ]);
 
-    const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") (e.currentTarget as HTMLElement).blur();
-      },
-      [localValue, onChange],
-    );
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+      if (e.key === "Enter") (e.currentTarget as HTMLElement).blur();
+    }, []);
 
     return (
       <div style={{ flex: 1 }}>
@@ -244,7 +243,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     );
 
     const handleImageUpload = useCallback(
-      async (info: { file: import("antd").UploadFile }) => {
+      async (info: { file: UploadFile }) => {
         const file = getValidatedUploadFile(info, message.error);
         if (!file) return;
         const uploaded = await onAssetUpload(file);

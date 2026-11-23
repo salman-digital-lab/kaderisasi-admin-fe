@@ -5,7 +5,7 @@ import { putAdminUser } from "../../../../../api/services/adminuser";
 import { getRoles } from "../../../../../api/services/access";
 import { useRequest } from "ahooks";
 import { useEffect, useState, type ReactElement } from "react";
-import { AdminUser } from "../../../../../types/model/adminuser";
+import { type AdminUser } from "../../../../../types/model/adminuser";
 import RoleAssignmentFields from "../RoleAssignmentFields";
 import { assignedRoles } from "../../../../../utils/admin-roles";
 import { actionError } from "../../../../../utils/action-error";

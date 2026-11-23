@@ -1,4 +1,4 @@
-import { DashboardStatsResp } from "../../types/services/dashboard";
+import { type DashboardStatsResp } from "../../types/services/dashboard";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
 
@@ -8,5 +8,6 @@ export const getDashboardStats = async () => {
     return res.data.data;
   } catch (error) {
     handleError(error);
+    return undefined;
   }
 };
