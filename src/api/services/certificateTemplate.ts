@@ -8,18 +8,11 @@ import {
   type CreateCertificateTemplateReq,
   type CreateCertificateTemplateResp,
   type DeleteCertificateTemplateResp,
-  type GenerateCertificatesReq,
-  type GenerateCertificatesResp,
-  type GenerateSingleCertificateReq,
-  type GenerateSingleCertificateResp,
   type GetCertificateTemplateResp,
   type GetCertificateTemplatesReq,
   type GetCertificateTemplatesResp,
   type GetIssuedCertificatesReq,
   type GetIssuedCertificatesResp,
-  type IssueBulkCertificatesReq,
-  type IssueBulkCertificatesResp,
-  type IssueCertificateResp,
   type IssuedCertificate,
   type LookupCertificatesReq,
   type LookupCertificatesResp,
@@ -230,34 +223,6 @@ export const updateCertificateTemplateLifecycle = async (
   }
 };
 
-export const generateCertificates = async (data: GenerateCertificatesReq) => {
-  try {
-    const res = await axios.post<GenerateCertificatesResp>(
-      "/certificates/generate",
-      data,
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const generateSingleCertificate = async (
-  data: GenerateSingleCertificateReq,
-) => {
-  try {
-    const res = await axios.post<GenerateSingleCertificateResp>(
-      "/certificates/generate-single",
-      data,
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
 export const getIssuedCertificates = async (
   activityOrRequest?: number | GetIssuedCertificatesReq,
 ): Promise<IssuedCertificate[]> => {
@@ -306,73 +271,12 @@ async function lookupCertificates(
   return results.flat();
 }
 
-export const issueSingleCertificate = async (
-  data: GenerateSingleCertificateReq,
-) => {
-  try {
-    const res = await axios.post<IssueCertificateResp>(
-      "/certificates/issue-single",
-      data,
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const issueBulkCertificates = async (data: IssueBulkCertificatesReq) => {
-  try {
-    const res = await axios.post<IssueBulkCertificatesResp>(
-      "/certificates/issue-bulk",
-      data,
-    );
-    const result = res.data.data;
-    const created = result.created || result.issued || [];
-    const alreadyIssued = result.already_issued || [];
-    const skipped = result.skipped || [];
-    const failed = result.failed || [];
-    return {
-      ...result,
-      created,
-      already_issued: alreadyIssued,
-      skipped,
-      failed,
-      total_requested:
-        result.total_requested ??
-        created.length + alreadyIssued.length + skipped.length + failed.length,
-      total_created:
-        result.total_created ?? result.total_issued ?? created.length,
-      total_already_issued: result.total_already_issued ?? alreadyIssued.length,
-      total_skipped: result.total_skipped ?? skipped.length,
-      total_failed: result.total_failed ?? failed.length,
-    };
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
 export const getIssuedCertificate = async (
   id: number,
 ): Promise<CertificatePayload> => {
   try {
     const res = await axios.get<{ message: string; data: CertificatePayload }>(
       `/certificates/${id}`,
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const getIssuedCertificateByCode = async (
-  code: string,
-): Promise<CertificatePayload> => {
-  try {
-    const res = await axios.get<{ message: string; data: CertificatePayload }>(
-      `/certificates/code/${encodeURIComponent(code)}`,
     );
     return res.data.data;
   } catch (error) {

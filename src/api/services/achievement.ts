@@ -1,11 +1,9 @@
 import { message } from "antd";
-import { removeEmptyValueFromObj, toSearchParams } from "../../functions";
+import { toSearchParams } from "../../functions";
 import {
   type GetAchievementReq,
   type GetAchievementResp,
   type GetAchievementsReq,
-  type PutAchievementReq,
-  type PutAchievementResp,
   type ApproveAchievementReq,
   type ApproveAchievementResp,
 } from "../../types/services/achievement";
@@ -44,21 +42,6 @@ export const getAchievement = async (props: GetAchievementReq) => {
     const res = await axios.get<GetAchievementResp>(
       "/achievements/" + props.id,
     );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    return undefined;
-  }
-};
-
-export const putAchievement = async (props: PutAchievementReq) => {
-  try {
-    const bodyData = removeEmptyValueFromObj(props.data);
-    const res = await axios.put<PutAchievementResp>(
-      "/achievements/" + props.id,
-      bodyData,
-    );
-    message.success(renderNotification(res.data.message));
     return res.data.data;
   } catch (error) {
     handleError(error);

@@ -39,18 +39,6 @@ export function RegistrationTag({ open }: { open: Flag }): ReactElement {
   );
 }
 
-export function ActiveTag({ active }: { active: Flag }): ReactElement {
-  return (
-    <Tag color={active ? "success" : "default"}>
-      {active ? STATUS_LABELS.active : STATUS_LABELS.inactive}
-    </Tag>
-  );
-}
-
-export function RequiredTag(): ReactElement {
-  return <Tag color="blue">{STATUS_LABELS.required}</Tag>;
-}
-
 const REGISTRATION_STATUS_COLORS: Record<string, string> = {
   DITERIMA: "green",
   "LULUS KEGIATAN": "purple",

@@ -354,10 +354,6 @@ export const generateTableColumns = (
     }));
 };
 
-export const getDefaultColumns = (): ColumnConfig[] => {
-  return ALL_COLUMNS.map((col) => ({ ...col }));
-};
-
 export const COLUMN_STORAGE_KEY = "participant_column_preferences";
 
 export const loadColumnPreferences = <T extends object>(

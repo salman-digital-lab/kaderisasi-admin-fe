@@ -18,12 +18,9 @@ import {
 import { Badge } from "antd";
 import type { MenuProps } from "antd";
 import { Link } from "react-router-dom";
-import { useAuthStore } from "../../../stores/authStore";
 import { NAV_LABELS as L } from "../../../constants/navigation";
 
 type MenuItem = Required<MenuProps>["items"][number];
-
-export const clearMenuCache = () => useAuthStore.getState().clearAuth();
 
 export function menuItems(permissions: string[], reviewCount = 0): MenuItem[] {
   const items: MenuItem[] = [];

@@ -2,8 +2,6 @@ import { message } from "antd";
 import { removeEmptyValueFromObj } from "../../functions";
 import {
   type deleteClubMemberRoleResp,
-  type getClubMemberRoleSuggestionsResp,
-  type getClubMemberRolesResp,
   type postClubMemberRoleReq,
   type postClubMemberRoleResp,
   type putClubMemberRoleReq,
@@ -12,30 +10,6 @@ import {
 import { renderNotification } from "../../constants/render";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
-
-export const getClubMemberRoles = async (clubId: number) => {
-  try {
-    const res = await axios.get<getClubMemberRolesResp>(
-      `/clubs/${clubId}/member-roles`,
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const getClubMemberRoleSuggestions = async (clubId: number) => {
-  try {
-    const res = await axios.get<getClubMemberRoleSuggestionsResp>(
-      `/clubs/${clubId}/member-role-suggestions`,
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
 
 export const createClubMemberRole = async (
   clubId: number,

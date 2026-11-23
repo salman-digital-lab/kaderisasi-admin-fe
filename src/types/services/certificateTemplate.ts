@@ -103,12 +103,6 @@ export interface UpdateCertificateTemplateReq extends Partial<CreateCertificateT
   backgroundImage?: string | null;
 }
 
-export interface CertificateTemplateVersionConflict {
-  message: "CERTIFICATE_TEMPLATE_VERSION_CONFLICT";
-  currentVersion: number;
-  updatedAt: string;
-}
-
 export interface GetCertificateTemplatesResp {
   message: string;
   data: {
@@ -134,12 +128,6 @@ export interface UpdateCertificateTemplateResp {
 
 export interface DeleteCertificateTemplateResp {
   message: string;
-}
-
-export interface GenerateCertificatesReq {
-  activity_id: number;
-  template_id: number;
-  status?: string;
 }
 
 export interface CertificateParticipant {
@@ -214,29 +202,6 @@ export interface CertificateSettings {
   include_scores: boolean;
 }
 
-export interface GenerateCertificatesResp {
-  message: string;
-  data: {
-    activity: {
-      id: number;
-      name: string;
-      activity_start: string;
-    };
-    template: CertificateTemplate;
-    participants: CertificateParticipant[];
-    total: number;
-  };
-}
-
-export interface GenerateSingleCertificateReq {
-  registration_id: number;
-}
-
-export interface GenerateSingleCertificateResp {
-  message: string;
-  data: CertificatePayload;
-}
-
 export interface GetIssuedCertificatesResp {
   message: string;
   data:
@@ -263,41 +228,6 @@ export interface LookupCertificatesReq {
 export interface LookupCertificatesResp {
   message: string;
   data: IssuedCertificate[];
-}
-
-export interface IssueCertificateResp {
-  message: string;
-  data: CertificatePayload;
-}
-
-export interface IssueBulkCertificatesReq {
-  registration_ids: number[];
-}
-
-export interface IssueBulkCertificatesResp {
-  message: string;
-  data: IssueBulkCertificatesResult;
-}
-
-export interface IssueBulkCertificateDetail {
-  registration_id: number;
-  reason?: string;
-  certificate_id?: number;
-  certificate_code?: string;
-}
-
-export interface IssueBulkCertificatesResult {
-  created: CertificatePayload[];
-  issued?: CertificatePayload[];
-  already_issued: CertificatePayload[];
-  skipped: IssueBulkCertificateDetail[];
-  failed: IssueBulkCertificateDetail[];
-  total_requested: number;
-  total_created: number;
-  total_issued?: number;
-  total_already_issued: number;
-  total_skipped: number;
-  total_failed: number;
 }
 
 export interface RevokeCertificateReq {

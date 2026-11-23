@@ -1,12 +1,7 @@
 import { Switch, type TableProps, Tooltip } from "antd";
 import { Link } from "react-router-dom";
-import { type ColumnType, type ColumnsType } from "antd/es/table";
 import { memo } from "react";
 
-import { ProvinceRender } from "../../../../components/render/ProvinceRender";
-import { UniversityRender } from "../../../../components/render/UniversityRender";
-import { type Registrant } from "../../../../types/model/activity";
-import { RegistrationStatusTag } from "../../../../components/common/StatusTags";
 const NameLink = memo(
   ({ text, recordId }: { text: string; recordId: number }) => (
     <Link to={"/registrant/" + recordId}>
@@ -29,53 +24,6 @@ const NameLink = memo(
 
 NameLink.displayName = "NameLink";
 
-export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
-  {
-    title: "Nama Lengkap",
-    dataIndex: "name",
-    render: (text, record) => <NameLink text={text} recordId={record.id} />,
-    width: 200,
-    fixed: "left",
-    ellipsis: {
-      showTitle: false,
-    },
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    render: (text) => (
-      <Tooltip title={text} placement="topLeft">
-        <span
-          style={{
-            display: "block",
-            maxWidth: "180px",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {text || "-"}
-        </span>
-      </Tooltip>
-    ),
-    width: 200,
-    fixed: "left",
-    ellipsis: {
-      showTitle: false,
-    },
-  },
-  {
-    title: "Status Pendaftaran",
-    dataIndex: "status",
-    render: (status) => <RegistrationStatusTag status={status} />,
-    width: 150,
-    fixed: "left",
-  },
-];
-
-const MemoizedProvinceRender = memo(ProvinceRender);
-const MemoizedUniversityRender = memo(UniversityRender);
-
 const TextCell = memo(
   ({ text, maxWidth = 120 }: { text: string; maxWidth?: number }) => (
     <Tooltip title={text} placement="topLeft">
@@ -95,131 +43,6 @@ const TextCell = memo(
 );
 
 TextCell.displayName = "TextCell";
-
-const SCHEMA_MAP: Record<string, ColumnType<Registrant>> = {
-  personal_id: {
-    title: "Nomor Identitas",
-    dataIndex: "personal_id",
-    render: (text) => <TextCell text={text} maxWidth={120} />,
-    width: 140,
-    ellipsis: {
-      showTitle: false,
-    },
-  },
-  intake_year: {
-    title: "Angkatan",
-    dataIndex: "intake_year",
-    render: (text) =>
-      text ? <TextCell text={String(text)} maxWidth={80} /> : "-",
-    width: 100,
-  },
-  major: {
-    title: "Jurusan",
-    dataIndex: "major",
-    render: (text) => <TextCell text={text} maxWidth={150} />,
-    width: 170,
-    ellipsis: {
-      showTitle: false,
-    },
-  },
-  instagram: {
-    title: "Instagram",
-    dataIndex: "instagram",
-    render: (text) =>
-      text ? (
-        <a
-          href={`https://instagram.com/${text.replace("@", "")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <TextCell text={text} maxWidth={100} />
-        </a>
-      ) : (
-        "-"
-      ),
-    width: 120,
-  },
-  line: {
-    title: "Line",
-    dataIndex: "line",
-    render: (text) => <TextCell text={text} maxWidth={100} />,
-    width: 120,
-  },
-  whatsapp: {
-    title: "Whatsapp",
-    dataIndex: "whatsapp",
-    render: (text) =>
-      text ? (
-        <a
-          href={`https://wa.me/${text.replace(/[^0-9]/g, "")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <TextCell text={text} maxWidth={120} />
-        </a>
-      ) : (
-        "-"
-      ),
-    width: 140,
-  },
-  province_id: {
-    title: "Provinsi",
-    dataIndex: "province_id",
-    render: (val) => <MemoizedProvinceRender provinceId={val} />,
-    width: 120,
-  },
-  university_id: {
-    title: "Universitas",
-    dataIndex: "university_id",
-    render: (val) => <MemoizedUniversityRender universityId={val} />,
-    width: 200,
-  },
-};
-
-let cachedSchema: ColumnsType<Registrant> | null = null;
-let lastMandatoryData: string[] | null = null;
-
-export const generateTableSchema = (mandatoryProfileData: string[]) => {
-  if (
-    cachedSchema &&
-    lastMandatoryData &&
-    JSON.stringify(lastMandatoryData) === JSON.stringify(mandatoryProfileData)
-  ) {
-    return cachedSchema;
-  }
-
-  const ALLOWED_DATA = [
-    "personal_id",
-    "whatsapp",
-    "province_id",
-    "university_id",
-    "instagram",
-    "line",
-    "major",
-    "intake_year",
-  ];
-
-  const cleanList = mandatoryProfileData.filter((val) =>
-    ALLOWED_DATA.includes(val),
-  );
-
-  const additionalProfileData = cleanList.flatMap((val) => {
-    const column = SCHEMA_MAP[val];
-    return column ? [column] : [];
-  });
-
-  const schema = [...REGISTRANT_TABLE_SCHEMA, ...additionalProfileData];
-
-  cachedSchema = schema;
-  lastMandatoryData = [...mandatoryProfileData];
-
-  return schema;
-};
-
-export const clearSchemaCache = () => {
-  cachedSchema = null;
-  lastMandatoryData = null;
-};
 
 export const MANDATORY_DATA_TABLE_COLUMNS: (
   onChange: React.Dispatch<

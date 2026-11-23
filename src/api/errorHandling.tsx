@@ -1,4 +1,4 @@
-import { message, notification, Typography } from "antd";
+import { notification, Typography } from "antd";
 import { type AxiosError } from "axios";
 import { renderNotification } from "../constants/render";
 
@@ -86,7 +86,3 @@ export const handleError = (error: unknown) => {
 function isAxiosError(error: unknown): error is AxiosError {
   return (error as AxiosError).isAxiosError !== undefined;
 }
-
-export const handleSuccess = (code: string) => {
-  message.success(renderNotification(code));
-};

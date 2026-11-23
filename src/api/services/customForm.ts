@@ -127,34 +127,11 @@ export const getAvailableActivities = async (currentFormId?: number) => {
   }
 };
 
-export const getAvailableClubs = async (currentFormId?: number) => {
-  try {
-    const params = currentFormId ? `?current_form_id=${currentFormId}` : "";
-    const res = await axios.get(`/custom-forms/available-clubs${params}`);
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    return undefined;
-  }
-};
-
 export const attachFormToClub = async (formId: number, clubId: number) => {
   try {
     const res = await axios.put<UpdateCustomFormResp>(
       `/custom-forms/${formId}/attach-club`,
       { clubId },
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const detachFormFromClub = async (formId: number) => {
-  try {
-    const res = await axios.put<UpdateCustomFormResp>(
-      `/custom-forms/${formId}/detach-club`,
     );
     return res.data.data;
   } catch (error) {
@@ -171,18 +148,6 @@ export const attachFormToActivity = async (
     const res = await axios.put<UpdateCustomFormResp>(
       `/custom-forms/${formId}/attach-activity`,
       { activityId },
-    );
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const detachFormFromActivity = async (formId: number) => {
-  try {
-    const res = await axios.put<UpdateCustomFormResp>(
-      `/custom-forms/${formId}/detach-activity`,
     );
     return res.data.data;
   } catch (error) {

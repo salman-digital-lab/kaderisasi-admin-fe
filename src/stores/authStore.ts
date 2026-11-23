@@ -62,20 +62,13 @@ export const useIsAuthenticated = () =>
 export const useIsInitialized = () =>
   useAuthStore((state) => state.isInitialized);
 export const useUser = () => useAuthStore((state) => state.user);
-export const useToken = () => useAuthStore((state) => state.token);
 export const usePermissions = () => useAuthStore((state) => state.permissions);
-export const useRole = () => useAuthStore((state) => state.role);
 export const useRoles = () => useAuthStore((state) => state.roles);
 export const useIsSuperAdmin = () =>
   useAuthStore((state) => state.isSuperAdmin);
 export const useClearAuth = () => useAuthStore((state) => state.clearAuth);
 export const useSetSession = () => useAuthStore((state) => state.setSession);
-export const useHasPermission = () =>
-  useAuthStore((state) => state.hasPermission);
 
 export const isAuthenticated = () => useAuthStore.getState().isAuthenticated;
 export const hasPermission = (permission: string) =>
   useAuthStore.getState().hasPermission(permission);
-export const getUserPermissions = () => useAuthStore.getState().permissions;
-export const getUser = () => useAuthStore.getState().user;
-export const clearUserCache = () => useAuthStore.getState().clearAuth();

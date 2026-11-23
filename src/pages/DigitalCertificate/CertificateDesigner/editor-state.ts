@@ -161,13 +161,6 @@ export function hasRecoveryConflict(
   return snapshot.serverVersion !== serverVersion;
 }
 
-export function getServerVersion(template: {
-  version?: string | number;
-  updated_at: string;
-}): string {
-  return String(template.version ?? template.updated_at);
-}
-
 export function isEditableTarget(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&

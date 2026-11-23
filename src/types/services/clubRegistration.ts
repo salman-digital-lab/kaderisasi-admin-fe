@@ -17,11 +17,6 @@ export type getClubRegistrationsResp = {
   };
 };
 
-export type getClubRegistrationResp = {
-  message: string;
-  data: ClubRegistration;
-};
-
 export type postClubRegistrationReq = {
   member_id: number;
   additional_data?: Record<string, unknown>;

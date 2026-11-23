@@ -83,15 +83,6 @@ export type generateAccountResp = {
   data: { email: string };
 };
 
-export type putRegionalAssignmentReq = {
-  alumni_regional_assignment: string[];
-};
-
-export type putRegionalAssignmentResp = {
-  message: string;
-  data: { alumni_regional_assignment: string[] };
-};
-
 export type getActivityByUserIdResp = {
   message: string;
   data: (Registrant & { activity: Activity })[];

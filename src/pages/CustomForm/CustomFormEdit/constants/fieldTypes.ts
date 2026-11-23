@@ -4,7 +4,6 @@ import {
   NumberOutlined,
   DownOutlined,
   CheckSquareOutlined,
-  DatabaseOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 
@@ -61,33 +60,3 @@ export const FIELD_TYPES = [
     description: "Pemilihan multi-pilihan",
   },
 ] as const;
-
-export const FIELD_CATEGORIES = [
-  {
-    key: "all",
-    label: "Semua Field",
-    icon: DatabaseOutlined,
-    color: "var(--app-color-text-secondary)",
-  },
-  {
-    key: "text",
-    label: "Field Teks",
-    icon: FontSizeOutlined,
-    color: "var(--app-color-primary)",
-  },
-  {
-    key: "number",
-    label: "Field Angka",
-    icon: NumberOutlined,
-    color: "var(--app-color-success)",
-  },
-  {
-    key: "selection",
-    label: "Field Pilihan",
-    icon: DownOutlined,
-    color: "#fa8c16",
-  },
-] as const;
-
-export type FieldTypeOption = (typeof FIELD_TYPES)[number];
-export type FieldCategory = (typeof FIELD_CATEGORIES)[number];

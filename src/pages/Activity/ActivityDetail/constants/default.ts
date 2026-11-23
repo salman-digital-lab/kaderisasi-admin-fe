@@ -1,25 +1,4 @@
 import { type Questionnaire } from "../../../../types/model/activity";
-export const QUESTION_DEFAULT = {
-  text: {
-    name: `question${Math.floor(Math.random() * 10000)}`,
-    type: "text",
-    label: "",
-    required: false,
-  },
-  number: {
-    name: `question${Math.floor(Math.random() * 10000)}`,
-    type: "number",
-    label: "",
-    required: false,
-  },
-  dropdown: {
-    name: `question${Math.floor(Math.random() * 10000)}`,
-    type: "dropdown",
-    label: "",
-    required: false,
-    data: [],
-  },
-} as Record<string, Questionnaire>;
 
 export const generateDefaultQuestion = (
   type: "text" | "number" | "dropdown" | "textarea",

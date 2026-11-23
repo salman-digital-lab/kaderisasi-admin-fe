@@ -1,9 +1,5 @@
 import type { FormField } from "../../../../types/model/customForm";
 
-export const fieldTypeNeedsOptions = (fieldType: string): boolean => {
-  return ["select", "radio", "checkbox"].includes(fieldType);
-};
-
 export const generateFieldKey = (prefix: string = "custom"): string => {
   return `${prefix}_${Date.now()}`;
 };
@@ -39,25 +35,4 @@ export const moveArrayItem = <T>(
   newArray.splice(toIndex, 0, ...newArray.splice(fromIndex, 1));
 
   return newArray;
-};
-
-export const findFieldType = <T extends { value: string }>(
-  fieldTypes: readonly T[],
-  type: string,
-) => {
-  return fieldTypes.find((fieldType) => fieldType.value === type);
-};
-
-export const findFieldCategory = <
-  C extends { key: string },
-  T extends { value: string; category: string },
->(
-  fieldCategories: readonly C[],
-  type: string,
-  fieldTypes: readonly T[],
-) => {
-  const fieldType = findFieldType(fieldTypes, type);
-  return fieldCategories.find(
-    (category) => category.key === fieldType?.category,
-  );
 };

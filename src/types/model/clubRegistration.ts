@@ -53,25 +53,3 @@ export interface ClubRegistration {
   member?: PublicUserWithProfile;
   roles?: ClubMemberRole[];
 }
-
-export interface ClubRegistrationCreateRequest {
-  member_id: number;
-  additional_data?: Record<string, unknown>;
-}
-
-export interface ClubRegistrationUpdateRequest {
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  additional_data?: Record<string, unknown>;
-}
-
-export interface ClubRegistrationBulkUpdateRequest {
-  registrations: Array<{
-    id: number;
-    status: "PENDING" | "APPROVED" | "REJECTED";
-    additional_data?: Record<string, unknown>;
-  }>;
-}
-
-export interface ClubRegistrationInfoUpdateRequest {
-  registration_info: string;
-}

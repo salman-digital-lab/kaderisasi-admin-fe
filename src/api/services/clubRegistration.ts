@@ -3,7 +3,6 @@ import { removeEmptyValueFromObj } from "../../functions";
 import {
   type getClubRegistrationsReq,
   type getClubRegistrationsResp,
-  type getClubRegistrationResp,
   type postClubRegistrationReq,
   type postClubRegistrationResp,
   type putClubRegistrationReq,
@@ -63,18 +62,6 @@ export const createClubRegistration = async (
       bodyData,
     );
     message.success(renderNotification(res.data.message));
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    throw error;
-  }
-};
-
-export const getClubRegistration = async (registrationId: number) => {
-  try {
-    const res = await axios.get<getClubRegistrationResp>(
-      `/club-registrations/${registrationId}`,
-    );
     return res.data.data;
   } catch (error) {
     handleError(error);

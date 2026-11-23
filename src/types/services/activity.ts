@@ -73,13 +73,6 @@ export type putRemoveActivityImageReq = { image: string };
 
 export type putReorderActivityImagesReq = { images: string[] };
 
-export type postActivityReq = Partial<Activity>;
-
-export type postActivityResp = {
-  message: string;
-  data: Activity;
-};
-
 export type getRegistrantReq = {
   course_id?: string;
   course_completion?: string;

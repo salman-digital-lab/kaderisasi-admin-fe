@@ -6,9 +6,7 @@ import {
   type getRegistrantsResp,
   type putActivityReq,
   type getRegistrantReq,
-  type postActivityReq,
   type putActivityResp,
-  type postActivityResp,
   type postRegistrantsReq,
   type getRegistrantResp,
   type putRegistrantReq,
@@ -101,16 +99,6 @@ export const postActivityImages = async (
   } catch (error) {
     handleError(error);
     throw error;
-  }
-};
-
-export const postActivity = async (data: postActivityReq) => {
-  try {
-    const res = await axios.post<postActivityResp>("/activities", data);
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    return undefined;
   }
 };
 

@@ -13,7 +13,6 @@ import {
   type putProfileAuthResp,
   type putProfileReq,
   type putProfileResp,
-  type putRegionalAssignmentResp,
 } from "../../types/services/member";
 import axios from "../axios";
 import { handleError } from "../errorHandling";
@@ -109,23 +108,6 @@ export const generateAccount = async (
     const res = await axios.post<generateAccountResp>(
       `/members/${id}/generate-account`,
       props,
-    );
-    message.success(renderNotification(res.data.message));
-    return res.data.data;
-  } catch (error) {
-    handleError(error);
-    return undefined;
-  }
-};
-
-export const putRegionalAssignment = async (
-  id: string,
-  alumni_regional_assignment: string[],
-) => {
-  try {
-    const res = await axios.put<putRegionalAssignmentResp>(
-      `/profiles/${id}/regional-assignment`,
-      { alumni_regional_assignment },
     );
     message.success(renderNotification(res.data.message));
     return res.data.data;

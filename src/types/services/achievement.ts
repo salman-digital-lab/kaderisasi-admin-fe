@@ -36,16 +36,6 @@ export type GetAchievementResp = {
   data: Achievement;
 };
 
-export type PutAchievementReq = {
-  id: string;
-  data: Partial<Achievement>;
-};
-
-export type PutAchievementResp = {
-  message: string;
-  data: Achievement;
-};
-
 export type ApproveAchievementReq = {
   id: string;
   status: ACHIEVEMENT_STATUS_ENUM;
