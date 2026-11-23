@@ -32,7 +32,6 @@ const ActivityTable = ({
   onRetry,
   setParameter,
 }: DataTypeProps) => {
-  // Custom empty state
   const customEmpty = () => (
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -44,7 +43,6 @@ const ActivityTable = ({
     />
   );
 
-  // Error state
   if (error && !loading) {
     return (
       <Alert
@@ -83,7 +81,7 @@ const ActivityTable = ({
         showTotal: (total, range) =>
           `Menampilkan ${range[0]}-${range[1]} dari ${total} kegiatan`,
         pageSizeOptions: ["10", "20", "50", "100"],
-        showLessItems: window.innerWidth < 768, // Responsive pagination
+        showLessItems: window.innerWidth < 768,
       }}
       loading={loading}
       locale={{

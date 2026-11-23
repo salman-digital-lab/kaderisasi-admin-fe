@@ -69,7 +69,6 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           gap: 12,
         }}
       >
-        {/* Left: Filters */}
         <ResponsiveFilters
           onApply={handleSearch}
           values={[searchInput, role, status]}
@@ -125,7 +124,6 @@ const AdminUserFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           )}
         </ResponsiveFilters>
 
-        {/* Right: Actions */}
         <Space size={8} wrap>
           <Button
             type="primary"

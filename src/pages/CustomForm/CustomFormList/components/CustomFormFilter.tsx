@@ -41,7 +41,6 @@ const CustomFormFilter = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  // Local filter state
   const [searchInput, setSearchInput] = useState("");
   const [featureType, setFeatureType] = useState<
     "activity_registration" | "independent_form" | undefined
@@ -65,7 +64,6 @@ const CustomFormFilter = ({
     createForm.resetFields();
   };
 
-  // Auto-open modal if requested
   useEffect(() => {
     if (autoOpenModal) {
       setIsModalVisible(true);
@@ -99,7 +97,6 @@ const CustomFormFilter = ({
       message.success("Formulir berhasil dibuat!");
       setIsModalVisible(false);
       createForm.resetFields();
-      // Refresh the form list
       navigate(`/custom-form/${created.id}/edit`);
     } catch {
       // Error is already handled by the API service
@@ -120,7 +117,6 @@ const CustomFormFilter = ({
             gap: 12,
           }}
         >
-          {/* Left: Filters */}
           <ResponsiveFilters
             onApply={handleSearch}
             values={[searchInput, featureType, featureId, isActive]}
@@ -198,7 +194,6 @@ const CustomFormFilter = ({
             )}
           </ResponsiveFilters>
 
-          {/* Right: Actions */}
           <Space size={8} wrap>
             <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
               Tambah formulir

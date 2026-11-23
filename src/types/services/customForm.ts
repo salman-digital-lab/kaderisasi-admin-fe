@@ -1,7 +1,6 @@
 import { Pagination } from "./base";
 import { CustomForm, FormSchema } from "../model/customForm";
 
-// Request types
 export interface GetCustomFormsReq {
   page?: string;
   per_page?: string;
@@ -29,7 +28,6 @@ export interface CreateCustomFormReq {
 
 export interface UpdateCustomFormReq extends Partial<CreateCustomFormReq> {}
 
-// Response types
 export interface GetCustomFormsResp {
   message: string;
   data: {

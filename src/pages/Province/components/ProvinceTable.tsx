@@ -29,7 +29,6 @@ const ProvinceTable = ({
   setParameter,
   openModal,
 }: DataTypeProps) => {
-  // Custom empty state
   const customEmpty = () => (
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -41,7 +40,6 @@ const ProvinceTable = ({
     />
   );
 
-  // Error state
   if (error && !loading) {
     return (
       <Alert

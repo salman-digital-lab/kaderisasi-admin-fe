@@ -67,7 +67,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
   });
 
-  // Update editor content when value prop changes
   React.useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value, { emitUpdate: false });
@@ -94,7 +93,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       return;
     }
 
-    // update link
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 

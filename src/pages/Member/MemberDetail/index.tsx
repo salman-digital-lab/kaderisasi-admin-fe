@@ -269,7 +269,6 @@ const MemberDetailPage = () => {
         extra={editActions}
       />
       <Card>
-        {/* Account info + picture */}
         <Flex
           className="member-identity"
           gap={24}
@@ -833,7 +832,6 @@ const MemberDetailPage = () => {
           </Space>
         )}
 
-        {/* Regional assignment */}
         <Divider titlePlacement="start">Penugasan Regional Alumni</Divider>
         {isEdit ? (
           <Select
@@ -858,7 +856,6 @@ const MemberDetailPage = () => {
           </Space>
         )}
 
-        {/* Activity history */}
         {canReadHistory && (
           <>
             <Divider titlePlacement="start">Kegiatan yang Diikuti</Divider>

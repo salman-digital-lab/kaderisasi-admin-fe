@@ -49,7 +49,6 @@ export interface ClubRegistration {
   created_at: string;
   updated_at: string;
 
-  // Relations
   club?: Club;
   member?: PublicUserWithProfile;
   roles?: ClubMemberRole[];

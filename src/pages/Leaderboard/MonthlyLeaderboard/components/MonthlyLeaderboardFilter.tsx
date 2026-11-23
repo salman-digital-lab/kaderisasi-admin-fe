@@ -55,7 +55,6 @@ export default function MonthlyLeaderboardFilter({
           gap: 12,
         }}
       >
-        {/* Left: Filters */}
         <ResponsiveFilters
           onApply={handleSearch}
           values={[nameInput, emailInput, monthYear]}
@@ -115,7 +114,6 @@ export default function MonthlyLeaderboardFilter({
           )}
         </ResponsiveFilters>
 
-        {/* Right: Actions */}
         <Space size={8} wrap>
           {refresh && (
             <Tooltip placement="left" title="Muat ulang data">

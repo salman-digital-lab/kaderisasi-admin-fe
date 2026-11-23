@@ -7,7 +7,6 @@ import { ProvinceRender } from "../../../../components/render/ProvinceRender";
 import { UniversityRender } from "../../../../components/render/UniversityRender";
 import { Registrant } from "../../../../types/model/activity";
 import { RegistrationStatusTag } from "../../../../components/common/StatusTags";
-// Memoized components for better performance
 const NameLink = memo(
   ({ text, recordId }: { text: string; recordId: number }) => (
     <Link to={"/registrant/" + recordId}>
@@ -74,11 +73,9 @@ export const REGISTRANT_TABLE_SCHEMA: TableProps<Registrant>["columns"] = [
   },
 ];
 
-// Memoized render components for better performance
 const MemoizedProvinceRender = memo(ProvinceRender);
 const MemoizedUniversityRender = memo(UniversityRender);
 
-// Optimized text cell renderer
 const TextCell = memo(
   ({ text, maxWidth = 120 }: { text: string; maxWidth?: number }) => (
     <Tooltip title={text} placement="topLeft">
@@ -179,12 +176,10 @@ const SCHEMA_MAP: Record<string, ColumnType<any>> = {
   },
 };
 
-// Memoized schema generation for better performance
 let cachedSchema: any[] | null = null;
 let lastMandatoryData: string[] | null = null;
 
 export const generateTableSchema = (mandatoryProfileData: string[]) => {
-  // Use cache if mandatory data hasn't changed
   if (
     cachedSchema &&
     lastMandatoryData &&
@@ -212,18 +207,16 @@ export const generateTableSchema = (mandatoryProfileData: string[]) => {
     .map((val) => {
       return SCHEMA_MAP[val];
     })
-    .filter(Boolean); // Remove any undefined columns
+    .filter(Boolean);
 
   const schema = [...REGISTRANT_TABLE_SCHEMA, ...additionalProfileData];
 
-  // Cache the result
   cachedSchema = schema;
   lastMandatoryData = [...mandatoryProfileData];
 
   return schema;
 };
 
-// Function to clear cache when needed
 export const clearSchemaCache = () => {
   cachedSchema = null;
   lastMandatoryData = null;

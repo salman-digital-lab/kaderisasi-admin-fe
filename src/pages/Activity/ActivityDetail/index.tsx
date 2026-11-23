@@ -217,7 +217,6 @@ const ActivityWorkspace = ({
     items.push(...legacyTabs);
   }
 
-  // Dropdown menu for accessing legacy forms
   const moreMenuItems: MenuProps["items"] = [
     {
       type: "group",

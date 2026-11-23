@@ -36,7 +36,6 @@ const MainActivity = (): ReactElement => {
   const permissions = usePermissions();
   const canReadClubs = permissions.includes("clubs.read");
 
-  // State for filter parameters
   const [parameters, setParameters] = useState<FilterType>({
     page: 1,
     per_page: 10,
@@ -123,7 +122,6 @@ const MainActivity = (): ReactElement => {
           }
         />
       )}
-      {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
           style={{
@@ -134,7 +132,6 @@ const MainActivity = (): ReactElement => {
             gap: 12,
           }}
         >
-          {/* Left: Filters */}
           <ResponsiveFilters
             onApply={handleSearch}
             values={[
@@ -225,7 +222,6 @@ const MainActivity = (): ReactElement => {
             )}
           </ResponsiveFilters>
 
-          {/* Right: Actions */}
           <Space size={8} wrap>
             {permissions.includes("activities.manage") && (
               <Button
@@ -249,7 +245,6 @@ const MainActivity = (): ReactElement => {
         </div>
       </Card>
 
-      {/* Table Section */}
       <div style={{ marginTop: 12 }}>
         <ActivityTable
           data={data}

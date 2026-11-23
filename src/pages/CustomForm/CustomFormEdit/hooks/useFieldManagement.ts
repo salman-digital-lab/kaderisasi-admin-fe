@@ -11,7 +11,6 @@ import {
   generateFieldKey,
 } from "../utils";
 
-// Constants for default fields that cannot be modified
 const IMMUTABLE_FIELDS = ["name", "gender"] as const;
 
 // City fields that require their parent province field to be present first
@@ -26,7 +25,6 @@ const PROVINCE_CASCADES_TO_CITY: Record<string, string> = {
   origin_province_id: "origin_city_id",
 };
 
-// Helper function to check if a field is immutable
 const isImmutableField = (fieldKey: string): boolean => {
   return IMMUTABLE_FIELDS.includes(fieldKey as any);
 };
@@ -49,21 +47,15 @@ export const useFieldManagement = (
   const [fieldModalVisible, setFieldModalVisible] = useState(false);
   const [basicFieldModalVisible, setBasicFieldModalVisible] = useState(false);
 
-  // ===== Modal Management =====
-
   const handleOpenBasicFieldModal = () => {
     setBasicFieldModalVisible(true);
   };
 
-  // ===== Section Operations =====
-
   const handleAddSection = () => {
-    // Count existing custom sections (excluding profile_data)
     const customSectionCount = customFieldSections.filter(
       (section) => section.section_name !== "profile_data",
     ).length;
 
-    // Generate sequential section name
     const nextSectionNumber = customSectionCount + 1;
     const sectionKey = `Bagian ${nextSectionNumber}`;
 
@@ -108,8 +100,6 @@ export const useFieldManagement = (
     );
     setCustomFieldSections(newSections);
   };
-
-  // ===== Custom Field Operations =====
 
   const handleAddCustomField = (sectionKey: string) => {
     const newField = createNewField();
@@ -248,8 +238,6 @@ export const useFieldManagement = (
       ),
     );
   };
-
-  // ===== Profile Field Operations =====
 
   const handleAddProfileDataFromTemplate = (template: any) => {
     if (selectedBasicFields.includes(template.field.key)) {

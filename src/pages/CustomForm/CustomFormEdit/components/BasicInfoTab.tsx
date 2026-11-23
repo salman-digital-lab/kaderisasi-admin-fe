@@ -77,7 +77,6 @@ export const BasicInfoTab = ({
     if (value === "club_registration") return;
 
     setFeatureType(value);
-    // Reset feature_id when changing type
     form.setFieldValue("featureId", null);
   };
 

@@ -63,7 +63,6 @@ body {
   color: var(--app-color-text-secondary);
 }
 
-/* App shell header */
 .admin-header {
   position: sticky;
   top: 0;
@@ -129,7 +128,6 @@ body {
   gap: 8px;
 }
 
-/* Standard page container */
 .page-container {
   padding: 12px;
   min-width: 0;
@@ -150,7 +148,6 @@ body {
   cursor: default;
 }
 
-/* Login page */
 .login-card {
   border: 1px solid var(--app-color-border-secondary);
 }
@@ -160,7 +157,6 @@ body {
   }
 }
 
-/* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -169,7 +165,6 @@ body {
   }
 }
 
-/* Access request pages */
 @media (max-width: 575px) {
   .access-ticket-page .ant-card-head-wrapper {
     flex-wrap: wrap;

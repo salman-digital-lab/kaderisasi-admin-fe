@@ -45,7 +45,6 @@ const LoginForm = () => {
     });
   };
 
-  // Set focus to email field on component mount
   useEffect(() => {
     const emailInput = document.querySelector(
       'input[name="email"]',
@@ -150,7 +149,6 @@ const LoginForm = () => {
         <Col xs={24} sm={20} md={16} lg={12} xl={10} xxl={8}>
           <Card className="login-card">
             <div style={formStyle} className="login-form-content">
-              {/* Logo and Branding Section */}
               <div style={logoContainerStyle}>
                 <div style={{ marginBottom: "16px" }}>
                   <img
@@ -179,7 +177,6 @@ const LoginForm = () => {
 
               <Divider style={{ margin: "0 0 32px 0" }} />
 
-              {/* Login Form */}
               <Form
                 scrollToFirstError={{ focus: true }}
                 form={form}
@@ -254,7 +251,6 @@ const LoginForm = () => {
                 </>
               )}
 
-              {/* Additional Options */}
               <div
                 style={{
                   textAlign: "center",

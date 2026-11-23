@@ -39,8 +39,6 @@ import { getValidatedUploadFile } from "../utils/readUploadFile";
 
 const { Text } = Typography;
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
 export interface PropertyInputState {
   geometryOpen: boolean;
   numbers: Map<string, { source: number; value: number | null }>;
@@ -80,8 +78,6 @@ interface PropertyPanelProps {
   onToggleLock?: () => void;
   onDelete?: () => void;
 }
-
-// ─── Reusable sub-components ────────────────────────────────────────────────
 
 /** Valid geometry stays in the shared document; incomplete input survives panel changes. */
 const BoundedNumberInput: React.FC<{
@@ -213,8 +209,6 @@ const SliderNumber: React.FC<{
   </div>
 );
 
-// ─── Main Component ─────────────────────────────────────────────────────────
-
 export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
   ({
     inputState,
@@ -248,7 +242,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     const [geometryOpen, setGeometryOpen] = useState(
       inputState.current.geometryOpen,
     );
-    // ── Callbacks ───────────────────────────────────────────────────────
 
     const handleImageUpload = useCallback(
       async (info: { file: import("antd").UploadFile }) => {
@@ -270,8 +263,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
       ) => onUpdate({ [key]: value }, groupHistory ? String(key) : undefined),
       [onUpdate],
     );
-
-    // ── Empty state ─────────────────────────────────────────────────────
 
     if (!element) {
       return (
@@ -377,8 +368,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
     const isImageElement =
       element.type === "image" || element.type === "signature";
 
-    // ── Render ───────────────────────────────────────────────────────────
-
     return (
       <Card
         size="small"
@@ -477,7 +466,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                       onPressEnter={(event) => event.currentTarget.blur()}
                     />
                   </PropertySection>
-                  {/* Position */}
                   <PropertySection label="Posisi">
                     <div style={{ display: "flex", gap: 8 }}>
                       <BoundedNumberInput
@@ -505,7 +493,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
                       />
                     </div>
                   </PropertySection>
-                  {/* Size */}
                   <PropertySection label="Ukuran">
                     <div style={{ display: "flex", gap: 8 }}>
                       <BoundedNumberInput
@@ -568,7 +555,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               )}
             </details>
 
-            {/* Variable Selection */}
             {element.type === "variable-text" && (
               <>
                 <Divider
@@ -594,7 +580,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               </>
             )}
 
-            {/* Text Properties */}
             {isTextElement && (
               <>
                 {element.type === "static-text" && (
@@ -784,7 +769,6 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = React.memo(
               </>
             )}
 
-            {/* Image Upload */}
             {isImageElement && (
               <>
                 <Divider

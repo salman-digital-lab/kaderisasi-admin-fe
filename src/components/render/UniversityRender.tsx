@@ -15,8 +15,8 @@ export function UniversityRender({ universityId }: UniversityRenderProps) {
       }),
     {
       cacheKey: "universities_all",
-      cacheTime: 1000 * 60 * 60 * 24, // Cache for 24 hours
-      staleTime: 1000 * 60 * 60 * 24, // Consider data stale after 24 hours
+      cacheTime: 1000 * 60 * 60 * 24,
+      staleTime: 1000 * 60 * 60 * 24,
       setCache: (data) =>
         localStorage.setItem("universities_all", JSON.stringify(data)),
       getCache: () => {

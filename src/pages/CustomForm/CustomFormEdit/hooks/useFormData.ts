@@ -40,12 +40,10 @@ export const useFormData = () => {
   const [accessMode, setAccessMode] = useState<"public" | "members">("members");
   const loadVersion = useRef(0);
 
-  // Active tab state with URL sync
   const [activeTab, setActiveTab] = useState<string>(() => {
     return searchParams.get("tab") || "schema";
   });
 
-  // Sync URL with active tab
   useEffect(() => {
     const newSearchParams = new URLSearchParams(searchParams);
     if (activeTab !== "basic") {
@@ -56,12 +54,10 @@ export const useFormData = () => {
     setSearchParams(newSearchParams, { replace: true });
   }, [activeTab, searchParams, setSearchParams]);
 
-  // Handle tab change
   const handleTabChange = (key: string) => {
     setActiveTab(key);
   };
 
-  // Handle required field changes
   const handleRequiredFieldChange = (fieldKey: string, required: boolean) => {
     setProfileFieldRequiredOverrides((prev) => ({
       ...prev,
@@ -80,9 +76,7 @@ export const useFormData = () => {
         setInitialData(data);
         setAccessMode(data.form_schema.settings?.accessMode ?? "members");
 
-        // Initialize form schema data
         if (data.form_schema) {
-          // Extract basic fields and custom field sections from existing schema
           const profileSection = data.form_schema.fields.find(
             (section) => section.section_name === "profile_data",
           );
@@ -125,7 +119,6 @@ export const useFormData = () => {
                 fields: [{ section_name: "profile_data", fields: [] }],
               }).fields[0],
             );
-            // If no existing profile section, set default fields
             const defaults =
               data.feature_type === "independent_form"
                 ? []
@@ -135,7 +128,6 @@ export const useFormData = () => {
             setSavedSchema(JSON.stringify([defaults, customSections, {}]));
           }
 
-          // Load custom sections (excluding profile_data)
           setCustomFieldSections(customSections);
         }
       }

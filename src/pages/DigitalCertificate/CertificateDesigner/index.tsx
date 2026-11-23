@@ -311,7 +311,6 @@ const CertificateDesignerEditor: React.FC = () => {
   const showGuides = preferences.canvas.showGuides;
   const snapToGuides = preferences.canvas.snapToGuides;
 
-  // Load template data on mount
   useEffect(() => {
     const loadTemplate = async () => {
       setLoading(true);
@@ -582,8 +581,6 @@ const CertificateDesignerEditor: React.FC = () => {
       deleteElement(selectedElementId);
     }
   }, [selectedElementId, deleteElement]);
-
-  // ── Keyboard shortcuts ──
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1646,7 +1643,6 @@ const CertificateDesignerEditor: React.FC = () => {
         membuang perubahan.
       </Modal>
 
-      {/* Canvas Settings Modal */}
       <CanvasSettingsModal
         visible={canvasSettingsVisible}
         width={template.canvasWidth}

@@ -43,11 +43,9 @@ export const FieldModal: React.FC<FieldModalProps> = ({
   // Initialize once per question; type changes must retain pending labels and options.
   useEffect(() => {
     if (visible) {
-      // Always reset form first to clear previous values
       form.resetFields();
 
       if (editingFieldRef.current) {
-        // Then set the new values
         form.setFieldsValue({
           ...editingFieldRef.current,
           options: editingFieldRef.current.options || [],
@@ -92,7 +90,6 @@ export const FieldModal: React.FC<FieldModalProps> = ({
         layout="vertical"
         onFinish={onSave}
       >
-        {/* Basic Settings Section */}
         <div style={{ marginBottom: 24 }}>
           <Form.Item
             label="Label Pertanyaan"
@@ -164,7 +161,6 @@ export const FieldModal: React.FC<FieldModalProps> = ({
           </Form.Item>
         </div>
 
-        {/* Options Section - Only shown for fields that need options */}
         {fieldType && hasOptionsField(fieldType) && (
           <div
             style={{
@@ -218,7 +214,6 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                             placeholder="Label opsi (akan otomatis mengisi nilai)"
                             onChange={(e) => {
                               const labelValue = e.target.value;
-                              // Auto-sync label to value
                               const currentOptions =
                                 form.getFieldValue("options") || [];
                               const updatedOptions = [...currentOptions];
@@ -226,7 +221,7 @@ export const FieldModal: React.FC<FieldModalProps> = ({
                                 updatedOptions[name] = {
                                   ...updatedOptions[name],
                                   label: labelValue,
-                                  value: labelValue, // Fill value with label
+                                  value: labelValue,
                                 };
                               } else {
                                 updatedOptions[name] = {

@@ -39,7 +39,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState<number | undefined>();
 
-  // Fetch activity data to get activity name
   const { data: activityData } = useRequest(
     () => {
       if (!id) return Promise.resolve(undefined);
@@ -51,7 +50,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
     },
   );
 
-  // Fetch currently attached form
   const {
     data: currentForm,
     loading: currentFormLoading,
@@ -72,7 +70,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
     },
   );
 
-  // Fetch unattached forms for selection
   const { data: unattachedFormsData, loading: unattachedLoading } = useRequest(
     () => getUnattachedForms({ per_page: "100" }),
     {
@@ -81,7 +78,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
     },
   );
 
-  // Attach form action
   const {
     loading: attachLoading,
     error: attachError,
@@ -100,7 +96,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
     },
   );
 
-  // Create and attach form action
   const {
     loading: createAndAttachLoading,
     error: createError,
@@ -206,7 +201,6 @@ const CustomFormSelection = ({ setup = false }: { setup?: boolean }) => {
               <Title level={4} style={{ margin: 0 }}>
                 Formulir Terlampir
               </Title>
-              {/* If we want to allow replacing the form, we can adding a change button later */}
             </div>
 
             <Card

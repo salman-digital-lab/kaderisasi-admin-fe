@@ -88,7 +88,6 @@ export function renderNotification(code: string) {
       return "Pilih berkas PDF untuk diunggah.";
     case "COURSE_STORAGE_UNAVAILABLE":
       return "Penyimpanan dokumen kelas belum tersedia. Hubungi pengelola sistem.";
-    // Authentication Messages
     case "LOGIN_SUCCESS":
       return "Anda berhasil masuk";
     case "REGISTER_SUCCESS":
@@ -104,7 +103,6 @@ export function renderNotification(code: string) {
     case "USER_INACTIVE":
       return "Akun admin tidak aktif";
 
-    // General Messages
     case "GENERAL_ERROR":
       return "Terjadi kesalahan sistem";
     case "GET_DATA_SUCCESS":
@@ -118,7 +116,6 @@ export function renderNotification(code: string) {
     case "INVALID_COUNSELOR":
       return "Pilih konselor aktif yang memiliki akses Ruang Curhat";
 
-    // Activity Messages
     case "ACTIVITY_NOT_FOUND":
       return "Kegiatan tidak ditemukan";
     case "ACTIVITY_DESCRIPTION_REQUIRED":
@@ -134,7 +131,6 @@ export function renderNotification(code: string) {
     case "DELETE_IMAGE_SUCCESS":
       return "Gambar berhasil dihapus";
 
-    // Club Messages
     case "CLUB_NOT_FOUND":
       return "Klub tidak ditemukan";
     case "UPLOAD_LOGO_SUCCESS":
@@ -160,7 +156,6 @@ export function renderNotification(code: string) {
     case "REGISTRATION_END_DATE_PASSED":
       return "Tanggal akhir pendaftaran sudah lewat. Pilih tanggal yang masih berlaku sebelum membuka pendaftaran";
 
-    // Club Registration Messages
     case "CLUB_REGISTRATIONS_RETRIEVED":
       return "Data pendaftaran klub berhasil diambil";
     case "CLUB_REGISTRATION_CREATED":
@@ -176,7 +171,6 @@ export function renderNotification(code: string) {
     case "MEMBER_ALREADY_REGISTERED":
       return "Anggota sudah terdaftar di klub ini";
 
-    // Activity Registration Messages
     case "ALREADY_REGISTERED":
       return "Anda sudah terdaftar untuk kegiatan ini";
     case "UNMATCHED_LEVEL":
@@ -190,37 +184,30 @@ export function renderNotification(code: string) {
     case "REGISTRATION_NOT_FOUND":
       return "Pendaftaran tidak ditemukan";
 
-    // Profile Messages
     case "PROFILE_NOT_FOUND":
       return "Profil tidak ditemukan";
     case "UPDATE_MEMBER_SUCCESS":
       return "Data anggota berhasil diperbarui";
 
-    // Leaderboard Messages
     case "ACHIEVEMENT_NOT_FOUND":
       return "Pencapaian tidak ditemukan";
     case "INVALID_STATUS":
       return "Status tidak valid";
 
-    // Admin User Messages
     case "NOT_FOUND":
       return "Data tidak ditemukan";
     case "RESET_PASSWORD_SUCCESS":
       return "Password berhasil direset";
 
-    // Province Messages
     case "PROVINCE_NOT_FOUND":
       return "Provinsi tidak ditemukan";
 
-    // City Messages
     case "CITY_NOT_FOUND":
       return "Kota tidak ditemukan";
 
-    // University Messages
     case "UNIVERSITY_NOT_FOUND":
       return "Universitas tidak ditemukan";
 
-    // Custom Form Messages
     case "CUSTOM_FORM_NOT_FOUND":
       return "Formulir tidak ditemukan";
     case "CUSTOM_FORM_CREATED_SUCCESS":

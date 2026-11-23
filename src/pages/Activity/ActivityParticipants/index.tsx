@@ -97,10 +97,8 @@ const ActivityParticipants = () => {
   const canIssue = canIssueCertificates(permissions);
   const canRevoke = canRevokeCertificates(permissions);
 
-  // Modal states
   const [addParticipantModal, { toggle: toggleAddParticipant }] = useToggle();
 
-  // Table state
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [columns, setColumns] = useState<ColumnConfig[]>([]);
   const [isExporting, setIsExporting] = useState(false);
@@ -116,7 +114,6 @@ const ActivityParticipants = () => {
     () => (searchParams.get("publish") === "certificates" ? "all" : null),
   );
 
-  // Pagination & sorting state
   const [pagination, setPagination] = useState({
     page: 1,
     per_page: 50,
@@ -127,7 +124,6 @@ const ActivityParticipants = () => {
   const [searchInput, setSearchInput] = useState("");
   const [statusInput, setStatusInput] = useState<string>();
 
-  // Fetch activity details
   const { data: activity, loading: activityLoading } = useRequest(
     () => getActivity(Number(id)),
     {
@@ -198,7 +194,6 @@ const ActivityParticipants = () => {
     setColumns(loadColumnPreferences(id, availableColumns) ?? availableColumns);
   }, [id, customFormLoading, coursesLoading, coursesError, availableColumns]);
 
-  // Fetch participants
   const {
     data: participantsData,
     loading: participantsLoading,
@@ -246,12 +241,10 @@ const ActivityParticipants = () => {
     return map;
   }, [issuedCertificates]);
 
-  // Handle column changes
   const handleColumnsChange = useCallback((newColumns: ColumnConfig[]) => {
     setColumns(newColumns);
   }, []);
 
-  // Handle search
   const handleSearch = useCallback(() => {
     setFilters((prev) => ({
       ...prev,
@@ -262,7 +255,6 @@ const ActivityParticipants = () => {
     setSelectedRowKeys([]);
   }, [searchInput, statusInput]);
 
-  // Handle status filter
   const handleStatusFilter = useCallback((value: string | undefined) => {
     setFilters((prev) => ({ ...prev, status: value }));
     setPagination((prev) => ({ ...prev, page: 1 }));
@@ -284,7 +276,6 @@ const ActivityParticipants = () => {
     setSelectedRowKeys([]);
   }, []);
 
-  // Handle refresh
   const handleRefresh = useCallback(() => {
     fetchParticipants();
     fetchCourses();
@@ -346,7 +337,6 @@ const ActivityParticipants = () => {
     }
   }, [canRevoke, fetchIssuedCertificates, revokeReason, revokeTarget]);
 
-  // Handle export
   const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
@@ -372,11 +362,9 @@ const ActivityParticipants = () => {
     }
   }, [id, activity?.name]);
 
-  // Generate table columns
   const tableColumns = useMemo(() => {
     const cols = generateTableColumns(columns, sortBy, sortOrder) || [];
 
-    // Check if activity has certificate template
     const hasCertificateTemplate =
       !!activity?.additional_config?.certificate_template_id;
 
@@ -514,13 +502,11 @@ const ActivityParticipants = () => {
     revokingCertificate,
   ]);
 
-  // Custom selection status from activity
   const customSelectionStatus = useMemo(
     () => activity?.additional_config?.custom_selection_status || [],
     [activity],
   );
 
-  // Status options
   const statusOptions = useMemo(
     () => [
       ...ACTIVITY_REGISTRANT_STATUS_OPTIONS,
@@ -532,7 +518,6 @@ const ActivityParticipants = () => {
     [customSelectionStatus],
   );
 
-  // Row selection config
   const rowSelection = {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
@@ -554,7 +539,6 @@ const ActivityParticipants = () => {
         title="Kelola Peserta"
         description={activity?.name}
       />
-      {/* Add Participant Modal */}
       <MembersListModal
         open={addParticipantModal}
         toggle={toggleAddParticipant}
@@ -616,7 +600,6 @@ const ActivityParticipants = () => {
         />
       )}
 
-      {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
           style={{
@@ -627,7 +610,6 @@ const ActivityParticipants = () => {
             gap: 12,
           }}
         >
-          {/* Left: Search & Filter */}
           <ResponsiveFilters
             onApply={handleSearch}
             activeCount={
@@ -674,7 +656,6 @@ const ActivityParticipants = () => {
             )}
           </ResponsiveFilters>
 
-          {/* Right: Actions */}
           <Space size={8} wrap>
             {selectedRowKeys.length > 0 && (
               <Tag color="blue" variant="filled" style={{ marginRight: 8 }}>
@@ -752,7 +733,6 @@ const ActivityParticipants = () => {
         </div>
       </Card>
 
-      {/* Participants Table */}
       <div style={{ marginTop: 12 }}>
         {(coursesError || participantsError) && (
           <Alert

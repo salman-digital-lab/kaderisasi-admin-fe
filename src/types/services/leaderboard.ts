@@ -25,7 +25,6 @@ export interface MonthlyLeaderboardType {
   };
 }
 
-// Request types
 export interface GetMonthlyLeaderboardReq {
   page?: string;
   per_page?: string;
@@ -35,7 +34,6 @@ export interface GetMonthlyLeaderboardReq {
   name?: string;
 }
 
-// Response types
 export interface GetMonthlyLeaderboardResp {
   message: string;
   data: {

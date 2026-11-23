@@ -6,7 +6,6 @@ import {
   DatabaseOutlined,
 } from "@ant-design/icons";
 
-// Basic user profile fields for "Pertanyaan Dasar"
 export const BASIC_PROFILE_FIELDS: FormField[] = [
   {
     key: "name",
@@ -145,7 +144,6 @@ export const BASIC_PROFILE_FIELDS: FormField[] = [
   },
 ];
 
-// Profile data categories
 export const PROFILE_DATA_CATEGORIES = [
   {
     key: "personal",

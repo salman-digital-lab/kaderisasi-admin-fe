@@ -8,8 +8,6 @@ import {
   resolveCertificateSampleText,
 } from "../utils/certificate-content";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
 export type ResizeHandle = "nw" | "ne" | "sw" | "se";
 
 interface DraggableElementProps {
@@ -29,8 +27,6 @@ interface DraggableElementProps {
   onEditComplete?: () => void;
   zoom?: number;
 }
-
-// ─── Constants ──────────────────────────────────────────────────────────────
 
 const HANDLE_SIZE = 14;
 
@@ -85,15 +81,11 @@ const placeholderStyle: React.CSSProperties = {
   color: "var(--app-color-text-secondary)",
 };
 
-// ─── Helper: placeholder labels ─────────────────────────────────────────────
-
 const PLACEHOLDER_LABELS: Record<string, string> = {
   image: "Gambar",
   "qr-code": "QR Code",
   signature: "Tanda Tangan",
 };
-
-// ─── Sub-components for element content ─────────────────────────────────────
 
 /** Static text element with inline editing support. */
 const StaticTextContent: React.FC<{
@@ -155,8 +147,6 @@ const ImageContent: React.FC<{
     <div style={{ ...placeholderStyle, borderRadius }}>{placeholderLabel}</div>
   );
 
-// ─── Main Component ─────────────────────────────────────────────────────────
-
 export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
   ({
     compactControls = false,
@@ -193,8 +183,6 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         }
       });
     }, [element.locked, element.type, startEditing]);
-
-    // ── Event handlers ──────────────────────────────────────────────────
 
     const handleDoubleClick = React.useCallback(() => {
       if (
@@ -270,8 +258,6 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
       [element.id, onNodeChange],
     );
 
-    // ── Memoized styles ─────────────────────────────────────────────────
-
     const textStyle: React.CSSProperties = React.useMemo(
       () => ({
         width: "100%",
@@ -317,8 +303,6 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
         element.verticalAlign,
       ],
     );
-
-    // ── Content renderer ────────────────────────────────────────────────
 
     const renderContent = () => {
       switch (element.type) {
@@ -373,8 +357,6 @@ export const DraggableElement: React.FC<DraggableElementProps> = React.memo(
           return null;
       }
     };
-
-    // ── Render ───────────────────────────────────────────────────────────
 
     return (
       <div

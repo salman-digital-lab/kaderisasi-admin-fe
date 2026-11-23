@@ -9,9 +9,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 
-// Profile data templates organized by categories
 export const PROFILE_DATA_TEMPLATES = [
-  // Personal Information
   {
     name: "Nama Lengkap",
     field: {
@@ -69,7 +67,6 @@ export const PROFILE_DATA_TEMPLATES = [
     description: "Tanggal lahir pengguna",
   },
 
-  // Contact Information
   {
     name: "WhatsApp",
     field: {
@@ -136,7 +133,6 @@ export const PROFILE_DATA_TEMPLATES = [
     description: "URL profil LinkedIn",
   },
 
-  // Location Information
   {
     name: "Provinsi Domisili",
     field: {
@@ -205,7 +201,6 @@ export const PROFILE_DATA_TEMPLATES = [
     description: "Kota asal daerah",
   },
 
-  // Education Information
   {
     name: "Riwayat Pendidikan",
     field: {

@@ -62,7 +62,6 @@ interface ImageItem {
   url: string;
 }
 
-// Sortable image item component
 const SortableImageItem = ({
   item,
   index,
@@ -140,7 +139,6 @@ const SortableImageItem = ({
                 objectFit: "cover",
               }}
             />
-            {/* Index indicator */}
             <div
               style={{
                 position: "absolute",
@@ -159,7 +157,6 @@ const SortableImageItem = ({
             >
               {index + 1}
             </div>
-            {/* Drag handle */}
             <button
               type="button"
               className="activity-image-drag-handle"
@@ -184,7 +181,6 @@ const SortableImageItem = ({
             >
               <HolderOutlined style={{ color: "#fff", fontSize: 12 }} />
             </button>
-            {/* Action buttons overlay */}
             <div
               style={{
                 position: "absolute",
@@ -342,14 +338,12 @@ const ImageList = ({
         const newFileList = arrayMove(fileList, oldIndex, newIndex);
         setFileList(newFileList);
 
-        // Save new order to backend
         try {
           await putReorderActivityImages(Number(id) || 0, {
             images: newFileList.map((item) => item.name),
           });
           message.success("Urutan gambar berhasil diubah");
         } catch {
-          // Revert on error
           setFileList(fileList);
           notification.error({
             title: "Gagal",
@@ -455,7 +449,6 @@ const ImageList = ({
                 />
               ))}
 
-              {/* Upload button */}
               {fileList.length < MAX_ACTIVITY_IMAGES && (
                 <Upload
                   showUploadList={false}
@@ -519,7 +512,6 @@ const ImageList = ({
           </SortableContext>
         </DndContext>
 
-        {/* Empty state */}
         {fileList.length === 0 && !loading && (
           <div
             style={{
@@ -534,7 +526,6 @@ const ImageList = ({
           </div>
         )}
 
-        {/* Image count indicator */}
         <div
           style={{
             marginTop: 12,
@@ -551,7 +542,6 @@ const ImageList = ({
           </Text>
         </div>
 
-        {/* Preview modal */}
         {previewImage && (
           <Image
             styles={{ root: { display: "none" } }}

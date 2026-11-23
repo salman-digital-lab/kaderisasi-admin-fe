@@ -28,7 +28,6 @@ const MainUniversity = () => {
   });
   const [state, { toggle }] = useToggle(false);
 
-  // Local state for search input
   const [searchInput, setSearchInput] = useState("");
 
   const { data, loading, error, refresh } = useRequest(
@@ -73,7 +72,6 @@ const MainUniversity = () => {
         title={NAV_LABELS.universities}
         description="Kelola daftar perguruan tinggi yang dipakai pada data anggota."
       />
-      {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
           style={{
@@ -84,7 +82,6 @@ const MainUniversity = () => {
             gap: 12,
           }}
         >
-          {/* Left: Filters */}
           <Space size={12} wrap>
             <Input
               placeholder="Cari universitas"
@@ -101,7 +98,6 @@ const MainUniversity = () => {
             />
           </Space>
 
-          {/* Right: Actions */}
           <Space size={8} wrap>
             <Button onClick={() => openModal()} icon={<PlusOutlined />}>
               Tambah universitas
@@ -118,7 +114,6 @@ const MainUniversity = () => {
         </div>
       </Card>
 
-      {/* Table Section */}
       <div style={{ ...cardStyle, marginTop: 12 }}>
         <UniversitiesTable
           data={data}

@@ -58,7 +58,6 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           gap: 12,
         }}
       >
-        {/* Left: Filters */}
         <ResponsiveFilters
           onApply={handleSearch}
           values={[nameInput, statusValue, genderValue, adminNameInput]}
@@ -129,7 +128,6 @@ const RuangCurhatFilter = ({ setParameter, refresh, loading }: FilterProps) => {
           )}
         </ResponsiveFilters>
 
-        {/* Right: Actions */}
         <Space size={8} wrap>
           {refresh && (
             <Tooltip placement="left" title="Muat ulang data">

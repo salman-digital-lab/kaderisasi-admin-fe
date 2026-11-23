@@ -33,7 +33,6 @@ export const CanvasSettingsModal: React.FC<CanvasSettingsModalProps> =
       if (visible) {
         setLocalWidth(width);
         setLocalHeight(height);
-        // Find matching preset
         const preset = PRESETS.find(
           (p) => p.width === width && p.height === height,
         );

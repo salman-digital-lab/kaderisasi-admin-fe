@@ -76,7 +76,6 @@ const SideMenu = ({
     };
   }, [currentPath, canReviewTickets]);
 
-  // Memoize menu items based on permissions - will re-calculate when permissions change
   const memoizedMenuItems = useMemo(
     () => menuItems(permissions, reviewCount),
     [permissions, reviewCount],
@@ -110,7 +109,6 @@ const SideMenu = ({
 
   const content = (
     <>
-      {/* Logo Section */}
       <div
         style={{
           height: 48,
@@ -167,7 +165,6 @@ const SideMenu = ({
         </div>
       </div>
 
-      {/* Menu Section */}
       <Menu
         theme="light"
         mode="inline"

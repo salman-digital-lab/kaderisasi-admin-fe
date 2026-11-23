@@ -22,10 +22,8 @@ const CustomFormList = () => {
     is_active: undefined,
   });
 
-  // Check if modal should auto-open
   const shouldAutoOpenModal = searchParams.get("create") === "true";
 
-  // Clear the query param after reading it
   useEffect(() => {
     if (shouldAutoOpenModal) {
       setSearchParams({});

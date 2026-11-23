@@ -45,7 +45,6 @@ const FilterPanel = ({
   const { compact } = useAdminViewport();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
-  // Fetch universities for dropdown
   const { data: universities } = useRequest(
     () => getUniversities({ page: "1", per_page: "500" }),
     {
@@ -53,19 +52,16 @@ const FilterPanel = ({
     },
   );
 
-  // Fetch provinces for dropdown
   const { data: provinces } = useRequest(() => getProvinces({}), {
     cacheKey: "provinces-list",
   });
 
-  // Generate intake year options (last 10 years)
   const currentYear = new Date().getFullYear();
   const intakeYearOptions = Array.from({ length: 10 }, (_, i) => ({
     label: String(currentYear - i),
     value: String(currentYear - i),
   }));
 
-  // Status options combined with custom statuses
   const statusOptions = [
     ...ACTIVITY_REGISTRANT_STATUS_OPTIONS,
     ...(customSelectionStatus?.map((val) => ({
@@ -75,7 +71,6 @@ const FilterPanel = ({
   ];
 
   const handleSubmit = (values: FilterValues) => {
-    // Track which filters are active
     const filters = Object.entries(values)
       .filter(([, v]) => v !== undefined && v !== "")
       .map(([k]) => k);
@@ -96,7 +91,6 @@ const FilterPanel = ({
     handleSubmit(form.getFieldsValue());
   };
 
-  // Label mapping for active filter display
   const filterLabels: Record<string, string> = {
     search: "Pencarian",
     status: "Status",

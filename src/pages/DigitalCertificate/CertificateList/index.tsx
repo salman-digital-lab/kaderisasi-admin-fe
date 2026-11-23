@@ -497,7 +497,6 @@ const CertificateList: React.FC = () => {
         }
       />
 
-      {/* Filter */}
       <Card
         variant="outlined"
         style={{ borderRadius: 0, marginBottom: 0 }}
@@ -576,7 +575,6 @@ const CertificateList: React.FC = () => {
         />
       )}
 
-      {/* Table */}
       <Table
         listId="pages/DigitalCertificate/CertificateList/index:1"
         rowKey="id"

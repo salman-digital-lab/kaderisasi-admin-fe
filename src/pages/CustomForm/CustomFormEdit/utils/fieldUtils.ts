@@ -1,22 +1,13 @@
 import type { FormField } from "../../../../types/model/customForm";
 
-/**
- * Check if a field type needs options (for select, radio, checkbox)
- */
 export const fieldTypeNeedsOptions = (fieldType: string): boolean => {
   return ["select", "radio", "checkbox"].includes(fieldType);
 };
 
-/**
- * Generate a unique key for a new field
- */
 export const generateFieldKey = (prefix: string = "custom"): string => {
   return `${prefix}_${Date.now()}`;
 };
 
-/**
- * Create a new custom field with default values
- */
 export const createNewField = (key?: string): FormField => {
   return {
     key: key || generateFieldKey(),
@@ -26,16 +17,10 @@ export const createNewField = (key?: string): FormField => {
   };
 };
 
-/**
- * Check if a field already exists in the list
- */
 export const fieldExists = (fields: FormField[], key: string): boolean => {
   return fields.some((field) => field.key === key);
 };
 
-/**
- * Move an item in an array from one position to another
- */
 export const moveArrayItem = <T>(
   array: T[],
   fromIndex: number,
@@ -57,16 +42,10 @@ export const moveArrayItem = <T>(
   return newArray;
 };
 
-/**
- * Find field type information by type value
- */
 export const findFieldType = (fieldTypes: any[], type: string) => {
   return fieldTypes.find((fieldType) => fieldType.value === type);
 };
 
-/**
- * Find field category information by type
- */
 export const findFieldCategory = (
   fieldCategories: any[],
   type: string,

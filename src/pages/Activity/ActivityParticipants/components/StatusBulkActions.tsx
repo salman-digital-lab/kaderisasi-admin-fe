@@ -50,7 +50,6 @@ const StatusBulkActions = ({
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [emailList, setEmailList] = useState<string>("");
 
-  // Status options
   const statusOptions = [
     ...ACTIVITY_REGISTRANT_STATUS_OPTIONS,
     ...(customSelectionStatus?.map((val) => ({
@@ -59,7 +58,6 @@ const StatusBulkActions = ({
     })) || []),
   ];
 
-  // Bulk update by selection
   const { loading: bulkLoading, run: runBulkUpdate } = useRequest(
     async () => {
       await putRegistrant({
@@ -83,7 +81,6 @@ const StatusBulkActions = ({
     },
   );
 
-  // Update by email list
   const { loading: emailLoading, run: runEmailUpdate } = useRequest(
     async () => {
       const emails = emailList
@@ -163,7 +160,6 @@ const StatusBulkActions = ({
         </Button>
       </Dropdown>
 
-      {/* Bulk Status Modal */}
       <Modal
         title={
           <>
@@ -200,7 +196,6 @@ const StatusBulkActions = ({
         </div>
       </Modal>
 
-      {/* Email Status Modal */}
       <Modal
         title={
           <>

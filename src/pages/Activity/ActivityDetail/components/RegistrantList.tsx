@@ -43,7 +43,6 @@ import CertificateTemplateCard from "./CertificateTemplateCard";
 import MembersListModal from "./Modal/MembersListModal";
 import { DATE_TIME_FORMAT } from "../../../../utils/date-format";
 
-// Status configuration for display
 const statusConfig: Record<
   string,
   { color: string; icon: ReactNode; label: string }
@@ -87,7 +86,6 @@ const RegistrantList = () => {
   const statusIsVisible = Form.useWatch("status_is_visible", form);
   const statusVisibleAt = Form.useWatch("status_visible_at", form);
 
-  // Fetch activity details
   const { data: activityData, loading: activityLoading } = useRequest(
     () => getActivity(Number(id)),
     {
@@ -104,7 +102,6 @@ const RegistrantList = () => {
     },
   );
 
-  // Save status visibility settings
   const { loading: saveLoading, runAsync: saveSettings } = useRequest(
     async (values: {
       status_is_visible: boolean;
@@ -136,7 +133,6 @@ const RegistrantList = () => {
     },
   );
 
-  // Fetch participant statistics
   const { data: stats, loading: statsLoading } = useRequest(
     () => getRegistrantStatistics(id),
     {
@@ -144,7 +140,6 @@ const RegistrantList = () => {
     },
   );
 
-  // Navigate to full participant management page
   const handleManageParticipants = useCallback(() => {
     navigate(`/activity/${id}/participants`);
   }, [navigate, id]);
@@ -170,7 +165,6 @@ const RegistrantList = () => {
     <div>
       <MembersListModal open={modalState} toggle={toggleModal} />
 
-      {/* Summary Banner */}
       <Card
         variant="outlined"
         style={{ borderRadius: 0, marginBottom: 24 }}
@@ -210,7 +204,6 @@ const RegistrantList = () => {
         </Row>
       </Card>
 
-      {/* Status Visibility Settings */}
       <Form
         scrollToFirstError={{ focus: true }}
         form={form}
@@ -294,7 +287,6 @@ const RegistrantList = () => {
         />
       )}
 
-      {/* Statistics by Status */}
       <div>
         <Typography.Title level={5} style={{ marginBottom: 16 }}>
           Ringkasan Status Peserta
@@ -364,7 +356,6 @@ const RegistrantList = () => {
             );
           })}
 
-          {/* Custom statuses */}
           {customStatuses.map((status) => {
             const count = byStatus[status] || 0;
 

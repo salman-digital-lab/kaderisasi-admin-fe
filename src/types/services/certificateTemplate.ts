@@ -82,7 +82,6 @@ export interface CertificateTemplateSnapshot {
   template_data: CertificateTemplateData;
 }
 
-// Request types
 export interface GetCertificateTemplatesReq {
   page?: string;
   per_page?: string;
@@ -110,7 +109,6 @@ export interface CertificateTemplateVersionConflict {
   updatedAt: string;
 }
 
-// Response types
 export interface GetCertificateTemplatesResp {
   message: string;
   data: {

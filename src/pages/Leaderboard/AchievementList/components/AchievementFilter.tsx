@@ -90,7 +90,6 @@ const AchievementFilter = ({
           gap: 12,
         }}
       >
-        {/* Left: Filters */}
         <ResponsiveFilters
           onApply={handleSearch}
           values={[nameInput, typeValue, statusValue]}
@@ -150,7 +149,6 @@ const AchievementFilter = ({
           )}
         </ResponsiveFilters>
 
-        {/* Right: Actions */}
         <Space size={8} wrap>
           <Button
             icon={<DownloadOutlined />}

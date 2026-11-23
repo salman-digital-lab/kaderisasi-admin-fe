@@ -66,12 +66,10 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
       ? `Bagian ${sectionNumber}`
       : sectionKey,
   );
-  // Find field type configuration by value
   const findFieldType = (fieldType: string) => {
     return fieldTypes.find((type) => type.value === fieldType);
   };
 
-  // Get category color by field type
   const getCategoryColor = (fieldType: string): string | undefined => {
     const type = findFieldType(fieldType);
     if (!type) return undefined;
@@ -184,7 +182,6 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     alignItems: "flex-start",
                   }}
                 >
-                  {/* Field Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Space>
                       <Avatar
@@ -211,7 +208,6 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
                     </Space>
                   </div>
 
-                  {/* Action Buttons */}
                   <Space size="small">
                     <Tooltip title="Pindah Ke Atas">
                       <Button
@@ -268,7 +264,6 @@ export const CustomFieldsSection: React.FC<CustomFieldsSectionProps> = ({
           })
         )}
 
-        {/* Add Question Button at the bottom of the section */}
         <Button
           type="dashed"
           block

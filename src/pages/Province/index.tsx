@@ -17,7 +17,6 @@ const MainProvince = () => {
   const [editItem, setEditItem] = useState<Omit<Province, "is_active">>();
   const [state, { toggle }] = useToggle(false);
 
-  // Local state for search input
   const [searchInput, setSearchInput] = useState("");
 
   const { data, loading, error, refresh } = useRequest(() => getProvinces({}), {
@@ -53,7 +52,6 @@ const MainProvince = () => {
         title={NAV_LABELS.provinces}
         description="Kelola daftar provinsi yang dipakai pada data anggota."
       />
-      {/* Filter Section */}
       <Card style={cardStyle} styles={{ body: { padding: 12 } }}>
         <div
           style={{
@@ -64,7 +62,6 @@ const MainProvince = () => {
             gap: 12,
           }}
         >
-          {/* Left: Filters */}
           <Space size={12} wrap>
             <Input
               placeholder="Cari provinsi"
@@ -81,7 +78,6 @@ const MainProvince = () => {
             />
           </Space>
 
-          {/* Right: Actions */}
           <Space size={8} wrap>
             <Tooltip placement="left" title="Muat ulang data">
               <Button
@@ -95,7 +91,6 @@ const MainProvince = () => {
         </div>
       </Card>
 
-      {/* Table Section */}
       <div style={{ ...cardStyle, marginTop: 12 }}>
         <ProvinceTable
           data={data}

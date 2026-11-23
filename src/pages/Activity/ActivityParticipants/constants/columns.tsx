@@ -17,7 +17,6 @@ import {
   MemberIdText,
 } from "../../../../components/render/MemberIdentity";
 
-// Memoized text cell component
 const TextCell = memo(
   ({ text, maxWidth = 120 }: { text: string; maxWidth?: number }) => (
     <Tooltip title={text} placement="topLeft">
@@ -38,7 +37,6 @@ const TextCell = memo(
 
 TextCell.displayName = "TextCell";
 
-// Memoized name link component
 const NameLink = memo(
   ({
     text,
@@ -106,7 +104,6 @@ const NameLink = memo(
 
 NameLink.displayName = "NameLink";
 
-// Memoized render components
 const MemoizedProvinceRender = memo(ProvinceRender);
 const MemoizedUniversityRender = memo(UniversityRender);
 
@@ -123,7 +120,6 @@ export interface ColumnConfig<T extends object = Registrant> {
   render?: (value: unknown, record: T) => React.ReactNode;
 }
 
-// All available columns for participant management
 export const ALL_COLUMNS: ColumnConfig[] = [
   {
     key: "name",
@@ -329,7 +325,6 @@ export const ALL_COLUMNS: ColumnConfig[] = [
   },
 ];
 
-// Convert column config to Ant Design table columns
 export const generateTableColumns = (
   columns: ColumnConfig[],
   sortBy?: string,
@@ -359,15 +354,12 @@ export const generateTableColumns = (
     }));
 };
 
-// Get default column order
 export const getDefaultColumns = (): ColumnConfig[] => {
   return ALL_COLUMNS.map((col) => ({ ...col }));
 };
 
-// Storage key for column preferences
 export const COLUMN_STORAGE_KEY = "participant_column_preferences";
 
-// Load column preferences from localStorage
 export const loadColumnPreferences = <T extends object>(
   storageId: string,
   availableColumns: ColumnConfig<T>[],
@@ -400,7 +392,6 @@ export const loadColumnPreferences = <T extends object>(
   return null;
 };
 
-// Save column preferences to localStorage
 export const saveColumnPreferences = <T extends object>(
   storageId: string,
   columns: ColumnConfig<T>[],

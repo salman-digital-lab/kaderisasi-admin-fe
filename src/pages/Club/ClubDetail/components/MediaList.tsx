@@ -175,7 +175,6 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
       mediaUrl = `${import.meta.env.VITE_PUBLIC_IMAGE_BASE_URL}/${item.media_url}`;
       displayUrl = item.media_url;
     } else if (isYoutubeVideo) {
-      // Extract video ID for thumbnail
       const videoId = item.media_url.match(/embed\/([^?]+)/)?.[1];
       displayUrl = videoId ? `YouTube Video: ${videoId}` : "YouTube Video";
     }

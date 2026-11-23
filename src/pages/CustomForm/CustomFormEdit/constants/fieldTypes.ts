@@ -8,7 +8,6 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 
-// Enhanced form field types for custom form section
 export const FIELD_TYPES = [
   {
     value: "file",
@@ -17,7 +16,6 @@ export const FIELD_TYPES = [
     category: "file",
     description: "PDF, gambar, atau keduanya",
   },
-  // Text Input Fields
   {
     value: "text",
     label: "Input Teks",
@@ -33,7 +31,6 @@ export const FIELD_TYPES = [
     description: "Input teks multi-baris",
   },
 
-  // Number Fields
   {
     value: "number",
     label: "Angka",
@@ -42,7 +39,6 @@ export const FIELD_TYPES = [
     description: "Input numerik",
   },
 
-  // Selection Fields
   {
     value: "select",
     label: "Pilih",
@@ -66,7 +62,6 @@ export const FIELD_TYPES = [
   },
 ] as const;
 
-// Field categories for better organization
 export const FIELD_CATEGORIES = [
   {
     key: "all",

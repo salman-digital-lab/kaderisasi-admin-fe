@@ -30,8 +30,6 @@ import { IMAGE_UPLOAD_ACCEPT } from "../../../utils/image-upload";
 
 type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
 interface ElementToolbarProps {
   onAddElement: (type: ElementType) => void;
   onBackgroundUpload: (file: File) => void;
@@ -57,8 +55,6 @@ interface ElementToolbarProps {
   onOpenProperties: () => void;
 }
 
-// ─── Styles ─────────────────────────────────────────────────────────────────
-
 const toolbarStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
@@ -71,8 +67,6 @@ const toolbarStyle: React.CSSProperties = {
   overflowX: "auto",
   scrollbarGutter: "stable",
 };
-
-// ─── Component ──────────────────────────────────────────────────────────────
 
 export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
   ({
@@ -157,7 +151,6 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         <Divider type="vertical" style={{ height: 24 }} />
 
-        {/* Canvas settings */}
         <Upload
           accept={IMAGE_UPLOAD_ACCEPT}
           showUploadList={false}
@@ -188,7 +181,6 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
 
         <Divider type="vertical" style={{ height: 24 }} />
 
-        {/* Text elements */}
         <Space.Compact>
           <Tooltip title="Tambah Teks Statis">
             <Button
@@ -210,7 +202,6 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           </Tooltip>
         </Space.Compact>
 
-        {/* Media elements */}
         <Space.Compact>
           <Tooltip title="Tambah QR verifikasi unik">
             <Button
@@ -250,7 +241,6 @@ export const ElementToolbar: React.FC<ElementToolbarProps> = React.memo(
           </Tooltip>
         </Upload>
 
-        {/* Selection actions */}
         {hasSelection && (
           <>
             <Divider type="vertical" style={{ height: 24 }} />
