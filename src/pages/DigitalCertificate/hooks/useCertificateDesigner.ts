@@ -163,9 +163,9 @@ export const useCertificateDesigner = () => {
     ) => {
       applyTemplateUpdate((prev) => {
         const elementIndex = prev.elements.findIndex((el) => el.id === id);
-        if (elementIndex < 0) return prev;
-
         const currentElement = prev.elements[elementIndex];
+        if (!currentElement) return prev;
+
         const updateKeys = Object.keys(updates) as (keyof CertificateElement)[];
         const hasChanges = updateKeys.some(
           (key) => !Object.is(currentElement[key], updates[key]),
@@ -268,15 +268,14 @@ export const useCertificateDesigner = () => {
     (id: string) => {
       const element = template.elements.find((el) => el.id === id);
       if (!element) return false;
-      dispatch({
-        type: "clipboard",
-        element: cloneCertificateTemplate({
-          backgroundUrl: null,
-          elements: [element],
-          canvasWidth: 0,
-          canvasHeight: 0,
-        }).elements[0],
-      });
+      const [copy] = cloneCertificateTemplate({
+        backgroundUrl: null,
+        elements: [element],
+        canvasWidth: 0,
+        canvasHeight: 0,
+      }).elements;
+      if (!copy) return false;
+      dispatch({ type: "clipboard", element: copy });
       return true;
     },
     [template.elements],
@@ -328,6 +327,7 @@ export const useCertificateDesigner = () => {
 
         const nextElements = [...prev.elements];
         const [element] = nextElements.splice(currentIndex, 1);
+        if (!element) return prev;
         let nextIndex = currentIndex;
 
         if (direction === "front") {

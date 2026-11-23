@@ -113,9 +113,8 @@ const MediaList = ({ club, onUpdated }: MediaListProps) => {
   );
 
   const handleImageUpload = (): void => {
-    if (fileList.length > 0 && fileList[0].originFileObj) {
-      uploadImage(fileList[0].originFileObj);
-    }
+    const file = fileList[0]?.originFileObj;
+    if (file) uploadImage(file);
   };
 
   const handleYoutubeAdd = (): void => {

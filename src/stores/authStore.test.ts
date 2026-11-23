@@ -39,13 +39,11 @@ describe("auth store", () => {
   });
 
   it("stores every role and replaces them after an access refresh", () => {
-    const roles = [
-      { code: "konselor", name: "Konselor" },
-      { code: "admin", name: "Admin" },
-    ];
+    const konselor = { code: "konselor", name: "Konselor" };
+    const roles = [konselor, { code: "admin", name: "Admin" }];
     useAuthStore.getState().setSession({
       ...session,
-      user: { ...session.user, role: roles[0], roles },
+      user: { ...session.user, role: konselor, roles },
       permissions: ["counseling.read", "activities.read"],
     });
     expect(useAuthStore.getState().roles).toEqual(roles);

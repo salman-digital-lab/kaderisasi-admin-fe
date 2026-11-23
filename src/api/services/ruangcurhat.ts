@@ -9,14 +9,13 @@ import {
   type PutRuangCurhatReq,
   type PutRuangCurhatResp,
 } from "../../types/services/ruangcurhat";
-import { removeEmptyValueFromObj } from "../../functions";
+import { removeEmptyValueFromObj, toSearchParams } from "../../functions";
 import { message } from "antd";
 import { renderNotification } from "../../constants/render";
 
 export const getRuangCurhats = async (props: GetRuangCurhatsReq) => {
   try {
-    const propsData = removeEmptyValueFromObj(props);
-    const urlSearch = new URLSearchParams(propsData).toString();
+    const urlSearch = toSearchParams(props).toString();
     const res = await axios.get<GetRuangCurhatsResp>(
       "/ruang-curhat?" + urlSearch,
     );

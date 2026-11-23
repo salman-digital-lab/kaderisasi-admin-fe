@@ -193,10 +193,11 @@ async function renderCertificatePage(
     [source, ...Array.from(source.querySelectorAll<HTMLElement>("*"))].forEach(
       (node) => {
         const background = getComputedStyle(node).backgroundImage;
-        for (const match of background.matchAll(/url\(["']?(.*?)["']?\)/g)) {
+        for (const [, url] of background.matchAll(/url\(["']?(.*?)["']?\)/g)) {
+          if (url === undefined) continue;
           const img = new Image();
           img.crossOrigin = "anonymous";
-          img.src = match[1];
+          img.src = url;
           backgrounds.push(img);
         }
       },

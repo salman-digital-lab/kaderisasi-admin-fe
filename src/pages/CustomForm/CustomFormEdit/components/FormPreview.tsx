@@ -446,7 +446,9 @@ export function FormPreview({
               <Button
                 disabled={!history.length}
                 onClick={() => {
-                  setCurrentId(history[history.length - 1]);
+                  const previous = history[history.length - 1];
+                  if (previous === undefined) return;
+                  setCurrentId(previous);
                   setHistory(history.slice(0, -1));
                   setErrors({});
                 }}

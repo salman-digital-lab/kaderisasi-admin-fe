@@ -228,10 +228,11 @@ export default function CourseChooser({
                       onClick={() =>
                         setSelected((rows) => {
                           const next = [...rows];
-                          [next[index - 1], next[index]] = [
-                            next[index],
-                            next[index - 1],
-                          ];
+                          const above = next[index - 1];
+                          const current = next[index];
+                          if (!above || !current) return rows;
+                          next[index - 1] = current;
+                          next[index] = above;
                           return next;
                         })
                       }
@@ -245,10 +246,11 @@ export default function CourseChooser({
                       onClick={() =>
                         setSelected((rows) => {
                           const next = [...rows];
-                          [next[index + 1], next[index]] = [
-                            next[index],
-                            next[index + 1],
-                          ];
+                          const below = next[index + 1];
+                          const current = next[index];
+                          if (!below || !current) return rows;
+                          next[index + 1] = current;
+                          next[index] = below;
                           return next;
                         })
                       }

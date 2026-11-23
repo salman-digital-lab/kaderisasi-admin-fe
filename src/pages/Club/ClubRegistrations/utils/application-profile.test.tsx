@@ -97,15 +97,15 @@ describe("club application profile", () => {
       "S1 - Kampus Uji, Teknik, Informatika (2024)",
       "pendaftar@example.test",
     ]);
-    expect(items[6].children).toBe("Aktivis");
+    expect(items[6]?.children).toBe("Aktivis");
   });
 
   it("always shows member ID, level and badges", () => {
     const items = buildApplicationProfileItems(registration, schema);
     const html = renderToStaticMarkup(
       <>
-        {items[0].children}
-        {items[7].children}
+        {items[0]?.children}
+        {items[7]?.children}
       </>,
     );
     expect(html).toContain("00012");
@@ -147,14 +147,14 @@ describe("club application profile", () => {
   });
 
   it("avoids duplicate fields and email", () => {
-    const fields = schema.fields[0].fields;
+    const fields = schema.fields[0]?.fields ?? [];
     const repeated: FormSchema = {
       fields: [
         {
           section_name: "profile_data",
           fields: [
             ...fields,
-            fields[0],
+            ...fields.slice(0, 1),
             {
               key: "email",
               label: "Email akun",

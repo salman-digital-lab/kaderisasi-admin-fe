@@ -62,10 +62,10 @@ describe("Club application answers", () => {
       ],
     };
     const sections = buildApplicationAnswerSections(
-      { commitment: [options[0].value, "0", "Pilihan lama"] },
+      { commitment: [options[0]?.value, "0", "Pilihan lama"] },
       schema,
     );
-    expect(sections[0].answers[0].displayValue).toBe(
+    expect(sections[0]?.answers[0]?.displayValue).toBe(
       "Bersedia, Belum pernah, Pilihan lama",
     );
     expect(formatApplicationAnswer(null, options)).toBe(
@@ -90,14 +90,14 @@ describe("Club application answers", () => {
       "Komitmen",
       "Jawaban Lainnya",
     ]);
-    expect(sections[0].answers).toEqual([
+    expect(sections[0]?.answers).toEqual([
       expect.objectContaining({
         label: "Alasan bergabung",
         displayValue: "Ingin berkontribusi",
       }),
     ]);
-    expect(sections[1].answers[0].displayValue).toBe("Sabtu, Minggu");
-    expect(sections[2].answers[0]).toEqual(
+    expect(sections[1]?.answers[0]?.displayValue).toBe("Sabtu, Minggu");
+    expect(sections[2]?.answers[0]).toEqual(
       expect.objectContaining({ label: "Legacy Interest", displayValue: "Ya" }),
     );
     expect(sections.flatMap((section) => section.answers)).not.toEqual(
@@ -108,8 +108,12 @@ describe("Club application answers", () => {
   it("keeps schema questions visible when an applicant did not answer", () => {
     const sections = buildApplicationAnswerSections({}, formSchema);
 
-    expect(sections[0].answers[0].displayValue).toBe(EMPTY_APPLICATION_ANSWER);
-    expect(sections[1].answers[0].displayValue).toBe(EMPTY_APPLICATION_ANSWER);
+    expect(sections[0]?.answers[0]?.displayValue).toBe(
+      EMPTY_APPLICATION_ANSWER,
+    );
+    expect(sections[1]?.answers[0]?.displayValue).toBe(
+      EMPTY_APPLICATION_ANSWER,
+    );
   });
 
   it.each([
@@ -130,7 +134,7 @@ describe("Club application answers", () => {
     });
 
     expect(humanizeApplicationKey("preferred_role")).toBe("Preferred Role");
-    expect(sections[0].answers).toEqual([
+    expect(sections[0]?.answers).toEqual([
       expect.objectContaining({
         label: "Preferred Role",
         displayValue: "<strong>Ketua</strong>",

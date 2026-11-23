@@ -1,4 +1,4 @@
-import { removeEmptyValueFromObj } from "../../functions";
+import { toSearchParams } from "../../functions";
 import {
   type GetMonthlyLeaderboardReq,
   type GetMonthlyLeaderboardResp,
@@ -10,8 +10,7 @@ export const getMonthlyLeaderboard = async (
   props: GetMonthlyLeaderboardReq,
 ) => {
   try {
-    const propsData = removeEmptyValueFromObj(props);
-    const urlSearch = new URLSearchParams(propsData).toString();
+    const urlSearch = toSearchParams(props).toString();
     const res = await axios.get<GetMonthlyLeaderboardResp>(
       "/leaderboards/monthly?" + urlSearch,
     );

@@ -58,13 +58,13 @@ export function parseCertificateActivityNumber(
 ): CertificateActivityNumberParts | null {
   const match = value?.match(ACTIVITY_NUMBER_PATTERN);
   if (!match) return null;
+  const [, sequence, month, year] = match;
+  if (sequence === undefined) return null;
   return {
-    sequence: match[1],
+    sequence,
     hijriMonth:
-      HIJRI_MONTH_NUMERALS.indexOf(
-        match[2] as (typeof HIJRI_MONTH_NUMERALS)[number],
-      ) + 1,
-    hijriYear: Number(match[3]),
+      HIJRI_MONTH_NUMERALS.findIndex((numeral) => numeral === month) + 1,
+    hijriYear: Number(year),
   };
 }
 

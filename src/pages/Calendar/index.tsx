@@ -76,8 +76,8 @@ export default function CalendarPage(): ReactElement {
   const canReadActivities = permissions.includes("activities.read");
   const publicBaseUrl = getCertificatePublicBaseUrl();
   const days = monthDays(month, view === "month");
-  const start = midnight(days[0]);
-  const end = midnight(addDays(days[days.length - 1], 1));
+  const start = midnight(days[0] ?? month);
+  const end = midnight(addDays(days[days.length - 1] ?? month, 1));
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);

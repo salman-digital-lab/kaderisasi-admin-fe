@@ -5,8 +5,9 @@ interface TouchPair {
   distance: number;
   midpoint: ViewportPoint;
 }
-function measure(points: ViewportPoint[]): TouchPair {
+function measure(points: Iterable<ViewportPoint>): TouchPair | null {
   const [a, b] = points;
+  if (!a || !b) return null;
   return {
     distance: Math.hypot(b.x - a.x, b.y - a.y),
     midpoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
@@ -21,8 +22,10 @@ export class TouchGestures {
   down(id: number, point: ViewportPoint, viewport: ViewportState): boolean {
     this.pointers.set(id, point);
     if (this.pointers.size >= 2) {
-      if (!this.start)
-        this.start = { ...measure([...this.pointers.values()]), viewport };
+      if (!this.start) {
+        const pair = measure(this.pointers.values());
+        if (pair) this.start = { ...pair, viewport };
+      }
       return true;
     }
     return false;
@@ -35,8 +38,9 @@ export class TouchGestures {
   ): ViewportState | null {
     if (!this.pointers.has(id)) return null;
     this.pointers.set(id, point);
-    if (!this.start || this.pointers.size < 2) return null;
-    const current = measure([...this.pointers.values()]);
+    if (!this.start) return null;
+    const current = measure(this.pointers.values());
+    if (!current) return null;
     const focal = {
       x: this.start.midpoint.x - origin.x,
       y: this.start.midpoint.y - origin.y,

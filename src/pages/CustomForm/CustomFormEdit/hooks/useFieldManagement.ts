@@ -10,6 +10,7 @@ import {
   fieldExists,
   generateFieldKey,
 } from "../utils";
+import type { FieldModalValues } from "../components/FieldModal";
 
 const IMMUTABLE_FIELDS = ["name", "gender"] as const;
 
@@ -26,7 +27,7 @@ const PROVINCE_CASCADES_TO_CITY: Record<string, string> = {
 };
 
 const isImmutableField = (fieldKey: string): boolean => {
-  return IMMUTABLE_FIELDS.includes(fieldKey as any);
+  return IMMUTABLE_FIELDS.some((field) => field === fieldKey);
 };
 
 export const useFieldManagement = (
@@ -34,7 +35,7 @@ export const useFieldManagement = (
   setCustomFieldSections: (sections: FormSection[]) => void,
   selectedBasicFields: string[],
   setSelectedBasicFields: (fields: string[]) => void,
-  _profileTemplates: readonly any[],
+  _profileTemplates: readonly unknown[],
   onRequiredFieldChange?: (fieldKey: string, required: boolean) => void,
   independent = false,
 ) => {
@@ -114,7 +115,7 @@ export const useFieldManagement = (
     setFieldModalVisible(true);
   };
 
-  const handleSaveCustomField = (values: any) => {
+  const handleSaveCustomField = (values: FieldModalValues) => {
     if (!editingSectionKey) return;
 
     const fieldData: FormField = {
@@ -239,7 +240,9 @@ export const useFieldManagement = (
     );
   };
 
-  const handleAddProfileDataFromTemplate = (template: any) => {
+  const handleAddProfileDataFromTemplate = (template: {
+    field: { key: string };
+  }) => {
     if (selectedBasicFields.includes(template.field.key)) {
       notification.info({
         title: "Isian sudah tersedia",
@@ -302,12 +305,9 @@ export const useFieldManagement = (
     const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
     if (newIndex < 0 || newIndex >= selectedBasicFields.length) return;
 
-    const newFields = [...selectedBasicFields];
-    [newFields[currentIndex], newFields[newIndex]] = [
-      newFields[newIndex],
-      newFields[currentIndex],
-    ];
-    setSelectedBasicFields(newFields);
+    setSelectedBasicFields(
+      moveArrayItem(selectedBasicFields, currentIndex, newIndex),
+    );
   };
 
   const handleToggleRequiredField = (fieldKey: string, required: boolean) => {

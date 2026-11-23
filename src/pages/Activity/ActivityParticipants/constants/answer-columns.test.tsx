@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { assert, describe, expect, it, vi } from "vitest";
 import type { FormSchema } from "../../../../types/model/customForm";
 import { answerColumns, EMPTY_ANSWER, formatAnswer } from "./answer-columns";
 import { loadColumnPreferences, saveColumnPreferences } from "./columns";
@@ -67,14 +67,14 @@ describe("participant answer columns", () => {
     );
     const record = { reason: "A long answer", proof: ["attachment-id"] };
     expect(
-      renderToStaticMarkup(<>{columns[0].render?.(undefined, record)}</>),
+      renderToStaticMarkup(<>{columns[0]?.render?.(undefined, record)}</>),
     ).toContain("A long answer");
     expect(
-      renderToStaticMarkup(<>{columns[1].render?.(undefined, record)}</>),
+      renderToStaticMarkup(<>{columns[1]?.render?.(undefined, record)}</>),
     ).toContain("Unduh berkas 1");
     expect(
       renderToStaticMarkup(
-        <>{columns[1].render?.(undefined, { ...record, proof: [] })}</>,
+        <>{columns[1]?.render?.(undefined, { ...record, proof: [] })}</>,
       ),
     ).toContain(EMPTY_ANSWER);
   });
@@ -93,15 +93,14 @@ describe("participant answer columns", () => {
         schema,
         (row: { reason: string; proof: string[] }) => row,
       );
+      const [reason, proof] = defaults;
+      assert(reason);
+      assert(proof);
       saveColumnPreferences("activity_12", [
-        { ...defaults[1], visible: false },
-        defaults[0],
+        { ...proof, visible: false },
+        reason,
       ]);
-      const changed = [
-        defaults[0],
-        defaults[1],
-        { ...defaults[0], key: "answer:12:new" },
-      ];
+      const changed = [reason, proof, { ...reason, key: "answer:12:new" }];
       expect(
         loadColumnPreferences("activity_12", changed)?.map((column) => [
           column.key,
@@ -114,7 +113,7 @@ describe("participant answer columns", () => {
       ]);
       expect(loadColumnPreferences("club_12", changed)).toBeNull();
       expect(
-        loadColumnPreferences("activity_12", [changed[0]])?.map(
+        loadColumnPreferences("activity_12", [reason])?.map(
           (column) => column.key,
         ),
       ).toEqual(["answer:12:reason"]);

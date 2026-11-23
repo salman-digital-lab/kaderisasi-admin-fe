@@ -6,7 +6,7 @@ import {
 
 export function getValidatedUploadFile(
   info: { file: UploadFile },
-  onError?: (errorMessage: string) => void,
+  onError?: (errorMessage: string) => unknown,
 ): File | null {
   const file = info.file.originFileObj || (info.file as unknown as File);
   if (!(file instanceof File)) {

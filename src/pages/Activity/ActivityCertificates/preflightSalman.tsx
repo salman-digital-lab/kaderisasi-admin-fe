@@ -57,8 +57,9 @@ export async function preflightSalmanRecipients(
       next < Math.min(from + PREFETCH_WINDOW, registrationIds.length);
       next += 1
     ) {
-      if (!pending.has(next)) {
-        const request = preview(registrationIds[next]);
+      const registrationId = registrationIds[next];
+      if (registrationId !== undefined && !pending.has(next)) {
+        const request = preview(registrationId);
         // Rejections are observed when the item is awaited.
         request.catch(() => undefined);
         pending.set(next, request);

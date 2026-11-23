@@ -39,7 +39,7 @@ describe("Club readiness", () => {
   it("treats a minimal draft as publishable but recommends profile content", () => {
     const readiness = getClubReadiness(createClub(), today);
 
-    expect(readiness.profileItems[0].complete).toBe(true);
+    expect(readiness.profileItems[0]?.complete).toBe(true);
     expect(readiness.missingRecommendedItems).toHaveLength(5);
     expect(readiness.registrationState).toBe("not_configured");
     expect(readiness.canOpenRegistration).toBe(false);

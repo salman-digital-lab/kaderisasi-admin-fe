@@ -22,6 +22,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import type { FormField } from "../../../../types/model/customForm";
+import type { FieldCategory, FieldTypeOption } from "../constants";
 
 const { Text } = Typography;
 
@@ -29,8 +30,8 @@ interface CustomFieldsSectionProps {
   sectionKey: string;
   sectionNumber: number;
   customFields: FormField[];
-  fieldTypes: readonly any[];
-  fieldCategories: readonly any[];
+  fieldTypes: readonly FieldTypeOption[];
+  fieldCategories: readonly FieldCategory[];
   isFirst: boolean;
   isLast: boolean;
   onAddField: () => void;

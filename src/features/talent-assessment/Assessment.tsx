@@ -361,21 +361,21 @@ function AssessmentRunner({
               className="talent-question-heading"
               id="talent-statement"
             >
-              {question.statement}
+              {question?.statement}
             </h2>
-            {question.description && (
+            {question?.description && (
               <Typography.Paragraph
                 id="talent-description"
                 className="talent-question-description"
               >
-                {question.description}
+                {question?.description}
               </Typography.Paragraph>
             )}
             <div
               role="radiogroup"
               aria-labelledby="talent-statement"
               aria-describedby={
-                question.description ? "talent-description" : undefined
+                question?.description ? "talent-description" : undefined
               }
             >
               <Radio.Group

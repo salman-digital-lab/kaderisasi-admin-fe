@@ -29,11 +29,11 @@ describe("CertificateAutosaveController", () => {
     expect(save).toHaveBeenCalledWith("two", 3);
 
     controller.schedule("three");
-    resolvers[0](4);
+    resolvers[0]?.(4);
     await Promise.resolve();
     expect(save).toHaveBeenCalledTimes(2);
     expect(save).toHaveBeenLastCalledWith("three", 4);
-    resolvers[1](5);
+    resolvers[1]?.(5);
     await Promise.resolve();
     expect(states[states.length - 1]?.status).toBe("saved");
     vi.useRealTimers();

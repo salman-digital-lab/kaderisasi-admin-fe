@@ -114,11 +114,10 @@ export const useFormData = () => {
               JSON.stringify([allFields, customSections, requiredOverrides]),
             );
           } else {
-            setProfileSection(
-              normalizeSchema({
-                fields: [{ section_name: "profile_data", fields: [] }],
-              }).fields[0],
-            );
+            const [emptyProfile] = normalizeSchema({
+              fields: [{ section_name: "profile_data", fields: [] }],
+            }).fields;
+            if (emptyProfile) setProfileSection(emptyProfile);
             const defaults =
               data.feature_type === "independent_form"
                 ? []

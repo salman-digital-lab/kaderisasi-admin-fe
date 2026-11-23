@@ -261,7 +261,7 @@ const router = createMemoryRouter(
                 bordered
                 column={2}
                 items={[
-                  { key: "name", label: "Nama", children: members[0].name },
+                  { key: "name", label: "Nama", children: members[0]?.name },
                   {
                     key: "status",
                     label: "Status",

@@ -43,7 +43,7 @@ export function FlowWorkspace({
           "Tujuan tidak tersedia")
       : "Kirim formulir";
   };
-  const reachable = new Set([sections[0].id]);
+  const reachable = new Set([sections[0]?.id]);
   sections.forEach((section, index) => {
     if (!reachable.has(section.id)) return;
     const question = section.fields.find(

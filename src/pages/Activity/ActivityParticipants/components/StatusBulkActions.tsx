@@ -62,7 +62,7 @@ const StatusBulkActions = ({
     async () => {
       await putRegistrant({
         registrations_id: selectedRowKeys.map(String),
-        status: selectedStatus as any,
+        status: selectedStatus,
       });
     },
     {

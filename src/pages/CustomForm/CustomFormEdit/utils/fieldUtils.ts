@@ -36,20 +36,25 @@ export const moveArrayItem = <T>(
   }
 
   const newArray = [...array];
-  const [movedItem] = newArray.splice(fromIndex, 1);
-  newArray.splice(toIndex, 0, movedItem);
+  newArray.splice(toIndex, 0, ...newArray.splice(fromIndex, 1));
 
   return newArray;
 };
 
-export const findFieldType = (fieldTypes: any[], type: string) => {
+export const findFieldType = <T extends { value: string }>(
+  fieldTypes: readonly T[],
+  type: string,
+) => {
   return fieldTypes.find((fieldType) => fieldType.value === type);
 };
 
-export const findFieldCategory = (
-  fieldCategories: any[],
+export const findFieldCategory = <
+  C extends { key: string },
+  T extends { value: string; category: string },
+>(
+  fieldCategories: readonly C[],
   type: string,
-  fieldTypes: any[],
+  fieldTypes: readonly T[],
 ) => {
   const fieldType = findFieldType(fieldTypes, type);
   return fieldCategories.find(

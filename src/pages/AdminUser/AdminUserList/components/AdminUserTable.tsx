@@ -55,7 +55,9 @@ const AdminUserTable = ({
           setEditedRow,
           setPasswordRow,
           isSuperAdmin,
-          (id) => navigate(`/admin-users/${id}/talent-assessment/result`),
+          (id) => {
+            navigate(`/admin-users/${id}/talent-assessment/result`);
+          },
         )}
         dataSource={data?.data}
         pagination={{

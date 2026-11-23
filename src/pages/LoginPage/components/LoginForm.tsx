@@ -83,27 +83,30 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (!googleClientId || !googleButton.current) return;
+    const handleCredential = async (credential: string): Promise<void> => {
+      setLoading(true);
+      try {
+        const response = await loginWithGoogle(credential);
+        finishLogin(response.data);
+        message.success("Berhasil masuk");
+      } catch (error) {
+        notification.error({
+          title: "Gagal masuk dengan Google",
+          description:
+            error instanceof Error
+              ? renderNotification(error.message)
+              : "Silakan coba lagi.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     const renderGoogleButton = () => {
       if (!window.google || !googleButton.current) return;
       window.google.accounts.id.initialize({
         client_id: googleClientId,
-        callback: async ({ credential }) => {
-          setLoading(true);
-          try {
-            const response = await loginWithGoogle(credential);
-            finishLogin(response.data);
-            message.success("Berhasil masuk");
-          } catch (error) {
-            notification.error({
-              title: "Gagal masuk dengan Google",
-              description:
-                error instanceof Error
-                  ? renderNotification(error.message)
-                  : "Silakan coba lagi.",
-            });
-          } finally {
-            setLoading(false);
-          }
+        callback: ({ credential }) => {
+          void handleCredential(credential);
         },
       });
       window.google.accounts.id.renderButton(googleButton.current, {

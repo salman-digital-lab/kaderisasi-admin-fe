@@ -1,7 +1,6 @@
 import {
   type ACTIVITY_TYPE_ENUM,
   type ACTIVITY_CATEGORY_ENUM,
-  type ACTIVITY_REGISTRANT_STATUS_ENUM,
 } from "../constants/activity";
 import { type Activity, type Registrant } from "../model/activity";
 import { type Pagination } from "./base";
@@ -44,7 +43,8 @@ export type getRegistrantResp = {
 
 export type putRegistrantReq = {
   registrations_id: string[];
-  status: ACTIVITY_REGISTRANT_STATUS_ENUM;
+  // A built-in status or one of the activity's custom selection statuses.
+  status: string;
 };
 
 export type postRegistrantsReq = {

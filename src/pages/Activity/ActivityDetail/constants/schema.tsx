@@ -1,6 +1,6 @@
 import { Switch, type TableProps, Tooltip } from "antd";
 import { Link } from "react-router-dom";
-import { type ColumnType } from "antd/es/table";
+import { type ColumnType, type ColumnsType } from "antd/es/table";
 import { memo } from "react";
 
 import { ProvinceRender } from "../../../../components/render/ProvinceRender";
@@ -96,7 +96,7 @@ const TextCell = memo(
 
 TextCell.displayName = "TextCell";
 
-const SCHEMA_MAP: Record<string, ColumnType<any>> = {
+const SCHEMA_MAP: Record<string, ColumnType<Registrant>> = {
   personal_id: {
     title: "Nomor Identitas",
     dataIndex: "personal_id",
@@ -176,7 +176,7 @@ const SCHEMA_MAP: Record<string, ColumnType<any>> = {
   },
 };
 
-let cachedSchema: any[] | null = null;
+let cachedSchema: ColumnsType<Registrant> | null = null;
 let lastMandatoryData: string[] | null = null;
 
 export const generateTableSchema = (mandatoryProfileData: string[]) => {
@@ -203,11 +203,10 @@ export const generateTableSchema = (mandatoryProfileData: string[]) => {
     ALLOWED_DATA.includes(val),
   );
 
-  const additionalProfileData = cleanList
-    .map((val) => {
-      return SCHEMA_MAP[val];
-    })
-    .filter(Boolean);
+  const additionalProfileData = cleanList.flatMap((val) => {
+    const column = SCHEMA_MAP[val];
+    return column ? [column] : [];
+  });
 
   const schema = [...REGISTRANT_TABLE_SCHEMA, ...additionalProfileData];
 
@@ -250,11 +249,13 @@ export const MANDATORY_DATA_TABLE_COLUMNS: (
         checked={val}
         onChange={() =>
           onChange((prev) => {
+            const current = prev[rec.key];
+            if (!current) return prev;
             const resArr = [...prev];
             resArr[rec.key] = {
-              ...resArr[rec.key],
-              is_shown: !resArr[rec.key].is_shown,
-              required: !resArr[rec.key].is_shown,
+              ...current,
+              is_shown: !current.is_shown,
+              required: !current.is_shown,
             };
             return resArr;
           })
@@ -270,11 +271,10 @@ export const MANDATORY_DATA_TABLE_COLUMNS: (
         checked={val}
         onChange={() =>
           onChange((prev) => {
+            const current = prev[rec.key];
+            if (!current) return prev;
             const resArr = [...prev];
-            resArr[rec.key] = {
-              ...resArr[rec.key],
-              required: !resArr[rec.key].required,
-            };
+            resArr[rec.key] = { ...current, required: !current.required };
             return resArr;
           })
         }

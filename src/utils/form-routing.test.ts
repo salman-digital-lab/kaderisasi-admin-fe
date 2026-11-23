@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import fixtures from "./form-routing.fixtures.json";
 import {
   formRoute,
@@ -45,25 +45,32 @@ describe("form routing contract", () => {
   it("rejects a removed or backward destination", () => {
     for (const sectionId of ["missing", "choice", "profile"]) {
       const invalid = structuredClone(schema);
-      invalid.fields[1].navigation!.routes![0].target = {
-        type: "section",
-        sectionId,
-      };
+      const route = invalid.fields[1]?.navigation?.routes?.[0];
+      assert(route);
+      route.target = { type: "section", sectionId };
       expect(validateFormRouting(invalid).length).toBeGreaterThan(0);
     }
   });
   it("keeps routes after labels change", () => {
     const renamed = structuredClone(schema);
-    renamed.fields[1].section_name = "Judul baru";
-    renamed.fields[1].fields[0].options![1].label = "Lewati detail";
+    const section = renamed.fields[1];
+    assert(section);
+    section.section_name = "Judul baru";
+    const option = section.fields[0]?.options?.[1];
+    assert(option);
+    option.label = "Lewati detail";
     expect(formRoute(renamed, { track: "skip" })).toEqual(["choice", "end"]);
   });
   it("rejects disabled routing questions and deleted options", () => {
     const disabled = structuredClone(schema);
-    disabled.fields[1].fields[0].disabled = true;
+    const question = disabled.fields[1]?.fields[0];
+    assert(question);
+    question.disabled = true;
     expect(validateFormRouting(disabled).length).toBeGreaterThan(0);
     const deleted = structuredClone(schema);
-    deleted.fields[1].fields[0].options!.splice(1, 1);
+    const options = deleted.fields[1]?.fields[0]?.options;
+    assert(options);
+    options.splice(1, 1);
     expect(validateFormRouting(deleted).length).toBeGreaterThan(0);
   });
 });

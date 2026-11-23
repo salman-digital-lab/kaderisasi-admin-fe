@@ -53,7 +53,7 @@ const CustomFormTable: React.FC<CustomFormTableProps> = ({
     if (column.key === "actions") {
       return {
         ...column,
-        render: (_: any, record: CustomForm) => (
+        render: (_: unknown, record: CustomForm) => (
           <div style={{ display: "flex", gap: "8px" }}>
             <Link to={`/custom-form/${record.id}/edit`}>
               <Button icon={<EditOutlined />} size="small">

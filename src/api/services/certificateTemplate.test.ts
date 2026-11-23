@@ -53,7 +53,7 @@ describe("issued certificate requests", () => {
       });
       const result = await getIssuedCertificates({
         activity_id: 193,
-        registration_ids: [...ids, ids[0]],
+        registration_ids: [...ids, ...ids.slice(0, 1)],
       });
       expect(adapter).toHaveBeenCalledTimes(Math.ceil(count / 100));
       expect(sentIds).toEqual(ids);
@@ -79,7 +79,7 @@ describe("issued certificate requests", () => {
     await expect(
       getIssuedCertificates({ activity_id: 193, page: 2, per_page: 50 }),
     ).resolves.toEqual([]);
-    expect(adapter.mock.calls[0][0]).toMatchObject({
+    expect(adapter.mock.calls[0]?.[0]).toMatchObject({
       method: "get",
       url: "/certificates",
       params: { activity_id: 193, page: 2, per_page: 50 },

@@ -15,15 +15,29 @@ import {
 import { FormOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { FormField } from "../../../../types/model/customForm";
 import { DIALOG_WIDTH } from "../../../../theme/tokens";
+import type { FieldTypeOption } from "../constants";
 
 const { Text } = Typography;
+
+export type FieldModalValues = Pick<FormField, "label" | "type"> &
+  Partial<
+    Pick<
+      FormField,
+      | "required"
+      | "placeholder"
+      | "helpText"
+      | "options"
+      | "validation"
+      | "disabled"
+    >
+  >;
 
 interface FieldModalProps {
   visible: boolean;
   editingField: FormField | null;
-  fieldTypes: readonly any[];
+  fieldTypes: readonly FieldTypeOption[];
   onCancel: () => void;
-  onSave: (values: any) => void;
+  onSave: (values: FieldModalValues) => void;
   onFieldTypeChange?: (value: string) => void;
 }
 

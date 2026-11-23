@@ -59,9 +59,10 @@ const MandatoryData = () => {
             onClick={async () => {
               const newData = toggleData.reduce<MandatoryProfileData[]>(
                 (acc, val, idx) => {
-                  if (val.is_shown) {
+                  const profile = PROFILE_DATA[idx];
+                  if (val.is_shown && profile) {
                     acc.push({
-                      name: PROFILE_DATA[idx].fieldname,
+                      name: profile.fieldname,
                       required: val.required,
                     });
                   }

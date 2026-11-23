@@ -1,4 +1,4 @@
-import { removeEmptyValueFromObj } from "../../functions";
+import { removeEmptyValueFromObj, toSearchParams } from "../../functions";
 import {
   type GetCustomFormsReq,
   type GetCustomFormsResp,
@@ -14,8 +14,7 @@ import { handleError } from "../errorHandling";
 
 export const getCustomForms = async (props: GetCustomFormsReq) => {
   try {
-    const searchParams = removeEmptyValueFromObj(props);
-    const urlSearch = new URLSearchParams(searchParams).toString();
+    const urlSearch = toSearchParams(props).toString();
     const res = await axios.get<GetCustomFormsResp>(
       "/custom-forms?" + urlSearch,
     );

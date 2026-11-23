@@ -2,7 +2,10 @@ import { Link } from "react-router-dom";
 import { type TableProps, Button, Space } from "antd";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 
-import { type CustomForm } from "../../../../types/model/customForm";
+import {
+  type CustomForm,
+  type FormSection,
+} from "../../../../types/model/customForm";
 
 export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
   {
@@ -56,7 +59,7 @@ export const TABLE_SCHEMA: TableProps<CustomForm>["columns"] = [
     render: (formSchema) => {
       if (!formSchema?.fields) return 0;
       return formSchema.fields.reduce(
-        (total: number, section: any) => total + section.fields.length,
+        (total: number, section: FormSection) => total + section.fields.length,
         0,
       );
     },

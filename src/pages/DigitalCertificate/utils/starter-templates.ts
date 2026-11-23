@@ -1,5 +1,12 @@
 import type { CertificateTemplateData } from "../../../types/services/certificateTemplate";
-export const CANVAS_PRESETS = [
+interface CanvasPreset {
+  label: string;
+  value: string;
+  width: number;
+  height: number;
+}
+
+export const CANVAS_PRESETS: [CanvasPreset, ...CanvasPreset[]] = [
   {
     label: "A4 Portrait Salman",
     value: "a4-portrait-salman",

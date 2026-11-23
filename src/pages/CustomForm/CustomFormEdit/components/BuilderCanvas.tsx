@@ -446,7 +446,9 @@ export function BuilderCanvas({
               {index === 0 ? "Data diri" : "Bagian sebelumnya"}
             </Button>
             {index < sections.length - 1 ? (
-              <Button onClick={() => selectSection(sections[index + 1].id!)}>
+              <Button
+                onClick={() => selectSection(sections[index + 1]?.id ?? null)}
+              >
                 Bagian berikutnya <ArrowRightOutlined aria-hidden />
               </Button>
             ) : (

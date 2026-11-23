@@ -54,6 +54,8 @@ import {
   type WorkEntry,
   type Member,
 } from "../../../types/model/members";
+import { type putProfileReq } from "../../../types/services/member";
+import { type GENDER } from "../../../types/constants/profile";
 import UniversityNameSelect from "../../../components/common/UniversityNameSelect";
 import {
   normalizeEducationHistory,
@@ -68,7 +70,7 @@ type FormType = {
   linkedin?: string;
   tiktok?: string;
   line?: string;
-  gender?: string;
+  gender?: GENDER;
   city_id?: number;
   province_id?: number;
   birth_date?: dayjs.Dayjs | string;
@@ -358,7 +360,7 @@ const MemberDetailPage = () => {
                 entry.end_year !== undefined,
             );
 
-            const payload: any = {
+            const payload: putProfileReq["data"] = {
               gender: value.gender,
               whatsapp: value.whatsapp,
               line: value.line,

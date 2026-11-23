@@ -22,14 +22,15 @@ export function youtubeVideoId(value: string): string | null {
     )
       return null;
     const parts = url.pathname.replace(/^\/+|\/+$/g, "").split("/");
+    const [first = "", second = ""] = parts;
     let id = "";
-    if (url.hostname === "youtu.be" && parts.length === 1) id = parts[0];
+    if (url.hostname === "youtu.be" && parts.length === 1) id = first;
     if (
       ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(url.hostname)
     ) {
       if (url.pathname === "/watch") id = url.searchParams.get("v") ?? "";
-      if (parts.length === 2 && ["embed", "shorts", "live"].includes(parts[0]))
-        id = parts[1];
+      if (parts.length === 2 && ["embed", "shorts", "live"].includes(first))
+        id = second;
     }
     return VIDEO_ID.test(id) ? id : null;
   } catch {
@@ -74,7 +75,11 @@ export function moveLessonIds(
   const next = index + direction;
   if (index < 0 || next < 0 || next >= lessons.length) return null;
   const ids = lessons.map((lesson) => lesson.id);
-  [ids[index], ids[next]] = [ids[next], ids[index]];
+  const current = ids[index];
+  const target = ids[next];
+  if (current === undefined || target === undefined) return null;
+  ids[index] = target;
+  ids[next] = current;
   return ids;
 }
 

@@ -30,7 +30,7 @@ export default function RoleCapabilitiesTable({
 }): ReactElement {
   const groups = new Map<string, string[]>();
   for (const permission of permissions) {
-    const module = permission.split(".")[0];
+    const [module = permission] = permission.split(".");
     groups.set(module, [...(groups.get(module) ?? []), permission]);
   }
   return (

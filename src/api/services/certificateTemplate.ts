@@ -1,5 +1,5 @@
 import { isAxiosError, isCancel } from "axios";
-import { removeEmptyValueFromObj } from "../../functions";
+import { toSearchParams } from "../../functions";
 import {
   type CertificatePayload,
   type CertificateTemplate,
@@ -94,8 +94,7 @@ export const getCertificateTemplates = async (
   signal?: AbortSignal,
 ) => {
   try {
-    const searchParams = removeEmptyValueFromObj(props);
-    const urlSearch = new URLSearchParams(searchParams).toString();
+    const urlSearch = toSearchParams(props).toString();
     const res = await axios.get<GetCertificateTemplatesResp>(
       "/certificate-templates?" + urlSearch,
       { signal },

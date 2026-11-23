@@ -71,8 +71,7 @@ export function reorderElementById(
   if (activeIndex < 0 || overIndex < 0 || activeIndex === overIndex)
     return template;
   const elements = [...template.elements];
-  const [active] = elements.splice(activeIndex, 1);
-  elements.splice(overIndex, 0, active);
+  elements.splice(overIndex, 0, ...elements.splice(activeIndex, 1));
   return { ...template, elements };
 }
 

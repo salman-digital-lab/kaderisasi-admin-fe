@@ -7,14 +7,20 @@ import type {
   FormField,
   FormSection,
 } from "../../../../types/model/customForm";
+import type {
+  FieldCategory,
+  FieldTypeOption,
+  PROFILE_DATA_CATEGORIES,
+  PROFILE_DATA_TEMPLATES,
+} from "../constants";
 
 export interface SchemaTabProps {
   selectedBasicFields: string[];
   customFieldSections: FormSection[];
-  profileDataCategories: readonly any[];
-  profileDataTemplates: readonly any[];
-  fieldTypes: readonly any[];
-  fieldCategories: readonly any[];
+  profileDataCategories: typeof PROFILE_DATA_CATEGORIES;
+  profileDataTemplates: typeof PROFILE_DATA_TEMPLATES;
+  fieldTypes: readonly FieldTypeOption[];
+  fieldCategories: readonly FieldCategory[];
   profileFieldRequiredOverrides?: Record<string, boolean>;
   onRemoveProfileField: (fieldKey: string) => void;
   onMoveProfileField: (fieldKey: string, direction: "up" | "down") => void;

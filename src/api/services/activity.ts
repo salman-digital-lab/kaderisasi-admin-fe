@@ -1,4 +1,4 @@
-import { removeEmptyValueFromObj } from "../../functions";
+import { removeEmptyValueFromObj, toSearchParams } from "../../functions";
 import {
   type getActivitiesResp,
   type getActivitiesReq,
@@ -23,8 +23,7 @@ import { handleError } from "../errorHandling";
 
 export const getActivities = async (props: getActivitiesReq) => {
   try {
-    const searchParams = removeEmptyValueFromObj(props);
-    const urlSearch = new URLSearchParams(searchParams).toString();
+    const urlSearch = toSearchParams(props).toString();
     const res = await axios.get<getActivitiesResp>("/activities?" + urlSearch);
     return res.data.data;
   } catch (error) {

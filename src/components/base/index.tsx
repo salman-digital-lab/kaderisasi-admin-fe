@@ -53,29 +53,31 @@ const AppLayout = () => {
   const navigate = useNavigate();
 
   const displayName = user?.display_name || "Admin";
-  const roleLabel =
-    roles.length === 0
-      ? "Belum memiliki peran"
-      : roles.length === 1
-        ? roles[0].name
-        : `${roles[0].name} +${roles.length - 1}`;
+  const [firstRole] = roles;
+  const roleLabel = !firstRole
+    ? "Belum memiliki peran"
+    : roles.length === 1
+      ? firstRole.name
+      : `${firstRole.name} +${roles.length - 1}`;
 
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname, location.search, drawerNavigation]);
 
-  const handleMenuClick: MenuProps["onClick"] = async (e) => {
-    if (e.key === "profile") navigate("/profile");
-    if (e.key === "logout") {
-      try {
-        await logout();
-        clearAuth();
-        message.success("Anda telah keluar");
-        navigate("/login");
-      } catch {
-        message.error("Gagal keluar. Coba lagi.");
-      }
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await logout();
+      clearAuth();
+      message.success("Anda telah keluar");
+      navigate("/login");
+    } catch {
+      message.error("Gagal keluar. Coba lagi.");
     }
+  };
+
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    if (e.key === "profile") navigate("/profile");
+    if (e.key === "logout") void handleLogout();
   };
 
   const handleCollapse = (collapsed: boolean) => {

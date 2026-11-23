@@ -84,7 +84,7 @@ describe("certificate batches", () => {
       shouldStop: () => false,
       onResult,
     });
-    expect(onResult.mock.calls[0][0]).toHaveLength(2);
+    expect(onResult.mock.calls[0]?.[0]).toHaveLength(2);
     expect(result).toEqual({
       remaining: plan(101).registration_ids.slice(2),
       contextChanged: true,
@@ -106,7 +106,7 @@ describe("certificate batches", () => {
     });
     expect(results).toHaveLength(101);
     expect(results[1]).toMatchObject({ name: "Peserta 2", state: "failed" });
-    expect(results[100].state).toBe("created");
+    expect(results[100]?.state).toBe("created");
   });
 });
 
@@ -130,7 +130,7 @@ it("latches an interruption during an active request even if the page returns be
   finish(batch(plan(100).registration_ids));
   const outcome = await work;
   expect(issue).toHaveBeenCalledTimes(1);
-  expect(completed.mock.calls[0][0]).toHaveLength(100);
+  expect(completed.mock.calls[0]?.[0]).toHaveLength(100);
   expect(outcome.remaining).toEqual(plan(1000).registration_ids.slice(100));
 });
 it("does not begin any request when the page is already hidden or unmounted", async () => {

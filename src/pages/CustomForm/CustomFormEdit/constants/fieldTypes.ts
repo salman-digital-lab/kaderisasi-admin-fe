@@ -88,3 +88,6 @@ export const FIELD_CATEGORIES = [
     color: "#fa8c16",
   },
 ] as const;
+
+export type FieldTypeOption = (typeof FIELD_TYPES)[number];
+export type FieldCategory = (typeof FIELD_CATEGORIES)[number];

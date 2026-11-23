@@ -1,4 +1,4 @@
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, assert, expect, it, vi } from "vitest";
 import {
   builderIssues,
   duplicateQuestion,
@@ -15,27 +15,31 @@ afterEach(() => vi.unstubAllGlobals());
 it("assigns stable IDs without changing the source document", () => {
   const original = { fields: [{ section_name: "Section", fields: [] }] };
   const normalized = normalizeSchema(original);
-  expect(normalized.fields[0].id).toBeTruthy();
+  expect(normalized.fields[0]?.id).toBeTruthy();
   expect(normalizeSchema(normalized)).toEqual(normalized);
   expect(original).toEqual({
     fields: [{ section_name: "Section", fields: [] }],
   });
 });
 it("duplicates sections without navigation or reused question keys", () => {
-  const copied = duplicateSection(schema.fields[1]);
+  const section = schema.fields[1];
+  assert(section);
+  const question = section.fields[0];
+  assert(question);
+  const copied = duplicateSection(section);
   expect(copied.navigation).toBeUndefined();
-  expect(copied.id).not.toBe(schema.fields[1].id);
-  expect(copied.fields[0].key).not.toBe(schema.fields[1].fields[0].key);
-  copied.fields[0].options![0].label = "Changed";
-  expect(schema.fields[1].fields[0].options![0].label).toBe("Detail");
-  expect(duplicateQuestion(schema.fields[1].fields[0]).key).not.toBe(
-    copied.fields[0].key,
-  );
+  expect(copied.id).not.toBe(section.id);
+  expect(copied.fields[0]?.key).not.toBe(question.key);
+  const copiedOption = copied.fields[0]?.options?.[0];
+  assert(copiedOption);
+  copiedOption.label = "Changed";
+  expect(question.options?.[0]?.label).toBe("Detail");
+  expect(duplicateQuestion(question).key).not.toBe(copied.fields[0]?.key);
 });
 it("moves questions between sections and reports broken routing", () => {
   const moved = moveQuestion(schema.fields, "track", "detail");
-  expect(moved[1].fields).toHaveLength(0);
-  expect(moved[2].fields.map((field) => field.key)).toEqual([
+  expect(moved[1]?.fields).toHaveLength(0);
+  expect(moved[2]?.fields.map((field) => field.key)).toEqual([
     "reason",
     "track",
   ]);
@@ -43,7 +47,9 @@ it("moves questions between sections and reports broken routing", () => {
 });
 it("rejects invalid regex and reversed validation bounds", () => {
   const invalid = structuredClone(schema);
-  invalid.fields[2].fields[0].validation = {
+  const field = invalid.fields[2]?.fields[0];
+  assert(field);
+  field.validation = {
     pattern: "[",
     minLength: 5,
     maxLength: 2,
@@ -105,7 +111,7 @@ it("distinguishes missing option text from missing choices and identifies invali
   };
   const issues = builderIssues(invalid);
   expect(issues).toHaveLength(3);
-  expect(issues[0].message).toContain("teks pada setiap pilihan");
+  expect(issues[0]?.message).toContain("teks pada setiap pilihan");
   expect(issues.slice(1).every((issue) => issue.fieldKey === "file")).toBe(
     true,
   );

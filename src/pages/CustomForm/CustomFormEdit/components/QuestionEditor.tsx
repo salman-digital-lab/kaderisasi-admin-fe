@@ -61,10 +61,9 @@ export function QuestionEditor({
         [key]: value === null || value === "" ? undefined : value,
       },
     });
-  const optionIds = options.map(
-    (option, index) =>
-      `${field.key}:option:${optionKeyAliases.current.get(optionValue(option)) ?? optionValue(option)}:${index}`,
-  );
+  const optionId = (option: (typeof options)[number], index: number): string =>
+    `${field.key}:option:${optionKeyAliases.current.get(optionValue(option)) ?? optionValue(option)}:${index}`;
+  const optionIds = options.map(optionId);
   const moveOption = (from: number, to: number): void => {
     if (to >= 0 && to < options.length)
       update({ options: arrayMove(options, from, to) });
@@ -206,8 +205,8 @@ export function QuestionEditor({
             >
               {options.map((option, index) => (
                 <SortableItem
-                  key={optionIds[index]}
-                  id={optionIds[index]}
+                  key={optionId(option, index)}
+                  id={optionId(option, index)}
                   kind="option"
                   label={`pilihan ${index + 1}`}
                 >

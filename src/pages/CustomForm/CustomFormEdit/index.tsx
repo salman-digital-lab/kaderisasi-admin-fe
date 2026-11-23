@@ -116,7 +116,7 @@ export default function CustomFormEdit(): ReactElement {
   useEffect(() => {
     if (!toolbarElement) return;
     const observer = new ResizeObserver(([entry]) => {
-      setToolbarHeight(entry.target.getBoundingClientRect().height);
+      if (entry) setToolbarHeight(entry.target.getBoundingClientRect().height);
     });
     observer.observe(toolbarElement);
     return () => observer.disconnect();
@@ -181,19 +181,17 @@ export default function CustomFormEdit(): ReactElement {
     setDraftStatus("");
   };
   const checkSchema = (): boolean => {
-    const issues = builderIssues(schema);
-    if (!issues.length) return true;
+    const [issue] = builderIssues(schema);
+    if (!issue) return true;
     setFailure(
-      issues[0].sectionId
+      issue.sectionId
         ? "Periksa daftar perbaikan pada bagian yang ditandai. Perubahan belum disimpan."
-        : issues[0].message,
+        : issue.message,
     );
-    setActiveSectionId(issues[0].sectionId);
+    setActiveSectionId(issue.sectionId);
     handleTabChange("schema");
     requestAnimationFrame(() =>
-      document
-        .getElementById(`builder-section-${issues[0].sectionId}`)
-        ?.focus(),
+      document.getElementById(`builder-section-${issue.sectionId}`)?.focus(),
     );
     return false;
   };

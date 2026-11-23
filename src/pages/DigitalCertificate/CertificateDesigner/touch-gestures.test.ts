@@ -37,23 +37,19 @@ describe("certificate touch transitions", () => {
       offset: { x: -520, y: -130 },
       mode: "custom",
     };
-    const sizes = [
-      { x: 390, y: 650 },
+    const first = { x: 390, y: 650 };
+    const resized = [
       { x: 844, y: 240 },
       { x: 720, y: 840 },
       { x: 390, y: 650 },
     ];
     let current = initial;
-    const centre = screenToCanvas(
-      { x: sizes[0].x / 2, y: sizes[0].y / 2 },
-      initial,
-    );
-    for (let i = 1; i < sizes.length; i++) {
-      current = preserveViewportCentre(current, sizes[i - 1], sizes[i]);
-      const actual = screenToCanvas(
-        { x: sizes[i].x / 2, y: sizes[i].y / 2 },
-        current,
-      );
+    let previous = first;
+    const centre = screenToCanvas({ x: first.x / 2, y: first.y / 2 }, initial);
+    for (const size of resized) {
+      current = preserveViewportCentre(current, previous, size);
+      previous = size;
+      const actual = screenToCanvas({ x: size.x / 2, y: size.y / 2 }, current);
       expect(actual.x).toBeCloseTo(centre.x);
       expect(actual.y).toBeCloseTo(centre.y);
       expect(current.zoom).toBe(initial.zoom);

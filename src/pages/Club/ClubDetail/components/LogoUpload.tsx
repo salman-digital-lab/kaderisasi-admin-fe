@@ -35,9 +35,8 @@ const LogoUpload = ({ club, onUpdated }: LogoUploadProps) => {
   );
 
   const handleUpload = () => {
-    if (fileList.length > 0 && fileList[0].originFileObj) {
-      upload(fileList[0].originFileObj);
-    }
+    const file = fileList[0]?.originFileObj;
+    if (file) upload(file);
   };
 
   const beforeUpload: UploadProps["beforeUpload"] = (file) => {

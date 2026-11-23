@@ -46,7 +46,6 @@ export default [
       },
     },
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "react/prop-types": "off",
       "react-refresh/only-export-components": "off",
@@ -73,6 +72,10 @@ export default [
             },
           ],
         },
+      ],
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        { checksVoidReturn: { attributes: false } },
       ],
       "@typescript-eslint/switch-exhaustiveness-check": "error",
     },

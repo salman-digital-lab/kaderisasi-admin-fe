@@ -82,8 +82,8 @@ describe("session retries", () => {
       .mockImplementationOnce(respond(200));
     await client.get("/tickets/review");
     expect(adapter).toHaveBeenCalledTimes(3);
-    expect(adapter.mock.calls[1][0].url).toBe("/auth/refresh");
-    expect(adapter.mock.calls[2][0].headers.Authorization).toBe(
+    expect(adapter.mock.calls[1]?.[0].url).toBe("/auth/refresh");
+    expect(adapter.mock.calls[2]?.[0].headers.Authorization).toBe(
       "Bearer refreshed-token",
     );
     expect(useAuthStore.getState().isAuthenticated).toBe(true);

@@ -1,5 +1,5 @@
 import { message } from "antd";
-import { removeEmptyValueFromObj } from "../../functions";
+import { removeEmptyValueFromObj, toSearchParams } from "../../functions";
 import {
   type GetAchievementReq,
   type GetAchievementResp,
@@ -16,8 +16,7 @@ import { renderNotification } from "../../constants/render";
 
 export const getAchievements = async (props: GetAchievementsReq) => {
   try {
-    const propsData = removeEmptyValueFromObj(props);
-    const urlSearch = new URLSearchParams(propsData).toString();
+    const urlSearch = toSearchParams(props).toString();
     const res = await axios.get<GetAchievementsResp>(
       "/achievements?" + urlSearch,
     );

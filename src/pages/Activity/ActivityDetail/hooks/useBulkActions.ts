@@ -121,8 +121,8 @@ export const useBulkActions = ({
       onChange: setSelectedRowKeys,
       onSelectAll: (
         selected: boolean,
-        _selectedRows: any[],
-        changeRows: any[],
+        _selectedRows: { id: React.Key }[],
+        changeRows: { id: React.Key }[],
       ) => {
         if (selected) {
           const newKeys = changeRows.map((row) => row.id);
@@ -134,7 +134,7 @@ export const useBulkActions = ({
           );
         }
       },
-      getCheckboxProps: (record: any) => ({
+      getCheckboxProps: (record: { status?: string }) => ({
         disabled: record.status === "LULUS KEGIATAN" || isProcessing,
       }),
       preserveSelectedRowKeys: true,

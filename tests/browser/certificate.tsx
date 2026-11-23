@@ -250,7 +250,11 @@ axios.defaults.adapter = async (config) => {
       results: body.registration_ids.map((id: number) => {
         const state = issued.has(id) ? "already_issued" : "created";
         issued.add(id);
-        return { registration_id: id, name: registrations[id - 1].name, state };
+        return {
+          registration_id: id,
+          name: registrations[id - 1]?.name,
+          state,
+        };
       }),
     };
     report();
